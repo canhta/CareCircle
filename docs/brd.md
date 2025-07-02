@@ -22,7 +22,7 @@ The primary goal of CareCircle is to empower users to take control of their heal
 *   Reduce the burden on family caregivers by providing tools for remote monitoring and automated alerts.
 
 **Project Objectives:**
-1.  **Unified Health Data**: Sync and normalize data from Apple Health (iOS) and Google Fit (Android) to provide a single, comprehensive view of a user's health.
+1.  **Actionable Health Data**: Sync and normalize data from Apple Health (iOS) and Google Fit (Android), transforming it into a source of actionable insights and alerts for the entire family.
 2.  **AI-powered Medication Management**: Automate the intake and scheduling of medications by scanning paper prescriptions using OCR and NLP.
 3.  **Personalized Engagement**: Deliver intelligent reminders, daily check-ins, and AI-driven health summaries to keep users engaged and informed.
 4.  **Family Health Network**: Enable users to create "care groups" to share real-time health status, alerts, and coordinate care for loved ones.
@@ -55,8 +55,8 @@ The initial release (MVP) of the CareCircle platform will include the following 
     *   Creation and management of Care Groups for family members.
     *   Dashboard for viewing personal and connected family members' health data.
     *   Alerts system for missed doses or abnormal vitals, with escalation to caregivers.
-    *   **Lightweight Tele-Assisted Care**: In-app audio/video call integration for caregivers to quickly check in.
-    *   **Caregiver Communication**: One-tap shortcuts to call or message a patient using the device's native phone and messaging applications.
+    *   **Seamless Caregiver Communication**: One-tap shortcuts to call or message a patient using their preferred external applications (e.g., Zalo, native Phone/SMS).
+    *   **E-Pharmacy Integration**: A feature to request medication refills through integrated e-pharmacy partners.
     *   **Emergency Escalation**: One-tap SOS button that alerts emergency contacts by leveraging native SMS or call functions.
     *   **Wearable Notifications**: Push critical alerts to low-energy Bluetooth wearables (e.g., Mi Bands).
     *   **Data Export**: Generate a health summary and use the native OS "Share" functionality to export it as a PDF or share it via other apps.
@@ -97,10 +97,7 @@ The following features are considered out of scope for the initial release but m
 *   **Needs**: Peace of mind knowing their loved ones are adhering to their medication schedule; real-time alerts for missed doses or health issues; a consolidated view of their family's health status without being intrusive.
 *   **App Usage**: Will be a power user of the Care Group features, monitoring dashboards, and alert settings.
 
-### 3.3. Persona 3: The General Wellness User
-*   **Description**: Younger adults (20-40 years old) focused on fitness and maintaining a healthy lifestyle.
-*   **Needs**: A unified dashboard for all their health and fitness data from various apps and devices; AI-powered insights and trends to optimize their routine.
-*   **App Usage**: Will focus on the health data aggregation, activity tracking, and AI coaching features.
+
 
 ### 3.4. Persona 4: The Parent of a Child with Health Needs
 *   **Description**: Parents (30-50 years old) managing the health of a child with a chronic condition (e.g., asthma, Type 1 diabetes, severe allergies). They are diligent, highly motivated, and need to coordinate care with schools, other caregivers, and healthcare providers.
@@ -186,14 +183,7 @@ The following features are considered out of scope for the initial release but m
 *   **FR-9.1**: Admins must be able to log in securely to the web portal.
 *   **FR-9.2**: The portal must display a real-time dashboard of system health, user statistics, and engagement metrics.
 *   **FR-9.3**: Admins must have the ability to look up users and provide support.
-*   **FR-9.4**: **Lead Management**:
-    *   Admins must be able to view and manage a list of all potential users (leads).
-    *   Each lead record will display its source (e.g., "Web Form," "Referral") and status (e.g., "New," "Contacted," "Qualified," "Converted").
-*   **FR-9.5**: **Lead Conversion**:
-    *   Admins must have a tool to convert a qualified lead into an active user account.
-    *   Before conversion, the system must allow the admin to check for potential duplicate user accounts to avoid creating multiple profiles for the same person.
-    *   During conversion, relevant information from the lead record will be transferred to the new user profile.
-*   **FR-9.6**: **Conversion Analytics**: The portal must provide reports and dashboards to track the lead funnel, including lead sources and conversion rates over time.
+
 
 ### FR-10: User Settings & Personalization
 *   **FR-10.1**: **Adaptive User Profiles & Goals**:
@@ -233,6 +223,7 @@ The following features are considered out of scope for the initial release but m
         *   PDF and CSV data export.
 *   **FR-11.2**: **Subscription Management**:
     *   Users must be able to upgrade to the Premium Tier at any time from within the app using standard in-app purchases (IAP) via the Apple App Store and Google Play Store.
+    *   The system must also support payments through major Vietnamese e-wallets, specifically **MoMo** and **ZaloPay**, including QR code payment options.
     *   The app must clearly display the user's current subscription status (Free/Premium) and the benefits of upgrading.
     *   Users must be able to easily access their respective platform's subscription management page (Apple/Google) from within the app to view, change, or cancel their subscription.
 *   **FR-11.3**: **Referral Program**:
@@ -262,9 +253,14 @@ The following features are considered out of scope for the initial release but m
     *   Reduced on-screen clutter by hiding non-essential features.
 *   **FR-13.3**: **Voice Prompts & Readouts**: Key information and notifications within Elder Mode will be accompanied by clear voice prompts (in the user's selected language) to assist users with visual impairments or reading difficulties. For example, medication reminders would be read aloud.
 
-### FR-14: User Feedback
-*   **FR-14.1**: The app must include a non-intrusive mechanism for users to voluntarily submit feedback, bug reports, or feature suggestions.
-*   **FR-14.2**: Users should be able to provide a rating for the app, with an optional prompt to leave a review in the respective app store.
+### FR-15: E-Pharmacy Integration
+*   **FR-17.1**: The app must integrate with partner e-pharmacy platforms.
+*   **FR-17.2**: Users must be able to request medication refills directly from the app.
+*   **FR-17.3**: The refill request should pre-populate the order on the partner pharmacy's app or website.
+
+### FR-18: User Feedback
+*   **FR-18.1**: The app must include a non-intrusive mechanism for users to voluntarily submit feedback, bug reports, or feature suggestions.
+*   **FR-18.2**: Users should be able to provide a rating for the app, with an optional prompt to leave a review in the respective app store.
 
 ---
 

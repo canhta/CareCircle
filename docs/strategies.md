@@ -134,10 +134,10 @@ This scenario covers the entire lifecycle of a medication reminder, from the ini
 
 **Notification Scenarios:**
 
-1.  **Tele-Assisted Care Prompt**
+1.  **Caregiver Check-in Prompt**
     *   **Trigger**: Two medication reminders have been missed by the patient.
-    *   **Content**: "It looks like you're having trouble. Would you like us to call your caregiver for you?"
-    *   **Interactive Options**: `[Yes, call them]` `[No, I'm okay]`
+    *   **Content**: "It looks like you're having trouble. Would you like to call your caregiver for you?"
+    *   **Interactive Options**: `[Yes, call them via Zalo]` `[No, I'm okay]`
 
 2.  **Monthly Export Nudge**
     *   **Trigger**: First day of the month.
@@ -202,3 +202,104 @@ This scenario covers the entire lifecycle of a medication reminder, from the ini
     *   **Recipient**: All users located in the affected city.
     *   **Content**: "Public Health Alert for your area: Air quality is currently poor. Those with respiratory conditions should take extra care. Tap to see tips."
     *   **Function**: Transforms the app into a proactive community health partner (FR-7.3).
+
+---
+
+### Use-Case: E-Pharmacy & Refills
+
+*   **Actors**: `Patient`, `Caregiver`
+*   **Usecase**: The system proactively reminds the user to refill a prescription that is running low.
+
+**Notification Flow:**
+
+1.  **Low Medication Alert**
+    *   **Trigger**: The system calculates that a user has less than 3 days of a specific medication remaining.
+    *   **Content**: "Heads up! You have about 3 days of Metformin left. Tap here to request a refill from one of our partners."
+    *   **Interactive Options**: `[Request Refill]` `[Remind Me Tomorrow]`
+    *   **Action**: Tapping `[Request Refill]` opens the E-Pharmacy selection flow (Mockup E.1).
+
+---
+
+### Use-Case: New Prescription Added
+
+*   **Actors**: `Patient`, `Caregiver`
+*   **Usecase**: Confirming a newly added prescription and offering to set up reminders.
+
+**Notification Flow:**
+
+1.  **Prescription Confirmation**
+    *   **Trigger**: A new medication is successfully added via OCR scan or manual entry.
+    *   **Content**: "Great! We've added [Medication Name] to your list. Would you like to set up reminders now?"
+    *   **Interactive Options**: `[Set Reminders]` `[Later]`
+    *   **Action**: Tapping `[Set Reminders]` navigates to the medication scheduling screen.
+
+---
+
+### Use-Case: Abnormal Vital Reading
+
+*   **Actors**: `Patient`, `Caregiver`
+*   **Usecase**: Alerting users and caregivers about vital readings outside the normal range.
+
+**Notification Flow:**
+
+1.  **Abnormal Reading Alert (Patient)**
+    *   **Trigger**: A synced or manually entered vital reading (e.g., blood pressure, blood glucose) is outside the user's personalized normal range.
+    *   **Content**: "⚠️ Your blood pressure reading (145/95 mmHg) is higher than usual. Consider re-measuring or consulting your doctor."
+    *   **Interactive Options**: `[Log New Reading]` `[View Trends]`
+
+2.  **Abnormal Reading Alert (Caregiver)**
+    *   **Trigger**: If the patient's reading remains abnormal after a set period, or if it's critically high/low.
+    *   **Content**: "🚨 **Urgent**: [Patient Name]'s blood pressure is critically high (160/100 mmHg). Please check in immediately."
+    *   **Interactive Options**: `[Call Patient]` `[View Details]`
+
+---
+
+### Use-Case: Care Group Invitation Accepted
+
+*   **Actors**: `Care Group Administrator`
+*   **Usecase**: Notifying the administrator when a new member accepts their invitation and is approved.
+
+**Notification Flow:**
+
+1.  **New Member Joined**
+    *   **Trigger**: A user accepts a Care Group invitation and is approved by an administrator.
+    *   **Content**: "🎉 [New Member Name] has joined your Care Group! You can now see their shared health data."
+    *   **Action**: Links to the Care Group details screen.
+
+---
+
+### Use-Case: Health Goal Achievement/Progress
+
+*   **Actors**: `Any User`
+*   **Usecase**: Encouraging users by celebrating their progress towards health goals.
+
+**Notification Flow:**
+
+1.  **Goal Progress Update**
+    *   **Trigger**: User reaches a significant milestone towards a defined health goal (e.g., 50% complete, 75% complete).
+    *   **Content**: "You're halfway to your 5,000 steps goal today! Keep up the great work! 💪"
+    *   **Action**: Links to the goal tracking dashboard.
+
+2.  **Goal Achieved**
+    *   **Trigger**: User successfully achieves a health goal.
+    *   **Content**: "Congratulations! You've crushed your goal of walking 5,000 steps every day this week! What's next?"
+    *   **Interactive Options**: `[Set New Goal]` `[Share Achievement]`
+
+---
+
+### Use-Case: System Maintenance/Update Notification
+
+*   **Actors**: `Any User`
+*   **Usecase**: Informing users about planned system maintenance, new features, or important app updates.
+
+**Notification Flow:**
+
+1.  **Planned Maintenance Alert**
+    *   **Trigger**: Scheduled system maintenance.
+    *   **Content**: "Heads up! CareCircle will be undergoing planned maintenance on [Date] from [Time] to [Time]. Services may be temporarily unavailable."
+    *   **Action**: Links to a status page or in-app announcement.
+
+2.  **New Feature Announcement**
+    *   **Trigger**: Release of a significant new feature.
+    *   **Content**: "Exciting news! We've just launched [New Feature Name]! Now you can [brief benefit]. Tap to learn more!"
+    *   **Action**: Links to an in-app tutorial or feature highlight.

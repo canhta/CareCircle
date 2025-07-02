@@ -10,9 +10,9 @@ The AI Health Agent is a cross-platform mobile application (iOS & Android) that 
 
 ## 2. Objectives
 
-1.  **Unified Health Data**
+1.  **Actionable Health Data**
     - Sync and normalize data from Apple Health (iOS) and Google Fit (Android)
-    - Provide a single pane of glass for users’ physical and mental health metrics
+    - Transform raw data into actionable insights and alerts for the family
 2.  **AI-powered Medication Management**
     - Scan paper prescriptions (“đơn thuốc”) via camera/OCR
     - Auto-extract drug names, dosages & schedules
@@ -24,7 +24,7 @@ The AI Health Agent is a cross-platform mobile application (iOS & Android) that 
 4.  **Family Health Network**
     - Allow users to form “care groups” (e.g. parent ↔ child)
     - Share real-time status updates and alerts within family/network
-    - Enable one-tap calls or messages to remind loved ones
+    - Enable one-tap calls or messages to remind loved ones via their preferred external applications (e.g., Zalo, native Phone/SMS).
 5.  **Activity & Exercise Tracking**
     - Monitor daily exercise, steps, heart rate, sleep quality
     - Provide AI-powered summaries, trends, and coaching tips
@@ -45,7 +45,7 @@ The AI Health Agent is a cross-platform mobile application (iOS & Android) that 
 -   **Easy Export & Sharing**: Health summaries, including vitals and medication schedules, can be exported to PDF and shared with clinicians via email or a secure link.
 -   **Engaging Notifications**: Notifications will be designed to be motivating and actionable, with options to confirm medication intake, snooze a reminder, or quickly contact a family member.
 -   **Personalized User Profiles**: Users will have control over their personal information, notification settings, and data sharing preferences.
--   **Administrative Web Portal**: A web portal for super admins to track lead capture, monitor system health, and perform analysis.
+
 
 ⸻
 

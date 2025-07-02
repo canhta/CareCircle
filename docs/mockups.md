@@ -167,6 +167,7 @@ This document provides a detailed description of the screens for the CareCircle 
     *   Member List: Shows all members in the group.
     *   Shared Data View: A dashboard showing the health data the patient has chosen to share.
     *   "Invite Member" button.
+    *   One-tap shortcuts to call or message the patient using their preferred external applications (e.g., Zalo, native Phone/SMS).
 *   **Function**: View shared data, manage members, and control data sharing permissions. The AI alert prompts caregivers to check in when potential issues arise.
 *   **Screen Flow**:
     *   "Invite Member" -> Generates a shareable link (FR-6.2).
@@ -268,26 +269,7 @@ This document provides a detailed description of the screens for the CareCircle 
 *   **Function**: Provides a detailed view of a user and tools for customer support (FR-9.3).
 *   **Screen Flow**: Accessed from User Management.
 
-**Screen A.5: Lead Management**
-*   **Actor**: System Administrator
-*   **Display Elements**:
-    *   Header: "Lead Management"
-    *   Table of leads with columns: Lead ID, Name, Email, Source, Status (New, Contacted, Qualified), Date Added (FR-9.4).
-    *   Filters to sort by source or status.
-*   **Function**: Manage the pipeline of potential B2B or other leads.
-*   **Screen Flow**:
-    *   Clicking on a lead -> Navigates to a detail view with an option to convert.
-    *   "Convert to User" button -> Navigates to Lead Conversion screen (A.6).
 
-**Screen A.6: Lead Conversion**
-*   **Actor**: System Administrator
-*   **Display Elements**:
-    *   Header: "Convert Lead to User"
-    *   Form pre-populated with lead information.
-    *   **Duplicate Check (FR-9.5)**: A section that automatically searches for existing users with the same email and displays potential matches.
-    *   "Confirm Conversion" button.
-*   **Function**: To convert a qualified lead into an active user account.
-*   **Screen Flow**: On confirmation, creates the user account and navigates back to the lead list, showing the lead as "Converted".
 
 **Screen A.7: Conversion Analytics**
 *   **Actor**: System Administrator
@@ -313,7 +295,41 @@ This document provides a detailed description of the screens for the CareCircle 
 
 ---
 
-## Part 3: Elder Mode UI Variants
+## Part 4: E-Pharmacy & Payment Mockups
+
+**Screen E.1: Medication Refill Request**
+*   **Actor**: Patient, Caregiver
+*   **Concept**: Integrated into the medication list, this feature connects users to partner pharmacies.
+*   **Location**: Appears on the Medication Details screen (Screen 2.2).
+*   **Display Elements**:
+    *   Next to a medication entry, a "Pills Remaining" counter is shown.
+    *   When the count is low, a `[Request Refill]` button appears.
+*   **Function**: To initiate a prescription refill with a partner e-pharmacy (FR-17.2).
+*   **Screen Flow**:
+    *   User taps `[Request Refill]`.
+    *   A bottom sheet appears: "Choose a pharmacy partner to proceed."
+    *   Lists partner logos (e.g., Pharmacity, Long Châu).
+    *   Tapping a partner logo deep-links to the pharmacy's app or website with the medication details pre-filled in the cart.
+
+**Screen E.2: Premium Upgrade with E-Wallet**
+*   **Actor**: Free Tier User
+*   **Concept**: Modifies the existing Premium Upgrade screen to include local payment methods.
+*   **Location**: An update to the Premium Upgrade Screen (3.2).
+*   **Display Elements**:
+    *   All existing elements (feature comparison, price).
+    *   **Payment Options Section**:
+        *   `[Upgrade with App Store]` (Standard IAP)
+        *   `[Pay with MoMo]`
+        *   `[Pay with ZaloPay]`
+        *   `[Scan QR Code]`
+*   **Function**: To allow users to pay for subscriptions using their preferred Vietnamese e-wallets (FR-11.2).
+*   **Screen Flow**:
+    *   Tapping an e-wallet option generates a charge and redirects the user to the respective payment app to approve it.
+    *   Tapping "Scan QR Code" displays a VietQR code that can be scanned by any banking app.
+
+---
+
+## Part 5: Elder Mode UI Variants
 
 This section details the screen adaptations when "Elder Mode" is enabled. The goal is to reduce cognitive load, improve readability, and provide simplified controls for users with limited tech proficiency or visual impairments.
 
