@@ -17,6 +17,7 @@ import {
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { HealthRecordService } from './health-record.service';
+import { HealthAnalysisService } from './health-analysis.service';
 import {
   HealthDataSyncDto,
   HealthDataConsentDto,
@@ -29,7 +30,10 @@ import {
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 export class HealthRecordController {
-  constructor(private readonly healthRecordService: HealthRecordService) {}
+  constructor(
+    private readonly healthRecordService: HealthRecordService,
+    private readonly healthAnalysisService: HealthAnalysisService,
+  ) {}
 
   @Post('sync')
   @ApiOperation({ summary: 'Sync health data from mobile app' })
@@ -177,5 +181,38 @@ export class HealthRecordController {
       userId,
       revokeData.consentTypes,
     );
+  }
+
+  @Get('analysis')
+  @ApiOperation({ summary: 'Get health data analysis and insights' })
+  @ApiResponse({ status: 200, description: 'Health analysis data' })
+  async getHealthAnalysis(
+    @Req() req: any,
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
+    @Query('period') period?: 'day' | 'week' | 'month' | 'year',
+  ) {
+    const userId = req.user.sub;
+
+    // Default to last week if no dates provided
+    const endDateObj = endDate ? new Date(endDate) : new Date();
+    const startDateObj = startDate
+      ? new Date(startDate)
+      : new Date(endDateObj.getTime() - 7 * 24 * 60 * 60 * 1000);
+
+    return this.healthAnalysisService.analyzeHealthData(
+      userId,
+      startDateObj,
+      endDateObj,
+      period || 'week',
+    );
+  }
+
+  @Get('analysis/latest')
+  @ApiOperation({ summary: 'Get latest health analysis for user' })
+  @ApiResponse({ status: 200, description: 'Latest health analysis data' })
+  async getLatestAnalysis(@Req() req: any) {
+    const userId = req.user.sub;
+    return this.healthAnalysisService.getLatestAnalysis(userId);
   }
 }

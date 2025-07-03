@@ -163,7 +163,7 @@
             "description": "Create workflows to process and analyze the synchronized health data to generate meaningful insights.",
             "dependencies": [3],
             "details": "Implement backend services to process raw health data, such as calculating daily step counts, detecting sleep patterns, or analyzing heart rate variability. Store processed data in the database and make it accessible through API endpoints for the mobile application to display.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Validate the accuracy of data processing algorithms by comparing outputs with known benchmarks. Ensure that processed data is correctly stored and retrievable via the API."
           },
           {
@@ -172,7 +172,7 @@
             "description": "Develop user interfaces in the mobile application to display processed health data in an intuitive and informative manner.",
             "dependencies": [5],
             "details": "Design and implement charts, graphs, and other visual elements to present health metrics such as activity trends, sleep quality, and heart rate patterns. Ensure that the visualizations are responsive and provide a clear understanding of the user's health data.",
-            "status": "pending",
+            "status": "in-progress",
             "testStrategy": "Conduct user testing to assess the clarity and usability of the visualizations. Verify that the data displayed matches the processed data from the backend."
           }
         ]
@@ -331,7 +331,7 @@
     ],
     "metadata": {
       "created": "2025-07-03T13:21:13.212Z",
-      "updated": "2025-07-03T18:22:39.418Z",
+      "updated": "2025-07-03T18:37:02.922Z",
       "description": "Tasks for master context"
     }
   }

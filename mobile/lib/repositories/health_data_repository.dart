@@ -282,4 +282,70 @@ class HealthDataRepository {
       return null;
     }
   }
+
+  /// Get health data analysis and insights
+  Future<Map<String, dynamic>?> getHealthAnalysis({
+    DateTime? startDate,
+    DateTime? endDate,
+    String period = 'week',
+  }) async {
+    try {
+      final queryParams = <String, String>{'period': period};
+
+      if (startDate != null) {
+        queryParams['startDate'] = startDate.toIso8601String();
+      }
+
+      if (endDate != null) {
+        queryParams['endDate'] = endDate.toIso8601String();
+      }
+
+      final uri = Uri.parse(
+        '$_baseUrl/health-record/analysis',
+      ).replace(queryParameters: queryParams);
+
+      final response = await http.get(uri, headers: _headers);
+
+      if (response.statusCode == 200) {
+        debugPrint(
+          'HealthDataRepository: Health analysis retrieved successfully',
+        );
+        return jsonDecode(response.body);
+      } else {
+        debugPrint(
+          'HealthDataRepository: Failed to get health analysis - ${response.statusCode}: ${response.body}',
+        );
+        return null;
+      }
+    } catch (e) {
+      debugPrint('HealthDataRepository: Error getting health analysis - $e');
+      return null;
+    }
+  }
+
+  /// Get latest health analysis for user
+  Future<Map<String, dynamic>?> getLatestHealthAnalysis() async {
+    try {
+      final url = Uri.parse('$_baseUrl/health-record/analysis/latest');
+
+      final response = await http.get(url, headers: _headers);
+
+      if (response.statusCode == 200) {
+        debugPrint(
+          'HealthDataRepository: Latest health analysis retrieved successfully',
+        );
+        return jsonDecode(response.body);
+      } else {
+        debugPrint(
+          'HealthDataRepository: Failed to get latest health analysis - ${response.statusCode}: ${response.body}',
+        );
+        return null;
+      }
+    } catch (e) {
+      debugPrint(
+        'HealthDataRepository: Error getting latest health analysis - $e',
+      );
+      return null;
+    }
+  }
 }
