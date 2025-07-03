@@ -1,0 +1,22 @@
+{
+  "name": "care_circle",
+  "version": "1.0.0",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/canhta/CareCircle.git"
+  },
+  "keywords": [],
+  "author": "Canh Ta <canhta.w@gmail.com",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/canhta/CareCircle/issues"
+  },
+  "homepage": "https://github.com/canhta/CareCircle#readme",
+  "description": "CareCircle is a community-driven platform designed to connect caregivers and care seekers, facilitating support and resource sharing."
+}
