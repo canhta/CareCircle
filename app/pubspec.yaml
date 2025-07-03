@@ -1,0 +1,19 @@
+name: care_circle
+description: "An application for managing care circles, allowing users to create and join circles, share updates, and coordinate care activities."
+publish_to: "none"
+version: 0.1.0
+
+environment:
+  sdk: ^3.8.1
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
