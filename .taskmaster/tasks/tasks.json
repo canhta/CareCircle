@@ -37,7 +37,7 @@
             "id": 4,
             "title": "Initialize Core Application Modules and Database Schema",
             "description": "Set up the core modules and define the initial database schema for the backend application as outlined in the Business Requirements Document (BRD).",
-            "status": "pending",
+            "status": "in-progress",
             "dependencies": [
               3
             ],
@@ -209,7 +209,7 @@
     ],
     "metadata": {
       "created": "2025-07-03T13:21:13.212Z",
-      "updated": "2025-07-03T14:20:15.977Z",
+      "updated": "2025-07-03T14:27:13.798Z",
       "description": "Tasks for master context"
     }
   }
