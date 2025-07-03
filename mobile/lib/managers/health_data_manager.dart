@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/foundation.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import '../services/health_service.dart';
 import '../repositories/health_data_repository.dart';
+import '../services/background_sync_service.dart';
 
 /// Central manager for health data operations
 class HealthDataManager {
@@ -12,12 +14,15 @@ class HealthDataManager {
 
   final HealthService _healthService = HealthService();
   final HealthDataRepository _repository = HealthDataRepository();
+  final BackgroundSyncService _backgroundSyncService = BackgroundSyncService();
 
   Timer? _syncTimer;
   bool _isInitialized = false;
 
   static const String _lastSyncKey = 'health_last_sync';
   static const String _autoSyncEnabledKey = 'health_auto_sync_enabled';
+  static const String _backgroundSyncEnabledKey =
+      'health_background_sync_enabled';
 
   /// Initialize the health data manager
   Future<void> initialize({String? authToken}) async {
@@ -33,10 +38,19 @@ class HealthDataManager {
       _isInitialized = true;
       debugPrint('HealthDataManager: Successfully initialized');
 
+      // Initialize background sync service
+      await _backgroundSyncService.initialize();
+
       // Start automatic sync if enabled
       final autoSyncEnabled = await isAutoSyncEnabled();
       if (autoSyncEnabled) {
         startAutoSync();
+      }
+
+      // Start background sync if enabled
+      final backgroundSyncEnabled = await isBackgroundSyncEnabled();
+      if (backgroundSyncEnabled) {
+        await setBackgroundSyncEnabled(true);
       }
     } catch (e) {
       debugPrint('HealthDataManager: Failed to initialize - $e');
@@ -332,6 +346,65 @@ class HealthDataManager {
   void dispose() {
     stopAutoSync();
     _isInitialized = false;
+  }
+
+  /// Check if network is available
+  Future<bool> _isNetworkAvailable() async {
+    try {
+      final connectivity = Connectivity();
+      final result = await connectivity.checkConnectivity();
+      return result.isNotEmpty && !result.contains(ConnectivityResult.none);
+    } catch (e) {
+      debugPrint('HealthDataManager: Network check failed - $e');
+      return false;
+    }
+  }
+
+  /// Perform network-aware sync with better error handling
+  Future<SyncResult> syncHealthDataWithNetworkCheck() async {
+    if (!_isInitialized) {
+      return SyncResult.failure('Manager not initialized');
+    }
+
+    // Check network availability first
+    if (!await _isNetworkAvailable()) {
+      debugPrint(
+        'HealthDataManager: No network available, queueing sync for later',
+      );
+      return SyncResult.failure('No network connection available');
+    }
+
+    return await syncHealthData();
+  }
+
+  /// Enable/disable background sync
+  Future<void> setBackgroundSyncEnabled(bool enabled) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_backgroundSyncEnabledKey, enabled);
+
+    if (enabled) {
+      await _backgroundSyncService.initialize();
+      await _backgroundSyncService.registerPeriodicSync(
+        frequency: const Duration(hours: 6),
+        requiresNetworkConnectivity: true,
+      );
+      debugPrint('HealthDataManager: Background sync enabled');
+    } else {
+      await _backgroundSyncService.cancelAllSyncTasks();
+      debugPrint('HealthDataManager: Background sync disabled');
+    }
+  }
+
+  /// Check if background sync is enabled
+  Future<bool> isBackgroundSyncEnabled() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_backgroundSyncEnabledKey) ??
+        true; // Default to enabled
+  }
+
+  /// Get last background sync time
+  Future<DateTime?> getLastBackgroundSyncTime() async {
+    return await BackgroundSyncService.getLastBackgroundSyncTime();
   }
 }
 

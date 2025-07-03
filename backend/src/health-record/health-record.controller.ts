@@ -55,6 +55,20 @@ export class HealthRecordController {
     }
   }
 
+  @Post('sync-async')
+  @ApiOperation({ summary: 'Sync health data asynchronously' })
+  @ApiResponse({
+    status: 201,
+    description: 'Health data sync initiated successfully',
+  })
+  async syncHealthDataAsync(
+    @Req() req: any,
+    @Body() syncData: HealthDataSyncDto,
+  ) {
+    const userId = req.user.sub;
+    return this.healthRecordService.syncHealthDataAsync(userId, syncData);
+  }
+
   @Get('metrics')
   @ApiOperation({ summary: 'Get health metrics for user' })
   @ApiResponse({
@@ -117,5 +131,12 @@ export class HealthRecordController {
     healthData.source = 'MANUAL' as any;
 
     return this.healthRecordService.addManualHealthData(userId, healthData);
+  }
+
+  @Get('queue-stats')
+  @ApiOperation({ summary: 'Get health data queue statistics' })
+  @ApiResponse({ status: 200, description: 'Queue statistics retrieved' })
+  getQueueStats() {
+    return this.healthRecordService.getQueueStats();
   }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'config/app_config.dart';
 import 'screens/home_screen.dart';
+import 'services/background_sync_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -12,6 +13,19 @@ Future<void> main() async {
   // Validate configuration
   if (!AppConfig.validateConfig()) {
     debugPrint('Configuration validation failed. Please check your .env file.');
+  }
+
+  // Initialize background sync service
+  try {
+    final backgroundSyncService = BackgroundSyncService();
+    await backgroundSyncService.initialize();
+    await backgroundSyncService.registerPeriodicSync(
+      frequency: const Duration(hours: 6),
+      requiresNetworkConnectivity: true,
+    );
+    debugPrint('Background sync service initialized successfully');
+  } catch (e) {
+    debugPrint('Failed to initialize background sync service: $e');
   }
 
   // Print configuration in debug mode

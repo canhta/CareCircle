@@ -1,5 +1,6 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { HealthDataQueueService } from './health-data-queue.service';
 import {
   HealthDataSyncDto,
   HealthDataConsentDto,
@@ -17,7 +18,10 @@ import {
 
 @Injectable()
 export class HealthRecordService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly queueService: HealthDataQueueService,
+  ) {}
 
   async syncHealthData(userId: string, syncData: HealthDataSyncDto) {
     // Create sync record
@@ -78,6 +82,38 @@ export class HealthRecordService {
     }
   }
 
+  async syncHealthDataAsync(userId: string, syncData: HealthDataSyncDto) {
+    // Add sync job to queue for asynchronous processing
+    await this.queueService.addSyncJob(userId, syncData, {
+      priority: 'normal',
+      retryAttempts: 3,
+    });
+
+    // Also add data processing jobs for aggregation and analysis
+    if (syncData.data && syncData.data.length > 0) {
+      await this.queueService.addProcessingJob(
+        userId,
+        'health_metrics',
+        syncData.data,
+        'aggregate',
+        { priority: 'low' },
+      );
+
+      await this.queueService.addProcessingJob(
+        userId,
+        'health_metrics',
+        syncData.data,
+        'analyze',
+        { priority: 'low' },
+      );
+    }
+
+    return {
+      message: 'Health data sync queued for processing',
+      queueStats: this.queueService.getQueueStats(),
+    };
+  }
+
   private async processHealthDataPoint(
     userId: string,
     dataPoint: any,
@@ -109,9 +145,9 @@ export class HealthRecordService {
       create: {
         userId,
         date: dateOnly,
-        ...updateData,
         lastSyncAt: new Date(),
         syncSource: this.mapDataSource(dataPoint.source),
+        ...updateData,
       },
     });
 
@@ -146,8 +182,18 @@ export class HealthRecordService {
     source: DataSourceDto;
     deviceId?: string;
     metadata?: Record<string, any>;
-  }): Prisma.HealthMetricsUpdateInput {
-    const updates: Prisma.HealthMetricsUpdateInput = {};
+  }): Partial<{
+    steps: number;
+    heartRateAvg: number;
+    weight: number;
+    height: number;
+    bloodGlucose: number;
+    bodyTemperature: number;
+    oxygenSaturation: number;
+    caloriesBurned: number;
+    distance: number;
+  }> {
+    const updates: any = {};
 
     switch (dataPoint.type) {
       case HealthDataTypeDto.STEPS:
@@ -409,5 +455,9 @@ export class HealthRecordService {
     };
 
     return this.syncHealthData(userId, manualData);
+  }
+
+  getQueueStats() {
+    return this.queueService.getQueueStats();
   }
 }
