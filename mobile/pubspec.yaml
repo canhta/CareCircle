@@ -1,6 +1,6 @@
 name: care_circle
-description: "An application for managing care circles, allowing users to create and join circles, share updates, and coordinate care activities."
-publish_to: "none"
+description: 'CareCircle mobile app for healthcare management and care coordination'
+publish_to: 'none'
 version: 0.1.0
 
 environment:
@@ -25,6 +25,6 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-  
+
   assets:
     - .env
