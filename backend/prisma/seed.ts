@@ -21,6 +21,15 @@ async function main() {
 
   console.log('✅ Created demo user:', demoUser.email);
 
+  // Clean up existing demo data for fresh seeding
+  await prisma.healthRecord.deleteMany({
+    where: { userId: demoUser.id },
+  });
+
+  await prisma.prescription.deleteMany({
+    where: { userId: demoUser.id },
+  });
+
   // Create some sample health records
   const now = new Date();
   await prisma.healthRecord.createMany({
@@ -94,8 +103,10 @@ async function main() {
   console.log('✅ Created sample prescription:', prescription.medicationName);
 
   // Create a care group
-  const careGroup = await prisma.careGroup.create({
-    data: {
+  const careGroup = await prisma.careGroup.upsert({
+    where: { inviteCode: 'DEMO123' },
+    update: {},
+    create: {
       name: 'Demo Family Care Circle',
       description: 'A demo care group for family members',
       inviteCode: 'DEMO123',
@@ -103,8 +114,15 @@ async function main() {
   });
 
   // Add the demo user to the care group as owner
-  await prisma.careGroupMember.create({
-    data: {
+  await prisma.careGroupMember.upsert({
+    where: {
+      careGroupId_userId: {
+        careGroupId: careGroup.id,
+        userId: demoUser.id,
+      },
+    },
+    update: {},
+    create: {
       careGroupId: careGroup.id,
       userId: demoUser.id,
       role: 'OWNER',
@@ -117,8 +135,15 @@ async function main() {
   console.log('✅ Created demo care group:', careGroup.name);
 
   // Create a daily check-in
-  await prisma.dailyCheckIn.create({
-    data: {
+  await prisma.dailyCheckIn.upsert({
+    where: {
+      userId_date: {
+        userId: demoUser.id,
+        date: new Date(),
+      },
+    },
+    update: {},
+    create: {
       userId: demoUser.id,
       date: new Date(),
       moodScore: 8,
