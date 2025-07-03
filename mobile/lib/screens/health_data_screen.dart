@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../managers/health_data_manager.dart';
 import '../services/health_service.dart';
+import '../config/app_config.dart';
 import 'privacy_settings_screen.dart';
 
 class HealthDataScreen extends StatefulWidget {
@@ -27,6 +28,18 @@ class _HealthDataScreenState extends State<HealthDataScreen> {
     setState(() => _isLoading = true);
 
     try {
+      // Check if the health data manager is available
+      if (!_healthDataManager.isAvailable) {
+        String errorMessage;
+        if (!AppConfig.enableHealthKit) {
+          errorMessage = 'HealthKit is disabled in app configuration. Please set ENABLE_HEALTHKIT=true in your .env file and restart the app to enable health features.';
+        } else {
+          errorMessage = 'Health data services are not available on this device or not properly initialized. Please restart the app.';
+        }
+        setState(() => _error = errorMessage);
+        return;
+      }
+
       // Check if permissions are granted
       _permissionsGranted = await _healthDataManager.hasPermissions();
 
@@ -42,6 +55,18 @@ class _HealthDataScreenState extends State<HealthDataScreen> {
 
   Future<void> _loadRecentHealthData() async {
     try {
+      // Check if the health data manager is available
+      if (!_healthDataManager.isAvailable) {
+        String errorMessage;
+        if (!AppConfig.enableHealthKit) {
+          errorMessage = 'HealthKit is disabled in app configuration. Please set ENABLE_HEALTHKIT=true in your .env file and restart the app to enable health features.';
+        } else {
+          errorMessage = 'Health data services are not available on this device or not properly initialized. Please restart the app.';
+        }
+        setState(() => _error = errorMessage);
+        return;
+      }
+
       final now = DateTime.now();
       final startTime = now.subtract(const Duration(days: 7));
 
@@ -64,6 +89,18 @@ class _HealthDataScreenState extends State<HealthDataScreen> {
     setState(() => _isLoading = true);
 
     try {
+      // Check if the health data manager is available
+      if (!_healthDataManager.isAvailable) {
+        String errorMessage;
+        if (!AppConfig.enableHealthKit) {
+          errorMessage = 'HealthKit is disabled in app configuration. Please set ENABLE_HEALTHKIT=true in your .env file and restart the app to enable health features.';
+        } else {
+          errorMessage = 'Health data services are not available on this device or not properly initialized. Please restart the app.';
+        }
+        setState(() => _error = errorMessage);
+        return;
+      }
+
       final granted = await _healthDataManager.requestPermissions();
       setState(() => _permissionsGranted = granted);
 
@@ -98,6 +135,18 @@ class _HealthDataScreenState extends State<HealthDataScreen> {
     setState(() => _isLoading = true);
 
     try {
+      // Check if the health data manager is available
+      if (!_healthDataManager.isAvailable) {
+        String errorMessage;
+        if (!AppConfig.enableHealthKit) {
+          errorMessage = 'HealthKit is disabled in app configuration. Please set ENABLE_HEALTHKIT=true in your .env file and restart the app to enable health features.';
+        } else {
+          errorMessage = 'Health data services are not available on this device or not properly initialized. Please restart the app.';
+        }
+        setState(() => _error = errorMessage);
+        return;
+      }
+
       final result = await _healthDataManager.syncHealthData();
       await _loadRecentHealthData();
 

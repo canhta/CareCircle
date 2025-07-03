@@ -1,77 +1,109 @@
 # CareCircle AI Health Agent
 
-CareCircle is a cross-platform health management platform designed to empower families to manage health together. It aggregates health data, leverages AI for medication management, and provides personalized reminders and family-centric care coordination. The ecosystem includes a Flutter mobile app for end-users, a robust NestJS backend, and a Next.js web portal for administration.
+A cross-platform health management ecosystem for families. Aggregates health data, provides AI-powered medication management, and enables care coordination through mobile, web, and backend services.
 
----
+## ✨ Features
 
-## Features
-- **Health Data Integration:** Syncs with Apple HealthKit (iOS) and Google Fit (Android) for steps, heart rate, sleep, and more.
-- **AI-powered Medication Management:** Scan paper prescriptions via OCR, auto-extract drug info, and generate smart reminders.
-- **Personalized Notifications:** Daily check-ins, medication reminders, and intelligent escalation to caregivers if doses are missed.
-- **Family Health Network:** Create care groups to share real-time health status, alerts, and coordinate care for loved ones.
-- **AI Health Insights:** Summaries, trends, and coaching tips powered by AI.
-- **Document Export & Sharing:** Export health summaries to PDF for sharing with clinicians.
-- **Admin Web Portal:** Dashboard for system health, user management, and engagement statistics.
+- **Health Integration:** Apple HealthKit & Google Fit sync, OCR prescription scanning
+- **Family Care:** Secure care groups, permission-based sharing, emergency alerts
+- **AI Insights:** Health trend analysis, risk assessment, personalized recommendations
+- **Compliance:** GDPR-compliant document management with audit trails
 
----
+## 🛠 Tech Stack
 
-## Technology Stack
+**Backend:** NestJS, PostgreSQL, Prisma, BullMQ, Redis  
+**Frontend:** Next.js 15, React 19, Tailwind CSS  
+**Mobile:** Flutter, BLoC, HealthKit/Google Fit  
+**DevOps:** Docker, GitHub Actions, Husky
 
-### Backend
-- **Framework:** NestJS (Node.js, TypeScript)
-- **Database:** PostgreSQL + TimescaleDB
-- **ORM:** TypeORM
-- **Authentication:** Passport.js (JWT, Google, Apple SSO)
-- **API:** RESTful
-- **Deployment:** Docker, GitHub Actions
-- **Monitoring:** Prometheus, Grafana
-
-### Frontend (Web Portal)
-- **Framework:** Next.js (React, TypeScript)
-- **Styling:** Tailwind CSS, Shadcn/UI
-- **State Management:** React Context API, Zustand
-- **Deployment:** Vercel
-
-### Mobile App
-- **Framework:** Flutter (Dart)
-- **State Management:** BLoC
-- **Navigation:** go_router
-- **Native Integrations:** HealthKit, Google Fit, camera, OCR, push notifications
-- **Build Tools:** Gradle (Android), Xcode (iOS)
-- **CI/CD:** GitHub Actions
-
----
-
-## Getting Started
+## 🚀 Quick Start
 
 ### Prerequisites
-- Node.js (for backend/frontend)
-- Flutter SDK (for mobile)
-- Docker (for local DB/dev)
 
-### Backend (NestJS)
+- Node.js 18+, Flutter SDK, Docker & Docker Compose
+
+### Setup
+
 ```bash
-cd backend
+# Clone and start services
+git clone https://github.com/canhta/CareCircle.git
+cd CareCircle
+docker-compose up -d postgres redis
 npm install
-npm run start:dev
+
+# Backend
+cd backend && npm install
+npm run db:generate && npm run db:migrate && npm run db:seed
+npm run start:dev  # http://localhost:3001
+
+# Frontend
+cd frontend && npm install && npm run dev  # http://localhost:3000
+
+# Mobile
+cd mobile && flutter pub get && flutter run
 ```
 
-### Frontend (Next.js)
+## � Project Structure
+
+```
+CareCircle/
+├── backend/         # NestJS API (auth, health-records, care-groups)
+├── frontend/        # Next.js Admin Portal
+├── mobile/          # Flutter App
+├── docs/            # Documentation (PRD, BRD, research)
+└── docker/          # Development environment
+```
+
+## ⚙️ Environment Variables
+
+**Backend** (`.env`):
+
+```env
+DATABASE_URL="postgresql://postgres:password@localhost:5432/carecircle_dev"
+JWT_SECRET="your-jwt-secret"
+REDIS_URL="redis://localhost:6379"
+GOOGLE_CLIENT_ID="your-google-client-id"
+APPLE_CLIENT_ID="your-apple-client-id"
+```
+
+**Frontend** (`.env.local`):
+
+```env
+NEXT_PUBLIC_API_URL="http://localhost:3001"
+```
+
+## 🧪 Development
+
+**Useful Commands:**
+
 ```bash
-cd frontend
-npm install
-npm run dev
+npm run lint          # Lint all projects
+npm run format        # Format all code
+npm run db:studio     # Open database GUI
+flutter doctor        # Check Flutter setup
+flutter test          # Run mobile tests
 ```
 
-### Mobile (Flutter)
+**Build for Production:**
+
 ```bash
-cd mobile
-flutter pub get
-flutter run
+# Backend
+cd backend && npm run build
+
+# Frontend
+cd frontend && npm run build
+
+# Mobile
+cd mobile && flutter build ios --release
+cd mobile && flutter build apk --release
 ```
 
----
+## 🤝 Contributing
 
-## License
+1. Fork → Create feature branch → Make changes → Test → Submit PR
+2. Follow TypeScript/Dart best practices
+3. Run `npm run pre-commit` before committing
 
-This project is licensed under the MIT License. 
+**Author:** Canh Ta - [canhta.w@gmail.com](mailto:canhta.w@gmail.com)  
+**License:** ISC  
+**Repository:** [github.com/canhta/CareCircle](https://github.com/canhta/CareCircle)

@@ -3,6 +3,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'config/app_config.dart';
 import 'screens/home_screen.dart';
 import 'services/background_sync_service.dart';
+import 'managers/health_data_manager.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,6 +27,15 @@ Future<void> main() async {
     debugPrint('Background sync service initialized successfully');
   } catch (e) {
     debugPrint('Failed to initialize background sync service: $e');
+  }
+
+  // Initialize health data manager
+  try {
+    final healthDataManager = HealthDataManager();
+    await healthDataManager.initialize();
+    debugPrint('Health data manager initialized successfully');
+  } catch (e) {
+    debugPrint('Failed to initialize health data manager: $e');
   }
 
   // Print configuration in debug mode

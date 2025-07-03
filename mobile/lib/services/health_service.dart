@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:health/health.dart';
 import 'package:permission_handler/permission_handler.dart';
+import '../config/app_config.dart';
 
 /// Health data types that CareCircle tracks
 enum CareCircleHealthDataType {
@@ -107,6 +108,13 @@ class HealthService {
     if (_isConfigured) return;
 
     try {
+      // Check if HealthKit is enabled in configuration
+      if (!AppConfig.enableHealthKit) {
+        debugPrint('HealthService: HealthKit is disabled in configuration');
+        _isConfigured = false;
+        return;
+      }
+
       await _health.configure();
       _isConfigured = true;
       debugPrint('HealthService: Successfully configured');

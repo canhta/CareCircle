@@ -5,6 +5,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import '../services/health_service.dart';
 import '../repositories/health_data_repository.dart';
 import '../services/background_sync_service.dart';
+import '../config/app_config.dart';
 
 /// Central manager for health data operations
 class HealthDataManager {
@@ -29,6 +30,14 @@ class HealthDataManager {
     if (_isInitialized) return;
 
     try {
+      // Check if HealthKit is enabled in configuration
+      if (!AppConfig.enableHealthKit) {
+        debugPrint('HealthDataManager: HealthKit is disabled in configuration. Set ENABLE_HEALTHKIT=true in .env file to enable health features.');
+        // We still mark as initialized but health service won't be available
+        _isInitialized = true;
+        return;
+      }
+
       await _healthService.initialize();
 
       if (authToken != null) {
