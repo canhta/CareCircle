@@ -1,4 +1,19 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# CareCircle Admin Portal
+
+A Next.js-based administrative web portal for the CareCircle platform.
+
+## Description
+
+The CareCircle admin portal provides comprehensive dashboards and management tools for system administrators, including user management, system health monitoring, AI cost tracking, and analytics.
+
+## Features
+
+- System health dashboards
+- User management and analytics
+- AI cost monitoring
+- Content moderation tools
+- Analytics and reporting
+- Configuration management
 
 ## Getting Started
 

@@ -4,10 +4,56 @@
       {
         "id": 1,
         "title": "Foundational Project Setup and CI/CD",
-        "description": "This task covers the initial setup for the entire CareCircle ecosystem. It includes creating repositories for the NestJS backend, Next.js admin portal, and Flutter mobile app. It also involves establishing a CI/CD pipeline for automated builds and deployments, and initializing the core application modules and database schema as outlined in the BRD. This task is the foundational step for all subsequent development.",
-        "status": "pending",
+        "description": "This task focuses on setting up the local development infrastructure for the CareCircle ecosystem. It includes configuring Docker Compose to manage essential backend services such as PostgreSQL and Redis, initializing the core application modules and database schema as outlined in the BRD, and ensuring that the development environment is fully operational for subsequent development tasks.",
+        "status": "in-progress",
+        "dependencies": [],
         "priority": "high",
-        "dependencies": []
+        "details": "",
+        "testStrategy": "",
+        "subtasks": [
+          {
+            "id": 2,
+            "title": "Configure Environment Variables and Secrets Management",
+            "description": "Set up environment variables and secrets management for each component to handle sensitive information securely.",
+            "status": "done",
+            "dependencies": [
+              1
+            ],
+            "details": "For each repository, create environment configuration files (e.g., '.env' for backend and frontend, and 'flutter.env' for mobile) to store sensitive information such as database credentials, API keys, and secret tokens. Utilize libraries like 'dotenv' for Node.js applications and 'flutter_dotenv' for Flutter to load these variables securely. Ensure that these files are excluded from version control by adding them to the '.gitignore' file.",
+            "testStrategy": "Confirm that each application can access the environment variables correctly and that sensitive information is not exposed in the codebase."
+          },
+          {
+            "id": 3,
+            "title": "Set Up Local Development Environment with Docker Compose",
+            "description": "Configure Docker Compose to manage local development services, including PostgreSQL and Redis, to streamline backend development.",
+            "status": "in-progress",
+            "dependencies": [
+              2
+            ],
+            "details": "Create a 'docker-compose.yml' file in the 'backend' repository to define services for PostgreSQL and Redis. Configure the PostgreSQL service with appropriate environment variables for user, password, and database name. Set up the Redis service with default configurations. Ensure that data volumes are specified for both services to persist data across container restarts. Reference: [NestJS + Redis + Postgres Local Development With Docker Compose](https://www.tomray.dev/nestjs-docker-compose-postgres)",
+            "testStrategy": "Run 'docker-compose up' and verify that both PostgreSQL and Redis services start successfully. Confirm that the backend application can connect to these services using the specified environment variables."
+          },
+          {
+            "id": 4,
+            "title": "Initialize Core Application Modules and Database Schema",
+            "description": "Set up the core modules and define the initial database schema for the backend application as outlined in the Business Requirements Document (BRD).",
+            "status": "pending",
+            "dependencies": [
+              3
+            ],
+            "details": "In the 'backend' repository, create the core modules such as 'User', 'Auth', and 'HealthRecord' using the NestJS CLI. Define the database schema using an ORM like Prisma or TypeORM, creating entities and relationships as specified in the BRD. Implement initial migration scripts to set up the database tables accordingly.\n<info added on 2025-07-03T14:03:49.883Z>\nTo integrate Prisma ORM into the 'backend' repository, follow these steps:\n\n1. **Install Prisma CLI**: In the root directory of your NestJS project, install the Prisma CLI as a development dependency:\n\n   ```bash\n   npm install --save-dev prisma\n   ```\n\n\n2. **Initialize Prisma**: Initialize Prisma in your project:\n\n   ```bash\n   npx prisma init\n   ```\n\n\n   This command creates a `prisma` directory with a `schema.prisma` file and a `.env` file for environment variables.\n\n3. **Configure the Database Connection**: In the `.env` file, set the `DATABASE_URL` to your database connection string. For example, for PostgreSQL:\n\n   ```\n   DATABASE_URL=\"postgresql://USER:PASSWORD@HOST:PORT/DATABASE\"\n   ```\n\n\n   Replace `USER`, `PASSWORD`, `HOST`, `PORT`, and `DATABASE` with your database credentials.\n\n4. **Define the Data Model**: In the `prisma/schema.prisma` file, define your data models based on the Business Requirements Document (BRD). For example:\n\n   ```prisma\n   model User {\n     id        Int      @id @default(autoincrement())\n     email     String   @unique\n     name      String?\n     posts     Post[]\n   }\n\n   model Post {\n     id        Int      @id @default(autoincrement())\n     title     String\n     content   String\n     author    User     @relation(fields: [authorId], references: [id])\n     authorId  Int\n   }\n   ```\n\n\n   This defines `User` and `Post` models with their respective fields and relationships.\n\n5. **Generate Prisma Client and Apply Migrations**: Generate the Prisma Client and apply the initial migration to set up the database schema:\n\n   ```bash\n   npx prisma generate\n   npx prisma migrate dev --name init\n   ```\n\n\n   The `prisma generate` command generates the Prisma Client, and `prisma migrate dev` applies the migration to your database.\n\n6. **Create a Prisma Service**: In your NestJS application, create a `PrismaService` to manage the Prisma Client instance. This service will handle database connections and can be injected into other services or controllers.\n\n   ```typescript\n   import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';\n   import { PrismaClient } from '@prisma/client';\n\n   @Injectable()\n   export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {\n     async onModuleInit() {\n       await this.$connect();\n     }\n\n     async onModuleDestroy() {\n       await this.$disconnect();\n     }\n   }\n   ```\n\n\n   This service extends the Prisma Client and implements lifecycle hooks to manage the database connection.\n\n7. **Integrate Prisma Service into Modules**: Import the `PrismaService` into your application's modules and inject it into services or controllers as needed. For example, in a `UsersService`:\n\n   ```typescript\n   import { Injectable } from '@nestjs/common';\n   import { PrismaService } from '../prisma/prisma.service';\n\n   @Injectable()\n   export class UsersService {\n     constructor(private prisma: PrismaService) {}\n\n     async findAll() {\n       return this.prisma.user.findMany();\n     }\n\n     async create(data: { name: string; email: string }) {\n       return this.prisma.user.create({\n         data,\n       });\n     }\n   }\n   ```\n\n\n   This service uses the `PrismaService` to interact with the database, providing methods to find and create users.\n\nBy following these steps, you will set up Prisma ORM in your NestJS application, providing a type-safe and developer-friendly approach to database management.\n</info added on 2025-07-03T14:03:49.883Z>",
+            "testStrategy": "Run migration scripts against a development database and verify that the tables and relationships are created as expected. Implement unit tests for the core modules to ensure they function correctly."
+          },
+          {
+            "id": 1,
+            "title": "Initialize Project Repositories and Directory Structure",
+            "description": "Set up the foundational repositories and directory structure for the CareCircle ecosystem, including the NestJS backend, Next.js admin portal, and Flutter mobile app.",
+            "dependencies": [],
+            "details": "Create three separate repositories: 'backend' for the NestJS application, 'frontend' for the Next.js admin portal, and 'mobile' for the Flutter mobile app. Within each repository, establish the standard directory structure appropriate for each framework. For the backend, include directories such as 'src', 'test', and 'config'. For the frontend, include 'pages', 'components', and 'public'. For the mobile app, include 'lib', 'test', and 'assets'.",
+            "status": "done",
+            "testStrategy": "Verify that each repository contains the correct directory structure and that the initial commit includes all necessary files."
+          }
+        ]
       },
       {
         "id": 2,
@@ -15,7 +61,9 @@
         "description": "[Backend/NestJS, Mobile/Flutter, Frontend/Next.js] Implement user registration, login (email/password, Google/Apple SSO), profile management, and data consent flows as per FR-01.",
         "status": "pending",
         "priority": "high",
-        "dependencies": [1]
+        "dependencies": [
+          1
+        ]
       },
       {
         "id": 3,
@@ -23,7 +71,9 @@
         "description": "[Mobile/Flutter, Backend/NestJS] Integrate with Apple HealthKit and Google Fit to sync, process, and display biometric and activity data. The backend will store and manage the synced data.",
         "status": "pending",
         "priority": "medium",
-        "dependencies": [2]
+        "dependencies": [
+          2
+        ]
       },
       {
         "id": 4,
@@ -31,7 +81,9 @@
         "description": "[Mobile/Flutter, Backend/NestJS] Develop the OCR-based prescription scanner, including image capture, data extraction (drug name, dosage, schedule), and manual entry/edit capabilities. The backend will handle the AI/OCR processing.",
         "status": "pending",
         "priority": "medium",
-        "dependencies": [2]
+        "dependencies": [
+          2
+        ]
       },
       {
         "id": 5,
@@ -39,7 +91,9 @@
         "description": "[Backend/NestJS, Mobile/Flutter] Build the smart reminder system with actionable notifications, audit logging, and the adaptive notification engine. The mobile app will receive and display the notifications.",
         "status": "pending",
         "priority": "high",
-        "dependencies": [4]
+        "dependencies": [
+          4
+        ]
       },
       {
         "id": 6,
@@ -47,7 +101,9 @@
         "description": "[Mobile/Flutter, Backend/NestJS] Implement the adaptive daily check-in feature with interactive notifications and personalized question flows. The backend will process and store the check-in data.",
         "status": "pending",
         "priority": "medium",
-        "dependencies": [5]
+        "dependencies": [
+          5
+        ]
       },
       {
         "id": 7,
@@ -55,7 +111,9 @@
         "description": "[Backend/NestJS, Mobile/Flutter, Frontend/Next.js] Create the Care Group functionality, including secure invitations, deep linking, role-based permissions, and the shared dashboard.",
         "status": "pending",
         "priority": "high",
-        "dependencies": [2]
+        "dependencies": [
+          2
+        ]
       },
       {
         "id": 8,
@@ -63,7 +121,10 @@
         "description": "[Backend/NestJS] Develop the RAG-based AI system to generate summaries for medications, health conditions, and user data trends.",
         "status": "pending",
         "priority": "medium",
-        "dependencies": [3, 4]
+        "dependencies": [
+          3,
+          4
+        ]
       },
       {
         "id": 9,
@@ -71,7 +132,9 @@
         "description": "[Mobile/Flutter] Implement the feature to export user health summaries to a shareable PDF document.",
         "status": "pending",
         "priority": "low",
-        "dependencies": [3]
+        "dependencies": [
+          3
+        ]
       },
       {
         "id": 10,
@@ -79,7 +142,9 @@
         "description": "[Frontend/Next.js] Build the Next.js admin portal with system health dashboards, user management tools, and AI cost monitoring.",
         "status": "pending",
         "priority": "medium",
-        "dependencies": [1]
+        "dependencies": [
+          1
+        ]
       },
       {
         "id": 11,
@@ -87,7 +152,9 @@
         "description": "[Mobile/Flutter, Frontend/Next.js, Backend/NestJS] Implement the comprehensive user settings screen, including modular UI, granular notification controls, and privacy settings.",
         "status": "pending",
         "priority": "medium",
-        "dependencies": [2]
+        "dependencies": [
+          2
+        ]
       },
       {
         "id": 12,
@@ -95,7 +162,9 @@
         "description": "[Backend/NestJS, Mobile/Flutter] Implement the freemium model, in-app subscription purchases (IAP, MoMo, ZaloPay), and the user referral program.",
         "status": "pending",
         "priority": "high",
-        "dependencies": [2]
+        "dependencies": [
+          2
+        ]
       },
       {
         "id": 13,
@@ -103,7 +172,9 @@
         "description": "[Backend/NestJS, Mobile/Flutter] Develop the Health Points system, badges, and achievements to drive user engagement.",
         "status": "pending",
         "priority": "low",
-        "dependencies": [2]
+        "dependencies": [
+          2
+        ]
       },
       {
         "id": 14,
@@ -111,7 +182,9 @@
         "description": "[Mobile/Flutter] Implement the simplified 'Elder Mode' with a high-contrast UI, large fonts, and voice prompts.",
         "status": "pending",
         "priority": "medium",
-        "dependencies": [2]
+        "dependencies": [
+          2
+        ]
       },
       {
         "id": 15,
@@ -119,7 +192,9 @@
         "description": "[Mobile/Flutter, Backend/NestJS] Integrate with partner e-pharmacy platforms for medication refill requests.",
         "status": "pending",
         "priority": "low",
-        "dependencies": [4]
+        "dependencies": [
+          4
+        ]
       },
       {
         "id": 16,
@@ -127,12 +202,14 @@
         "description": "[Mobile/Flutter, Frontend/Next.js, Backend/NestJS] Add an in-app mechanism for users to submit feedback and bug reports.",
         "status": "pending",
         "priority": "low",
-        "dependencies": [2]
+        "dependencies": [
+          2
+        ]
       }
     ],
     "metadata": {
       "created": "2025-07-03T13:21:13.212Z",
-      "updated": "2025-07-03T13:21:13.212Z",
+      "updated": "2025-07-03T14:01:43.368Z",
       "description": "Tasks for master context"
     }
   }
