@@ -34,6 +34,27 @@ This document details the mobile app implementation plan for CareCircle AI Healt
 - **Status:** Ready for implementation
 - **Priority:** Should be completed alongside app shell
 
+### Task 0.14: Clean Up Project for Mobile-Only
+- **Status:** Ready for implementation
+- **Objective:** Remove unnecessary platform configurations and focus on iOS/Android
+- **Actions to take:**
+  ```bash
+  # Remove unused platform directories
+  rm -rf linux/
+  rm -rf macos/
+  rm -rf web/
+  rm -rf windows/
+  
+  # Update pubspec.yaml to remove web dependencies
+  # Clean up any web-specific configurations
+  flutter clean
+  flutter pub get
+  ```
+- **Files to update:**
+  - `pubspec.yaml` - Remove web and desktop platform dependencies
+  - Remove platform-specific configuration files for unsupported platforms
+  - Update build configurations to focus only on iOS and Android
+
 ---
 
 ## Sprint 1: User Authentication & Profiles
@@ -1062,11 +1083,12 @@ This document details the mobile app implementation plan for CareCircle AI Healt
 - ✅ **Development Environment** - Ready for feature implementation
 
 ### Immediate Next Steps (Sprint 1)
-1. **Setup Navigation** - Implement go_router with bottom navigation
-2. **Create App Shell** - Main navigation structure and theming
-3. **Authentication Screens** - Login, register, onboarding flows
-4. **Backend Integration** - API service and secure token storage
-5. **Profile Management** - Basic user profile and settings
+1. **Clean Up Project** - Remove unnecessary platform directories (linux/, macos/, web/, windows/)
+2. **Setup Navigation** - Implement go_router with bottom navigation for mobile
+3. **Create App Shell** - Main navigation structure and theming for iOS/Android
+4. **Authentication Screens** - Login, register, onboarding flows
+5. **Backend Integration** - API service and secure token storage
+6. **Profile Management** - Basic user profile and settings
 
 ### Dependencies to Install First
 ```yaml
@@ -1082,7 +1104,7 @@ dependencies:
   sign_in_with_apple: ^6.1.2
   flutter_secure_storage: ^9.2.2
   
-  # Health Data Integration
+  # Health Data Integration (iOS & Android only)
   health: ^10.2.0
   
   # UI & Charts
@@ -1093,15 +1115,40 @@ dependencies:
   google_mlkit_text_recognition: ^0.13.1
   image_picker: ^1.1.2
   
-  # Notifications
+  # Push Notifications (iOS & Android)
   firebase_core: ^3.6.0
   firebase_messaging: ^15.1.3
   flutter_local_notifications: ^18.0.1
+  
+  # In-App Purchases (iOS & Android)
+  in_app_purchase: ^3.2.0
   
   # Utilities
   share_plus: ^10.0.2
   url_launcher: ^6.3.1
   app_links: ^6.3.2
+  
+  # Local Storage
+  sqflite: ^2.3.3
+  path: ^1.9.0
+```
+
+### Platform Configuration Files to Update
+```yaml
+# pubspec.yaml - Remove unused platforms
+flutter:
+  uses-material-design: true
+  
+  # Only keep iOS and Android configurations
+  assets:
+    - assets/images/
+    - assets/icons/
+    
+# Remove these platform directories from your project:
+# - linux/
+# - macos/
+# - web/
+# - windows/
 ```
 
 ---
@@ -1173,19 +1220,49 @@ dependencies:
 ## Platform-Specific Considerations
 
 ### iOS Implementation
-- HealthKit integration specifics
-- Apple Sign-In implementation
-- APNs configuration
-- App Store submission requirements
+- **HealthKit Integration:** Native iOS health data access
+  ```swift
+  // Required Info.plist permissions
+  <key>NSHealthShareUsageDescription</key>
+  <string>This app needs access to health data to track your wellness journey</string>
+  <key>NSHealthUpdateUsageDescription</key>
+  <string>This app needs to update health data for medication tracking</string>
+  ```
+- **Apple Sign-In Implementation:** Required for App Store approval
+- **APNs Configuration:** Push notification setup for iOS
+- **App Store Requirements:**
+  - Privacy policy integration
+  - Health data usage descriptions
+  - Medical disclaimers
+  - Accessibility compliance
 
 ### Android Implementation
-- Google Fit integration
-- Google Sign-In setup
-- FCM configuration
-- Play Store submission requirements
+- **Google Fit Integration:** Android health platform connection
+  ```xml
+  <!-- Required AndroidManifest.xml permissions -->
+  <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
+  <uses-permission android:name="com.google.android.gms.permission.ACTIVITY_RECOGNITION" />
+  ```
+- **Google Sign-In Setup:** OAuth 2.0 configuration
+- **FCM Configuration:** Firebase Cloud Messaging for push notifications
+- **Play Store Requirements:**
+  - Health app policy compliance
+  - Medical device regulations (if applicable)
+  - Data safety declarations
 
-### Responsive Design
-- Tablet layout adaptations
-- Different screen density support
-- Orientation handling
-- Accessibility compliance (WCAG guidelines)
+### Mobile-Only Features
+- **Biometric Authentication:** Face ID, Touch ID, fingerprint
+- **Camera Integration:** Prescription scanning and OCR
+- **Push Notifications:** Medication reminders and health alerts
+- **Offline Storage:** Local data caching with SQLite
+- **Background Sync:** Health data synchronization when app is backgrounded
+- **Device Sensors:** Step counting, heart rate monitoring (where available)
+
+### Responsive Design Considerations
+- **Phone vs Tablet Layouts:** Adaptive UI for different screen sizes
+- **Screen Density Support:** Multiple resolution assets
+- **Orientation Handling:** Portrait and landscape modes
+- **Accessibility:** 
+  - VoiceOver (iOS) and TalkBack (Android) support
+  - Large text and high contrast modes
+  - Elder mode with simplified UI
