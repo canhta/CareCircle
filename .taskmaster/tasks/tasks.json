@@ -1,0 +1,139 @@
+{
+  "master": {
+    "tasks": [
+      {
+        "id": 1,
+        "title": "Foundational Project Setup and CI/CD",
+        "description": "This task covers the initial setup for the entire CareCircle ecosystem. It includes creating repositories for the NestJS backend, Next.js admin portal, and Flutter mobile app. It also involves establishing a CI/CD pipeline for automated builds and deployments, and initializing the core application modules and database schema as outlined in the BRD. This task is the foundational step for all subsequent development.",
+        "status": "pending",
+        "priority": "high",
+        "dependencies": []
+      },
+      {
+        "id": 2,
+        "title": "User Account & Profile Management (FR-01)",
+        "description": "[Backend/NestJS, Mobile/Flutter, Frontend/Next.js] Implement user registration, login (email/password, Google/Apple SSO), profile management, and data consent flows as per FR-01.",
+        "status": "pending",
+        "priority": "high",
+        "dependencies": [1]
+      },
+      {
+        "id": 3,
+        "title": "Health Data Integration (FR-02)",
+        "description": "[Mobile/Flutter, Backend/NestJS] Integrate with Apple HealthKit and Google Fit to sync, process, and display biometric and activity data. The backend will store and manage the synced data.",
+        "status": "pending",
+        "priority": "medium",
+        "dependencies": [2]
+      },
+      {
+        "id": 4,
+        "title": "Prescription Management (OCR Scanner) (FR-03)",
+        "description": "[Mobile/Flutter, Backend/NestJS] Develop the OCR-based prescription scanner, including image capture, data extraction (drug name, dosage, schedule), and manual entry/edit capabilities. The backend will handle the AI/OCR processing.",
+        "status": "pending",
+        "priority": "medium",
+        "dependencies": [2]
+      },
+      {
+        "id": 5,
+        "title": "Intelligent Notification & Reminder System (FR-04)",
+        "description": "[Backend/NestJS, Mobile/Flutter] Build the smart reminder system with actionable notifications, audit logging, and the adaptive notification engine. The mobile app will receive and display the notifications.",
+        "status": "pending",
+        "priority": "high",
+        "dependencies": [4]
+      },
+      {
+        "id": 6,
+        "title": "Intelligent Daily Check-ins (FR-05)",
+        "description": "[Mobile/Flutter, Backend/NestJS] Implement the adaptive daily check-in feature with interactive notifications and personalized question flows. The backend will process and store the check-in data.",
+        "status": "pending",
+        "priority": "medium",
+        "dependencies": [5]
+      },
+      {
+        "id": 7,
+        "title": "Care Groups & Family Network (FR-06)",
+        "description": "[Backend/NestJS, Mobile/Flutter, Frontend/Next.js] Create the Care Group functionality, including secure invitations, deep linking, role-based permissions, and the shared dashboard.",
+        "status": "pending",
+        "priority": "high",
+        "dependencies": [2]
+      },
+      {
+        "id": 8,
+        "title": "AI-Powered Insights & Summaries (FR-07)",
+        "description": "[Backend/NestJS] Develop the RAG-based AI system to generate summaries for medications, health conditions, and user data trends.",
+        "status": "pending",
+        "priority": "medium",
+        "dependencies": [3, 4]
+      },
+      {
+        "id": 9,
+        "title": "Document Export & Sharing (FR-08)",
+        "description": "[Mobile/Flutter] Implement the feature to export user health summaries to a shareable PDF document.",
+        "status": "pending",
+        "priority": "low",
+        "dependencies": [3]
+      },
+      {
+        "id": 10,
+        "title": "Administrative Web Portal (FR-09)",
+        "description": "[Frontend/Next.js] Build the Next.js admin portal with system health dashboards, user management tools, and AI cost monitoring.",
+        "status": "pending",
+        "priority": "medium",
+        "dependencies": [1]
+      },
+      {
+        "id": 11,
+        "title": "User Settings & Personalization (FR-10)",
+        "description": "[Mobile/Flutter, Frontend/Next.js, Backend/NestJS] Implement the comprehensive user settings screen, including modular UI, granular notification controls, and privacy settings.",
+        "status": "pending",
+        "priority": "medium",
+        "dependencies": [2]
+      },
+      {
+        "id": 12,
+        "title": "Monetization & Growth Strategy (FR-11)",
+        "description": "[Backend/NestJS, Mobile/Flutter] Implement the freemium model, in-app subscription purchases (IAP, MoMo, ZaloPay), and the user referral program.",
+        "status": "pending",
+        "priority": "high",
+        "dependencies": [2]
+      },
+      {
+        "id": 13,
+        "title": "Gamification & Engagement (FR-12)",
+        "description": "[Backend/NestJS, Mobile/Flutter] Develop the Health Points system, badges, and achievements to drive user engagement.",
+        "status": "pending",
+        "priority": "low",
+        "dependencies": [2]
+      },
+      {
+        "id": 14,
+        "title": "Accessibility & Elder Mode (FR-13)",
+        "description": "[Mobile/Flutter] Implement the simplified 'Elder Mode' with a high-contrast UI, large fonts, and voice prompts.",
+        "status": "pending",
+        "priority": "medium",
+        "dependencies": [2]
+      },
+      {
+        "id": 15,
+        "title": "E-Pharmacy Integration (FR-15)",
+        "description": "[Mobile/Flutter, Backend/NestJS] Integrate with partner e-pharmacy platforms for medication refill requests.",
+        "status": "pending",
+        "priority": "low",
+        "dependencies": [4]
+      },
+      {
+        "id": 16,
+        "title": "User Feedback (FR-18)",
+        "description": "[Mobile/Flutter, Frontend/Next.js, Backend/NestJS] Add an in-app mechanism for users to submit feedback and bug reports.",
+        "status": "pending",
+        "priority": "low",
+        "dependencies": [2]
+      }
+    ],
+    "metadata": {
+      "created": "2025-07-03T13:21:13.212Z",
+      "updated": "2025-07-03T13:21:13.212Z",
+      "description": "Tasks for master context"
+    }
+  }
+}

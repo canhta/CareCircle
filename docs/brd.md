@@ -70,6 +70,7 @@ The initial release (MVP) of the CareCircle platform will include the following 
     *   Dashboard for system health monitoring.
     *   User management and support tools.
     *   **Marketing Dashboard**: Simple dashboard with aggregate sign-up and engagement statistics.
+    *   **AI Cost Monitoring**: Dashboard to track AI service usage, token consumption, and associated costs per user/request.
 
 ### 2.2. Out of Scope
 The following features are considered out of scope for the initial release but may be considered for future versions:
@@ -181,7 +182,7 @@ The following features are considered out of scope for the initial release but m
 
 ### FR-09: Administrative Web Portal
 *   **FR-9.1**: Admins must be able to log in securely to the web portal.
-*   **FR-9.2**: The portal must display a real-time dashboard of system health, user statistics, and engagement metrics.
+*   **FR-9.2**: The portal must display a real-time dashboard of system health, user statistics, engagement metrics, and AI service costs.
 *   **FR-9.3**: Admins must have the ability to look up users and provide support.
 
 
@@ -341,6 +342,7 @@ The following features are considered out of scope for the initial release but m
 ### 8.2. Business & Monetization
 *   Free-to-Premium conversion rate.
 *   Monthly Recurring Revenue (MRR).
+*   Average AI cost per active user.
 *   Number of B2B partnership agreements signed.
 
 ### 8.3. System Performance
