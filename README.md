@@ -1,6 +1,6 @@
 # CareCircle AI Health Agent
 
-CareCircle is a cross-platform health management platform designed to empower families to manage health together. It aggregates health data, leverages AI for medication management, and provides personalized reminders and family-centric care coordination. The ecosystem includes a hybrid mobile app for end-users, a robust NestJS backend, and a Next.js web portal for administration.
+CareCircle is a cross-platform health management platform designed to empower families to manage health together. It aggregates health data, leverages AI for medication management, and provides personalized reminders and family-centric care coordination. The ecosystem includes a Flutter mobile app for end-users, a robust NestJS backend, and a Next.js web portal for administration.
 
 ---
 

@@ -8,7 +8,7 @@
 ## 1. Introduction
 
 ### 1.1. Project Overview
-CareCircle is a cross-platform mobile application (iOS & Android) designed to serve as a comprehensive AI Health Agent. The system aggregates health data from various sources, leverages AI-powered assistants for medication management, and provides personalized reminders and family-centric care coordination. The ecosystem includes a hybrid mobile app for end-users, a robust NestJS backend, and a Next.js web portal for administration.
+CareCircle is a cross-platform mobile application (iOS & Android) designed to serve as a comprehensive AI Health Agent. The system aggregates health data from various sources, leverages AI-powered assistants for medication management, and provides personalized reminders and family-centric care coordination. The ecosystem includes a Flutter mobile app for end-users, a robust NestJS backend, and a Next.js web portal for administration.
 
 ### 1.2. Business Problem
 In markets like Vietnam, there is a growing need for digital health solutions to support an aging population and manage the increasing prevalence of chronic diseases. Existing applications are often fragmented, focusing on single-use cases like doctor booking, pharmacy sales, or basic health tracking. There is a clear market gap for an integrated platform that unifies health data, provides intelligent medication management, and facilitates family involvement in the care process. Caregivers lack the tools to effectively monitor and support their loved ones' health remotely, and patients struggle to manage complex medication schedules.
@@ -302,7 +302,7 @@ The following features are considered out of scope for the initial release but m
 ## 6. System Architecture & Monetization
 
 ### 6.1. System Architecture
-*   **Mobile App**: React Native (TypeScript) for cross-platform development.
+*   **Mobile App**: Flutter (Dart) for cross-platform development.
 *   **Backend API**: NestJS (TypeScript) with a PostgreSQL database (using TimescaleDB for time-series data).
 *   **AI Services**: OpenAI/Private LLM with RAG, Knowledge Graph (e.g., Neo4j).
 *   **Web Portal**: Next.js (React) with Tailwind CSS.

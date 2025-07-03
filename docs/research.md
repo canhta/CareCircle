@@ -54,7 +54,7 @@ By combining health tracking (like Google Fit ￼), medication management (inspi
 
 ## Implementation and Market Strategy
 
-For a Vietnam MVP, emphasize local partnerships: pilot with a major pharmacy (e.g. Pharmacity) or hospital network to validate user value. Integrate with popular payment apps (Momo, ZaloPay) for subscriptions. Use agile development with React Native for fast cross-platform rollout, while ensuring end-to-end encryption and Kubernetes-based scaling as planned.
+For a Vietnam MVP, emphasize local partnerships: pilot with a major pharmacy (e.g. Pharmacity) or hospital network to validate user value. Integrate with popular payment apps (Momo, ZaloPay) for subscriptions. Use agile development with Flutter for fast cross-platform rollout, while ensuring end-to-end encryption and Kubernetes-based scaling as planned.
 
 Marketing should target both end-users and institutions: for example, offer free trials to members of elderly community groups and partner with senior centers or chronic-care clinics. Leverage Vietnam’s strong social media usage for families (Zalo, Facebook) to spread word-of-mouth. Incorporate user feedback loops (in-app surveys) to refine features, especially around notification phrasing and scheduling, to maximize adherence.
 

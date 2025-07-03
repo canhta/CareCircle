@@ -4,7 +4,7 @@ CareCircle AI Health Agent
 
 ## 1. Introduction
 
-The AI Health Agent is a cross-platform mobile application (iOS & Android) that aggregates health data, leverages AI assistants, and provides personalized reminders and family-centric care coordination. It will be built as a hybrid app (e.g. React Native or Flutter), with a NestJS backend and a Next.js web portal for administration.
+The AI Health Agent is a cross-platform mobile application (iOS & Android) that aggregates health data, leverages AI assistants, and provides personalized reminders and family-centric care coordination. It will be built using Flutter for cross-platform mobile development, with a NestJS backend and a Next.js web portal for administration.
 
 ⸻
 
@@ -70,9 +70,9 @@ The AI Health Agent is a cross-platform mobile application (iOS & Android) that 
 ## 5. System Architecture & Technical Stack
 
 1.  **Mobile App**
-    - **Framework**: React Native (TypeScript) or Flutter
+    - **Framework**: Flutter (Dart)
     - **Health APIs**: HealthKit (iOS), Google Fit (Android)
-    - **OCR/NLP**: Tesseract / Google Cloud Vision + custom NLP pipeline
+    - **OCR/NLP**: Google ML Kit / Google Cloud Vision + custom NLP pipeline
 2.  **Backend API**
     - **Framework**: NestJS (TypeScript)
     - **Database**: PostgreSQL (with TimescaleDB extension for time-series)
