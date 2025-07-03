@@ -35,6 +35,14 @@ model User {
   avatar       String?
   emergencyContact String?
   
+  // Privacy and Consent
+  dataProcessingConsent    Boolean @default(false)
+  marketingConsent         Boolean @default(false)
+  analyticsConsent         Boolean @default(false)
+  healthDataSharingConsent Boolean @default(false)
+  consentVersion           String? // Track consent version for compliance
+  consentDate              DateTime?
+  
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   

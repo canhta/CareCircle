@@ -59,10 +59,76 @@
         "id": 2,
         "title": "User Account & Profile Management (FR-01)",
         "description": "[Backend/NestJS, Mobile/Flutter, Frontend/Next.js] Implement user registration, login (email/password, Google/Apple SSO), profile management, and data consent flows as per FR-01.",
-        "status": "pending",
+        "status": "done",
         "priority": "high",
         "dependencies": [
           1
+        ],
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Implement User Registration and Login Endpoints with Validation",
+            "description": "Develop backend endpoints for user registration and login, incorporating input validation and password hashing.",
+            "dependencies": [],
+            "details": "Create RESTful endpoints in the NestJS backend for user registration and login. Utilize the 'class-validator' package to enforce input validation rules. Implement password hashing using 'bcrypt' to securely store user passwords. Ensure that the Prisma user model is updated accordingly.\n<info added on 2025-07-03T15:29:46.152Z>\nImplemented user registration and login endpoints with comprehensive validation and security features:\n\n1. User registration endpoint with email and password validation using class-validator decorators.\n2. Secure password hashing using bcrypt with 12 salt rounds.\n3. User login endpoint with proper authentication flow.\n4. Input validation for all DTOs.\n5. Error handling for duplicate users and invalid credentials.\n6. Integration with existing Prisma User model.\n\nAll endpoints are functional, and the build is successful.\n</info added on 2025-07-03T15:29:46.152Z>",
+            "status": "done",
+            "testStrategy": "Write unit tests to verify input validation logic and password hashing functionality. Use integration tests to confirm that the registration and login endpoints function correctly with valid and invalid inputs."
+          },
+          {
+            "id": 2,
+            "title": "Integrate JWT Authentication with Passport.js",
+            "description": "Set up JWT-based authentication using Passport.js to manage user sessions securely.",
+            "dependencies": [
+              1
+            ],
+            "details": "Install and configure the '@nestjs/passport' and '@nestjs/jwt' packages. Define a JWT strategy that extracts tokens from the Authorization header and validates them. Implement guards to protect routes that require authentication. Ensure that the JWT secret is securely stored and managed.\n<info added on 2025-07-03T15:29:59.827Z>\nImplemented a comprehensive JWT authentication system using Passport.js, including:\n\n1. JWT Strategy with proper token validation and user lookup.\n2. Local Strategy for username/password authentication.\n3. JWT and Local Auth Guards for route protection.\n4. Token generation with access tokens (15 minutes) and refresh tokens (7 days).\n5. Refresh token endpoint for token renewal.\n6. Password reset functionality with a secure token-based flow.\n7. Environment configuration for JWT secrets.\n8. Updated auth module with all strategies and JWT module configuration.\n9. Type-safe payload interfaces for all JWT operations.\n\nBackend build completed successfully with no errors.\n</info added on 2025-07-03T15:29:59.827Z>",
+            "status": "done",
+            "testStrategy": "Develop unit tests for the JWT strategy to ensure correct token validation. Create integration tests to verify that protected routes are accessible only with valid tokens."
+          },
+          {
+            "id": 3,
+            "title": "Implement Google OAuth and Apple Sign-In Integration",
+            "description": "Enable users to authenticate using Google and Apple accounts through OAuth integration.",
+            "dependencies": [
+              2
+            ],
+            "details": "For the backend, configure Passport.js strategies for Google and Apple OAuth. For the frontend, use the 'google_sign_in' and 'sign_in_with_apple' packages in Flutter to handle the authentication flows. Ensure that the backend can process the OAuth tokens received from the frontend and create or link user accounts accordingly.",
+            "status": "done",
+            "testStrategy": "Write unit tests for the OAuth strategies to ensure correct handling of tokens and user information. Perform end-to-end tests to verify the complete authentication flow from frontend to backend."
+          },
+          {
+            "id": 4,
+            "title": "Develop Password Reset Functionality",
+            "description": "Create a secure mechanism for users to reset their passwords.",
+            "dependencies": [
+              1
+            ],
+            "details": "Implement an endpoint that allows users to request a password reset, generating a secure token and sending it via email. Create another endpoint to handle the actual password reset using the token. Ensure that tokens are time-limited and securely stored.",
+            "status": "done",
+            "testStrategy": "Write unit tests to verify token generation, storage, and validation. Conduct integration tests to ensure the password reset process works as intended, including email delivery and token expiration handling."
+          },
+          {
+            "id": 5,
+            "title": "Implement Session Management and Refresh Tokens",
+            "description": "Manage user sessions effectively by implementing refresh tokens for prolonged authentication.",
+            "dependencies": [
+              2
+            ],
+            "details": "Enhance the authentication system to issue refresh tokens alongside access tokens. Store refresh tokens securely and implement an endpoint to handle token refreshing. Ensure that refresh tokens can be revoked when necessary.",
+            "status": "done",
+            "testStrategy": "Develop unit tests to verify the issuance and validation of refresh tokens. Create integration tests to ensure the token refresh process works correctly and securely."
+          },
+          {
+            "id": 6,
+            "title": "Implement Data Consent and Privacy Controls",
+            "description": "Provide users with options to manage their data consent and privacy settings.",
+            "dependencies": [
+              1
+            ],
+            "details": "Develop endpoints that allow users to view, grant, or revoke data consent. Implement mechanisms to handle user data according to their consent preferences. Ensure compliance with relevant data protection regulations.",
+            "status": "done",
+            "testStrategy": "Write unit tests to verify the correct handling of consent preferences. Conduct integration tests to ensure that user data is managed appropriately based on consent settings."
+          }
         ]
       },
       {
@@ -209,7 +275,7 @@
     ],
     "metadata": {
       "created": "2025-07-03T13:21:13.212Z",
-      "updated": "2025-07-03T15:12:04.279Z",
+      "updated": "2025-07-03T15:40:56.752Z",
       "description": "Tasks for master context"
     }
   }
