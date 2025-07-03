@@ -349,3 +349,35 @@ The following features are considered out of scope for the initial release but m
 *   Service uptime meeting the 99.9% SLA.
 *   Average API response time.
 *   OCR success and accuracy rate.
+
+---
+
+## 12. Development Approach & Quality Assurance
+
+### 12.1. Testing Strategy
+**Decision: No Automated Testing Infrastructure**
+
+For this MVP phase of CareCircle, we have made a strategic decision to prioritize rapid development and feature delivery over comprehensive automated testing. This approach is designed to:
+
+- **Accelerate Time-to-Market**: Focus development resources on core features rather than test infrastructure
+- **Enable Rapid Prototyping**: Allow for quick iterations and pivots based on user feedback
+- **Reduce Initial Complexity**: Minimize the overhead of maintaining test suites during the MVP phase
+
+### 12.2. Quality Assurance Approach
+Instead of automated testing, quality will be ensured through:
+
+1. **Manual Testing**: Thorough manual testing of all user flows and edge cases
+2. **Code Reviews**: Mandatory peer reviews for all code changes
+3. **Incremental Deployment**: Gradual rollout of features to identify issues early
+4. **User Feedback Loops**: Direct user testing and feedback collection
+5. **Production Monitoring**: Comprehensive logging and error tracking in production
+
+### 12.3. Future Considerations
+- Automated testing infrastructure may be introduced in post-MVP phases
+- Critical business logic may receive unit testing as the codebase matures
+- E2E testing may be considered for key user journeys in later versions
+
+**Note**: All test files, configurations, and dependencies have been removed from:
+- Backend NestJS application
+- Frontend Next.js application  
+- Mobile Flutter application
