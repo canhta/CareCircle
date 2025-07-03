@@ -54,19 +54,19 @@ export const serverConfig = {
 // Validation function to check required environment variables
 export function validateConfig(): { isValid: boolean; errors: string[] } {
   const errors: string[] = [];
-  
+
   // Check required public variables
   if (!config.api.baseUrl) {
     errors.push('NEXT_PUBLIC_API_URL is required');
   }
-  
+
   // Check required server-side variables (only on server)
   if (typeof window === 'undefined') {
     if (!serverConfig.auth.secret) {
       errors.push('NEXTAUTH_SECRET is required');
     }
   }
-  
+
   return {
     isValid: errors.length === 0,
     errors,

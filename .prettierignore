@@ -1,0 +1,38 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Build outputs
+.next/
+dist/
+build/
+
+# Generated files
+*.generated.ts
+*.generated.js
+
+# Lock files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Database
+*.db
+*.sqlite
+
+# Logs
+*.log
+logs/
+
+# Mobile
+mobile/android/
+mobile/ios/
+mobile/.dart_tool/
+mobile/build/
+
+# Git
+.git/
+
+# IDE
+.vscode/
+.idea/

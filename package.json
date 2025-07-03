@@ -5,7 +5,19 @@
     "doc": "docs"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "prepare": "husky",
+    "lint": "npm run lint:backend && npm run lint:frontend",
+    "lint:backend": "cd backend && npm run lint",
+    "lint:frontend": "cd frontend && npm run lint",
+    "lint:mobile": "cd mobile && flutter analyze",
+    "format": "npm run format:backend && npm run format:frontend && npm run format:mobile",
+    "format:backend": "cd backend && npm run format",
+    "format:frontend": "cd frontend && npx prettier --write .",
+    "format:mobile": "cd mobile && dart format .",
+    "type-check": "npm run type-check:backend && npm run type-check:frontend",
+    "type-check:backend": "cd backend && npm run type-check",
+    "type-check:frontend": "cd frontend && npx tsc --noEmit",
+    "pre-commit": "lint-staged"
   },
   "repository": {
     "type": "git",
@@ -18,5 +30,10 @@
     "url": "https://github.com/canhta/CareCircle/issues"
   },
   "homepage": "https://github.com/canhta/CareCircle#readme",
-  "description": "CareCircle is a community-driven platform designed to connect caregivers and care seekers, facilitating support and resource sharing."
+  "description": "CareCircle is a community-driven platform designed to connect caregivers and care seekers, facilitating support and resource sharing.",
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.2",
+    "prettier": "^3.6.2"
+  }
 }

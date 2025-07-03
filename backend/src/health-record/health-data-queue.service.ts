@@ -132,20 +132,25 @@ export class HealthDataQueueService {
   private async processSyncJob(job: HealthDataSyncJob): Promise<void> {
     try {
       this.logger.log(`Processing sync job for user ${job.userId}`);
-      
+
       // Here we would call the actual health record service sync method
       // For now, just log the processing
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate processing
-      
+      await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate processing
+
       this.logger.log(`Successfully processed sync job for user ${job.userId}`);
     } catch (error) {
-      this.logger.error(`Failed to process sync job for user ${job.userId}:`, error);
-      
+      this.logger.error(
+        `Failed to process sync job for user ${job.userId}:`,
+        error,
+      );
+
       // Retry logic
       if (job.retryCount && job.retryCount < 3) {
         job.retryCount++;
         this.jobQueue.push(job); // Re-queue for retry
-        this.logger.log(`Re-queued sync job for user ${job.userId}, attempt ${job.retryCount}`);
+        this.logger.log(
+          `Re-queued sync job for user ${job.userId}, attempt ${job.retryCount}`,
+        );
       }
     }
   }
@@ -155,8 +160,10 @@ export class HealthDataQueueService {
    */
   private async processDataJob(job: HealthDataProcessingJob): Promise<void> {
     try {
-      this.logger.log(`Processing ${job.processingType} job for user ${job.userId}`);
-      
+      this.logger.log(
+        `Processing ${job.processingType} job for user ${job.userId}`,
+      );
+
       // Simulate data processing based on type
       switch (job.processingType) {
         case 'aggregate':
@@ -169,14 +176,21 @@ export class HealthDataQueueService {
           await this.processInsights(job);
           break;
       }
-      
-      this.logger.log(`Successfully processed ${job.processingType} job for user ${job.userId}`);
+
+      this.logger.log(
+        `Successfully processed ${job.processingType} job for user ${job.userId}`,
+      );
     } catch (error) {
-      this.logger.error(`Failed to process ${job.processingType} job for user ${job.userId}:`, error);
+      this.logger.error(
+        `Failed to process ${job.processingType} job for user ${job.userId}:`,
+        error,
+      );
     }
   }
 
-  private async processAggregation(job: HealthDataProcessingJob): Promise<void> {
+  private async processAggregation(
+    job: HealthDataProcessingJob,
+  ): Promise<void> {
     // Implement daily/weekly/monthly aggregation logic
     this.logger.log(`Aggregating ${job.dataType} data for user ${job.userId}`);
   }
@@ -188,7 +202,9 @@ export class HealthDataQueueService {
 
   private async processInsights(job: HealthDataProcessingJob): Promise<void> {
     // Implement insight generation logic
-    this.logger.log(`Generating insights for ${job.dataType} data for user ${job.userId}`);
+    this.logger.log(
+      `Generating insights for ${job.dataType} data for user ${job.userId}`,
+    );
   }
 
   /**
