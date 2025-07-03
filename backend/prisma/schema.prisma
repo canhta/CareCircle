@@ -1,9 +1,6 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,4 +8,331 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+// User Management
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String?  // Optional for SSO users
+  firstName String
+  lastName  String
+  phone     String?
+  dateOfBirth DateTime?
+  gender    Gender?
+  timezone  String   @default("UTC")
+  
+  // Authentication
+  emailVerified Boolean @default(false)
+  isActive      Boolean @default(true)
+  lastLoginAt   DateTime?
+  
+  // SSO
+  googleId String?
+  appleId  String?
+  
+  // Profile
+  avatar       String?
+  emergencyContact String?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  healthRecords     HealthRecord[]
+  prescriptions     Prescription[]
+  careGroupMembers  CareGroupMember[]
+  notifications     Notification[]
+  checkIns          DailyCheckIn[]
+  documents         Document[]
+  
+  @@map("users")
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+  PREFER_NOT_TO_SAY
+}
+
+// Health Data Integration
+model HealthRecord {
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Health metrics
+  dataType    HealthDataType
+  value       Float
+  unit        String
+  recordedAt  DateTime
+  source      DataSource
+  
+  // Metadata
+  deviceId    String?
+  confidence  Float?
+  notes       String?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("health_records")
+}
+
+enum HealthDataType {
+  HEART_RATE
+  BLOOD_PRESSURE_SYSTOLIC
+  BLOOD_PRESSURE_DIASTOLIC
+  WEIGHT
+  HEIGHT
+  BMI
+  BLOOD_GLUCOSE
+  STEPS
+  SLEEP_HOURS
+  EXERCISE_MINUTES
+  CALORIES_BURNED
+  OXYGEN_SATURATION
+  BODY_TEMPERATURE
+}
+
+enum DataSource {
+  MANUAL
+  APPLE_HEALTH
+  GOOGLE_FIT
+  DEVICE_SYNC
+}
+
+// Prescription Management
+model Prescription {
+  id          String  @id @default(uuid())
+  userId      String
+  user        User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Medication details
+  medicationName String
+  dosage         String
+  frequency      String
+  instructions   String?
+  startDate      DateTime
+  endDate        DateTime?
+  
+  // OCR data
+  ocrImageUrl    String?
+  ocrConfidence  Float?
+  isVerified     Boolean @default(false)
+  
+  // Refill info
+  refillsLeft    Int?
+  pharmacy       String?
+  prescribedBy   String?
+  
+  isActive Boolean @default(true)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  reminders Reminder[]
+  
+  @@map("prescriptions")
+}
+
+// Notification & Reminder System
+model Reminder {
+  id             String @id @default(uuid())
+  prescriptionId String
+  prescription   Prescription @relation(fields: [prescriptionId], references: [id], onDelete: Cascade)
+  
+  // Timing
+  scheduledAt DateTime
+  isRecurring Boolean @default(true)
+  frequency   String? // e.g., "daily", "twice_daily", "weekly"
+  
+  // Status
+  status     ReminderStatus @default(PENDING)
+  sentAt     DateTime?
+  acknowledgedAt DateTime?
+  
+  // Retry logic
+  retryCount Int @default(0)
+  maxRetries Int @default(3)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("reminders")
+}
+
+enum ReminderStatus {
+  PENDING
+  SENT
+  ACKNOWLEDGED
+  MISSED
+  FAILED
+}
+
+// Care Groups & Family Network
+model CareGroup {
+  id          String @id @default(uuid())
+  name        String
+  description String?
+  inviteCode  String @unique
+  
+  // Settings
+  isActive Boolean @default(true)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  members CareGroupMember[]
+  
+  @@map("care_groups")
+}
+
+model CareGroupMember {
+  id          String @id @default(uuid())
+  careGroupId String
+  careGroup   CareGroup @relation(fields: [careGroupId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  role        CareRole @default(MEMBER)
+  joinedAt    DateTime @default(now())
+  isActive    Boolean  @default(true)
+  
+  // Permissions
+  canViewHealth      Boolean @default(false)
+  canReceiveAlerts   Boolean @default(true)
+  canManageSettings  Boolean @default(false)
+  
+  @@unique([careGroupId, userId])
+  @@map("care_group_members")
+}
+
+enum CareRole {
+  OWNER
+  ADMIN
+  CAREGIVER
+  MEMBER
+}
+
+// Daily Check-ins
+model DailyCheckIn {
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  date DateTime @db.Date
+  
+  // Health metrics
+  moodScore      Int?     @db.SmallInt // 1-10
+  energyLevel    Int?     @db.SmallInt // 1-10
+  sleepQuality   Int?     @db.SmallInt // 1-10
+  painLevel      Int?     @db.SmallInt // 0-10
+  stressLevel    Int?     @db.SmallInt // 1-10
+  
+  // Symptoms
+  symptoms       String[] // Array of symptom strings
+  notes          String?
+  
+  // AI generated insights
+  aiInsights     String?
+  riskScore      Float?
+  
+  completed Boolean @default(false)
+  completedAt DateTime?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@unique([userId, date])
+  @@map("daily_check_ins")
+}
+
+// Notifications
+model Notification {
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Content
+  title   String
+  message String
+  type    NotificationType
+  
+  // Delivery
+  channel NotificationChannel[]
+  sentAt  DateTime?
+  readAt  DateTime?
+  
+  // Metadata
+  actionUrl String?
+  priority  NotificationPriority @default(NORMAL)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("notifications")
+}
+
+enum NotificationType {
+  MEDICATION_REMINDER
+  HEALTH_ALERT
+  CHECK_IN_REMINDER
+  CARE_GROUP_UPDATE
+  SYSTEM_NOTIFICATION
+  AI_INSIGHT
+}
+
+enum NotificationChannel {
+  PUSH
+  EMAIL
+  SMS
+  IN_APP
+}
+
+enum NotificationPriority {
+  LOW
+  NORMAL
+  HIGH
+  CRITICAL
+}
+
+// Document Management
+model Document {
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // File info
+  fileName    String
+  fileUrl     String
+  fileType    String
+  fileSize    Int
+  
+  // Metadata
+  title       String?
+  description String?
+  category    DocumentCategory?
+  tags        String[]
+  
+  // AI processing
+  extractedText String?
+  aiSummary     String?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("documents")
+}
+
+enum DocumentCategory {
+  PRESCRIPTION
+  LAB_RESULT
+  MEDICAL_REPORT
+  INSURANCE
+  EMERGENCY_CONTACT
+  OTHER
 }

@@ -26,7 +26,7 @@
             "id": 3,
             "title": "Set Up Local Development Environment with Docker Compose",
             "description": "Configure Docker Compose to manage local development services, including PostgreSQL and Redis, to streamline backend development.",
-            "status": "in-progress",
+            "status": "done",
             "dependencies": [
               2
             ],
@@ -209,7 +209,7 @@
     ],
     "metadata": {
       "created": "2025-07-03T13:21:13.212Z",
-      "updated": "2025-07-03T14:01:43.368Z",
+      "updated": "2025-07-03T14:20:15.977Z",
       "description": "Tasks for master context"
     }
   }
