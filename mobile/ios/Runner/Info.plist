@@ -45,5 +45,9 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSHealthShareUsageDescription</key>
+	<string>CareCircle needs access to your health data to provide personalized insights and help coordinate care with your family members.</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>CareCircle needs to update your health data to keep track of your wellness activities and medication adherence.</string>
 </dict>
 </plist>

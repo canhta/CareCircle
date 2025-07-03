@@ -22,6 +22,7 @@ async function main() {
   console.log('✅ Created demo user:', demoUser.email);
 
   // Create some sample health records
+  const now = new Date();
   await prisma.healthRecord.createMany({
     data: [
       {
@@ -29,32 +30,44 @@ async function main() {
         dataType: 'HEART_RATE',
         value: 72,
         unit: 'bpm',
-        recordedAt: new Date(),
+        recordedAt: now,
         source: 'MANUAL',
+        year: now.getFullYear(),
+        month: now.getMonth() + 1,
+        day: now.getDate(),
       },
       {
         userId: demoUser.id,
         dataType: 'WEIGHT',
         value: 70.5,
         unit: 'kg',
-        recordedAt: new Date(),
+        recordedAt: now,
         source: 'MANUAL',
+        year: now.getFullYear(),
+        month: now.getMonth() + 1,
+        day: now.getDate(),
       },
       {
         userId: demoUser.id,
         dataType: 'BLOOD_PRESSURE_SYSTOLIC',
         value: 120,
         unit: 'mmHg',
-        recordedAt: new Date(),
+        recordedAt: now,
         source: 'MANUAL',
+        year: now.getFullYear(),
+        month: now.getMonth() + 1,
+        day: now.getDate(),
       },
       {
         userId: demoUser.id,
         dataType: 'BLOOD_PRESSURE_DIASTOLIC',
         value: 80,
         unit: 'mmHg',
-        recordedAt: new Date(),
+        recordedAt: now,
         source: 'MANUAL',
+        year: now.getFullYear(),
+        month: now.getMonth() + 1,
+        day: now.getDate(),
       },
     ],
   });

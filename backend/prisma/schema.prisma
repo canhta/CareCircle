@@ -12,48 +12,51 @@ datasource db {
 
 // User Management
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  password  String?  // Optional for SSO users
-  firstName String
-  lastName  String
-  phone     String?
+  id          String    @id @default(uuid())
+  email       String    @unique
+  password    String? // Optional for SSO users
+  firstName   String
+  lastName    String
+  phone       String?
   dateOfBirth DateTime?
-  gender    Gender?
-  timezone  String   @default("UTC")
-  
+  gender      Gender?
+  timezone    String    @default("UTC")
+
   // Authentication
-  emailVerified Boolean @default(false)
-  isActive      Boolean @default(true)
+  emailVerified Boolean   @default(false)
+  isActive      Boolean   @default(true)
   lastLoginAt   DateTime?
-  
+
   // SSO
   googleId String?
   appleId  String?
-  
+
   // Profile
-  avatar       String?
+  avatar           String?
   emergencyContact String?
-  
+
   // Privacy and Consent
-  dataProcessingConsent    Boolean @default(false)
-  marketingConsent         Boolean @default(false)
-  analyticsConsent         Boolean @default(false)
-  healthDataSharingConsent Boolean @default(false)
+  dataProcessingConsent    Boolean   @default(false)
+  marketingConsent         Boolean   @default(false)
+  analyticsConsent         Boolean   @default(false)
+  healthDataSharingConsent Boolean   @default(false)
   consentVersion           String? // Track consent version for compliance
   consentDate              DateTime?
-  
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
+
   // Relations
   healthRecords     HealthRecord[]
+  healthMetrics     HealthMetrics[]
+  healthDataSync    HealthDataSync[]
+  healthDataConsent HealthDataConsent[]
   prescriptions     Prescription[]
   careGroupMembers  CareGroupMember[]
   notifications     Notification[]
   checkIns          DailyCheckIn[]
   documents         Document[]
-  
+
   @@map("users")
 }
 
@@ -69,23 +72,143 @@ model HealthRecord {
   id     String @id @default(uuid())
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
   // Health metrics
-  dataType    HealthDataType
-  value       Float
-  unit        String
-  recordedAt  DateTime
-  source      DataSource
-  
+  dataType   HealthDataType
+  value      Float
+  unit       String
+  recordedAt DateTime
+  source     DataSource
+
   // Metadata
-  deviceId    String?
-  confidence  Float?
-  notes       String?
-  
+  deviceId   String?
+  confidence Float?
+  notes      String?
+
+  // Time-series optimization
+  year  Int // For partitioning
+  month Int // For partitioning
+  day   Int // For efficient queries
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
+
+  @@index([userId, dataType, recordedAt])
+  @@index([userId, year, month])
+  @@index([recordedAt])
   @@map("health_records")
+}
+
+// Enhanced health data model for comprehensive tracking
+model HealthMetrics {
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  date DateTime @db.Date
+
+  // Activity metrics
+  steps           Int?
+  distance        Float? // in kilometers
+  caloriesBurned  Int?
+  activeMinutes   Int?
+  exerciseMinutes Int?
+
+  // Vital signs
+  heartRateResting Int?
+  heartRateMax     Int?
+  heartRateAvg     Int?
+  bloodPressureSys Int?
+  bloodPressureDia Int?
+  oxygenSaturation Float?
+  bodyTemperature  Float?
+
+  // Sleep data
+  sleepDuration     Int? // minutes
+  deepSleepDuration Int? // minutes
+  remSleepDuration  Int? // minutes
+  sleepScore        Int? // 0-100
+  bedTime           DateTime?
+  wakeTime          DateTime?
+
+  // Body composition
+  weight     Float?
+  height     Float?
+  bmi        Float?
+  bodyFat    Float?
+  muscleMass Float?
+
+  // Specialized metrics
+  bloodGlucose     Float?
+  insulinLevel     Float?
+  cholesterolTotal Float?
+  cholesterolLDL   Float?
+  cholesterolHDL   Float?
+
+  // Data sources and sync info
+  lastSyncAt  DateTime?
+  syncSource  DataSource
+  dataQuality DataQuality @default(GOOD)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, date])
+  @@index([userId, date])
+  @@map("health_metrics")
+}
+
+// Enhanced health data sync tracking
+model HealthDataSync {
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  source       DataSource
+  lastSyncAt   DateTime
+  syncStatus   SyncStatus
+  recordsCount Int        @default(0)
+  errorMessage String?
+
+  // Sync window
+  syncFromDate DateTime
+  syncToDate   DateTime
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId, source])
+  @@map("health_data_sync")
+}
+
+// User consent tracking for health data
+model HealthDataConsent {
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Consent details
+  consentType    ConsentType
+  dataCategories String[] // Categories of health data
+  purpose        String // Purpose of data collection/sharing
+  consentGranted Boolean
+  consentDate    DateTime
+  revokedAt      DateTime?
+  consentVersion String // Version of consent terms
+
+  // Legal compliance
+  legalBasis      String // Legal basis for processing (GDPR, Vietnam Decree 13/2022)
+  retentionPeriod Int? // Days to retain data
+
+  // Care group sharing consent
+  careGroupId     String?
+  shareWithFamily Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId, consentType])
+  @@map("health_data_consent")
 }
 
 enum HealthDataType {
@@ -102,6 +225,19 @@ enum HealthDataType {
   CALORIES_BURNED
   OXYGEN_SATURATION
   BODY_TEMPERATURE
+  DISTANCE
+  ACTIVE_MINUTES
+  RESTING_HEART_RATE
+  MAX_HEART_RATE
+  DEEP_SLEEP
+  REM_SLEEP
+  SLEEP_SCORE
+  BODY_FAT
+  MUSCLE_MASS
+  INSULIN_LEVEL
+  CHOLESTEROL_TOTAL
+  CHOLESTEROL_LDL
+  CHOLESTEROL_HDL
 }
 
 enum DataSource {
@@ -109,14 +245,40 @@ enum DataSource {
   APPLE_HEALTH
   GOOGLE_FIT
   DEVICE_SYNC
+  IMPORTED_CSV
+  API_INTEGRATION
+}
+
+enum DataQuality {
+  POOR
+  FAIR
+  GOOD
+  EXCELLENT
+}
+
+enum SyncStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  FAILED
+  PARTIAL
+}
+
+enum ConsentType {
+  DATA_COLLECTION
+  DATA_SHARING
+  FAMILY_SHARING
+  ANALYTICS
+  MARKETING
+  RESEARCH
 }
 
 // Prescription Management
 model Prescription {
-  id          String  @id @default(uuid())
-  userId      String
-  user        User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   // Medication details
   medicationName String
   dosage         String
@@ -124,51 +286,51 @@ model Prescription {
   instructions   String?
   startDate      DateTime
   endDate        DateTime?
-  
+
   // OCR data
-  ocrImageUrl    String?
-  ocrConfidence  Float?
-  isVerified     Boolean @default(false)
-  
+  ocrImageUrl   String?
+  ocrConfidence Float?
+  isVerified    Boolean @default(false)
+
   // Refill info
-  refillsLeft    Int?
-  pharmacy       String?
-  prescribedBy   String?
-  
+  refillsLeft  Int?
+  pharmacy     String?
+  prescribedBy String?
+
   isActive Boolean @default(true)
-  
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
+
   // Relations
   reminders Reminder[]
-  
+
   @@map("prescriptions")
 }
 
 // Notification & Reminder System
 model Reminder {
-  id             String @id @default(uuid())
+  id             String       @id @default(uuid())
   prescriptionId String
   prescription   Prescription @relation(fields: [prescriptionId], references: [id], onDelete: Cascade)
-  
+
   // Timing
   scheduledAt DateTime
-  isRecurring Boolean @default(true)
+  isRecurring Boolean  @default(true)
   frequency   String? // e.g., "daily", "twice_daily", "weekly"
-  
+
   // Status
-  status     ReminderStatus @default(PENDING)
-  sentAt     DateTime?
+  status         ReminderStatus @default(PENDING)
+  sentAt         DateTime?
   acknowledgedAt DateTime?
-  
+
   // Retry logic
   retryCount Int @default(0)
   maxRetries Int @default(3)
-  
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
+
   @@map("reminders")
 }
 
@@ -182,39 +344,39 @@ enum ReminderStatus {
 
 // Care Groups & Family Network
 model CareGroup {
-  id          String @id @default(uuid())
+  id          String  @id @default(uuid())
   name        String
   description String?
-  inviteCode  String @unique
-  
+  inviteCode  String  @unique
+
   // Settings
   isActive Boolean @default(true)
-  
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
+
   // Relations
   members CareGroupMember[]
-  
+
   @@map("care_groups")
 }
 
 model CareGroupMember {
-  id          String @id @default(uuid())
+  id          String    @id @default(uuid())
   careGroupId String
   careGroup   CareGroup @relation(fields: [careGroupId], references: [id], onDelete: Cascade)
   userId      String
   user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  role        CareRole @default(MEMBER)
-  joinedAt    DateTime @default(now())
-  isActive    Boolean  @default(true)
-  
+
+  role     CareRole @default(MEMBER)
+  joinedAt DateTime @default(now())
+  isActive Boolean  @default(true)
+
   // Permissions
-  canViewHealth      Boolean @default(false)
-  canReceiveAlerts   Boolean @default(true)
-  canManageSettings  Boolean @default(false)
-  
+  canViewHealth     Boolean @default(false)
+  canReceiveAlerts  Boolean @default(true)
+  canManageSettings Boolean @default(false)
+
   @@unique([careGroupId, userId])
   @@map("care_group_members")
 }
@@ -231,30 +393,30 @@ model DailyCheckIn {
   id     String @id @default(uuid())
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
   date DateTime @db.Date
-  
+
   // Health metrics
-  moodScore      Int?     @db.SmallInt // 1-10
-  energyLevel    Int?     @db.SmallInt // 1-10
-  sleepQuality   Int?     @db.SmallInt // 1-10
-  painLevel      Int?     @db.SmallInt // 0-10
-  stressLevel    Int?     @db.SmallInt // 1-10
-  
+  moodScore    Int? @db.SmallInt // 1-10
+  energyLevel  Int? @db.SmallInt // 1-10
+  sleepQuality Int? @db.SmallInt // 1-10
+  painLevel    Int? @db.SmallInt // 0-10
+  stressLevel  Int? @db.SmallInt // 1-10
+
   // Symptoms
-  symptoms       String[] // Array of symptom strings
-  notes          String?
-  
+  symptoms String[] // Array of symptom strings
+  notes    String?
+
   // AI generated insights
-  aiInsights     String?
-  riskScore      Float?
-  
-  completed Boolean @default(false)
+  aiInsights String?
+  riskScore  Float?
+
+  completed   Boolean   @default(false)
   completedAt DateTime?
-  
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
+
   @@unique([userId, date])
   @@map("daily_check_ins")
 }
@@ -264,24 +426,24 @@ model Notification {
   id     String @id @default(uuid())
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
   // Content
   title   String
   message String
   type    NotificationType
-  
+
   // Delivery
   channel NotificationChannel[]
   sentAt  DateTime?
   readAt  DateTime?
-  
+
   // Metadata
   actionUrl String?
   priority  NotificationPriority @default(NORMAL)
-  
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
+
   @@map("notifications")
 }
 
@@ -313,26 +475,26 @@ model Document {
   id     String @id @default(uuid())
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
   // File info
-  fileName    String
-  fileUrl     String
-  fileType    String
-  fileSize    Int
-  
+  fileName String
+  fileUrl  String
+  fileType String
+  fileSize Int
+
   // Metadata
   title       String?
   description String?
   category    DocumentCategory?
   tags        String[]
-  
+
   // AI processing
   extractedText String?
   aiSummary     String?
-  
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
+
   @@map("documents")
 }
 

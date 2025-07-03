@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class AppConfig {
@@ -46,7 +47,9 @@ class AppConfig {
 
     for (String varName in requiredVars) {
       if (dotenv.env[varName] == null || dotenv.env[varName]!.isEmpty) {
-        print('Warning: Required environment variable $varName is not set');
+        debugPrint(
+          'Warning: Required environment variable $varName is not set',
+        );
         return false;
       }
     }
@@ -56,16 +59,16 @@ class AppConfig {
   // Helper method to print current configuration (for debugging)
   static void printConfig() {
     if (debugMode) {
-      print('=== App Configuration ===');
-      print('API Base URL: $apiBaseUrl');
-      print('Firebase Project ID: $firebaseProjectId');
-      print('App Version: $appVersion');
-      print('Debug Mode: $debugMode');
-      print('HealthKit Enabled: $enableHealthKit');
-      print('Google Fit Enabled: $enableGoogleFit');
-      print('OCR Scanning Enabled: $enableOcrScanning');
-      print('AI Insights Enabled: $enableAiInsights');
-      print('========================');
+      debugPrint('=== App Configuration ===');
+      debugPrint('API Base URL: $apiBaseUrl');
+      debugPrint('Firebase Project ID: $firebaseProjectId');
+      debugPrint('App Version: $appVersion');
+      debugPrint('Debug Mode: $debugMode');
+      debugPrint('HealthKit Enabled: $enableHealthKit');
+      debugPrint('Google Fit Enabled: $enableGoogleFit');
+      debugPrint('OCR Scanning Enabled: $enableOcrScanning');
+      debugPrint('AI Insights Enabled: $enableAiInsights');
+      debugPrint('========================');
     }
   }
 }

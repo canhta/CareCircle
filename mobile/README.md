@@ -37,6 +37,15 @@ flutter pub get
 flutter run
 ```
 
+### Linting and Formatting
+
+```bash# Lint the code
+flutter analyze
+
+# Format the code
+dart format .
+```
+
 ### Building
 
 ```bash
