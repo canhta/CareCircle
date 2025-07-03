@@ -7,6 +7,7 @@ import {
   UseGuards,
   Req,
   BadRequestException,
+  Delete,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -138,5 +139,43 @@ export class HealthRecordController {
   @ApiResponse({ status: 200, description: 'Queue statistics retrieved' })
   getQueueStats() {
     return this.healthRecordService.getQueueStats();
+  }
+
+  @Get('access-log')
+  @ApiOperation({ summary: 'Get health data access log for transparency' })
+  @ApiResponse({ status: 200, description: 'Access log retrieved' })
+  async getAccessLog(@Req() req: any) {
+    const userId = req.user.sub;
+    return this.healthRecordService.getAccessLog(userId);
+  }
+
+  @Post('export-data')
+  @ApiOperation({ summary: 'Request data export for user transparency' })
+  @ApiResponse({ status: 202, description: 'Data export request submitted' })
+  async requestDataExport(@Req() req: any) {
+    const userId = req.user.sub;
+    return this.healthRecordService.requestDataExport(userId);
+  }
+
+  @Delete('delete-all-data')
+  @ApiOperation({ summary: 'Request complete data deletion (GDPR compliance)' })
+  @ApiResponse({ status: 202, description: 'Data deletion request submitted' })
+  async requestDataDeletion(@Req() req: any) {
+    const userId = req.user.sub;
+    return this.healthRecordService.requestDataDeletion(userId);
+  }
+
+  @Post('revoke-consent')
+  @ApiOperation({ summary: 'Revoke specific consent types' })
+  @ApiResponse({ status: 200, description: 'Consent revoked successfully' })
+  async revokeConsent(
+    @Req() req: any,
+    @Body() revokeData: { consentTypes: string[] },
+  ) {
+    const userId = req.user.sub;
+    return this.healthRecordService.revokeConsent(
+      userId,
+      revokeData.consentTypes,
+    );
   }
 }

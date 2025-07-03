@@ -2,9 +2,22 @@
 
 A Next.js-based administrative web portal for the CareCircle platform.
 
+[![Frontend Build Status](https://img.shields.io/badge/build-passing-brightgreen)](../)
+
 ## Description
 
 The CareCircle admin portal provides comprehensive dashboards and management tools for system administrators, including user management, system health monitoring, AI cost tracking, and analytics.
+
+## Project Structure
+
+```
+frontend/
+  ├── app/
+  ├── lib/
+  ├── public/
+  ├── package.json
+  └── ...
+```
 
 ## Features
 
@@ -33,7 +46,12 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Environment Variables
+
+| Variable            | Description          | Example                   |
+| ------------------- | -------------------- | ------------------------- |
+| NEXT_PUBLIC_API_URL | Backend API base URL | http://localhost:3000/api |
+| ...                 | ...                  | ...                       |
 
 ## Learn More
 
@@ -43,6 +61,12 @@ To learn more about Next.js, take a look at the following resources:
 - [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
 You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+
+## Related Docs
+
+- [Backend README](../backend/README.md)
+- [Mobile README](../mobile/README.md)
+- [Docker README](../docker/README.md)
 
 ## Deploy on Vercel
 

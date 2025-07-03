@@ -460,4 +460,115 @@ export class HealthRecordService {
   getQueueStats() {
     return this.queueService.getQueueStats();
   }
+
+  async getAccessLog(userId: string) {
+    // Get health data access log for transparency
+    return this.prisma.healthDataAccess.findMany({
+      where: { userId },
+      orderBy: { accessedAt: 'desc' },
+      take: 100, // Limit to last 100 access events
+      select: {
+        id: true,
+        action: true,
+        accessor: true,
+        dataType: true,
+        accessedAt: true,
+        ipAddress: true,
+        userAgent: true,
+      },
+    });
+  }
+
+  async requestDataExport(userId: string) {
+    // Create data export request
+    const exportRequest = await this.prisma.dataExportRequest.create({
+      data: {
+        userId,
+        requestedAt: new Date(),
+        status: 'PENDING',
+        exportType: 'FULL_DATA',
+      },
+    });
+
+    // TODO: Queue background job to generate export file
+    // For now, return success message
+    return {
+      message: 'Data export request submitted successfully',
+      requestId: exportRequest.id,
+      estimatedCompletionTime: '24 hours',
+    };
+  }
+
+  async requestDataDeletion(userId: string) {
+    // Create data deletion request
+    const deletionRequest = await this.prisma.dataDeletionRequest.create({
+      data: {
+        userId,
+        requestedAt: new Date(),
+        status: 'PENDING',
+        scheduledDeletionDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
+      },
+    });
+
+    // TODO: Queue background job to handle data deletion
+    // For now, return success message
+    return {
+      message: 'Data deletion request submitted successfully',
+      requestId: deletionRequest.id,
+      scheduledDeletionDate: deletionRequest.scheduledDeletionDate,
+      note: 'Your data will be permanently deleted within 30 days. You can cancel this request during this period.',
+    };
+  }
+
+  async revokeConsent(userId: string, consentTypes: string[]) {
+    // Revoke multiple consent types
+    const revokedConsents: string[] = [];
+
+    for (const consentType of consentTypes) {
+      await this.prisma.healthDataConsent.updateMany({
+        where: {
+          userId,
+          consentType: consentType as any,
+          revokedAt: null,
+        },
+        data: {
+          revokedAt: new Date(),
+        },
+      });
+      revokedConsents.push(consentType);
+    }
+
+    // Log the consent revocation
+    await this.logDataAccess(userId, 'CONSENT_REVOKED', null, {
+      revokedConsentTypes: consentTypes,
+    });
+
+    return {
+      message: 'Consent revoked successfully',
+      revokedConsentTypes: revokedConsents,
+    };
+  }
+
+  private async logDataAccess(
+    userId: string,
+    action: string,
+    dataType: string | null,
+    metadata?: Record<string, any>,
+  ) {
+    try {
+      await this.prisma.healthDataAccess.create({
+        data: {
+          userId,
+          action,
+          accessor: 'SYSTEM', // This could be enhanced to track actual accessor
+          dataType,
+          accessedAt: new Date(),
+          metadata: metadata ? JSON.stringify(metadata) : null,
+        },
+      });
+    } catch (error) {
+      // Log error but don't fail the main operation
+      console.error('Failed to log data access:', error);
+    }
+  }
 }

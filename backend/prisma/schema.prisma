@@ -47,15 +47,18 @@ model User {
   updatedAt DateTime @updatedAt
 
   // Relations
-  healthRecords     HealthRecord[]
-  healthMetrics     HealthMetrics[]
-  healthDataSync    HealthDataSync[]
-  healthDataConsent HealthDataConsent[]
-  prescriptions     Prescription[]
-  careGroupMembers  CareGroupMember[]
-  notifications     Notification[]
-  checkIns          DailyCheckIn[]
-  documents         Document[]
+  healthRecords        HealthRecord[]
+  healthMetrics        HealthMetrics[]
+  healthDataSync       HealthDataSync[]
+  healthDataConsent    HealthDataConsent[]
+  healthDataAccess     HealthDataAccess[]
+  dataExportRequests   DataExportRequest[]
+  dataDeletionRequests DataDeletionRequest[]
+  prescriptions        Prescription[]
+  careGroupMembers     CareGroupMember[]
+  notifications        Notification[]
+  checkIns             DailyCheckIn[]
+  documents            Document[]
 
   @@map("users")
 }
@@ -209,6 +212,70 @@ model HealthDataConsent {
 
   @@index([userId, consentType])
   @@map("health_data_consent")
+}
+
+// Health data access audit trail for transparency
+model HealthDataAccess {
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Access details
+  action     String // Action performed (VIEW, EXPORT, DELETE, etc.)
+  accessor   String // Who accessed the data (USER, SYSTEM, CAREGIVER, etc.)
+  dataType   String? // Type of data accessed
+  accessedAt DateTime @default(now())
+
+  // Technical details
+  ipAddress String?
+  userAgent String?
+
+  // Additional metadata
+  metadata String? // JSON string for additional context
+
+  @@index([userId, accessedAt])
+  @@map("health_data_access")
+}
+
+// Data export requests for user transparency
+model DataExportRequest {
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Request details
+  requestedAt DateTime  @default(now())
+  completedAt DateTime?
+  downloadUrl String?
+  expiresAt   DateTime?
+
+  // Request metadata
+  exportType String  @default("FULL_DATA") // FULL_DATA, HEALTH_ONLY, etc.
+  status     String  @default("PENDING") // PENDING, PROCESSING, COMPLETED, FAILED
+  fileSize   BigInt?
+
+  @@index([userId, requestedAt])
+  @@map("data_export_requests")
+}
+
+// Data deletion requests for GDPR/Decree 13/2023 compliance
+model DataDeletionRequest {
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Request details
+  requestedAt           DateTime  @default(now())
+  scheduledDeletionDate DateTime
+  deletedAt             DateTime?
+  cancelledAt           DateTime?
+
+  // Request metadata
+  status String  @default("PENDING") // PENDING, SCHEDULED, COMPLETED, CANCELLED
+  reason String? // Optional reason for deletion
+
+  @@index([userId, requestedAt])
+  @@map("data_deletion_requests")
 }
 
 enum HealthDataType {

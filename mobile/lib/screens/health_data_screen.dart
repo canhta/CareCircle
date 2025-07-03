@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../managers/health_data_manager.dart';
 import '../services/health_service.dart';
+import 'privacy_settings_screen.dart';
 
 class HealthDataScreen extends StatefulWidget {
   const HealthDataScreen({super.key});
@@ -470,7 +471,11 @@ class _HealthDataScreenState extends State<HealthDataScreen> {
               subtitle: const Text('Manage data sharing preferences'),
               onTap: () {
                 Navigator.of(context).pop();
-                // TODO: Navigate to privacy settings
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const PrivacySettingsScreen(),
+                  ),
+                );
               },
             ),
             ListTile(

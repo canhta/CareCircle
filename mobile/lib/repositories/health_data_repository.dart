@@ -163,8 +163,76 @@ class HealthDataRepository {
     }
   }
 
+  /// Get health data access log for transparency
+  Future<List<Map<String, dynamic>>?> getHealthAccessLog() async {
+    try {
+      final url = Uri.parse('$_baseUrl/api/health-record/access-log');
+
+      final response = await http.get(url, headers: _headers);
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        return data.cast<Map<String, dynamic>>();
+      } else {
+        debugPrint(
+          'HealthDataRepository: Failed to get access log - ${response.statusCode}: ${response.body}',
+        );
+        return null;
+      }
+    } catch (e) {
+      debugPrint('HealthDataRepository: Error getting access log - $e');
+      return null;
+    }
+  }
+
+  /// Request data export for user transparency
+  Future<bool> requestDataExport() async {
+    try {
+      final url = Uri.parse('$_baseUrl/api/health-record/export-data');
+
+      final response = await http.post(url, headers: _headers);
+
+      if (response.statusCode == 200 || response.statusCode == 202) {
+        debugPrint('HealthDataRepository: Data export requested successfully');
+        return true;
+      } else {
+        debugPrint(
+          'HealthDataRepository: Failed to request data export - ${response.statusCode}: ${response.body}',
+        );
+        return false;
+      }
+    } catch (e) {
+      debugPrint('HealthDataRepository: Error requesting data export - $e');
+      return false;
+    }
+  }
+
+  /// Request complete data deletion (GDPR/Decree 13/2023 compliance)
+  Future<bool> requestDataDeletion() async {
+    try {
+      final url = Uri.parse('$_baseUrl/api/health-record/delete-all-data');
+
+      final response = await http.delete(url, headers: _headers);
+
+      if (response.statusCode == 200 || response.statusCode == 202) {
+        debugPrint(
+          'HealthDataRepository: Data deletion requested successfully',
+        );
+        return true;
+      } else {
+        debugPrint(
+          'HealthDataRepository: Failed to request data deletion - ${response.statusCode}: ${response.body}',
+        );
+        return false;
+      }
+    } catch (e) {
+      debugPrint('HealthDataRepository: Error requesting data deletion - $e');
+      return false;
+    }
+  }
+
   /// Update sync status
-  Future<bool> updateSyncStatus({
+  Future<void> updateSyncStatus({
     required String source,
     required String status,
     required int recordsCount,
@@ -183,10 +251,13 @@ class HealthDataRepository {
 
       final response = await http.post(url, headers: _headers, body: body);
 
-      return response.statusCode == 200 || response.statusCode == 201;
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        debugPrint(
+          'HealthDataRepository: Failed to update sync status - ${response.statusCode}: ${response.body}',
+        );
+      }
     } catch (e) {
       debugPrint('HealthDataRepository: Error updating sync status - $e');
-      return false;
     }
   }
 
