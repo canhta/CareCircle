@@ -17,12 +17,14 @@ import '../config/app_config.dart';
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   // Ensure Firebase is initialized
   await Firebase.initializeApp();
-  
+
   debugPrint('Handling a background message: ${message.messageId}');
   debugPrint('Message data: ${message.data}');
-  
+
   if (message.notification != null) {
-    debugPrint('Message also contained a notification: ${message.notification}');
+    debugPrint(
+      'Message also contained a notification: ${message.notification}',
+    );
   }
 
   // Store the message for later processing
@@ -34,24 +36,26 @@ Future<void> _storeBackgroundMessage(RemoteMessage message) async {
   try {
     final prefs = await SharedPreferences.getInstance();
     final messages = prefs.getStringList('background_messages') ?? [];
-    
+
     final messageData = {
       'messageId': message.messageId,
       'data': message.data,
-      'notification': message.notification != null ? {
-        'title': message.notification!.title,
-        'body': message.notification!.body,
-      } : null,
+      'notification': message.notification != null
+          ? {
+              'title': message.notification!.title,
+              'body': message.notification!.body,
+            }
+          : null,
       'timestamp': DateTime.now().toIso8601String(),
     };
-    
+
     messages.add(jsonEncode(messageData));
-    
+
     // Keep only last 10 messages
     if (messages.length > 10) {
       messages.removeAt(0);
     }
-    
+
     await prefs.setStringList('background_messages', messages);
   } catch (e) {
     debugPrint('Error storing background message: $e');
@@ -60,7 +64,8 @@ Future<void> _storeBackgroundMessage(RemoteMessage message) async {
 
 /// Firebase Messaging Service
 class FirebaseMessagingService {
-  static final FirebaseMessagingService _instance = FirebaseMessagingService._internal();
+  static final FirebaseMessagingService _instance =
+      FirebaseMessagingService._internal();
   factory FirebaseMessagingService() => _instance;
   FirebaseMessagingService._internal();
 
@@ -82,10 +87,12 @@ class FirebaseMessagingService {
       await _initializeLocalNotifications();
       await _requestPermissions();
       await _setupMessageHandlers();
-      
+
       // Set background message handler
-      FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-      
+      FirebaseMessaging.onBackgroundMessage(
+        _firebaseMessagingBackgroundHandler,
+      );
+
       debugPrint('Firebase Messaging initialized successfully');
     } catch (e) {
       debugPrint('Error initializing Firebase Messaging: $e');
@@ -96,25 +103,27 @@ class FirebaseMessagingService {
   /// Initialize local notifications
   Future<void> _initializeLocalNotifications() async {
     _localNotifications = FlutterLocalNotificationsPlugin();
-    
+
     const AndroidInitializationSettings initializationSettingsAndroid =
         AndroidInitializationSettings('@mipmap/ic_launcher');
-    
+
     final DarwinInitializationSettings initializationSettingsIOS =
         DarwinInitializationSettings(
-      requestAlertPermission: true,
-      requestBadgePermission: true,
-      requestSoundPermission: true,
-      onDidReceiveLocalNotification: (int id, String? title, String? body, String? payload) async {
-        debugPrint('Local notification received: $title - $body');
-      },
-    );
-    
-    final InitializationSettings initializationSettings = InitializationSettings(
-      android: initializationSettingsAndroid,
-      iOS: initializationSettingsIOS,
-    );
-    
+          requestAlertPermission: true,
+          requestBadgePermission: true,
+          requestSoundPermission: true,
+          onDidReceiveLocalNotification:
+              (int id, String? title, String? body, String? payload) async {
+                debugPrint('Local notification received: $title - $body');
+              },
+        );
+
+    final InitializationSettings initializationSettings =
+        InitializationSettings(
+          android: initializationSettingsAndroid,
+          iOS: initializationSettingsIOS,
+        );
+
     await _localNotifications!.initialize(
       initializationSettings,
       onDidReceiveNotificationResponse: (NotificationResponse response) async {
@@ -160,12 +169,16 @@ class FirebaseMessagingService {
   /// Setup message handlers
   Future<void> _setupMessageHandlers() async {
     // Handle foreground messages
-    _onMessageSubscription = FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    _onMessageSubscription = FirebaseMessaging.onMessage.listen((
+      RemoteMessage message,
+    ) {
       debugPrint('Got a message whilst in the foreground!');
       debugPrint('Message data: ${message.data}');
 
       if (message.notification != null) {
-        debugPrint('Message also contained a notification: ${message.notification}');
+        debugPrint(
+          'Message also contained a notification: ${message.notification}',
+        );
         // Show local notification for foreground messages
         _showLocalNotification(message);
       }
@@ -175,23 +188,26 @@ class FirebaseMessagingService {
     });
 
     // Handle notification taps when app is in background
-    _onMessageOpenedAppSubscription = FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      debugPrint('A new onMessageOpenedApp event was published!');
-      debugPrint('Message data: ${message.data}');
-      
-      // Call custom handler if set
-      _onMessageTap?.call(message);
-    });
+    _onMessageOpenedAppSubscription = FirebaseMessaging.onMessageOpenedApp
+        .listen((RemoteMessage message) {
+          debugPrint('A new onMessageOpenedApp event was published!');
+          debugPrint('Message data: ${message.data}');
+
+          // Call custom handler if set
+          _onMessageTap?.call(message);
+        });
 
     // Handle token refresh
-    _onTokenRefreshSubscription = FirebaseMessaging.instance.onTokenRefresh.listen((String token) {
-      debugPrint('FCM token refreshed: ${token.substring(0, 20)}...');
-      _onTokenRefresh?.call(token);
-      _sendTokenToServer(token);
-    });
+    _onTokenRefreshSubscription = FirebaseMessaging.instance.onTokenRefresh
+        .listen((String token) {
+          debugPrint('FCM token refreshed: ${token.substring(0, 20)}...');
+          _onTokenRefresh?.call(token);
+          _sendTokenToServer(token);
+        });
 
     // Check for initial message (app opened from terminated state)
-    RemoteMessage? initialMessage = await FirebaseMessaging.instance.getInitialMessage();
+    RemoteMessage? initialMessage = await FirebaseMessaging.instance
+        .getInitialMessage();
     if (initialMessage != null) {
       debugPrint('App opened from terminated state via notification');
       _onMessageTap?.call(initialMessage);
@@ -203,20 +219,20 @@ class FirebaseMessagingService {
     try {
       const AndroidNotificationDetails androidNotificationDetails =
           AndroidNotificationDetails(
-        'care_circle_channel',
-        'CareCircle Notifications',
-        channelDescription: 'Notifications for CareCircle app',
-        importance: Importance.high,
-        priority: Priority.high,
-        icon: '@mipmap/ic_launcher',
-      );
+            'care_circle_channel',
+            'CareCircle Notifications',
+            channelDescription: 'Notifications for CareCircle app',
+            importance: Importance.high,
+            priority: Priority.high,
+            icon: '@mipmap/ic_launcher',
+          );
 
       const DarwinNotificationDetails iOSNotificationDetails =
           DarwinNotificationDetails(
-        presentAlert: true,
-        presentBadge: true,
-        presentSound: true,
-      );
+            presentAlert: true,
+            presentBadge: true,
+            presentSound: true,
+          );
 
       const NotificationDetails notificationDetails = NotificationDetails(
         android: androidNotificationDetails,
@@ -341,7 +357,9 @@ class FirebaseMessagingService {
     try {
       final prefs = await SharedPreferences.getInstance();
       final messages = prefs.getStringList('background_messages') ?? [];
-      return messages.map((msg) => jsonDecode(msg) as Map<String, dynamic>).toList();
+      return messages
+          .map((msg) => jsonDecode(msg) as Map<String, dynamic>)
+          .toList();
     } catch (e) {
       debugPrint('Error getting background messages: $e');
       return [];

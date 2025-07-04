@@ -17,9 +17,7 @@ Future<void> main() async {
   await dotenv.load(fileName: ".env");
 
   // Initialize Firebase
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   // Validate configuration
   if (!AppConfig.validateConfig()) {
@@ -86,11 +84,16 @@ class MainApp extends StatelessWidget {
         ),
         home: const HomeScreen(),
         routes: {
-          '/prescription-scanner': (context) => const PrescriptionScannerScreen(),
-          '/medications': (context) => const HomeScreen(), // TODO: Create MedicationsScreen
-          '/health-check': (context) => const HomeScreen(), // TODO: Create HealthCheckScreen
-          '/care-group': (context) => const HomeScreen(), // TODO: Create CareGroupScreen
-          '/settings': (context) => const HomeScreen(), // TODO: Create SettingsScreen
+          '/prescription-scanner': (context) =>
+              const PrescriptionScannerScreen(),
+          '/medications': (context) =>
+              const HomeScreen(), // TODO: Create MedicationsScreen
+          '/health-check': (context) =>
+              const HomeScreen(), // TODO: Create HealthCheckScreen
+          '/care-group': (context) =>
+              const HomeScreen(), // TODO: Create CareGroupScreen
+          '/settings': (context) =>
+              const HomeScreen(), // TODO: Create SettingsScreen
         },
       ),
     );

@@ -67,7 +67,7 @@ class _NotificationHandlerState extends State<NotificationHandler> {
   void _handleForegroundMessage(RemoteMessage message) {
     // Handle different types of messages
     final messageType = message.data['type'];
-    
+
     switch (messageType) {
       case 'medication_reminder':
         _handleMedicationReminder(message);
@@ -90,7 +90,7 @@ class _NotificationHandlerState extends State<NotificationHandler> {
     // Navigate based on message type
     final messageType = message.data['type'];
     final context = this.context;
-    
+
     switch (messageType) {
       case 'medication_reminder':
         Navigator.pushNamed(context, '/medications');
@@ -143,7 +143,9 @@ class _NotificationHandlerState extends State<NotificationHandler> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text(message.notification?.title ?? 'Medication Reminder'),
-          content: Text(message.notification?.body ?? 'Time to take your medication'),
+          content: Text(
+            message.notification?.body ?? 'Time to take your medication',
+          ),
           actions: [
             TextButton(
               onPressed: () {

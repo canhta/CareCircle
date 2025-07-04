@@ -29,11 +29,11 @@ class HomeScreen extends StatelessWidget {
                 style: TextStyle(fontSize: 16, color: Colors.grey),
               ),
               const SizedBox(height: 16),
-              
+
               // Debug notification test widget (only in debug mode)
               if (const bool.fromEnvironment('dart.vm.product') == false)
                 const NotificationTestWidget(),
-              
+
               const SizedBox(height: 16),
               SizedBox(
                 height: 400, // Fixed height for the grid
@@ -42,60 +42,60 @@ class HomeScreen extends StatelessWidget {
                   crossAxisSpacing: 16,
                   mainAxisSpacing: 16,
                   children: [
-                  _buildFeatureCard(
-                    context,
-                    icon: Icons.health_and_safety,
-                    title: 'Health Data',
-                    subtitle: 'Sync with Apple Health & Google Fit',
-                    color: Colors.blue,
-                    onTap: () => Navigator.push(
+                    _buildFeatureCard(
                       context,
-                      MaterialPageRoute(
-                        builder: (context) => const HealthDataScreen(),
+                      icon: Icons.health_and_safety,
+                      title: 'Health Data',
+                      subtitle: 'Sync with Apple Health & Google Fit',
+                      color: Colors.blue,
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const HealthDataScreen(),
+                        ),
                       ),
                     ),
-                  ),
-                  _buildFeatureCard(
-                    context,
-                    icon: Icons.medication,
-                    title: 'Prescriptions',
-                    subtitle: 'Manage medications',
-                    color: Colors.green,
-                    onTap: () =>
-                        Navigator.pushNamed(context, '/prescription-scanner'),
-                  ),
-                  _buildFeatureCard(
-                    context,
-                    icon: Icons.notifications,
-                    title: 'Reminders',
-                    subtitle: 'Smart notifications',
-                    color: Colors.orange,
-                    onTap: () => _showComingSoon(context, 'Reminders'),
-                  ),
-                  _buildFeatureCard(
-                    context,
-                    icon: Icons.check_circle_outline,
-                    title: 'Daily Check-ins',
-                    subtitle: 'Track your wellness',
-                    color: Colors.purple,
-                    onTap: () => _showComingSoon(context, 'Daily Check-ins'),
-                  ),
-                  _buildFeatureCard(
-                    context,
-                    icon: Icons.group,
-                    title: 'Care Circle',
-                    subtitle: 'Family & caregivers',
-                    color: Colors.teal,
-                    onTap: () => _showComingSoon(context, 'Care Circle'),
-                  ),
-                  _buildFeatureCard(
-                    context,
-                    icon: Icons.analytics,
-                    title: 'Insights',
-                    subtitle: 'Health analytics',
-                    color: Colors.indigo,
-                    onTap: () => _showComingSoon(context, 'Insights'),
-                  ),
+                    _buildFeatureCard(
+                      context,
+                      icon: Icons.medication,
+                      title: 'Prescriptions',
+                      subtitle: 'Manage medications',
+                      color: Colors.green,
+                      onTap: () =>
+                          Navigator.pushNamed(context, '/prescription-scanner'),
+                    ),
+                    _buildFeatureCard(
+                      context,
+                      icon: Icons.notifications,
+                      title: 'Reminders',
+                      subtitle: 'Smart notifications',
+                      color: Colors.orange,
+                      onTap: () => _showComingSoon(context, 'Reminders'),
+                    ),
+                    _buildFeatureCard(
+                      context,
+                      icon: Icons.check_circle_outline,
+                      title: 'Daily Check-ins',
+                      subtitle: 'Track your wellness',
+                      color: Colors.purple,
+                      onTap: () => _showComingSoon(context, 'Daily Check-ins'),
+                    ),
+                    _buildFeatureCard(
+                      context,
+                      icon: Icons.group,
+                      title: 'Care Circle',
+                      subtitle: 'Family & caregivers',
+                      color: Colors.teal,
+                      onTap: () => _showComingSoon(context, 'Care Circle'),
+                    ),
+                    _buildFeatureCard(
+                      context,
+                      icon: Icons.analytics,
+                      title: 'Insights',
+                      subtitle: 'Health analytics',
+                      color: Colors.indigo,
+                      onTap: () => _showComingSoon(context, 'Insights'),
+                    ),
                   ],
                 ),
               ),

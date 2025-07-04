@@ -6,7 +6,8 @@ import '../config/app_config.dart';
 
 /// Utility class for testing Firebase notifications
 class NotificationTestUtils {
-  static final FirebaseMessagingService _messagingService = FirebaseMessagingService();
+  static final FirebaseMessagingService _messagingService =
+      FirebaseMessagingService();
 
   /// Test notification permissions
   static Future<void> testNotificationPermissions() async {
@@ -37,15 +38,10 @@ class NotificationTestUtils {
 
       final response = await http.post(
         Uri.parse('${AppConfig.apiBaseUrl}/api/notifications/send-test'),
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'token': token,
-          'notification': {
-            'title': title,
-            'body': body,
-          },
+          'notification': {'title': title, 'body': body},
           'data': data ?? {},
         }),
       );
@@ -53,7 +49,9 @@ class NotificationTestUtils {
       if (response.statusCode == 200) {
         debugPrint('✅ Test notification sent successfully');
       } else {
-        debugPrint('❌ Failed to send test notification: ${response.statusCode}');
+        debugPrint(
+          '❌ Failed to send test notification: ${response.statusCode}',
+        );
       }
     } catch (e) {
       debugPrint('❌ Error sending test notification: $e');
@@ -65,7 +63,7 @@ class NotificationTestUtils {
     try {
       await _messagingService.subscribeToTopic(topic);
       debugPrint('✅ Successfully subscribed to topic: $topic');
-      
+
       // Wait a moment then unsubscribe
       await Future.delayed(const Duration(seconds: 2));
       await _messagingService.unsubscribeFromTopic(topic);
@@ -99,7 +97,10 @@ class NotificationTestUtils {
                   await sendTestNotification(
                     title: 'Test Notification',
                     body: 'This is a test notification from CareCircle',
-                    data: {'type': 'test', 'timestamp': DateTime.now().toIso8601String()},
+                    data: {
+                      'type': 'test',
+                      'timestamp': DateTime.now().toIso8601String(),
+                    },
                   );
                 },
                 child: const Text('Send Test Notification'),
@@ -145,9 +146,9 @@ class NotificationTestUtils {
   static Future<void> showBackgroundMessages(BuildContext context) async {
     try {
       final messages = await _messagingService.getBackgroundMessages();
-      
+
       if (!context.mounted) return;
-      
+
       showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -164,11 +165,15 @@ class NotificationTestUtils {
                         final message = messages[index];
                         return Card(
                           child: ListTile(
-                            title: Text(message['notification']?['title'] ?? 'No title'),
+                            title: Text(
+                              message['notification']?['title'] ?? 'No title',
+                            ),
                             subtitle: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(message['notification']?['body'] ?? 'No body'),
+                                Text(
+                                  message['notification']?['body'] ?? 'No body',
+                                ),
                                 Text('Data: ${message['data']}'),
                                 Text('Time: ${message['timestamp']}'),
                               ],
@@ -270,11 +275,13 @@ class _NotificationTestWidgetState extends State<NotificationTestWidget> {
               spacing: 8,
               children: [
                 ElevatedButton(
-                  onPressed: () => NotificationTestUtils.showTestDialog(context),
+                  onPressed: () =>
+                      NotificationTestUtils.showTestDialog(context),
                   child: const Text('Test Notifications'),
                 ),
                 ElevatedButton(
-                  onPressed: () => NotificationTestUtils.showBackgroundMessages(context),
+                  onPressed: () =>
+                      NotificationTestUtils.showBackgroundMessages(context),
                   child: const Text('Background Messages'),
                 ),
                 ElevatedButton(
