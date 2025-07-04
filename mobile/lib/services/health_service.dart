@@ -69,9 +69,46 @@ class CareCircleHealthData {
         )
         .key;
 
+    // Extract numeric value from HealthValue
+    double numericValue;
+    try {
+      if (dataPoint.value is NumericHealthValue) {
+        numericValue = (dataPoint.value as NumericHealthValue).numericValue
+            .toDouble();
+      } else if (dataPoint.value is AudiogramHealthValue) {
+        // For audiogram data, we might want to extract frequencies or decibels
+        // For now, we'll skip this type as it's not typically used in CareCircle
+        debugPrint('HealthService: Skipping audiogram data type');
+        throw ArgumentError('Audiogram data is not supported in CareCircle');
+      } else if (dataPoint.value is WorkoutHealthValue) {
+        // For workout data, we might want to extract duration or distance
+        // For now, we'll skip this type as it requires special handling
+        debugPrint('HealthService: Skipping workout data type');
+        throw ArgumentError('Workout data requires special handling');
+      } else {
+        // Handle other types if needed, for now throw an error
+        debugPrint(
+          'HealthService: Unsupported health value type: ${dataPoint.value.runtimeType}',
+        );
+        throw ArgumentError(
+          'Unsupported health value type: ${dataPoint.value.runtimeType}',
+        );
+      }
+    } catch (e) {
+      debugPrint(
+        'HealthService: Error extracting numeric value from health data: $e',
+      );
+      debugPrint('HealthService: DataPoint type: ${dataPoint.type}');
+      debugPrint(
+        'HealthService: DataPoint value type: ${dataPoint.value.runtimeType}',
+      );
+      debugPrint('HealthService: DataPoint value: ${dataPoint.value}');
+      rethrow;
+    }
+
     return CareCircleHealthData(
       type: careCircleType,
-      value: (dataPoint.value as num).toDouble(),
+      value: numericValue,
       unit: dataPoint.unit.name,
       timestamp: dataPoint.dateFrom,
       source: dataPoint.sourcePlatform.name,
@@ -226,11 +263,23 @@ class HealthService {
         healthData,
       );
 
-      return uniqueData
-          .map(
-            (dataPoint) => CareCircleHealthData.fromHealthDataPoint(dataPoint),
-          )
-          .toList();
+      final List<CareCircleHealthData> result = [];
+      for (final dataPoint in uniqueData) {
+        try {
+          final careCircleData = CareCircleHealthData.fromHealthDataPoint(
+            dataPoint,
+          );
+          result.add(careCircleData);
+        } catch (e) {
+          debugPrint('HealthService: Skipping unsupported data point: $e');
+          // Continue processing other data points
+        }
+      }
+
+      debugPrint(
+        'HealthService: Successfully converted ${result.length} out of ${uniqueData.length} data points',
+      );
+      return result;
     } catch (e) {
       debugPrint('HealthService: Error getting health data - $e');
       throw Exception('Failed to get health data: $e');
