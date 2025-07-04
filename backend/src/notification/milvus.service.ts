@@ -350,26 +350,29 @@ export class MilvusService implements OnModuleInit {
     }
 
     // Action type encoding (31-40 dimensions)
-    const actionMap = {
+    const actionMap: Record<string, number> = {
       opened: 31,
       dismissed: 32,
       snoozed: 33,
       clicked: 34,
       ignored: 35,
     };
-    if (actionMap[behaviorData.action]) {
+    if (behaviorData.action && actionMap[behaviorData.action]) {
       vector[actionMap[behaviorData.action]] = 1.0;
     }
 
     // Notification type encoding (41-50 dimensions)
-    const notificationTypeMap = {
+    const notificationTypeMap: Record<string, number> = {
       medication_reminder: 41,
       health_check: 42,
       care_group_update: 43,
       system_alert: 44,
       ai_insight: 45,
     };
-    if (notificationTypeMap[behaviorData.notificationType]) {
+    if (
+      behaviorData.notificationType &&
+      notificationTypeMap[behaviorData.notificationType]
+    ) {
       vector[notificationTypeMap[behaviorData.notificationType]] = 1.0;
     }
 
