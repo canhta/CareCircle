@@ -8,8 +8,7 @@ import '../services/auth_service.dart';
 /// API service for Firebase token management with retry logic,
 /// error handling, and offline support
 class FirebaseApiService {
-  static final FirebaseApiService _instance =
-      FirebaseApiService._internal();
+  static final FirebaseApiService _instance = FirebaseApiService._internal();
   factory FirebaseApiService() => _instance;
   FirebaseApiService._internal();
 
@@ -37,7 +36,7 @@ class FirebaseApiService {
     // Add interceptors
     _dio.interceptors.add(_createAuthInterceptor());
     _dio.interceptors.add(_createRetryInterceptor());
-    
+
     if (kDebugMode) {
       _dio.interceptors.add(LogInterceptor(
         requestBody: true,
@@ -54,7 +53,7 @@ class FirebaseApiService {
   }) async {
     try {
       final enhancedDeviceInfo = await _buildEnhancedDeviceInfo(deviceInfo);
-      
+
       final response = await _executeWithRetry(() async {
         return await _dio.post(
           '/tokens/register',
@@ -294,7 +293,8 @@ class FirebaseApiService {
   }
 
   /// Execute operation with retry logic
-  Future<Response> _executeWithRetry(Future<Response> Function() operation) async {
+  Future<Response> _executeWithRetry(
+      Future<Response> Function() operation) async {
     Exception? lastException;
 
     for (int attempt = 1; attempt <= _maxRetries; attempt++) {
@@ -360,19 +360,18 @@ class FirebaseApiService {
     return InterceptorsWrapper(
       onError: (error, handler) async {
         final statusCode = error.response?.statusCode;
-        
+
         // Retry on specific error codes
-        if (statusCode != null && 
+        if (statusCode != null &&
             (statusCode >= 500 || statusCode == 408 || statusCode == 429)) {
-          
           final retryCount = error.requestOptions.extra['retryCount'] ?? 0;
-          
+
           if (retryCount < _maxRetries) {
             error.requestOptions.extra['retryCount'] = retryCount + 1;
-            
+
             // Wait before retry
             await Future.delayed(_retryDelay * (retryCount + 1));
-            
+
             try {
               final response = await _dio.fetch(error.requestOptions);
               handler.resolve(response);
@@ -382,19 +381,22 @@ class FirebaseApiService {
             }
           }
         }
-        
+
         handler.next(error);
       },
     );
   }
 
   // Caching methods
-  Future<void> _cacheTokenRegistration(String token, TokenRegistrationResult result) async {
+  Future<void> _cacheTokenRegistration(
+      String token, TokenRegistrationResult result) async {
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('cached_token', token);
-      await prefs.setString('token_registration_result', result.toJson().toString());
-      await prefs.setString('token_cached_at', DateTime.now().toIso8601String());
+      await prefs.setString(
+          'token_registration_result', result.toJson().toString());
+      await prefs.setString(
+          'token_cached_at', DateTime.now().toIso8601String());
     } catch (e) {
       debugPrint('Error caching token registration: $e');
     }
@@ -415,13 +417,13 @@ class FirebaseApiService {
     try {
       final prefs = await SharedPreferences.getInstance();
       final subscriptions = prefs.getStringList('topic_subscriptions') ?? [];
-      
+
       if (isSubscribed && !subscriptions.contains(topic)) {
         subscriptions.add(topic);
       } else if (!isSubscribed) {
         subscriptions.remove(topic);
       }
-      
+
       await prefs.setStringList('topic_subscriptions', subscriptions);
     } catch (e) {
       debugPrint('Error caching topic subscription: $e');

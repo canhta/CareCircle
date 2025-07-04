@@ -152,11 +152,11 @@ class FirebaseMessagingService {
     _onMessageOpenedAppSubscription =
         FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
       debugPrint('Message opened app: ${message.messageId}');
-      
+
       try {
         // Store interaction for analytics
         _storeMessageInteraction(message, 'opened_from_background');
-        
+
         // Call custom handler
         _onMessageTap?.call(message);
       } catch (e) {
@@ -170,7 +170,7 @@ class FirebaseMessagingService {
         FirebaseMessaging.instance.onTokenRefresh.listen((String token) async {
       debugPrint('FCM token refreshed: ${token.substring(0, 20)}...');
       _currentToken = token;
-      
+
       try {
         await _registerTokenWithRetry(token);
         _onTokenRefresh?.call(token);
@@ -186,7 +186,8 @@ class FirebaseMessagingService {
           await FirebaseMessaging.instance.getInitialMessage();
       if (initialMessage != null) {
         debugPrint('App opened from terminated state via notification');
-        await _storeMessageInteraction(initialMessage, 'opened_from_terminated');
+        await _storeMessageInteraction(
+            initialMessage, 'opened_from_terminated');
         _onMessageTap?.call(initialMessage);
       }
     } catch (e) {
@@ -199,13 +200,14 @@ class FirebaseMessagingService {
     try {
       final messageType = message.data['type'] ?? 'general';
       final channelKey = NotificationChannels.getChannelForType(messageType);
-      
+
       final notificationContent = NotificationContent(
         id: message.hashCode,
         channelKey: channelKey,
         title: message.notification?.title ?? 'CareCircle',
         body: message.notification?.body ?? 'You have a new notification',
-        payload: message.data.map((key, value) => MapEntry(key, value.toString())),
+        payload:
+            message.data.map((key, value) => MapEntry(key, value.toString())),
         notificationLayout: _getNotificationLayout(messageType),
         category: _getNotificationCategory(messageType),
         wakeUpScreen: _shouldWakeUpScreen(messageType),
@@ -255,12 +257,13 @@ class FirebaseMessagingService {
         return;
       } catch (e) {
         debugPrint('Token registration attempt $attempt failed: $e');
-        
+
         if (attempt == _maxRetries) {
-          _onError?.call('Failed to register token after $_maxRetries attempts: $e');
+          _onError?.call(
+              'Failed to register token after $_maxRetries attempts: $e');
           rethrow;
         }
-        
+
         await Future.delayed(_retryDelay * attempt);
       }
     }
@@ -271,7 +274,7 @@ class FirebaseMessagingService {
     try {
       final authService = AuthService();
       final authToken = await authService.getAccessToken();
-      
+
       if (authToken == null) {
         throw Exception('No authentication token available');
       }
@@ -327,7 +330,8 @@ class FirebaseMessagingService {
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('fcm_token', token);
-      await prefs.setString('fcm_token_timestamp', DateTime.now().toIso8601String());
+      await prefs.setString(
+          'fcm_token_timestamp', DateTime.now().toIso8601String());
     } catch (e) {
       debugPrint('Error storing token locally: $e');
     }
@@ -338,7 +342,7 @@ class FirebaseMessagingService {
     try {
       await _messaging!.subscribeToTopic(topic);
       debugPrint('Subscribed to topic: $topic');
-      
+
       // Store subscription locally
       final prefs = await SharedPreferences.getInstance();
       final subscriptions = prefs.getStringList('subscribed_topics') ?? [];
@@ -346,7 +350,7 @@ class FirebaseMessagingService {
         subscriptions.add(topic);
         await prefs.setStringList('subscribed_topics', subscriptions);
       }
-      
+
       return true;
     } catch (e) {
       debugPrint('Error subscribing to topic $topic: $e');
@@ -360,13 +364,13 @@ class FirebaseMessagingService {
     try {
       await _messaging!.unsubscribeFromTopic(topic);
       debugPrint('Unsubscribed from topic: $topic');
-      
+
       // Remove from local storage
       final prefs = await SharedPreferences.getInstance();
       final subscriptions = prefs.getStringList('subscribed_topics') ?? [];
       subscriptions.remove(topic);
       await prefs.setStringList('subscribed_topics', subscriptions);
-      
+
       return true;
     } catch (e) {
       debugPrint('Error unsubscribing from topic $topic: $e');
@@ -408,7 +412,8 @@ class FirebaseMessagingService {
   }
 
   /// Store message interaction for analytics
-  Future<void> _storeMessageInteraction(RemoteMessage message, String action) async {
+  Future<void> _storeMessageInteraction(
+      RemoteMessage message, String action) async {
     try {
       final prefs = await SharedPreferences.getInstance();
       final interactions = prefs.getStringList('message_interactions') ?? [];
@@ -449,8 +454,10 @@ class FirebaseMessagingService {
     debugPrint('Enhanced notification dismissed: ${receivedAction.id}');
   }
 
-  static Future<void> _onNotificationAction(ReceivedAction receivedAction) async {
-    debugPrint('Enhanced notification action: ${receivedAction.buttonKeyPressed}');
+  static Future<void> _onNotificationAction(
+      ReceivedAction receivedAction) async {
+    debugPrint(
+        'Enhanced notification action: ${receivedAction.buttonKeyPressed}');
     // Handle different notification actions
     await _handleNotificationAction(receivedAction);
   }
@@ -557,7 +564,8 @@ class FirebaseMessagingService {
   }
 
   // Action handlers
-  static Future<void> _handleMedicationTaken(Map<String, String?>? payload) async {
+  static Future<void> _handleMedicationTaken(
+      Map<String, String?>? payload) async {
     // TODO: Implement medication taken logic
     debugPrint('Medication marked as taken: $payload');
   }
@@ -603,7 +611,7 @@ class FirebaseMessagingService {
     try {
       final prefs = await SharedPreferences.getInstance();
       final messages = prefs.getStringList('background_messages') ?? [];
-      
+
       return messages.map((message) {
         try {
           return jsonDecode(message) as Map<String, dynamic>;
@@ -642,7 +650,7 @@ class FirebaseMessagingService {
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await FirebaseInitializer.ensureInitialized();
-  
+
   debugPrint('Enhanced background message: ${message.messageId}');
   debugPrint('Message data: ${message.data}');
 

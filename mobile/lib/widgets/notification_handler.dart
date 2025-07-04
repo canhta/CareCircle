@@ -25,14 +25,12 @@ class NotificationHandler extends StatefulWidget {
   });
 
   @override
-  State<NotificationHandler> createState() =>
-      _NotificationHandlerState();
+  State<NotificationHandler> createState() => _NotificationHandlerState();
 }
 
-class _NotificationHandlerState
-    extends State<NotificationHandler> with WidgetsBindingObserver {
-  final FirebaseMessagingService _messagingService =
-      FirebaseMessagingService();
+class _NotificationHandlerState extends State<NotificationHandler>
+    with WidgetsBindingObserver {
+  final FirebaseMessagingService _messagingService = FirebaseMessagingService();
 
   bool _isInitialized = false;
   String? _lastError;
@@ -55,7 +53,7 @@ class _NotificationHandlerState
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
-    
+
     switch (state) {
       case AppLifecycleState.resumed:
         _handleAppResumed();
@@ -96,7 +94,7 @@ class _NotificationHandlerState
 
       // Initialize the service
       await _messagingService.initialize();
-      
+
       // Get initial token
       await _getInitialToken();
 
@@ -124,10 +122,10 @@ class _NotificationHandlerState
 
   void _handleForegroundMessage(RemoteMessage message) {
     _updateMessageStats(message);
-    
+
     // Handle different types of messages with enhanced logic
     final messageType = message.data['type'] ?? 'general';
-    
+
     switch (messageType) {
       case 'medication_reminder':
         _handleMedicationReminder(message);
@@ -185,7 +183,7 @@ class _NotificationHandlerState
 
   void _handleTokenRefresh(String token) {
     debugPrint('Enhanced token refresh handled');
-    
+
     if (widget.enableAnalytics) {
       _trackTokenRefresh();
     }
@@ -195,9 +193,9 @@ class _NotificationHandlerState
     setState(() {
       _lastError = error;
     });
-    
+
     debugPrint('Enhanced notification handler error: $error');
-    
+
     if (widget.enableAnalytics) {
       _trackError(error);
     }
@@ -206,7 +204,7 @@ class _NotificationHandlerState
   // App lifecycle handlers
   void _handleAppResumed() async {
     debugPrint('App resumed - checking for pending notifications');
-    
+
     if (widget.enableOfflineSupport) {
       await _processPendingMessages();
     }
@@ -335,7 +333,8 @@ class _NotificationHandlerState
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          icon: const Icon(Icons.health_and_safety, color: Colors.green, size: 48),
+          icon: const Icon(Icons.health_and_safety,
+              color: Colors.green, size: 48),
           title: Text(message.notification?.title ?? 'Health Check Reminder'),
           content: Text(
             message.notification?.body ?? 'Time for your daily health check',
@@ -383,7 +382,8 @@ class _NotificationHandlerState
                 Navigator.of(context).pop();
                 _handleEmergencyAction(message.data);
               },
-              child: const Text('Take Action', style: TextStyle(color: Colors.white)),
+              child: const Text('Take Action',
+                  style: TextStyle(color: Colors.white)),
             ),
             TextButton(
               onPressed: () {
@@ -484,7 +484,8 @@ class _NotificationHandlerState
     Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
   }
 
-  void _handleEmergencyNavigation(BuildContext context, Map<String, dynamic> data) {
+  void _handleEmergencyNavigation(
+      BuildContext context, Map<String, dynamic> data) {
     // Handle emergency-specific navigation
     Navigator.pushNamed(context, '/emergency', arguments: data);
   }
@@ -494,7 +495,7 @@ class _NotificationHandlerState
     try {
       // TODO: Implement medication taken logic with API call
       debugPrint('Medication marked as taken: $data');
-      
+
       if (widget.enableAnalytics) {
         _trackMedicationTaken(data);
       }
@@ -507,7 +508,7 @@ class _NotificationHandlerState
     try {
       // TODO: Implement snooze logic with local scheduling
       debugPrint('Medication reminder snoozed: $data');
-      
+
       if (widget.enableAnalytics) {
         _trackMedicationSnoozed(data);
       }
@@ -520,7 +521,7 @@ class _NotificationHandlerState
     try {
       // TODO: Implement emergency action logic
       debugPrint('Emergency action taken: $data');
-      
+
       if (widget.enableAnalytics) {
         _trackEmergencyAction(data);
       }
@@ -598,7 +599,8 @@ class _NotificationHandlerState
       return const Icon(Icons.error, color: Colors.red, size: 16);
     }
 
-    return const Icon(Icons.notifications_active, color: Colors.green, size: 16);
+    return const Icon(Icons.notifications_active,
+        color: Colors.green, size: 16);
   }
 
   @override

@@ -17,7 +17,8 @@ class NotificationChannels {
       NotificationChannel(
         channelKey: medicationChannel,
         channelName: 'Medication Reminders',
-        channelDescription: 'Notifications for medication schedules and reminders',
+        channelDescription:
+            'Notifications for medication schedules and reminders',
         defaultColor: const Color(0xFF2196F3),
         ledColor: Colors.blue,
         importance: NotificationImportance.High,
@@ -30,7 +31,8 @@ class NotificationChannels {
       NotificationChannel(
         channelKey: healthCheckChannel,
         channelName: 'Health Check Reminders',
-        channelDescription: 'Notifications for daily health check-ins and monitoring',
+        channelDescription:
+            'Notifications for daily health check-ins and monitoring',
         defaultColor: const Color(0xFF4CAF50),
         ledColor: Colors.green,
         importance: NotificationImportance.High,
@@ -42,7 +44,8 @@ class NotificationChannels {
       NotificationChannel(
         channelKey: careGroupChannel,
         channelName: 'Care Group Updates',
-        channelDescription: 'Notifications from your care group members and updates',
+        channelDescription:
+            'Notifications from your care group members and updates',
         defaultColor: const Color(0xFFFF9800),
         ledColor: Colors.orange,
         importance: NotificationImportance.Default,
