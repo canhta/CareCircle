@@ -1,15 +1,20 @@
 PODS:
+  - AppAuth (1.7.6):
+    - AppAuth/Core (= 1.7.6)
+    - AppAuth/ExternalUserAgent (= 1.7.6)
+  - AppAuth/Core (1.7.6)
+  - AppAuth/ExternalUserAgent (1.7.6):
+    - AppAuth/Core
   - AppCheckCore (11.2.0):
     - GoogleUtilities/Environment (~> 8.0)
     - GoogleUtilities/UserDefaults (~> 8.0)
     - PromisesObjC (~> 2.4)
-  - camera_avfoundation (0.0.1):
+  - awesome_notifications (0.10.0):
     - Flutter
+    - IosAwnCore (~> 0.10.0)
   - connectivity_plus (0.0.1):
     - Flutter
   - device_info_plus (0.0.1):
-    - Flutter
-  - file_selector_ios (0.0.1):
     - Flutter
   - Firebase/Auth (11.15.0):
     - Firebase/CoreOnly
@@ -19,11 +24,6 @@ PODS:
   - Firebase/Messaging (11.15.0):
     - Firebase/CoreOnly
     - FirebaseMessaging (~> 11.15.0)
-  - firebase_app_check (0.3.2-9):
-    - Firebase/CoreOnly (~> 11.15.0)
-    - firebase_core
-    - FirebaseAppCheck (~> 11.15.0)
-    - Flutter
   - firebase_auth (5.6.2):
     - Firebase/Auth (= 11.15.0)
     - firebase_core
@@ -35,12 +35,6 @@ PODS:
     - Firebase/Messaging (= 11.15.0)
     - firebase_core
     - Flutter
-  - FirebaseAppCheck (11.15.0):
-    - AppCheckCore (~> 11.0)
-    - FirebaseAppCheckInterop (~> 11.0)
-    - FirebaseCore (~> 11.15.0)
-    - GoogleUtilities/Environment (~> 8.1)
-    - GoogleUtilities/UserDefaults (~> 8.1)
   - FirebaseAppCheckInterop (11.15.0)
   - FirebaseAuth (11.15.0):
     - FirebaseAppCheckInterop (~> 11.0)
@@ -75,11 +69,22 @@ PODS:
     - GoogleUtilities/UserDefaults (~> 8.1)
     - nanopb (~> 3.30910.0)
   - Flutter (1.0.0)
-  - flutter_local_notifications (0.0.1):
+  - flutter_secure_storage (6.0.0):
     - Flutter
+  - google_sign_in_ios (0.0.1):
+    - AppAuth (>= 1.7.4)
+    - Flutter
+    - FlutterMacOS
+    - GoogleSignIn (~> 8.0)
+    - GTMSessionFetcher (>= 3.4.0)
   - GoogleDataTransport (10.1.0):
     - nanopb (~> 3.30910.0)
     - PromisesObjC (~> 2.4)
+  - GoogleSignIn (8.0.0):
+    - AppAuth (< 2.0, >= 1.7.3)
+    - AppCheckCore (~> 11.0)
+    - GTMAppAuth (< 5.0, >= 4.1.1)
+    - GTMSessionFetcher/Core (~> 3.3)
   - GoogleUtilities/AppDelegateSwizzler (8.1.0):
     - GoogleUtilities/Environment
     - GoogleUtilities/Logger
@@ -104,11 +109,19 @@ PODS:
   - GoogleUtilities/UserDefaults (8.1.0):
     - GoogleUtilities/Logger
     - GoogleUtilities/Privacy
-  - GTMSessionFetcher/Core (4.5.0)
-  - health (1.0.4):
+  - GTMAppAuth (4.1.1):
+    - AppAuth/Core (~> 1.7)
+    - GTMSessionFetcher/Core (< 4.0, >= 3.3)
+  - GTMSessionFetcher (3.5.0):
+    - GTMSessionFetcher/Full (= 3.5.0)
+  - GTMSessionFetcher/Core (3.5.0)
+  - GTMSessionFetcher/Full (3.5.0):
+    - GTMSessionFetcher/Core
+  - health (13.1.1):
     - Flutter
   - image_picker_ios (0.0.1):
     - Flutter
+  - IosAwnCore (0.10.0)
   - nanopb (3.30910.0):
     - nanopb/decode (= 3.30910.0)
     - nanopb/encode (= 3.30910.0)
@@ -121,38 +134,37 @@ PODS:
     - Flutter
   - PromisesObjC (2.4.0)
   - RecaptchaInterop (101.0.0)
-  - record_ios (1.0.0):
-    - Flutter
   - shared_preferences_foundation (0.0.1):
     - Flutter
     - FlutterMacOS
-  - workmanager (0.0.1):
+  - sign_in_with_apple (0.0.1):
+    - Flutter
+  - workmanager_apple (0.0.1):
     - Flutter
 
 DEPENDENCIES:
-  - camera_avfoundation (from `.symlinks/plugins/camera_avfoundation/ios`)
+  - awesome_notifications (from `.symlinks/plugins/awesome_notifications/ios`)
   - connectivity_plus (from `.symlinks/plugins/connectivity_plus/ios`)
   - device_info_plus (from `.symlinks/plugins/device_info_plus/ios`)
-  - file_selector_ios (from `.symlinks/plugins/file_selector_ios/ios`)
-  - firebase_app_check (from `.symlinks/plugins/firebase_app_check/ios`)
   - firebase_auth (from `.symlinks/plugins/firebase_auth/ios`)
   - firebase_core (from `.symlinks/plugins/firebase_core/ios`)
   - firebase_messaging (from `.symlinks/plugins/firebase_messaging/ios`)
   - Flutter (from `Flutter`)
-  - flutter_local_notifications (from `.symlinks/plugins/flutter_local_notifications/ios`)
+  - flutter_secure_storage (from `.symlinks/plugins/flutter_secure_storage/ios`)
+  - google_sign_in_ios (from `.symlinks/plugins/google_sign_in_ios/darwin`)
   - health (from `.symlinks/plugins/health/ios`)
   - image_picker_ios (from `.symlinks/plugins/image_picker_ios/ios`)
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
   - permission_handler_apple (from `.symlinks/plugins/permission_handler_apple/ios`)
-  - record_ios (from `.symlinks/plugins/record_ios/ios`)
   - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
-  - workmanager (from `.symlinks/plugins/workmanager/ios`)
+  - sign_in_with_apple (from `.symlinks/plugins/sign_in_with_apple/ios`)
+  - workmanager_apple (from `.symlinks/plugins/workmanager_apple/ios`)
 
 SPEC REPOS:
   trunk:
+    - AppAuth
     - AppCheckCore
     - Firebase
-    - FirebaseAppCheck
     - FirebaseAppCheckInterop
     - FirebaseAuth
     - FirebaseAuthInterop
@@ -162,23 +174,22 @@ SPEC REPOS:
     - FirebaseInstallations
     - FirebaseMessaging
     - GoogleDataTransport
+    - GoogleSignIn
     - GoogleUtilities
+    - GTMAppAuth
     - GTMSessionFetcher
+    - IosAwnCore
     - nanopb
     - PromisesObjC
     - RecaptchaInterop
 
 EXTERNAL SOURCES:
-  camera_avfoundation:
-    :path: ".symlinks/plugins/camera_avfoundation/ios"
+  awesome_notifications:
+    :path: ".symlinks/plugins/awesome_notifications/ios"
   connectivity_plus:
     :path: ".symlinks/plugins/connectivity_plus/ios"
   device_info_plus:
     :path: ".symlinks/plugins/device_info_plus/ios"
-  file_selector_ios:
-    :path: ".symlinks/plugins/file_selector_ios/ios"
-  firebase_app_check:
-    :path: ".symlinks/plugins/firebase_app_check/ios"
   firebase_auth:
     :path: ".symlinks/plugins/firebase_auth/ios"
   firebase_core:
@@ -187,8 +198,10 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/firebase_messaging/ios"
   Flutter:
     :path: Flutter
-  flutter_local_notifications:
-    :path: ".symlinks/plugins/flutter_local_notifications/ios"
+  flutter_secure_storage:
+    :path: ".symlinks/plugins/flutter_secure_storage/ios"
+  google_sign_in_ios:
+    :path: ".symlinks/plugins/google_sign_in_ios/darwin"
   health:
     :path: ".symlinks/plugins/health/ios"
   image_picker_ios:
@@ -197,25 +210,23 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/path_provider_foundation/darwin"
   permission_handler_apple:
     :path: ".symlinks/plugins/permission_handler_apple/ios"
-  record_ios:
-    :path: ".symlinks/plugins/record_ios/ios"
   shared_preferences_foundation:
     :path: ".symlinks/plugins/shared_preferences_foundation/darwin"
-  workmanager:
-    :path: ".symlinks/plugins/workmanager/ios"
+  sign_in_with_apple:
+    :path: ".symlinks/plugins/sign_in_with_apple/ios"
+  workmanager_apple:
+    :path: ".symlinks/plugins/workmanager_apple/ios"
 
 SPEC CHECKSUMS:
+  AppAuth: d4f13a8fe0baf391b2108511793e4b479691fb73
   AppCheckCore: cc8fd0a3a230ddd401f326489c99990b013f0c4f
-  camera_avfoundation: be3be85408cd4126f250386828e9b1dfa40ab436
+  awesome_notifications: 0f432b28098d193920b11a44cfa9d2d9313a3888
   connectivity_plus: cb623214f4e1f6ef8fe7403d580fdad517d2f7dd
-  device_info_plus: 71ffc6ab7634ade6267c7a93088ed7e4f74e5896
-  file_selector_ios: f92e583d43608aebc2e4a18daac30b8902845502
+  device_info_plus: 21fcca2080fbcd348be798aa36c3e5ed849eefbe
   Firebase: d99ac19b909cd2c548339c2241ecd0d1599ab02e
-  firebase_app_check: 100edcd23a22677ab58a133b72a690f20101997c
   firebase_auth: dad1f2f9c317dba1b300933a3f7622fa30eb721c
   firebase_core: ece862f94b2bc72ee0edbeec7ab5c7cb09fe1ab5
   firebase_messaging: e1a5fae495603115be1d0183bc849da748734e2b
-  FirebaseAppCheck: 4574d7180be2a8b514f588099fc5262f032a92c7
   FirebaseAppCheckInterop: 06fe5a3799278ae4667e6c432edd86b1030fa3df
   FirebaseAuth: a6575e5fbf46b046c58dc211a28a5fbdd8d4c83b
   FirebaseAuthInterop: 7087d7a4ee4bc4de019b2d0c240974ed5d89e2fd
@@ -225,21 +236,25 @@ SPEC CHECKSUMS:
   FirebaseInstallations: 317270fec08a5d418fdbc8429282238cab3ac843
   FirebaseMessaging: 3b26e2cee503815e01c3701236b020aa9b576f09
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
-  flutter_local_notifications: ad39620c743ea4c15127860f4b5641649a988100
+  flutter_secure_storage: 1ed9476fba7e7a782b22888f956cce43e2c62f13
+  google_sign_in_ios: b48bb9af78576358a168361173155596c845f0b9
   GoogleDataTransport: aae35b7ea0c09004c3797d53c8c41f66f219d6a7
+  GoogleSignIn: ce8c89bb9b37fb624b92e7514cc67335d1e277e4
   GoogleUtilities: 00c88b9a86066ef77f0da2fab05f65d7768ed8e1
-  GTMSessionFetcher: fc75fc972958dceedee61cb662ae1da7a83a91cf
-  health: a4ddeac72091000e94776864d0028f6be31ec7a5
+  GTMAppAuth: f69bd07d68cd3b766125f7e072c45d7340dea0de
+  GTMSessionFetcher: 5aea5ba6bd522a239e236100971f10cb71b96ab6
+  health: 0488159eaa0cb4551cb066fe469c6a647416ca1a
   image_picker_ios: 7fe1ff8e34c1790d6fff70a32484959f563a928a
+  IosAwnCore: 653786a911089012092ce831f2945cd339855a89
   nanopb: fad817b59e0457d11a5dfbde799381cd727c1275
   path_provider_foundation: 080d55be775b7414fd5a5ef3ac137b97b097e564
   permission_handler_apple: 4ed2196e43d0651e8ff7ca3483a069d469701f2d
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
   RecaptchaInterop: 11e0b637842dfb48308d242afc3f448062325aba
-  record_ios: fee1c924aa4879b882ebca2b4bce6011bcfc3d8b
   shared_preferences_foundation: 9e1978ff2562383bd5676f64ec4e9aa8fa06a6f7
-  workmanager: 01be2de7f184bd15de93a1812936a2b7f42ef07e
+  sign_in_with_apple: c5dcc141574c8c54d5ac99dd2163c0c72ad22418
+  workmanager_apple: f540d652595dfe5c8b8200c4c85ba622d6fb5c5b
 
-PODFILE CHECKSUM: 251cb053df7158f337c0712f2ab29f4e0fa474ce
+PODFILE CHECKSUM: e30f02f9d1c72c47bb6344a0a748c9d268180865
 
 COCOAPODS: 1.16.2
