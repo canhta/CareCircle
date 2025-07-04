@@ -274,7 +274,7 @@
         "id": 5,
         "title": "Intelligent Notification & Reminder System (FR-04)",
         "description": "[Backend/NestJS, Mobile/Flutter] Build the smart reminder system with actionable notifications, audit logging, and the adaptive notification engine. The mobile app will receive and display the notifications.",
-        "status": "in-progress",
+        "status": "done",
         "priority": "high",
         "dependencies": [
           4
@@ -349,12 +349,78 @@
         "id": 6,
         "title": "Intelligent Daily Check-ins (FR-05)",
         "description": "[Mobile/Flutter, Backend/NestJS] Implement the adaptive daily check-in feature with interactive notifications and personalized question flows. The backend will process and store the check-in data.",
-        "status": "pending",
+        "status": "in-progress",
         "priority": "medium",
         "dependencies": [
           5
         ],
-        "details": "<info added on 2025-07-04T07:10:58.230Z>\nTo implement the adaptive daily check-in feature using a Large Language Model (LLM)-based approach, the following components will be integrated:\n\n- **Personalized Question Generation**: Utilize OpenAI's GPT models to generate daily check-in questions tailored to each user's health profile. This personalization will be achieved by analyzing user data and crafting questions that are relevant to their specific health context.\n\n- **Response Analysis**: Employ natural language processing techniques to interpret and analyze user responses. This analysis will help in understanding user sentiments, identifying health trends, and detecting any anomalies in their responses.\n\n- **User Interaction Storage and Recommendations**: Implement a vector database (VectorDB) to store user interaction patterns. This storage will facilitate similarity-based recommendations by identifying patterns and trends in user behavior, enabling the system to suggest relevant content or actions.\n\n- **Adaptive Question Flows and Timing**: Leverage the capabilities of LLMs to adapt the sequence and timing of questions based on user engagement data. By monitoring user interactions, the system can adjust the check-in process to maintain user interest and improve response rates.\n\n- **Insight Generation and Recommendations**: Use OpenAI's analysis tools to generate actionable insights and recommendations from user check-in responses. This process will involve summarizing user data, identifying key health indicators, and providing personalized advice to support user well-being.\n\nThis LLM-based approach aims to simplify the implementation process while delivering an intelligent and adaptive daily check-in experience for users.\n</info added on 2025-07-04T07:10:58.230Z>"
+        "details": "<info added on 2025-07-04T07:10:58.230Z>\nTo implement the adaptive daily check-in feature using a Large Language Model (LLM)-based approach, the following components will be integrated:\n\n- **Personalized Question Generation**: Utilize OpenAI's GPT models to generate daily check-in questions tailored to each user's health profile. This personalization will be achieved by analyzing user data and crafting questions that are relevant to their specific health context.\n\n- **Response Analysis**: Employ natural language processing techniques to interpret and analyze user responses. This analysis will help in understanding user sentiments, identifying health trends, and detecting any anomalies in their responses.\n\n- **User Interaction Storage and Recommendations**: Implement a vector database (VectorDB) to store user interaction patterns. This storage will facilitate similarity-based recommendations by identifying patterns and trends in user behavior, enabling the system to suggest relevant content or actions.\n\n- **Adaptive Question Flows and Timing**: Leverage the capabilities of LLMs to adapt the sequence and timing of questions based on user engagement data. By monitoring user interactions, the system can adjust the check-in process to maintain user interest and improve response rates.\n\n- **Insight Generation and Recommendations**: Use OpenAI's analysis tools to generate actionable insights and recommendations from user check-in responses. This process will involve summarizing user data, identifying key health indicators, and providing personalized advice to support user well-being.\n\nThis LLM-based approach aims to simplify the implementation process while delivering an intelligent and adaptive daily check-in experience for users.\n</info added on 2025-07-04T07:10:58.230Z>",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Design Personalized Question Generation System",
+            "description": "Develop a system that utilizes OpenAI's GPT models to generate daily check-in questions tailored to each user's health profile.",
+            "dependencies": [],
+            "details": "Analyze user health data to create personalized prompts. Implement a service that interfaces with GPT models to generate relevant questions based on user-specific information.\n<info added on 2025-07-04T08:28:29.945Z>\nThe personalized question generation system has been successfully implemented with the following features:\n\n**PersonalizedQuestionService Implementation:**\n- Developed a comprehensive service that analyzes user health profiles, including age, gender, recent check-ins, prescriptions, and care group context.\n- Integrated OpenAI GPT models for intelligent question generation tailored to each user's specific health context.\n- Implemented a fallback mechanism to default questions if AI generation fails.\n- Added support for various question types: scale, multiple choice, text, and boolean.\n- Included question categorization (mood, energy, sleep, pain, stress, symptoms, medication, general).\n- Built smart prompt engineering that considers users' health trends, medication schedules, and recent responses.\n\n**Database Integration:**\n- Enhanced the existing DailyCheckIn schema utilization.\n- Added comprehensive Data Transfer Objects (DTOs) for type safety.\n- Implemented proper error handling and logging.\n\n**REST API Implementation:**\n- Created full CRUD operations for daily check-ins.\n- Added specialized endpoints for today's check-in and personalized question generation.\n- Included proper authentication, validation, and Swagger documentation.\n- Implemented the question answering workflow.\n\n**Key Technical Features:**\n- AI-powered question personalization based on user health data.\n- Adaptive question flows considering user engagement patterns.\n- Support for multiple question categories and priorities.\n- Integration with existing notification and user management systems.\n- Comprehensive error handling and type safety.\n\nThe system is now ready to generate intelligent, personalized daily check-in questions that adapt to each user's unique health profile and history.\n</info added on 2025-07-04T08:28:29.945Z>",
+            "status": "done",
+            "testStrategy": "Validate the relevance and personalization of generated questions through user feedback and expert review."
+          },
+          {
+            "id": 2,
+            "title": "Implement Response Analysis Mechanism",
+            "description": "Create a module that employs natural language processing techniques to interpret and analyze user responses.",
+            "dependencies": [
+              1
+            ],
+            "details": "Develop algorithms to assess user sentiments, identify health trends, and detect anomalies in responses. Integrate this module with the backend to process incoming data.",
+            "status": "pending",
+            "testStrategy": "Test the accuracy of sentiment analysis and anomaly detection using a dataset of sample responses."
+          },
+          {
+            "id": 3,
+            "title": "Set Up Vector Database for User Interaction Storage",
+            "description": "Establish a vector database to store user interaction patterns, facilitating similarity-based recommendations.",
+            "dependencies": [
+              2
+            ],
+            "details": "Choose an appropriate vector database solution (e.g., Milvus, Pinecone) and configure it to store embeddings of user interactions. Ensure efficient indexing and retrieval for real-time recommendations.",
+            "status": "pending",
+            "testStrategy": "Verify the database's performance in storing and retrieving user interaction data through benchmark tests."
+          },
+          {
+            "id": 4,
+            "title": "Develop Adaptive Question Flow and Timing Logic",
+            "description": "Create a system that adapts the sequence and timing of questions based on user engagement data.",
+            "dependencies": [
+              3
+            ],
+            "details": "Utilize LLM capabilities to monitor user interactions and adjust the check-in process dynamically to maintain user interest and improve response rates.",
+            "status": "pending",
+            "testStrategy": "Simulate various user engagement scenarios to ensure the system adapts question flow and timing appropriately."
+          },
+          {
+            "id": 5,
+            "title": "Generate Insights and Recommendations from User Responses",
+            "description": "Implement a process to generate actionable insights and personalized recommendations based on analyzed user responses.",
+            "dependencies": [
+              4
+            ],
+            "details": "Use OpenAI's analysis tools to summarize user data, identify key health indicators, and provide personalized advice to support user well-being.",
+            "status": "pending",
+            "testStrategy": "Evaluate the relevance and accuracy of generated insights and recommendations through user studies and expert validation."
+          },
+          {
+            "id": 6,
+            "title": "Integrate Interactive Notifications and Alerts",
+            "description": "Develop a notification system that delivers interactive alerts and follow-ups based on user responses and generated insights.",
+            "dependencies": [
+              5
+            ],
+            "details": "Implement a backend service that triggers notifications or alerts when specific conditions are met, ensuring timely and relevant user engagement.",
+            "status": "pending",
+            "testStrategy": "Test the notification system's responsiveness and relevance through simulated user interactions and feedback."
+          }
+        ]
       },
       {
         "id": 7,
@@ -522,7 +588,7 @@
     ],
     "metadata": {
       "created": "2025-07-03T13:21:13.212Z",
-      "updated": "2025-07-04T07:41:53.082Z",
+      "updated": "2025-07-04T08:28:02.917Z",
       "description": "Tasks for master context"
     }
   }
