@@ -181,9 +181,56 @@
         "id": 4,
         "title": "Prescription Management (OCR Scanner) (FR-03)",
         "description": "[Mobile/Flutter, Backend/NestJS] Develop the OCR-based prescription scanner, including image capture, data extraction (drug name, dosage, schedule), and manual entry/edit capabilities. The backend will handle the AI/OCR processing.",
-        "status": "pending",
+        "status": "in-progress",
         "priority": "medium",
-        "dependencies": [2]
+        "dependencies": [2],
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Design and Implement Image Capture Feature in Flutter",
+            "description": "Develop a Flutter module that allows users to capture prescription images using the device's camera or select images from the gallery.",
+            "dependencies": [],
+            "details": "Utilize the 'image_picker' package to facilitate image selection and capture. Ensure the module supports both Android and iOS platforms.",
+            "status": "done",
+            "testStrategy": "Test the image capture functionality on various devices to ensure compatibility and performance. Validate that images are correctly captured and accessible for further processing."
+          },
+          {
+            "id": 2,
+            "title": "Integrate OCR Processing in the Backend with NestJS",
+            "description": "Set up a NestJS backend service to handle OCR processing of prescription images, extracting relevant data such as drug names, dosages, and schedules.",
+            "dependencies": [],
+            "details": "Implement an endpoint in the NestJS backend that receives images from the Flutter app and processes them using an OCR library like Tesseract. Ensure the service can accurately extract and return the necessary prescription details.\n<info added on 2025-07-04T04:42:19.934Z>\nThe OCR processing in the NestJS backend has been successfully implemented with the following features:\n\n- **PrescriptionOCRService**: Integrated Tesseract.js for OCR processing.\n- **Image Preprocessing**: Utilized Sharp to enhance image quality for improved OCR accuracy.\n- **Data Extraction**: Employed regex patterns to intelligently extract prescription details.\n- **DTOs**: Created structured Data Transfer Objects for API responses.\n- **API Endpoint**: Added `/prescriptions/scan` endpoint supporting file uploads.\n- **Error Handling**: Implemented comprehensive error handling and validation mechanisms.\n- **Documentation**: Added Swagger API documentation for the new endpoint.\n\n**Key Features:**\n\n- Supports multiple image formats: JPG, PNG, WebP, PDF.\n- Enforces a 10MB file size limit with proper validation.\n- Extracts essential prescription details: drug name, dosage, frequency, quantity, prescriber, and instructions.\n- Provides OCR confidence scoring and result validation.\n- Returns structured JSON responses with extracted data.\n\n**Dependencies Added:**\n\n- tesseract.js v5.0.5 for OCR processing.\n- multer v1.4.5 for file upload handling.\n- sharp v0.33.2 for image preprocessing.\n\nThe backend OCR integration is now fully functional and ready for testing with the Flutter mobile app.\n</info added on 2025-07-04T04:42:19.934Z>",
+            "status": "done",
+            "testStrategy": "Develop unit tests for the OCR processing logic to verify accurate data extraction. Perform integration tests to ensure the backend service correctly handles image inputs and returns expected outputs."
+          },
+          {
+            "id": 3,
+            "title": "Establish Secure Communication Between Flutter App and NestJS Backend",
+            "description": "Implement secure API communication between the Flutter frontend and the NestJS backend to transmit prescription images and receive extracted data.",
+            "dependencies": [1, 2],
+            "details": "Use HTTPS for secure data transmission and implement authentication mechanisms such as API keys or OAuth tokens to protect the API endpoints.",
+            "status": "in-progress",
+            "testStrategy": "Conduct security tests to verify the integrity and confidentiality of data during transmission. Perform functional tests to ensure the Flutter app and backend communicate effectively."
+          },
+          {
+            "id": 4,
+            "title": "Develop Manual Entry and Edit Capabilities in Flutter",
+            "description": "Create a user interface in the Flutter app that allows users to manually enter and edit prescription details.",
+            "dependencies": [1],
+            "details": "Design intuitive forms for inputting drug names, dosages, and schedules. Implement validation to ensure data accuracy and completeness.",
+            "status": "pending",
+            "testStrategy": "Perform usability testing to ensure the manual entry forms are user-friendly. Validate that data entered manually is correctly stored and can be edited as needed."
+          },
+          {
+            "id": 5,
+            "title": "Implement Data Storage and Management in the Backend",
+            "description": "Set up a database in the NestJS backend to store extracted and manually entered prescription data securely.",
+            "dependencies": [2, 4],
+            "details": "Choose a suitable database (e.g., PostgreSQL, MongoDB) and design schemas to store prescription information. Implement CRUD operations to manage the data effectively.",
+            "status": "pending",
+            "testStrategy": "Develop unit tests for database operations to ensure data integrity. Perform load testing to assess the database's performance under various conditions."
+          }
+        ]
       },
       {
         "id": 5,
@@ -331,7 +378,7 @@
     ],
     "metadata": {
       "created": "2025-07-03T13:21:13.212Z",
-      "updated": "2025-07-04T02:31:44.286Z",
+      "updated": "2025-07-04T04:42:45.793Z",
       "description": "Tasks for master context"
     }
   }

@@ -29,6 +29,12 @@
     <!-- Activity Recognition for fitness data -->
     <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION"/>
     
+    <!-- Camera and Storage permissions for prescription scanning -->
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
+    
     <!-- Location permissions for workout distances -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>

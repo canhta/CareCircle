@@ -52,7 +52,8 @@ class HomeScreen extends StatelessWidget {
                     title: 'Prescriptions',
                     subtitle: 'Manage medications',
                     color: Colors.green,
-                    onTap: () => _showComingSoon(context, 'Prescriptions'),
+                    onTap: () =>
+                        Navigator.pushNamed(context, '/prescription-scanner'),
                   ),
                   _buildFeatureCard(
                     context,

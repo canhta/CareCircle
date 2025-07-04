@@ -49,5 +49,9 @@
 	<string>CareCircle needs access to your health data to provide personalized insights and help coordinate care with your family members.</string>
 	<key>NSHealthUpdateUsageDescription</key>
 	<string>CareCircle needs to update your health data to keep track of your wellness activities and medication adherence.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>CareCircle needs access to your camera to scan prescription labels and capture medical documents.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>CareCircle needs access to your photo library to select prescription images for scanning and analysis.</string>
 </dict>
 </plist>

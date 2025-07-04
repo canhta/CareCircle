@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'config/app_config.dart';
 import 'screens/home_screen.dart';
+import 'screens/prescription_scanner_screen.dart';
 import 'services/background_sync_service.dart';
 import 'managers/health_data_manager.dart';
 
@@ -56,6 +57,9 @@ class MainApp extends StatelessWidget {
         useMaterial3: true,
       ),
       home: const HomeScreen(),
+      routes: {
+        '/prescription-scanner': (context) => const PrescriptionScannerScreen(),
+      },
     );
   }
 }
