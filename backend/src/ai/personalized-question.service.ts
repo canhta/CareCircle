@@ -5,7 +5,7 @@ import OpenAI from 'openai';
 import {
   PersonalizedQuestionDto,
   GenerateQuestionsDto,
-} from './dto/daily-check-in.dto';
+} from '../daily-check-in/dto/daily-check-in.dto';
 
 interface UserHealthProfile {
   age?: number;

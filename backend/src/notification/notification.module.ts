@@ -12,12 +12,16 @@ import { NotificationSchedulingService } from './notification-scheduling.service
 import { NotificationAuditLoggingService } from './audit-logging.service';
 import { UserBehaviorAnalyticsService } from './user-behavior-analytics.service';
 import { AdaptiveNotificationEngineService } from './adaptive-notification-engine.service';
-import { MilvusService } from './milvus.service';
+import { NotificationBehaviorService } from './notification-behavior.service';
 import { PrismaModule } from '../prisma/prisma.module';
+import { VectorModule } from '../vector/vector.module';
+import { AIModule } from '../ai/ai.module';
 
 @Module({
   imports: [
     PrismaModule,
+    VectorModule,
+    AIModule,
     ScheduleModule.forRoot(),
     CacheModule.register({
       ttl: 300, // 5 minutes
@@ -42,7 +46,7 @@ import { PrismaModule } from '../prisma/prisma.module';
     NotificationAuditLoggingService,
     UserBehaviorAnalyticsService,
     AdaptiveNotificationEngineService,
-    MilvusService,
+    NotificationBehaviorService,
   ],
   controllers: [NotificationController],
   exports: [
@@ -52,7 +56,7 @@ import { PrismaModule } from '../prisma/prisma.module';
     NotificationAuditLoggingService,
     UserBehaviorAnalyticsService,
     AdaptiveNotificationEngineService,
-    MilvusService,
+    NotificationBehaviorService,
   ],
 })
 export class NotificationModule {}

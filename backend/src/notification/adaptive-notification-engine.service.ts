@@ -9,8 +9,8 @@ import {
   NotificationPayload,
 } from './notification.service';
 import { NotificationTemplateService } from './notification-template.service';
-import { MilvusService } from './milvus.service';
-import OpenAI from 'openai';
+import { NotificationBehaviorService } from './notification-behavior.service';
+import { OpenAIService } from '../ai/openai.service';
 import { ConfigService } from '@nestjs/config';
 
 export interface AdaptiveNotificationRequest {
@@ -34,7 +34,6 @@ export interface NotificationRecommendation {
 @Injectable()
 export class AdaptiveNotificationEngineService {
   private readonly logger = new Logger(AdaptiveNotificationEngineService.name);
-  private readonly openai: OpenAI;
 
   constructor(
     private readonly prisma: PrismaService,
@@ -42,12 +41,9 @@ export class AdaptiveNotificationEngineService {
     private readonly notificationService: NotificationService,
     private readonly templateService: NotificationTemplateService,
     private readonly configService: ConfigService,
-    private readonly milvusService: MilvusService,
-  ) {
-    this.openai = new OpenAI({
-      apiKey: this.configService.get<string>('OPENAI_API_KEY'),
-    });
-  }
+    private readonly notificationBehaviorService: NotificationBehaviorService,
+    private readonly openaiService: OpenAIService,
+  ) {}
 
   /**
    * Generate adaptive notification recommendation using LLM
@@ -314,23 +310,12 @@ Consider:
 Optimize for maximum engagement while respecting user preferences and avoiding notification fatigue.
 `;
 
-    const completion = await this.openai.chat.completions.create({
+    const completion = await this.openaiService.createCompletion(prompt, {
       model: 'gpt-4o-mini',
-      messages: [
-        {
-          role: 'system',
-          content:
-            'You are an expert healthcare notification optimization system. Generate personalized, effective notification recommendations that maximize user engagement while respecting their preferences and avoiding notification fatigue.',
-        },
-        { role: 'user', content: prompt },
-      ],
       temperature: 0.3,
-      response_format: { type: 'json_object' },
     });
 
-    const recommendation = JSON.parse(
-      completion.choices[0].message.content || '{}',
-    );
+    const recommendation = JSON.parse(completion || '{}');
 
     return {
       optimalTime: new Date(recommendation.optimalTime),
@@ -421,21 +406,12 @@ Provide insights and recommendations for improving notification effectiveness in
 }
 `;
 
-    const completion = await this.openai.chat.completions.create({
+    const completion = await this.openaiService.createCompletion(prompt, {
       model: 'gpt-4o-mini',
-      messages: [
-        {
-          role: 'system',
-          content:
-            'You are an expert data analyst specializing in notification effectiveness analysis for healthcare applications.',
-        },
-        { role: 'user', content: prompt },
-      ],
       temperature: 0.1,
-      response_format: { type: 'json_object' },
     });
 
-    return JSON.parse(completion.choices[0].message.content || '{}');
+    return JSON.parse(completion || '{}');
   }
 
   /**

@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { MilvusService } from './milvus.service';
-import OpenAI from 'openai';
+import { NotificationBehaviorService } from './notification-behavior.service';
+import { OpenAIService } from '../ai/openai.service';
 import { ConfigService } from '@nestjs/config';
 
 export interface UserBehaviorData {
@@ -31,17 +31,13 @@ export interface UserEngagementPattern {
 @Injectable()
 export class UserBehaviorAnalyticsService {
   private readonly logger = new Logger(UserBehaviorAnalyticsService.name);
-  private readonly openai: OpenAI;
 
   constructor(
     private readonly prisma: PrismaService,
     private readonly configService: ConfigService,
-    private readonly milvusService: MilvusService,
-  ) {
-    this.openai = new OpenAI({
-      apiKey: this.configService.get<string>('OPENAI_API_KEY'),
-    });
-  }
+    private readonly notificationBehaviorService: NotificationBehaviorService,
+    private readonly openaiService: OpenAIService,
+  ) {}
 
   /**
    * Track user interaction with a notification
@@ -67,7 +63,21 @@ export class UserBehaviorAnalyticsService {
       // Create behavior vector for Milvus
       const behaviorVector = this.createBehaviorVector(behaviorData);
       if (behaviorVector) {
-        await this.milvusService.storeUserBehaviorVector(behaviorVector);
+        await this.notificationBehaviorService.storeNotificationBehavior({
+          id: `${behaviorData.userId}_${behaviorData.notificationId}_${Date.now()}`,
+          userId: behaviorData.userId,
+          notificationId: behaviorData.notificationId,
+          action: behaviorData.action,
+          timestamp: behaviorData.timestamp,
+          metadata: {
+            timeToAction: behaviorData.timeToAction,
+            deviceType: behaviorData.deviceType,
+            timeOfDay: behaviorData.timeOfDay,
+            dayOfWeek: behaviorData.dayOfWeek,
+            notificationType: behaviorData.notificationType,
+            contextData: behaviorData.contextData,
+          },
+        });
       }
 
       this.logger.debug(
@@ -193,23 +203,15 @@ Based on this data, provide a JSON response with the following structure:
 Focus on identifying optimal timing, notification preferences, and engagement trends.
 `;
 
-      const completion = await this.openai.chat.completions.create({
-        model: 'gpt-4o-mini',
-        messages: [
-          {
-            role: 'system',
-            content:
-              'You are an expert data analyst specializing in user engagement patterns for healthcare notifications. Provide accurate, actionable insights based on user behavior data.',
-          },
-          { role: 'user', content: analysisPrompt },
-        ],
-        temperature: 0.1,
-        response_format: { type: 'json_object' },
-      });
-
-      const analysis = JSON.parse(
-        completion.choices[0].message.content || '{}',
+      const completion = await this.openaiService.createCompletion(
+        analysisPrompt,
+        {
+          model: 'gpt-4o-mini',
+          temperature: 0.1,
+        },
       );
+
+      const analysis = JSON.parse(completion || '{}');
 
       // Save the analysis
       const pattern = await this.prisma.userEngagementPattern.upsert({
@@ -353,13 +355,13 @@ Focus on identifying optimal timing, notification preferences, and engagement tr
    */
   private createBehaviorVector(behaviorData: UserBehaviorData): any {
     try {
-      // Create a behavior vector using the Milvus service
-      const vector = this.milvusService.createBehaviorVector({
+      // Create a behavior vector using the notification behavior service
+      const vector = this.notificationBehaviorService.createBehaviorVector({
         timeOfDay: behaviorData.timeOfDay,
         dayOfWeek: behaviorData.dayOfWeek,
         action: behaviorData.action,
         notificationType: behaviorData.notificationType,
-        responseTime: behaviorData.timeToAction,
+        timeToAction: behaviorData.timeToAction,
         deviceType: behaviorData.deviceType,
       });
 
