@@ -3,7 +3,10 @@ import '../services/health_service.dart';
 import 'charts/health_line_chart.dart';
 import 'charts/health_bar_chart.dart';
 import 'charts/health_pie_chart.dart';
+import 'charts/interactive_health_chart.dart';
 import 'health_insights.dart';
+import 'time_range_selector.dart' show TimeRange, TimeRangeSelector;
+import 'health_analytics_widget.dart';
 
 class HealthDashboard extends StatefulWidget {
   final List<CareCircleHealthData> healthData;
@@ -23,17 +26,6 @@ class HealthDashboard extends StatefulWidget {
 
   @override
   State<HealthDashboard> createState() => _HealthDashboardState();
-}
-
-enum TimeRange {
-  day('Today', 1),
-  week('7 Days', 7),
-  month('30 Days', 30),
-  year('Year', 365);
-
-  const TimeRange(this.label, this.days);
-  final String label;
-  final int days;
 }
 
 class _HealthDashboardState extends State<HealthDashboard>
@@ -151,31 +143,66 @@ class _HealthDashboardState extends State<HealthDashboard>
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        _buildLineChart(
-          filteredData
+        // Time Range Selector
+        TimeRangeSelector(
+          selectedRange: _selectedTimeRange,
+          onRangeChanged: (range) {
+            setState(() => _selectedTimeRange = range);
+            widget.onTimeRangeChanged?.call();
+          },
+        ),
+        const SizedBox(height: 16),
+
+        // Interactive Steps Chart
+        InteractiveHealthChart(
+          data: filteredData
               .where((d) => d.type == CareCircleHealthDataType.steps)
               .toList(),
-          'Steps Trend',
-          'steps',
-          Colors.green,
+          title: 'Steps Trend',
+          dataType: CareCircleHealthDataType.steps,
+          chartType: ChartType.line,
+          timeRange: _selectedTimeRange,
         ),
         const SizedBox(height: 16),
+
+        // Heart Rate Analytics
+        if (filteredData.any(
+          (d) => d.type == CareCircleHealthDataType.heartRate,
+        )) ...[
+          HealthAnalyticsWidget(
+            healthData: filteredData
+                .where((d) => d.type == CareCircleHealthDataType.heartRate)
+                .toList(),
+            dataType: CareCircleHealthDataType.heartRate,
+            timeRange: _selectedTimeRange,
+          ),
+          const SizedBox(height: 16),
+        ],
+
+        // Weight Trend Line Chart
+        if (filteredData.any(
+          (d) => d.type == CareCircleHealthDataType.weight,
+        )) ...[
+          InteractiveHealthChart(
+            data: filteredData
+                .where((d) => d.type == CareCircleHealthDataType.weight)
+                .toList(),
+            title: 'Weight Trend',
+            dataType: CareCircleHealthDataType.weight,
+            chartType: ChartType.line,
+            timeRange: _selectedTimeRange,
+          ),
+          const SizedBox(height: 16),
+        ],
+
+        // Legacy charts for other data types
         _buildLineChart(
           filteredData
-              .where((d) => d.type == CareCircleHealthDataType.heartRate)
+              .where((d) => d.type == CareCircleHealthDataType.bloodPressure)
               .toList(),
-          'Heart Rate Trend',
-          'bpm',
+          'Blood Pressure',
+          'mmHg',
           Colors.red,
-        ),
-        const SizedBox(height: 16),
-        _buildLineChart(
-          filteredData
-              .where((d) => d.type == CareCircleHealthDataType.weight)
-              .toList(),
-          'Weight Trend',
-          'kg',
-          Colors.blue,
         ),
       ],
     );

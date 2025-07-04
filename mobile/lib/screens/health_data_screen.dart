@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import '../managers/health_data_manager.dart';
 import '../services/health_service.dart';
 import '../config/app_config.dart';
-import '../widgets/health_dashboard.dart';
 import 'privacy_settings_screen.dart';
+import 'enhanced_health_dashboard.dart';
 
 class HealthDataScreen extends StatefulWidget {
   const HealthDataScreen({super.key});
@@ -194,24 +194,7 @@ class _HealthDataScreenState extends State<HealthDataScreen> {
   void _showDashboard() {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => Scaffold(
-          appBar: AppBar(
-            title: const Text('Health Dashboard'),
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.sync),
-                onPressed: _isLoading ? null : _syncData,
-                tooltip: 'Sync Health Data',
-              ),
-            ],
-          ),
-          body: HealthDashboard(
-            healthData: _recentData,
-            title: 'Health Overview',
-            timeRange: TimeRange.week,
-            onRefresh: _syncData,
-          ),
-        ),
+        builder: (context) => EnhancedHealthDashboard(healthData: _recentData),
       ),
     );
   }
