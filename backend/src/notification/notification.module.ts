@@ -1,9 +1,32 @@
 import { Module } from '@nestjs/common';
+import { BullModule } from '@nestjs/bullmq';
+import { ScheduleModule } from '@nestjs/schedule';
+import { CacheModule } from '@nestjs/cache-manager';
 import { NotificationService } from './notification.service';
 import { NotificationController } from './notification.controller';
+import { NotificationProcessor } from './processors/notification.processor';
+import { ReminderProcessor } from './processors/reminder.processor';
+import { PrismaModule } from '../prisma/prisma.module';
 
 @Module({
-  providers: [NotificationService],
+  imports: [
+    PrismaModule,
+    ScheduleModule.forRoot(),
+    CacheModule.register({
+      ttl: 300, // 5 minutes
+      max: 100, // maximum number of items in cache
+    }),
+    BullModule.registerQueue(
+      {
+        name: 'notification',
+      },
+      {
+        name: 'reminder',
+      },
+    ),
+  ],
+  providers: [NotificationService, NotificationProcessor, ReminderProcessor],
   controllers: [NotificationController],
+  exports: [NotificationService],
 })
 export class NotificationModule {}

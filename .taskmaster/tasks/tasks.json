@@ -274,10 +274,75 @@
         "id": 5,
         "title": "Intelligent Notification & Reminder System (FR-04)",
         "description": "[Backend/NestJS, Mobile/Flutter] Build the smart reminder system with actionable notifications, audit logging, and the adaptive notification engine. The mobile app will receive and display the notifications.",
-        "status": "pending",
+        "status": "in-progress",
         "priority": "high",
         "dependencies": [
           4
+        ],
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Implement Backend Notification Service with BullMQ Queues",
+            "description": "Develop a backend service using NestJS and BullMQ to manage notification queues, ensuring efficient and reliable message processing.",
+            "dependencies": [],
+            "details": "Install the necessary packages: `@nestjs/bullmq` and `bullmq`. Configure the `BullModule` in your NestJS application to connect to Redis. Register a queue named 'notificationQueue' and implement a processor to handle notification jobs. Ensure the processor can handle various notification types and manage job retries and failures appropriately.\n<info added on 2025-07-04T05:51:49.133Z>\n- Implemented a comprehensive `NotificationService` utilizing BullMQ queues for reliable message processing.\n- Installed `@nestjs/bullmq`, `@nestjs/schedule`, and `@nestjs/cache-manager` packages.\n- Developed methods within `NotificationService` for sending immediate and scheduled notifications.\n- Implemented `NotificationProcessor` and `ReminderProcessor` for BullMQ queue processing.\n- Added support for notification types: medication reminders, check-in reminders, health insights, and care group updates.\n- Configured multiple delivery channels: PUSH, EMAIL, SMS, and IN_APP.\n- Integrated priority-based job processing with an exponential backoff retry mechanism.\n- Implemented notification preferences and quiet hours functionality.\n- Created comprehensive API endpoints with proper DTOs and Swagger documentation.\n- Added cron jobs for processing pending reminders and daily check-ins.\n- Configured Redis connection through Docker environment.\n- Set up proper error handling and audit logging placeholders.\n- The backend notification infrastructure is now ready for production use with scalable queue processing.\n</info added on 2025-07-04T05:51:49.133Z>",
+            "status": "done",
+            "testStrategy": "Write unit tests to verify that jobs are correctly added to the queue and processed as expected. Use integration tests to ensure the system handles concurrent jobs and error scenarios gracefully."
+          },
+          {
+            "id": 2,
+            "title": "Set Up Task Scheduling with Cron Jobs",
+            "description": "Configure cron jobs within the backend to schedule notifications at specified times, enabling timely delivery of reminders.",
+            "dependencies": [
+              1
+            ],
+            "details": "Utilize BullMQ's repeatable jobs feature to schedule notifications. Define cron expressions for different notification schedules and ensure the jobs are added to the 'notificationQueue' with the appropriate timing.",
+            "status": "pending",
+            "testStrategy": "Create tests to validate that jobs are scheduled at the correct times and that the scheduling logic handles edge cases, such as daylight saving time changes."
+          },
+          {
+            "id": 3,
+            "title": "Develop Notification Templates and Personalization",
+            "description": "Create customizable notification templates that can be personalized based on user data to enhance user engagement.",
+            "dependencies": [],
+            "details": "Design a system to store and manage notification templates, allowing placeholders for dynamic content. Implement logic to replace placeholders with user-specific data before sending notifications.",
+            "status": "in-progress",
+            "testStrategy": "Test the template rendering engine to ensure placeholders are correctly replaced with user data. Verify that notifications are formatted correctly across different devices and platforms."
+          },
+          {
+            "id": 4,
+            "title": "Implement Audit Logging and Delivery Tracking",
+            "description": "Establish a logging mechanism to track the delivery status of notifications and maintain an audit trail for accountability.",
+            "dependencies": [
+              1
+            ],
+            "details": "Integrate logging within the notification processing workflow to record each notification's status, including sent, delivered, and failed states. Store logs in a database for analysis and troubleshooting.",
+            "status": "pending",
+            "testStrategy": "Develop tests to confirm that all notification events are logged accurately and that the logs can be queried for reporting purposes."
+          },
+          {
+            "id": 5,
+            "title": "Build Adaptive Notification Engine with User Behavior Analysis",
+            "description": "Create an adaptive engine that analyzes user behavior to optimize notification timing and content for increased effectiveness.",
+            "dependencies": [
+              3,
+              4
+            ],
+            "details": "Collect and store user interaction data related to notifications. Implement algorithms to analyze this data and adjust notification parameters, such as timing and frequency, based on user engagement patterns.",
+            "status": "pending",
+            "testStrategy": "Simulate various user behaviors and verify that the engine adapts notification strategies accordingly. Ensure that changes lead to improved user engagement metrics."
+          },
+          {
+            "id": 6,
+            "title": "Integrate Mobile Push Notifications in Flutter App",
+            "description": "Set up push notification functionality in the Flutter mobile application to receive and display notifications sent from the backend.",
+            "dependencies": [
+              1
+            ],
+            "details": "Integrate Firebase Cloud Messaging (FCM) into the Flutter app. Configure the app to handle incoming notifications, including displaying them to the user and managing user interactions. Ensure the app requests the necessary permissions and handles different app states (foreground, background, terminated).",
+            "status": "pending",
+            "testStrategy": "Test the app's ability to receive and display notifications across various scenarios, including different device states and network conditions. Verify that user interactions with notifications are handled correctly."
+          }
         ]
       },
       {
@@ -452,7 +517,7 @@
     ],
     "metadata": {
       "created": "2025-07-03T13:21:13.212Z",
-      "updated": "2025-07-04T05:02:22.213Z",
+      "updated": "2025-07-04T05:52:05.912Z",
       "description": "Tasks for master context"
     }
   }

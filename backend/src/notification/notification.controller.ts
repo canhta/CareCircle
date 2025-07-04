@@ -1,4 +1,198 @@
-import { Controller } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Query,
+  UseGuards,
+  HttpStatus,
+  ParseIntPipe,
+  DefaultValuePipe,
+} from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import {
+  NotificationService,
+  NotificationPayload,
+} from './notification.service';
+import {
+  SendNotificationDto,
+  ScheduleNotificationDto,
+  NotificationResponseDto,
+  NotificationPreferencesDto,
+} from './dto/notification.dto';
+import { User } from '@prisma/client';
 
-@Controller('notification')
-export class NotificationController {}
+@ApiTags('notifications')
+@ApiBearerAuth()
+@Controller('notifications')
+@UseGuards(JwtAuthGuard)
+export class NotificationController {
+  constructor(private readonly notificationService: NotificationService) {}
+
+  @Post('send')
+  @ApiOperation({ summary: 'Send immediate notification' })
+  @ApiResponse({
+    status: 201,
+    description: 'Notification sent successfully',
+    type: NotificationResponseDto,
+  })
+  async sendNotification(
+    @CurrentUser() user: User,
+    @Body() dto: SendNotificationDto,
+  ) {
+    const notification = await this.notificationService.sendNotification({
+      ...dto,
+      userId: user.id,
+    });
+
+    return {
+      statusCode: HttpStatus.CREATED,
+      message: 'Notification sent successfully',
+      data: notification,
+    };
+  }
+
+  @Post('schedule')
+  @ApiOperation({ summary: 'Schedule notification for later delivery' })
+  @ApiResponse({
+    status: 201,
+    description: 'Notification scheduled successfully',
+    type: NotificationResponseDto,
+  })
+  async scheduleNotification(
+    @CurrentUser() user: User,
+    @Body() dto: ScheduleNotificationDto,
+  ) {
+    const notification = await this.notificationService.scheduleNotification({
+      ...dto,
+      userId: user.id,
+      scheduledFor: new Date(dto.scheduledFor),
+    });
+
+    return {
+      statusCode: HttpStatus.CREATED,
+      message: 'Notification scheduled successfully',
+      data: notification,
+    };
+  }
+
+  @Get()
+  @ApiOperation({ summary: 'Get user notifications with pagination' })
+  @ApiResponse({
+    status: 200,
+    description: 'Notifications retrieved successfully',
+  })
+  async getUserNotifications(
+    @CurrentUser() user: User,
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit: number,
+    @Query('unreadOnly', new DefaultValuePipe('false')) unreadOnly: string,
+  ) {
+    const unreadOnlyBool = unreadOnly === 'true';
+    const result = await this.notificationService.getUserNotifications(
+      user.id,
+      page,
+      limit,
+      unreadOnlyBool,
+    );
+
+    return {
+      statusCode: HttpStatus.OK,
+      message: 'Notifications retrieved successfully',
+      data: result,
+    };
+  }
+
+  @Post(':id/mark-read')
+  @ApiOperation({ summary: 'Mark notification as read' })
+  @ApiResponse({ status: 200, description: 'Notification marked as read' })
+  async markAsRead(
+    @CurrentUser() user: User,
+    @Param('id') notificationId: string,
+  ) {
+    await this.notificationService.markAsRead(notificationId, user.id);
+
+    return {
+      statusCode: HttpStatus.OK,
+      message: 'Notification marked as read',
+    };
+  }
+
+  @Get('preferences')
+  @ApiOperation({ summary: 'Get user notification preferences' })
+  @ApiResponse({
+    status: 200,
+    description: 'Preferences retrieved successfully',
+  })
+  async getNotificationPreferences(@CurrentUser() user: User) {
+    const preferences =
+      await this.notificationService.getNotificationPreferences(user.id);
+
+    return {
+      statusCode: HttpStatus.OK,
+      message: 'Preferences retrieved successfully',
+      data: preferences,
+    };
+  }
+
+  @Post('test/medication-reminder')
+  @ApiOperation({ summary: 'Test medication reminder (development only)' })
+  @ApiResponse({ status: 200, description: 'Test reminder sent' })
+  async testMedicationReminder(@CurrentUser() user: User) {
+    // This is for testing purposes - in production, this would be removed
+    const testReminderData = {
+      id: 'test-reminder-id',
+      prescriptionId: 'test-prescription-id',
+      userId: user.id,
+      medicationName: 'Test Medication',
+      dosage: '10mg',
+      scheduledAt: new Date(),
+      frequency: 'daily',
+    };
+
+    await this.notificationService.sendMedicationReminder(testReminderData);
+
+    return {
+      statusCode: HttpStatus.OK,
+      message: 'Test medication reminder sent',
+    };
+  }
+
+  @Post('test/check-in-reminder')
+  @ApiOperation({ summary: 'Test check-in reminder (development only)' })
+  @ApiResponse({ status: 200, description: 'Test check-in reminder sent' })
+  async testCheckInReminder(@CurrentUser() user: User) {
+    await this.notificationService.sendCheckInReminder(user.id);
+
+    return {
+      statusCode: HttpStatus.OK,
+      message: 'Test check-in reminder sent',
+    };
+  }
+
+  @Post('test/health-insight')
+  @ApiOperation({
+    summary: 'Test health insight notification (development only)',
+  })
+  @ApiResponse({ status: 200, description: 'Test health insight sent' })
+  async testHealthInsight(@CurrentUser() user: User) {
+    await this.notificationService.sendHealthInsight(
+      user.id,
+      'Your step count has increased by 25% this week! Keep up the great work.',
+      'medium',
+    );
+
+    return {
+      statusCode: HttpStatus.OK,
+      message: 'Test health insight sent',
+    };
+  }
+}
