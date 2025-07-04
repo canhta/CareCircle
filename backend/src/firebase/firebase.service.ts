@@ -22,6 +22,38 @@ export interface FCMMessage {
   priority?: 'high' | 'normal';
   collapseKey?: string;
   timeToLive?: number;
+  actions?: NotificationAction[];
+}
+
+export interface NotificationAction {
+  id: string;
+  title: string;
+  icon?: string;
+}
+
+export interface DeviceInfo {
+  model?: string;
+  osVersion?: string;
+  appVersion?: string;
+}
+
+export interface TokenRegistrationResult {
+  tokenId: string;
+  isNewToken: boolean;
+}
+
+export interface CleanupResult {
+  totalTokens: number;
+  invalidTokens: number;
+  cleanedUp: number;
+}
+
+export interface HealthStatus {
+  isHealthy: boolean;
+  lastHealthCheck: Date;
+  totalTokens: number;
+  activeTokens: number;
+  errors: string[];
 }
 
 export interface FCMSendResult {
@@ -250,9 +282,21 @@ export class FirebaseService {
     userId: string,
     token: string,
     deviceType: 'ios' | 'android' | 'web',
-  ): Promise<void> {
+    deviceInfo?: DeviceInfo,
+  ): Promise<TokenRegistrationResult> {
     try {
-      await this.prisma.deviceToken.upsert({
+      const existingToken = await this.prisma.deviceToken.findUnique({
+        where: {
+          userId_token: {
+            userId,
+            token,
+          },
+        },
+      });
+
+      const isNewToken = !existingToken;
+
+      const result = await this.prisma.deviceToken.upsert({
         where: {
           userId_token: {
             userId,
@@ -263,17 +307,26 @@ export class FirebaseService {
           userId,
           token,
           deviceType,
+          deviceInfo: deviceInfo ? JSON.stringify(deviceInfo) : null,
           isActive: true,
           createdAt: new Date(),
           updatedAt: new Date(),
         },
         update: {
           isActive: true,
+          deviceInfo: deviceInfo ? JSON.stringify(deviceInfo) : undefined,
           updatedAt: new Date(),
         },
       });
 
-      this.logger.log(`Stored FCM token for user ${userId}`);
+      this.logger.log(
+        `${isNewToken ? 'Registered new' : 'Updated'} FCM token for user ${userId}`,
+      );
+
+      return {
+        tokenId: result.id,
+        isNewToken,
+      };
     } catch (error) {
       this.logger.error(`Failed to store FCM token for user ${userId}:`, error);
       throw error;
@@ -283,12 +336,15 @@ export class FirebaseService {
   /**
    * Get active FCM tokens for a user
    */
-  async getUserTokens(userId: string): Promise<string[]> {
+  async getUserTokens(
+    userId: string,
+    activeOnly: boolean = true,
+  ): Promise<string[]> {
     try {
       const deviceTokens = await this.prisma.deviceToken.findMany({
         where: {
           userId,
-          isActive: true,
+          ...(activeOnly && { isActive: true }),
         },
         select: {
           token: true,
@@ -329,54 +385,131 @@ export class FirebaseService {
   }
 
   /**
-   * Clean up invalid tokens
+   * Send notification to multiple users
    */
-  async cleanupInvalidTokens(): Promise<void> {
+  async sendNotificationToUsers(dto: {
+    title: string;
+    body: string;
+    userIds: string[];
+    data?: { [key: string]: string };
+    imageUrl?: string;
+    actionUrl?: string;
+    priority?: 'high' | 'normal';
+    actions?: NotificationAction[];
+  }): Promise<FCMSendResult[]> {
+    const results: FCMSendResult[] = [];
+
+    for (const userId of dto.userIds) {
+      const tokens = await this.getUserTokens(userId);
+
+      if (tokens.length === 0) {
+        this.logger.warn(`No FCM tokens found for user ${userId}`);
+        continue;
+      }
+
+      try {
+        const result = await this.sendToDevices({
+          title: dto.title,
+          body: dto.body,
+          tokens,
+          data: dto.data,
+          imageUrl: dto.imageUrl,
+          actionUrl: dto.actionUrl,
+          priority: dto.priority,
+          actions: dto.actions,
+        });
+
+        results.push(result);
+      } catch (error) {
+        this.logger.error(
+          `Failed to send notification to user ${userId}:`,
+          error,
+        );
+        results.push({
+          success: false,
+          error: error instanceof Error ? error.message : 'Unknown error',
+        });
+      }
+    }
+
+    return results;
+  }
+
+  /**
+   * Get device info for a user
+   */
+  async getDeviceInfo(userId: string): Promise<any[]> {
     try {
-      // Get all active tokens
+      const deviceTokens = await this.prisma.deviceToken.findMany({
+        where: {
+          userId,
+          isActive: true,
+        },
+        select: {
+          deviceType: true,
+          deviceInfo: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      });
+
+      return deviceTokens.map((token) => ({
+        deviceType: token.deviceType,
+        deviceInfo: token.deviceInfo ? JSON.parse(token.deviceInfo) : undefined,
+        createdAt: token.createdAt,
+        updatedAt: token.updatedAt,
+      }));
+    } catch (error) {
+      this.logger.error(`Failed to get device info for user ${userId}:`, error);
+      return [];
+    }
+  }
+
+  /**
+   * Clean up invalid tokens for a specific user
+   */
+  async cleanupInvalidTokens(userId?: string): Promise<CleanupResult> {
+    try {
+      const whereClause = userId
+        ? { userId, isActive: true }
+        : { isActive: true };
+
       const activeTokens = await this.prisma.deviceToken.findMany({
-        where: { isActive: true },
+        where: whereClause,
         select: { id: true, token: true },
       });
 
       const invalidTokenIds: string[] = [];
 
-      // Test tokens in batches
-      const batchSize = 100;
-      for (let i = 0; i < activeTokens.length; i += batchSize) {
-        const batch = activeTokens.slice(i, i + batchSize);
-
-        for (const deviceToken of batch) {
-          try {
-            // Try to send a dry run message to validate token
-            await this.messaging.send(
-              {
-                token: deviceToken.token,
-                notification: {
-                  title: 'Test',
-                  body: 'Test',
-                },
+      for (const deviceToken of activeTokens) {
+        try {
+          await this.messaging.send(
+            {
+              token: deviceToken.token,
+              notification: {
+                title: 'Health Check',
+                body: 'Validating token',
               },
-              true,
-            ); // dry run
-          } catch (error: unknown) {
-            if (error && typeof error === 'object' && 'code' in error) {
-              const firebaseError = error as { code: string };
-              if (
-                firebaseError.code === 'messaging/invalid-registration-token' ||
-                firebaseError.code ===
-                  'messaging/registration-token-not-registered'
-              ) {
-                invalidTokenIds.push(deviceToken.id);
-              }
+            },
+            true, // dry run
+          );
+        } catch (error: unknown) {
+          if (error && typeof error === 'object' && 'code' in error) {
+            const firebaseError = error as { code: string };
+            if (
+              firebaseError.code === 'messaging/invalid-registration-token' ||
+              firebaseError.code ===
+                'messaging/registration-token-not-registered'
+            ) {
+              invalidTokenIds.push(deviceToken.id);
             }
           }
         }
       }
 
-      // Mark invalid tokens as inactive
+      let cleanedUp = 0;
       if (invalidTokenIds.length > 0) {
-        await this.prisma.deviceToken.updateMany({
+        const updateResult = await this.prisma.deviceToken.updateMany({
           where: {
             id: {
               in: invalidTokenIds,
@@ -388,12 +521,69 @@ export class FirebaseService {
           },
         });
 
+        cleanedUp = updateResult.count;
         this.logger.log(
-          `Cleaned up ${invalidTokenIds.length} invalid FCM tokens`,
+          `Cleaned up ${cleanedUp} invalid FCM tokens${userId ? ` for user ${userId}` : ''}`,
         );
       }
+
+      return {
+        totalTokens: activeTokens.length,
+        invalidTokens: invalidTokenIds.length,
+        cleanedUp,
+      };
     } catch (error) {
-      this.logger.error('Failed to cleanup invalid tokens:', error);
+      this.logger.error(
+        `Failed to cleanup invalid tokens${userId ? ` for user ${userId}` : ''}:`,
+        error,
+      );
+      throw error;
+    }
+  }
+
+  /**
+   * Get Firebase service health status
+   */
+  async getHealthStatus(): Promise<HealthStatus> {
+    try {
+      const totalTokens = await this.prisma.deviceToken.count();
+      const activeTokens = await this.prisma.deviceToken.count({
+        where: { isActive: true },
+      });
+
+      const errors: string[] = [];
+
+      // Test Firebase connectivity
+      try {
+        await this.messaging.send(
+          {
+            token: 'test-token',
+            notification: {
+              title: 'Health Check',
+              body: 'Testing Firebase connectivity',
+            },
+          },
+          true, // dry run
+        );
+      } catch (error: unknown) {
+        if (error && typeof error === 'object' && 'code' in error) {
+          const firebaseError = error as { code: string };
+          if (firebaseError.code !== 'messaging/invalid-registration-token') {
+            errors.push(`Firebase connectivity issue: ${firebaseError.code}`);
+          }
+        }
+      }
+
+      return {
+        isHealthy: errors.length === 0,
+        lastHealthCheck: new Date(),
+        totalTokens,
+        activeTokens,
+        errors,
+      };
+    } catch (error) {
+      this.logger.error('Failed to get health status:', error);
+      throw error;
     }
   }
 

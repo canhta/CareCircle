@@ -961,6 +961,7 @@ model DeviceToken {
   userId     String
   token      String
   deviceType String // 'ios', 'android', 'web'
+  deviceInfo String? // JSON string containing device information
   isActive   Boolean  @default(true)
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
