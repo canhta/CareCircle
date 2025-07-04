@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../screens/health_data_screen.dart';
 import '../screens/profile_screen.dart';
+import '../screens/care_groups_screen.dart';
 import '../utils/notification_test_utils.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -143,7 +144,12 @@ class HomeScreen extends StatelessWidget {
                     title: 'Care Circle',
                     subtitle: 'Family & caregivers',
                     color: Colors.teal,
-                    onTap: () => _showComingSoon(context, 'Care Circle'),
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const CareGroupsScreen(),
+                      ),
+                    ),
                   ),
                   _buildFeatureCard(
                     context,
