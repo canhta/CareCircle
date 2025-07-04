@@ -47,18 +47,21 @@ model User {
   updatedAt DateTime @updatedAt
 
   // Relations
-  healthRecords        HealthRecord[]
-  healthMetrics        HealthMetrics[]
-  healthDataSync       HealthDataSync[]
-  healthDataConsent    HealthDataConsent[]
-  healthDataAccess     HealthDataAccess[]
-  dataExportRequests   DataExportRequest[]
-  dataDeletionRequests DataDeletionRequest[]
-  prescriptions        Prescription[]
-  careGroupMembers     CareGroupMember[]
-  notifications        Notification[]
-  checkIns             DailyCheckIn[]
-  documents            Document[]
+  healthRecords         HealthRecord[]
+  healthMetrics         HealthMetrics[]
+  healthDataSync        HealthDataSync[]
+  healthDataConsent     HealthDataConsent[]
+  healthDataAccess      HealthDataAccess[]
+  dataExportRequests    DataExportRequest[]
+  dataDeletionRequests  DataDeletionRequest[]
+  prescriptions         Prescription[]
+  careGroupMembers      CareGroupMember[]
+  notifications         Notification[]
+  checkIns              DailyCheckIn[]
+  documents             Document[]
+  notificationBehaviors UserNotificationBehavior[]
+  engagementPattern     UserEngagementPattern?
+  behaviorVector        UserBehaviorVector?
 
   @@map("users")
 }
@@ -510,6 +513,7 @@ model Notification {
 
   // Audit and tracking
   auditLogs NotificationAuditLog[]
+  behaviors UserNotificationBehavior[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -519,32 +523,32 @@ model Notification {
 
 // Notification Audit Logging for delivery tracking
 model NotificationAuditLog {
-  id             String @id @default(uuid())
+  id             String       @id @default(uuid())
   notificationId String
   notification   Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
 
   // Event tracking
-  event      NotificationEvent
-  channel    NotificationChannel
-  status     DeliveryStatus
-  
+  event   NotificationEvent
+  channel NotificationChannel
+  status  DeliveryStatus
+
   // Delivery details
   deliveryId String? // External delivery ID from push/email/SMS services
   providerId String? // Provider-specific tracking ID
-  
+
   // Error tracking
   errorCode    String?
   errorMessage String?
-  
+
   // Performance metrics
   processingTime Int? // Time in milliseconds
   retryCount     Int  @default(0)
-  
+
   // Metadata
   metadata Json? // Additional context (IP, user agent, etc.)
-  
+
   createdAt DateTime @default(now())
-  
+
   @@map("notification_audit_logs")
 }
 
@@ -552,61 +556,61 @@ model NotificationAuditLog {
 model NotificationDeliveryLog {
   id             String @id @default(uuid())
   notificationId String
-  
+
   // Delivery details
   channel        NotificationChannel
   deliveryStatus DeliveryStatus
   deliveryTime   DateTime?
-  
+
   // External service tracking
-  externalId     String? // FCM message ID, email ID, etc.
-  providerName   String? // 'FCM', 'SendGrid', 'Twilio', etc.
-  
+  externalId   String? // FCM message ID, email ID, etc.
+  providerName String? // 'FCM', 'SendGrid', 'Twilio', etc.
+
   // Engagement tracking
-  openedAt   DateTime?
-  clickedAt  DateTime?
-  
+  openedAt  DateTime?
+  clickedAt DateTime?
+
   // Error details
   errorCode    String?
   errorMessage String?
-  
+
   // Performance
   latency Int? // Time from queue to delivery (ms)
-  
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
+
   @@map("notification_delivery_logs")
 }
 
 // Notification Templates for personalization
 model NotificationTemplate {
-  id     String @id @default(uuid())
-  
+  id String @id @default(uuid())
+
   // Template identification
-  name        String @unique
+  name        String           @unique
   description String?
   type        NotificationType
-  
+
   // Template content with placeholders
-  titleTemplate   String  // e.g., "Hello {{userName}}, time for your {{medicationName}}"
-  messageTemplate String  // e.g., "Take {{dosage}} of {{medicationName}} at {{time}}"
-  
+  titleTemplate   String // e.g., "Hello {{userName}}, time for your {{medicationName}}"
+  messageTemplate String // e.g., "Take {{dosage}} of {{medicationName}} at {{time}}"
+
   // Template metadata
-  placeholders Json    // Array of placeholder definitions with types and validation
+  placeholders Json // Array of placeholder definitions with types and validation
   isActive     Boolean @default(true)
   version      Int     @default(1)
-  
+
   // Personalization options
-  channels         NotificationChannel[]
-  defaultPriority  NotificationPriority @default(NORMAL)
-  
+  channels        NotificationChannel[]
+  defaultPriority NotificationPriority  @default(NORMAL)
+
   // Localization support
   language String @default("en")
-  
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
+
   @@map("notification_templates")
 }
 
@@ -692,4 +696,60 @@ enum DeliveryStatus {
   OPENED
   CLICKED
   UNSUBSCRIBED
+}
+
+// User Behavior Analytics for Adaptive Notifications
+model UserNotificationBehavior {
+  id               String   @id @default(uuid())
+  userId           String
+  notificationId   String
+  action           String // 'opened', 'dismissed', 'snoozed', 'clicked', 'ignored'
+  timestamp        DateTime @default(now())
+  timeToAction     Int? // milliseconds from notification sent to action
+  deviceType       String?
+  timeOfDay        Int // hour of day (0-23)
+  dayOfWeek        Int // 0 = Sunday, 6 = Saturday
+  notificationType String
+  contextData      Json?
+
+  // Relations
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  notification Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+
+  @@map("user_notification_behaviors")
+}
+
+model UserEngagementPattern {
+  id                     String   @id @default(uuid())
+  userId                 String   @unique
+  preferredTimes         Json // array of hours when user is most responsive
+  responseRate           Float // percentage of notifications acted upon (0-1)
+  averageResponseTime    Float // average time to respond in milliseconds
+  bestNotificationTypes  Json // array of notification types with highest engagement
+  worstNotificationTypes Json // array of notification types with lowest engagement
+  engagementTrend        String // 'improving', 'declining', 'stable'
+  lastAnalysisDate       DateTime @default(now())
+  insights               String? // AI-generated insights about user behavior
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_engagement_patterns")
+}
+
+// Vector storage for similarity-based recommendations (simplified approach)
+model UserBehaviorVector {
+  id          String   @id @default(uuid())
+  userId      String
+  vectorData  Json // simplified vector representation of user behavior
+  lastUpdated DateTime @default(now())
+
+  // Relations  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId])
+  @@map("user_behavior_vectors")
 }

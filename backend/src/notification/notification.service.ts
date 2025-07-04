@@ -57,7 +57,7 @@ export class NotificationService {
    */
   async sendNotification(payload: NotificationPayload): Promise<Notification> {
     const startTime = Date.now();
-    
+
     const notification = await this.prisma.notification.create({
       data: {
         userId: payload.userId,

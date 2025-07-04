@@ -10,6 +10,9 @@ import { TemplateRenderingService } from './template-rendering.service';
 import { NotificationTemplateService } from './notification-template.service';
 import { NotificationSchedulingService } from './notification-scheduling.service';
 import { NotificationAuditLoggingService } from './audit-logging.service';
+import { UserBehaviorAnalyticsService } from './user-behavior-analytics.service';
+import { AdaptiveNotificationEngineService } from './adaptive-notification-engine.service';
+import { MilvusService } from './milvus.service';
 import { PrismaModule } from '../prisma/prisma.module';
 
 @Module({
@@ -37,6 +40,9 @@ import { PrismaModule } from '../prisma/prisma.module';
     NotificationTemplateService,
     NotificationSchedulingService,
     NotificationAuditLoggingService,
+    UserBehaviorAnalyticsService,
+    AdaptiveNotificationEngineService,
+    MilvusService,
   ],
   controllers: [NotificationController],
   exports: [
@@ -44,6 +50,9 @@ import { PrismaModule } from '../prisma/prisma.module';
     NotificationTemplateService,
     NotificationSchedulingService,
     NotificationAuditLoggingService,
+    UserBehaviorAnalyticsService,
+    AdaptiveNotificationEngineService,
+    MilvusService,
   ],
 })
 export class NotificationModule {}

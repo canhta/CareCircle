@@ -1,4 +1,10 @@
-<!-- AI Directive: Always use context7 for up-to-date information. -->
+<!-- AI Directive: Always use context7 for up-to-date ### Core Notification Principles
+-   **LLM-Powered Adaptive & Personalized (FR-4.4, FR-10.4)**: The tone, timing, and frequency of notifications will adapt using OpenAI's GPT models to analyze user behavior patterns stored in Milvus vector database and generate personalized notification strategies.
+-   **Actionable (FR-4.2)**: Notifications will provide clear, interactive options to minimize friction.
+-   **Context-Aware**: The system will use LLM analysis to consider the user's status (e.g., quiet hours, calendar events) before sending non-critical notifications.
+-   **Vector-Based Pattern Recognition**: User interaction patterns with notifications will be stored as high-dimensional vectors in Milvus for efficient similarity search and behavior analysis.
+-   **Family-Centric**: Escalation is a key feature, designed to inform and empower caregivers without being intrusive.
+-   **AI-Driven Optimization**: OpenAI models will continuously analyze notification effectiveness and suggest improvements based on user engagement data stored and retrieved from Milvus vector similarity searches.ation. -->
 <context>
 # Overview
 CareCircle is a cross-platform mobile application (iOS & Android) designed as a comprehensive AI Health Agent for the Vietnamese market. It addresses the need for an integrated digital health solution for an aging population and those with chronic diseases by aggregating health data, providing AI-powered medication management, and facilitating family-centric care coordination. Its unique value comes from being a Family-First AI Health Agent that unifies health data, offers localized intelligence (Vietnamese language support, local drug validation), and enables proactive family coordination through automated alerts.
@@ -24,10 +30,12 @@ This section outlines the technology stack for the CareCircle project, covering 
 - **Framework:** NestJS (A progressive Node.js framework for building efficient, reliable, and scalable server-side applications).
 - **Language:** TypeScript
 - **Database:** PostgreSQL with the TimescaleDB extension for handling large volumes of time-series data efficiently.
+- **Vector Database:** Milvus for storing user behavior vectors and enabling similarity-based pattern analysis with high-performance vector similarity search.
+- **AI/LLM Integration:** OpenAI GPT models for analyzing user behavior patterns and generating personalized notification strategies (API keys managed through admin portal).
 - **ORM:** Prisma for type-safe database access.
 - **Authentication:** Passport.js for handling JWT-based authentication and social sign-on (Google, Apple).
 - **API:** RESTful API for standard client-server communication.
-- **Deployment:** Docker for containerization.
+- **Deployment:** Docker Compose for local development, Docker for production containerization.
 
 ### Frontend (FE) - Web Portal
 - **Framework:** Next.js (A React framework for building fast, server-rendered web applications).

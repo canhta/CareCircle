@@ -51,7 +51,7 @@ export class NotificationProcessor extends WorkerHost {
       this.logger.log(`Notification delivered successfully: ${notificationId}`);
     } catch (error) {
       const processingTime = Date.now() - startTime;
-      
+
       // Log failure for all channels
       for (const channel of payload.channels) {
         await this.auditLoggingService.logNotificationFailed(
@@ -92,10 +92,10 @@ export class NotificationProcessor extends WorkerHost {
             await this.sendInAppNotification(payload);
             break;
         }
-        
+
         const processingTime = Date.now() - startTime;
         const deliveryId = `${channel}-${Date.now()}`; // Mock delivery ID
-        
+
         results.push({
           channel,
           status: 'delivered',
@@ -106,12 +106,12 @@ export class NotificationProcessor extends WorkerHost {
       } catch (error) {
         const processingTime = Date.now() - startTime;
         const errorMsg = error instanceof Error ? error.message : String(error);
-        
+
         this.logger.error(
           `Failed to deliver notification via ${channel}:`,
           error,
         );
-        
+
         results.push({
           channel,
           status: 'failed',
