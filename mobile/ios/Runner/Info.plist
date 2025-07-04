@@ -55,5 +55,22 @@
 	<string>CareCircle needs access to your photo library to select prescription images for scanning and analysis.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>CareCircle needs to save prescription images to your photo library for easy access and backup.</string>
+	
+	<!-- Firebase Configuration -->
+	<key>FirebaseMessagingAutoInitEnabled</key>
+	<true/>
+	<key>FirebaseAnalyticsCollectionEnabled</key>
+	<true/>
+	
+	<!-- Push Notification Capabilities -->
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>fetch</string>
+		<string>remote-notification</string>
+	</array>
+	
+	<!-- Notification Permission Descriptions -->
+	<key>NSUserNotificationUsageDescription</key>
+	<string>CareCircle sends important reminders about medications, health check-ins, and care coordination updates.</string>
 </dict>
 </plist>

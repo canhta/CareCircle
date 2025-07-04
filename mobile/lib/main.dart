@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 import 'config/app_config.dart';
 import 'screens/home_screen.dart';
 import 'screens/prescription_scanner_screen.dart';
 import 'services/background_sync_service.dart';
+import 'services/firebase_messaging_service.dart';
 import 'managers/health_data_manager.dart';
+import 'widgets/notification_handler.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -12,9 +16,23 @@ Future<void> main() async {
   // Load environment variables
   await dotenv.load(fileName: ".env");
 
+  // Initialize Firebase
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
   // Validate configuration
   if (!AppConfig.validateConfig()) {
     debugPrint('Configuration validation failed. Please check your .env file.');
+  }
+
+  // Initialize Firebase Messaging Service
+  try {
+    final messagingService = FirebaseMessagingService();
+    await messagingService.initialize();
+    debugPrint('Firebase Messaging Service initialized successfully');
+  } catch (e) {
+    debugPrint('Failed to initialize Firebase Messaging Service: $e');
   }
 
   // Initialize background sync service
@@ -50,16 +68,31 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'CareCircle',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-        useMaterial3: true,
-      ),
-      home: const HomeScreen(),
-      routes: {
-        '/prescription-scanner': (context) => const PrescriptionScannerScreen(),
+    return NotificationHandler(
+      onMessageReceived: (message) {
+        debugPrint('App received foreground message: ${message.data}');
       },
+      onMessageTap: (message) {
+        debugPrint('App message tapped: ${message.data}');
+      },
+      onTokenRefresh: (token) {
+        debugPrint('App FCM token refreshed');
+      },
+      child: MaterialApp(
+        title: 'CareCircle',
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+          useMaterial3: true,
+        ),
+        home: const HomeScreen(),
+        routes: {
+          '/prescription-scanner': (context) => const PrescriptionScannerScreen(),
+          '/medications': (context) => const HomeScreen(), // TODO: Create MedicationsScreen
+          '/health-check': (context) => const HomeScreen(), // TODO: Create HealthCheckScreen
+          '/care-group': (context) => const HomeScreen(), // TODO: Create CareGroupScreen
+          '/settings': (context) => const HomeScreen(), // TODO: Create SettingsScreen
+        },
+      ),
     );
   }
 }
