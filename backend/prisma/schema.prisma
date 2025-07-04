@@ -62,9 +62,14 @@ model User {
   notificationBehaviors UserNotificationBehavior[]
   engagementPattern     UserEngagementPattern?
   behaviorVector        UserBehaviorVector?
-  
+
   // Vector storage relations
   vectorInteractionMetadata VectorInteractionMetadata[]
+
+  // Subscription relations
+  subscriptions UserSubscription[]
+  referralCodes ReferralCode[]
+  referrals     Referral[]
 
   @@map("users")
 }
@@ -762,31 +767,237 @@ model UserBehaviorVector {
 
 // Metadata for vector-stored interactions (actual vectors stored in Milvus)
 model VectorInteractionMetadata {
-  id              String   @id @default(uuid())
+  id              String  @id @default(uuid())
   userId          String
-  milvusId        String   @unique // Reference to vector ID in Milvus
-  interactionType String   // 'daily_check_in', 'question_response', 'health_update'
-  checkInId       String?  // Reference to daily check-in if applicable
-  
+  milvusId        String  @unique // Reference to vector ID in Milvus
+  interactionType String // 'daily_check_in', 'question_response', 'health_update'
+  checkInId       String? // Reference to daily check-in if applicable
+
   // Context for display and filtering
-  summary         String?  // Human-readable summary
-  category        String?  // Category for grouping
-  tags            String[] // Tags for filtering
-  
+  summary  String? // Human-readable summary
+  category String? // Category for grouping
+  tags     String[] // Tags for filtering
+
   // Analysis results
-  sentiment       Float?   // Sentiment score (-1 to 1)
-  riskScore       Float?   // Risk assessment (0-10)
-  anomalyScore    Float?   // Anomaly detection (0-1)
-  
+  sentiment    Float? // Sentiment score (-1 to 1)
+  riskScore    Float? // Risk assessment (0-10)
+  anomalyScore Float? // Anomaly detection (0-1)
+
   // Metadata
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   // Relations
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  checkIn         DailyCheckIn? @relation(fields: [checkInId], references: [id], onDelete: SetNull)
-  
+  user    User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  checkIn DailyCheckIn? @relation(fields: [checkInId], references: [id], onDelete: SetNull)
+
   @@index([userId, interactionType])
   @@index([userId, createdAt])
   @@map("vector_interaction_metadata")
+}
+
+// Subscription and Payment Models
+model SubscriptionPlan {
+  id          String  @id @default(uuid())
+  name        String
+  description String?
+
+  // Pricing
+  price    Float
+  currency String @default("USD")
+
+  // Duration
+  duration Int // in days
+
+  // Features
+  features Json // List of enabled features
+
+  // Limits
+  maxCareGroupSize   Int?
+  maxHealthDataSync  Int?
+  maxDocumentStorage Int? // in MB
+  maxNotifications   Int? // per month
+  maxAIInsights      Int? // per month
+
+  // Status
+  isActive  Boolean @default(true)
+  isDefault Boolean @default(false)
+
+  // Metadata
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  subscriptions UserSubscription[]
+
+  @@map("subscription_plans")
+}
+
+model UserSubscription {
+  id                 String @id @default(uuid())
+  userId             String
+  subscriptionPlanId String
+
+  // Subscription period
+  startDate DateTime
+  endDate   DateTime
+
+  // Status
+  status SubscriptionStatus
+
+  // Payment info
+  paymentMethod    PaymentMethod
+  paymentReference String? // Reference from payment provider
+
+  // Renewal
+  autoRenew Boolean @default(true)
+
+  // Metadata
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user             User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subscriptionPlan SubscriptionPlan @relation(fields: [subscriptionPlanId], references: [id])
+  payments         Payment[]
+
+  @@index([userId, status])
+  @@index([endDate])
+  @@map("user_subscriptions")
+}
+
+model Payment {
+  id                 String @id @default(uuid())
+  userSubscriptionId String
+
+  // Payment details
+  amount        Float
+  currency      String
+  paymentMethod PaymentMethod
+
+  // Provider specific
+  paymentProvider       PaymentProvider
+  providerTransactionId String?
+  providerPaymentId     String?
+
+  // Status
+  status PaymentStatus
+
+  // Metadata
+  paidAt    DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  // Relations
+  userSubscription UserSubscription @relation(fields: [userSubscriptionId], references: [id])
+
+  @@index([userSubscriptionId])
+  @@index([status])
+  @@map("payments")
+}
+
+model ReferralCode {
+  id     String @id @default(uuid())
+  userId String
+  code   String @unique
+
+  // Rewards
+  rewardType  ReferralRewardType
+  rewardValue Float
+
+  // Usage limits
+  maxUses   Int @default(1)
+  usedCount Int @default(0)
+
+  // Expiration
+  expiresAt DateTime?
+
+  // Status
+  isActive Boolean @default(true)
+
+  // Metadata
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  referrals Referral[]
+
+  @@index([userId])
+  @@index([code])
+  @@map("referral_codes")
+}
+
+model Referral {
+  id             String @id @default(uuid())
+  referralCodeId String
+  referredUserId String
+
+  // Reward tracking
+  rewardClaimed   Boolean   @default(false)
+  rewardClaimedAt DateTime?
+
+  // Status
+  status ReferralStatus
+
+  // Metadata
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  referralCode ReferralCode @relation(fields: [referralCodeId], references: [id])
+  referredUser User         @relation(fields: [referredUserId], references: [id])
+
+  @@unique([referralCodeId, referredUserId])
+  @@index([referralCodeId])
+  @@index([referredUserId])
+  @@map("referrals")
+}
+
+// Enums
+enum SubscriptionStatus {
+  ACTIVE
+  EXPIRED
+  CANCELLED
+  PENDING
+  SUSPENDED
+}
+
+enum PaymentMethod {
+  CREDIT_CARD
+  APPLE_PAY
+  GOOGLE_PAY
+  MOMO
+  ZALOPAY
+  BANK_TRANSFER
+}
+
+enum PaymentProvider {
+  APPLE_APP_STORE
+  GOOGLE_PLAY_STORE
+  MOMO
+  ZALOPAY
+  STRIPE
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+  CANCELLED
+}
+
+enum ReferralRewardType {
+  DISCOUNT_PERCENTAGE
+  DISCOUNT_FIXED
+  FREE_DAYS
+  CREDITS
+}
+
+enum ReferralStatus {
+  PENDING
+  COMPLETED
+  EXPIRED
+  CANCELLED
 }

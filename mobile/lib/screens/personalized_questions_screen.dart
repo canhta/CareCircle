@@ -17,7 +17,7 @@ class _PersonalizedQuestionsScreenState
   bool _isLoading = false;
   bool _isSubmitting = false;
   List<PersonalizedQuestion> _questions = [];
-  Map<String, dynamic> _answers = {};
+  final Map<String, dynamic> _answers = {};
   int _currentQuestionIndex = 0;
 
   @override

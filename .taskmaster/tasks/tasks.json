@@ -59,7 +59,7 @@
         "id": 2,
         "title": "User Account & Profile Management (FR-01)",
         "description": "[Backend/NestJS, Mobile/Flutter, Frontend/Next.js] Implement user registration, login (email/password, Google/Apple SSO), profile management, and data consent flows as per FR-01.",
-        "status": "in-progress",
+        "status": "done",
         "priority": "high",
         "dependencies": [
           1
@@ -356,8 +356,8 @@
             "id": 7,
             "title": "Create In-App Notification Center UI",
             "description": "Implement Flutter notification center screen with notification history, preferences UI, and interactive notification responses",
-            "details": "",
-            "status": "pending",
+            "details": "<info added on 2025-07-04T15:15:44.807Z>\n## 🎉 **Notification Center UI Implementation Completed!**\n\n### **1. Core Components Created:**\n- ✅ **`notification_models.dart`**: Complete data models for notifications, preferences, and responses\n  - Support for all notification types (medication, check-in, health insights, care group updates, etc.)\n  - Priority levels and delivery channels\n  - Notification preferences with quiet hours support\n  - Pagination and response handling\n\n- ✅ **`notification_service.dart`**: Comprehensive API service integration\n  - Full backend API integration with all endpoints\n  - Authentication with JWT tokens\n  - Pagination support for notification lists\n  - Mark as read, tracking, and response handling\n  - Test notification endpoints for development\n  - Error handling and secure token management\n\n- ✅ **`notification_card.dart`**: Rich notification display widget\n  - Type-specific icons and colors for visual distinction\n  - Priority indicators and read/unread states\n  - Interactive action buttons for different notification types\n  - Swipe-to-dismiss functionality\n  - Relative time formatting (just now, 5m ago, etc.)\n  - Support for actionable notifications (medication reminders, check-ins)\n\n### **2. Main UI Screens:**\n- ✅ **`notification_center_screen.dart`**: Primary notification center interface\n  - Tabbed interface (All Notifications / Unread)\n  - Infinite scroll with pagination\n  - Pull-to-refresh functionality\n  - Empty states with helpful messaging\n  - Loading states and error handling\n  - Badge counts for unread notifications\n  - Navigation to notification preferences\n\n- ✅ **`notification_preferences_screen.dart`**: Complete preferences management\n  - Toggle switches for notification types (medication, check-ins, AI insights, care groups)\n  - Delivery channel preferences (push, email, SMS, in-app)\n  - Quiet hours configuration with time pickers\n  - Test notification buttons for each type\n  - Save functionality with loading states\n  - Comprehensive error handling\n\n### **3. Utility Support:**\n- ✅ **`notification_utils.dart`**: Helper functions and utilities\n  - Type-to-icon/color mappings\n  - Priority display helpers\n  - Relative time formatting\n  - Mock notification generators for testing\n  - Action button configurations per notification type\n\n### **4. App Integration:**\n- ✅ **Updated `main.dart`**: Added notification routes\n  - `/notifications` route for notification center\n  - `/notification-preferences` route for settings\n  - Proper import organization\n\n- ✅ **Updated `home_screen.dart`**: Added notifications access\n  - Notification icon in app bar with tooltip\n  - Easy access to notification center from home\n\n- ✅ **Updated `pubspec.yaml`**: Added required dependencies\n  - `intl` package for date/time formatting\n  - All dependencies properly configured\n\n### **5. Backend Integration Features:**\n- 🔗 **Complete API Coverage**: All backend notification endpoints integrated\n- 🔒 **Secure Authentication**: JWT token handling with automatic refresh\n- 📊 **Analytics Tracking**: Notification opened/clicked tracking\n- 🧪 **Testing Support**: Development test endpoints for all notification types\n- 📈 **Statistics**: Delivery stats and audit logging support\n\n### **6. User Experience Features:**\n- 🎨 **Modern Material Design 3**: Consistent with app theme\n- 📱 **Responsive UI**: Works well on different screen sizes\n- ♿ **Accessibility**: Proper semantics and tooltips\n- 🚀 **Performance**: Efficient pagination and lazy loading\n- 🔔 **Rich Interactions**: Swipe gestures, action buttons, and proper feedback\n\n### **7. Notification Types Supported:**\n- 💊 **Medication Reminders**: Take/Snooze/View actions\n- 🩺 **Health Check-ins**: Start check-in/Remind later actions  \n- 🧠 **AI Health Insights**: View details/Share actions\n- 👥 **Care Group Updates**: View update/Dismiss actions\n- ⚠️ **System Alerts**: View action\n- 📅 **Appointment Reminders**: Standard view action\n- 🚨 **Emergency Alerts**: High priority with urgent styling\n- 🤖 **AI Recommendations**: Auto-awesome icon with recommendations\n- 👪 **Social Updates**: Social interaction notifications\n- 🏆 **Achievement Unlocked**: Gamification rewards\n\n## **Ready for Production Use!** \nThe notification center is now fully functional and integrated with the backend system. Users can view, manage, and interact with all types of notifications through a polished, accessible interface.\n</info added on 2025-07-04T15:15:44.807Z>",
+            "status": "done",
             "dependencies": [],
             "parentTaskId": 5
           }
@@ -579,6 +579,73 @@
         "priority": "high",
         "dependencies": [
           2
+        ],
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Design Subscription Models in Backend",
+            "description": "Develop the backend infrastructure to support various subscription tiers and manage user subscriptions.",
+            "dependencies": [],
+            "details": "Define subscription plans with attributes such as duration, price, and features. Implement database schemas to store subscription data and user subscription statuses. Develop APIs to handle subscription creation, updates, and cancellations.\n<info added on 2025-07-04T15:24:10.958Z>\n**Next Steps:**\n\n1. **Mobile Payment Integration:**\n   - Implement in-app purchase (IAP) functionality for both iOS and Android platforms, ensuring compliance with Apple and Google's guidelines.\n   - Integrate payment gateways to support multiple providers, including Apple Pay, Google Pay, MoMo, and ZaloPay.\n   - Develop a seamless and user-friendly purchase flow, providing clear information about items, pricing, and any recurring costs.\n\n2. **Freemium Feature Gating:**\n   - Implement feature access control methods to gate premium functionalities based on user subscription status.\n   - Ensure that the gating mechanisms are robust and provide a smooth user experience, encouraging upgrades to premium tiers.\n\n3. **Testing and Quality Assurance:**\n   - Conduct thorough testing of the in-app purchase system to ensure all transactions are processed correctly and securely.\n   - Utilize sandbox environments provided by Apple and Google to simulate purchase scenarios without real financial transactions.\n   - Implement proper server-side verification to validate all transactions and manage refunds or cancellations effectively.\n\n4. **User Experience Optimization:**\n   - Design intuitive interfaces for purchase options, using clear visual cues and transparent pricing to enhance user engagement.\n   - Provide personalized offers and limited-time discounts to encourage conversions and increase revenue.\n   - Implement a \"Restore Purchases\" feature to allow users to recover their purchases when reinstalling the app or switching devices.\n\n5. **Compliance and Security:**\n   - Ensure compliance with local laws and platform-specific guidelines related to in-app purchases.\n   - Implement secure payment processing and protect user data to maintain trust and adhere to regulations.\n\n6. **Analytics and Monitoring:**\n   - Set up analytics tools to monitor user behavior, purchasing patterns, and conversion rates.\n   - Use the collected data to optimize the in-app purchase strategy and improve user satisfaction.\n\nBy following these steps, the application will be equipped with a robust in-app purchase system, supporting a comprehensive freemium model with subscription tiers, payment processing, and referral systems.\n</info added on 2025-07-04T15:24:10.958Z>",
+            "status": "done",
+            "testStrategy": "Write unit tests to validate subscription plan creation and management. Perform integration tests to ensure APIs function correctly with the database."
+          },
+          {
+            "id": 2,
+            "title": "Integrate In-App Purchases (IAP) in Mobile Application",
+            "description": "Implement in-app purchase functionality to allow users to subscribe to premium features directly within the mobile application.",
+            "dependencies": [
+              1
+            ],
+            "details": "Utilize Flutter's in-app purchase plugins to integrate with app stores. Ensure compliance with app store guidelines for in-app purchases. Implement UI components for users to select and purchase subscriptions.",
+            "status": "in-progress",
+            "testStrategy": "Conduct end-to-end testing of the purchase flow, including successful transactions and error handling. Verify compliance with app store requirements."
+          },
+          {
+            "id": 3,
+            "title": "Integrate MoMo Payment Gateway",
+            "description": "Add support for MoMo, a popular Vietnamese payment method, to facilitate subscription payments.",
+            "dependencies": [
+              1
+            ],
+            "details": "Register the application with MoMo to obtain necessary credentials. Integrate MoMo's SDK into the Flutter application. Implement payment processing logic and handle transaction statuses.",
+            "status": "pending",
+            "testStrategy": "Test payment flows with MoMo's sandbox environment. Validate successful and failed transactions, ensuring proper error handling."
+          },
+          {
+            "id": 4,
+            "title": "Integrate ZaloPay Payment Gateway",
+            "description": "Add support for ZaloPay, another widely used Vietnamese payment method, to facilitate subscription payments.",
+            "dependencies": [
+              1
+            ],
+            "details": "Register the application with ZaloPay to obtain necessary credentials. Integrate ZaloPay's SDK into the Flutter application. Implement payment processing logic and handle transaction statuses.",
+            "status": "pending",
+            "testStrategy": "Test payment flows with ZaloPay's sandbox environment. Validate successful and failed transactions, ensuring proper error handling."
+          },
+          {
+            "id": 5,
+            "title": "Implement User Referral Program in Backend",
+            "description": "Develop a referral system that allows users to invite others and receive rewards upon successful referrals.",
+            "dependencies": [
+              1
+            ],
+            "details": "Design database schemas to store referral codes and track referrals. Implement APIs to generate referral links and record referral activities. Define reward criteria and automate reward distribution upon successful referrals.",
+            "status": "pending",
+            "testStrategy": "Write unit tests for referral code generation and tracking. Perform integration tests to ensure the referral process functions correctly."
+          },
+          {
+            "id": 6,
+            "title": "Implement Freemium Feature Gating in Mobile Application",
+            "description": "Restrict access to premium features for non-subscribed users, enabling a freemium model.",
+            "dependencies": [
+              1,
+              2
+            ],
+            "details": "Identify features to be gated behind a subscription. Implement logic in the Flutter application to check user subscription status and control access to premium features accordingly. Provide prompts or UI elements to encourage users to subscribe when attempting to access premium content.",
+            "status": "pending",
+            "testStrategy": "Test feature access for both subscribed and non-subscribed users. Ensure that prompts and subscription flows are triggered appropriately."
+          }
         ]
       },
       {
@@ -624,7 +691,7 @@
     ],
     "metadata": {
       "created": "2025-07-03T13:21:13.212Z",
-      "updated": "2025-07-04T14:40:29.351Z",
+      "updated": "2025-07-04T15:28:32.127Z",
       "description": "Tasks for master context"
     }
   }

@@ -9,15 +9,21 @@ import 'screens/register_screen.dart';
 import 'screens/forgot_password_screen.dart';
 import 'screens/profile_screen.dart';
 import 'screens/prescription_scanner_screen.dart';
+import 'screens/notification_center_screen.dart';
+import 'screens/notification_preferences_screen.dart';
 import 'services/background_sync_service.dart';
 import 'services/firebase_messaging_service.dart';
 import 'services/auth_service.dart';
+import 'services/logging_service.dart';
 import 'managers/health_data_manager.dart';
 import 'widgets/notification_handler.dart';
 import 'models/auth_models.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize logging service
+  LoggingService().initialize(isDevelopment: true);
 
   // Load environment variables
   await dotenv.load(fileName: ".env");
@@ -114,6 +120,9 @@ class MainApp extends StatelessWidget {
           '/profile': (context) => const ProfileScreen(),
           '/prescription-scanner': (context) =>
               const PrescriptionScannerScreen(),
+          '/notifications': (context) => const NotificationCenterScreen(),
+          '/notification-preferences': (context) =>
+              const NotificationPreferencesScreen(),
           '/medications': (context) =>
               const HomeScreen(), // TODO: Create MedicationsScreen
           '/health-check': (context) =>

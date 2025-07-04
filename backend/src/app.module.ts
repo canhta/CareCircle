@@ -12,6 +12,7 @@ import { CareGroupModule } from './care-group/care-group.module';
 import { DailyCheckInModule } from './daily-check-in/daily-check-in.module';
 import { NotificationModule } from './notification/notification.module';
 import { DocumentModule } from './document/document.module';
+import { SubscriptionModule } from './subscription/subscription.module';
 import appConfig from './config/app.config';
 
 @Module({
@@ -37,6 +38,7 @@ import appConfig from './config/app.config';
     DailyCheckInModule,
     NotificationModule,
     DocumentModule,
+    SubscriptionModule,
   ],
   controllers: [AppController],
   providers: [AppService],

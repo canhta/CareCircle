@@ -17,6 +17,13 @@ class HomeScreen extends StatelessWidget {
         foregroundColor: Colors.white,
         actions: [
           IconButton(
+            icon: const Icon(Icons.notifications),
+            onPressed: () {
+              Navigator.pushNamed(context, '/notifications');
+            },
+            tooltip: 'Notifications',
+          ),
+          IconButton(
             icon: const Icon(Icons.person),
             onPressed: () {
               Navigator.push(
@@ -24,6 +31,7 @@ class HomeScreen extends StatelessWidget {
                 MaterialPageRoute(builder: (context) => const ProfileScreen()),
               );
             },
+            tooltip: 'Profile',
           ),
         ],
       ),
