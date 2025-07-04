@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import '../services/prescription_api_service.dart';
+import 'prescription_manual_entry_screen.dart';
 
 /// Screen for displaying OCR results from prescription scanning
 class PrescriptionOCRResultsScreen extends StatefulWidget {
@@ -53,7 +54,7 @@ class _PrescriptionOCRResultsScreenState
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
+                  color: Colors.black.withValues(alpha: 0.1),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -140,6 +141,12 @@ class _PrescriptionOCRResultsScreenState
           ],
         ),
       ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => _editPrescription(ocrData),
+        label: const Text('Edit'),
+        icon: const Icon(Icons.edit),
+        tooltip: 'Edit prescription details',
+      ),
     );
   }
 
@@ -160,7 +167,7 @@ class _PrescriptionOCRResultsScreenState
 
     return Chip(
       label: Text(text),
-      backgroundColor: color.withOpacity(0.1),
+      backgroundColor: color.withValues(alpha: 0.1),
       side: BorderSide(color: color),
       labelStyle: TextStyle(color: color, fontWeight: FontWeight.bold),
     );
@@ -183,7 +190,7 @@ class _PrescriptionOCRResultsScreenState
 
     return Chip(
       label: Text(text),
-      backgroundColor: color.withOpacity(0.1),
+      backgroundColor: color.withValues(alpha: 0.1),
       side: BorderSide(color: color),
       labelStyle: TextStyle(color: color, fontWeight: FontWeight.bold),
     );
@@ -291,6 +298,33 @@ class _PrescriptionOCRResultsScreenState
           ),
         ],
       ),
+    );
+  }
+
+  /// Navigate to manual entry screen for editing
+  void _editPrescription(PrescriptionOCRResponse ocrData) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PrescriptionManualEntryScreen(
+          imageFile: widget.imageFile,
+          initialData: ocrData.extractedData,
+          isEditMode: true,
+        ),
+      ),
+    );
+
+    if (result != null && result is PrescriptionExtractedData) {
+      // Handle the edited prescription data
+      _showSuccessSnackBar('Prescription updated successfully');
+      // You could update local state or navigate back
+    }
+  }
+
+  /// Shows success snackbar
+  void _showSuccessSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), backgroundColor: Colors.green),
     );
   }
 

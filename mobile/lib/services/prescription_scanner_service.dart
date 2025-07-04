@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
@@ -13,14 +14,54 @@ class PrescriptionScannerService {
   /// Requests necessary permissions for camera and storage
   Future<bool> requestPermissions() async {
     try {
-      // Request camera permission
-      var cameraStatus = await Permission.camera.request();
+      // Check if camera permission is already granted
+      var cameraStatus = await Permission.camera.status;
+      if (!cameraStatus.isGranted) {
+        cameraStatus = await Permission.camera.request();
+      }
 
-      // Request storage permission (for saving images)
-      var storageStatus = await Permission.storage.request();
+      // Handle storage permissions differently for iOS and Android
+      bool hasStoragePermission = false;
 
-      return cameraStatus.isGranted &&
-          (storageStatus.isGranted || storageStatus.isLimited);
+      // iOS: Check photos permission
+      if (Platform.isIOS) {
+        var photosStatus = await Permission.photos.status;
+        if (!photosStatus.isGranted && !photosStatus.isPermanentlyDenied) {
+          photosStatus = await Permission.photos.request();
+        }
+        hasStoragePermission = photosStatus.isGranted;
+      } else {
+        // Android: Try photos permission first (Android 13+), then storage
+        var photosStatus = await Permission.photos.status;
+        var storageStatus = await Permission.storage.status;
+
+        // Try photos permission first (for Android 13+)
+        if (!photosStatus.isGranted && !photosStatus.isPermanentlyDenied) {
+          photosStatus = await Permission.photos.request();
+        }
+
+        // Fallback to storage permission if photos is not available
+        if (!photosStatus.isGranted &&
+            !storageStatus.isGranted &&
+            !storageStatus.isLimited) {
+          storageStatus = await Permission.storage.request();
+        }
+
+        hasStoragePermission =
+            photosStatus.isGranted ||
+            storageStatus.isGranted ||
+            storageStatus.isLimited;
+      }
+
+      bool hasPermissions = cameraStatus.isGranted && hasStoragePermission;
+
+      if (!hasPermissions) {
+        debugPrint(
+          'Permissions denied - Camera: ${cameraStatus.name}, Storage/Photos permission: $hasStoragePermission',
+        );
+      }
+
+      return hasPermissions;
     } catch (e) {
       debugPrint('Error requesting permissions: $e');
       return false;
@@ -32,7 +73,10 @@ class PrescriptionScannerService {
     try {
       // Check permissions first
       if (!await requestPermissions()) {
-        throw Exception('Camera permission denied');
+        debugPrint('Camera permission denied');
+        throw Exception(
+          'Camera permission denied. Please enable camera and storage permissions in Settings.',
+        );
       }
 
       final XFile? image = await _picker.pickImage(
@@ -88,9 +132,16 @@ class PrescriptionScannerService {
               label: const Text('Camera'),
               onPressed: () async {
                 Navigator.pop(context);
-                final file = await captureFromCamera();
-                if (context.mounted) {
-                  Navigator.pop(context, file);
+                try {
+                  final file = await captureFromCamera();
+                  if (context.mounted) {
+                    Navigator.pop(context, file);
+                  }
+                } catch (e) {
+                  if (context.mounted) {
+                    // Show error dialog for permission issues
+                    _showPermissionErrorDialog(context, e.toString());
+                  }
                 }
               },
             ),
@@ -99,9 +150,15 @@ class PrescriptionScannerService {
               label: const Text('Gallery'),
               onPressed: () async {
                 Navigator.pop(context);
-                final file = await selectFromGallery();
-                if (context.mounted) {
-                  Navigator.pop(context, file);
+                try {
+                  final file = await selectFromGallery();
+                  if (context.mounted) {
+                    Navigator.pop(context, file);
+                  }
+                } catch (e) {
+                  if (context.mounted) {
+                    _showPermissionErrorDialog(context, e.toString());
+                  }
                 }
               },
             ),
@@ -129,7 +186,7 @@ class PrescriptionScannerService {
       // Generate unique filename with timestamp
       final timestamp = DateTime.now().millisecondsSinceEpoch;
       final extension = path.extension(image.name);
-      final fileName = 'prescription_${timestamp}${extension}';
+      final fileName = 'prescription_$timestamp$extension';
       final filePath = path.join(prescriptionDir.path, fileName);
 
       // Copy the image to the app directory
@@ -155,8 +212,7 @@ class PrescriptionScannerService {
 
       final entities = await prescriptionDir.list().toList();
       final imageFiles = entities
-          .where((entity) => entity is File)
-          .cast<File>()
+          .whereType<File>()
           .where((file) => _isImageFile(file.path))
           .toList();
 
@@ -223,8 +279,37 @@ class PrescriptionScannerService {
   String formatFileSize(int bytes) {
     if (bytes < 1024) return '$bytes B';
     if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
-    if (bytes < 1024 * 1024 * 1024)
+    if (bytes < 1024 * 1024 * 1024) {
       return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+    }
     return '${(bytes / (1024 * 1024 * 1024)).toStringAsFixed(1)} GB';
+  }
+
+  /// Shows an error dialog for permission issues
+  void _showPermissionErrorDialog(BuildContext context, String error) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Permission Error'),
+          content: Text(
+            'Unable to access camera or storage. Please check your permissions in settings.\n\nError: $error',
+          ),
+          actions: [
+            TextButton(
+              child: const Text('Open Settings'),
+              onPressed: () {
+                Navigator.pop(context);
+                openAppSettings();
+              },
+            ),
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () => Navigator.pop(context),
+            ),
+          ],
+        );
+      },
+    );
   }
 }

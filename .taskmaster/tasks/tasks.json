@@ -16,7 +16,9 @@
             "title": "Configure Environment Variables and Secrets Management",
             "description": "Set up environment variables and secrets management for each component to handle sensitive information securely.",
             "status": "done",
-            "dependencies": [1],
+            "dependencies": [
+              1
+            ],
             "details": "For each repository, create environment configuration files (e.g., '.env' for backend and frontend, and 'flutter.env' for mobile) to store sensitive information such as database credentials, API keys, and secret tokens. Utilize libraries like 'dotenv' for Node.js applications and 'flutter_dotenv' for Flutter to load these variables securely. Ensure that these files are excluded from version control by adding them to the '.gitignore' file.",
             "testStrategy": "Confirm that each application can access the environment variables correctly and that sensitive information is not exposed in the codebase."
           },
@@ -25,7 +27,9 @@
             "title": "Set Up Local Development Environment with Docker Compose",
             "description": "Configure Docker Compose to manage local development services, including PostgreSQL and Redis, to streamline backend development.",
             "status": "done",
-            "dependencies": [2],
+            "dependencies": [
+              2
+            ],
             "details": "Create a 'docker-compose.yml' file in the 'backend' repository to define services for PostgreSQL and Redis. Configure the PostgreSQL service with appropriate environment variables for user, password, and database name. Set up the Redis service with default configurations. Ensure that data volumes are specified for both services to persist data across container restarts. Reference: [NestJS + Redis + Postgres Local Development With Docker Compose](https://www.tomray.dev/nestjs-docker-compose-postgres)",
             "testStrategy": "Run 'docker-compose up' and verify that both PostgreSQL and Redis services start successfully. Confirm that the backend application can connect to these services using the specified environment variables."
           },
@@ -34,7 +38,9 @@
             "title": "Initialize Core Application Modules and Database Schema",
             "description": "Set up the core modules and define the initial database schema for the backend application as outlined in the Business Requirements Document (BRD).",
             "status": "done",
-            "dependencies": [3],
+            "dependencies": [
+              3
+            ],
             "details": "In the 'backend' repository, create the core modules such as 'User', 'Auth', and 'HealthRecord' using the NestJS CLI. Define the database schema using an ORM like Prisma or TypeORM, creating entities and relationships as specified in the BRD. Implement initial migration scripts to set up the database tables accordingly.\n<info added on 2025-07-03T14:03:49.883Z>\nTo integrate Prisma ORM into the 'backend' repository, follow these steps:\n\n1. **Install Prisma CLI**: In the root directory of your NestJS project, install the Prisma CLI as a development dependency:\n\n   ```bash\n   npm install --save-dev prisma\n   ```\n\n\n2. **Initialize Prisma**: Initialize Prisma in your project:\n\n   ```bash\n   npx prisma init\n   ```\n\n\n   This command creates a `prisma` directory with a `schema.prisma` file and a `.env` file for environment variables.\n\n3. **Configure the Database Connection**: In the `.env` file, set the `DATABASE_URL` to your database connection string. For example, for PostgreSQL:\n\n   ```\n   DATABASE_URL=\"postgresql://USER:PASSWORD@HOST:PORT/DATABASE\"\n   ```\n\n\n   Replace `USER`, `PASSWORD`, `HOST`, `PORT`, and `DATABASE` with your database credentials.\n\n4. **Define the Data Model**: In the `prisma/schema.prisma` file, define your data models based on the Business Requirements Document (BRD). For example:\n\n   ```prisma\n   model User {\n     id        Int      @id @default(autoincrement())\n     email     String   @unique\n     name      String?\n     posts     Post[]\n   }\n\n   model Post {\n     id        Int      @id @default(autoincrement())\n     title     String\n     content   String\n     author    User     @relation(fields: [authorId], references: [id])\n     authorId  Int\n   }\n   ```\n\n\n   This defines `User` and `Post` models with their respective fields and relationships.\n\n5. **Generate Prisma Client and Apply Migrations**: Generate the Prisma Client and apply the initial migration to set up the database schema:\n\n   ```bash\n   npx prisma generate\n   npx prisma migrate dev --name init\n   ```\n\n\n   The `prisma generate` command generates the Prisma Client, and `prisma migrate dev` applies the migration to your database.\n\n6. **Create a Prisma Service**: In your NestJS application, create a `PrismaService` to manage the Prisma Client instance. This service will handle database connections and can be injected into other services or controllers.\n\n   ```typescript\n   import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';\n   import { PrismaClient } from '@prisma/client';\n\n   @Injectable()\n   export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {\n     async onModuleInit() {\n       await this.$connect();\n     }\n\n     async onModuleDestroy() {\n       await this.$disconnect();\n     }\n   }\n   ```\n\n\n   This service extends the Prisma Client and implements lifecycle hooks to manage the database connection.\n\n7. **Integrate Prisma Service into Modules**: Import the `PrismaService` into your application's modules and inject it into services or controllers as needed. For example, in a `UsersService`:\n\n   ```typescript\n   import { Injectable } from '@nestjs/common';\n   import { PrismaService } from '../prisma/prisma.service';\n\n   @Injectable()\n   export class UsersService {\n     constructor(private prisma: PrismaService) {}\n\n     async findAll() {\n       return this.prisma.user.findMany();\n     }\n\n     async create(data: { name: string; email: string }) {\n       return this.prisma.user.create({\n         data,\n       });\n     }\n   }\n   ```\n\n\n   This service uses the `PrismaService` to interact with the database, providing methods to find and create users.\n\nBy following these steps, you will set up Prisma ORM in your NestJS application, providing a type-safe and developer-friendly approach to database management.\n</info added on 2025-07-03T14:03:49.883Z>\n<info added on 2025-07-03T14:41:03.733Z>\nSuccessfully created core application modules using NestJS CLI:\n\n- Generated modules with services and controllers:\n  - User module (with full CRUD operations, DTOs, Prisma integration)\n  - Auth module (basic structure)\n  - HealthRecord module (basic structure)\n  - Prescription module (basic structure)\n  - CareGroup module (basic structure)\n  - DailyCheckIn module (basic structure)\n  - Notification module (basic structure)\n  - Document module (basic structure)\n\n- Implemented comprehensive User service with:\n  - Full CRUD operations\n  - Proper error handling with Prisma error types\n  - User profile with related data\n  - Email verification and user deactivation\n  - TypeScript types and validation\n\n- Created User DTOs with validation:\n  - CreateUserDto with class-validator decorators\n  - UpdateUserDto using @nestjs/mapped-types\n\n- Implemented User controller with REST endpoints:\n  - POST /users (create user)\n  - GET /users/:id (get user by ID)\n  - GET /users/:id/profile (get user profile with relations)\n  - PATCH /users/:id (update user)\n  - DELETE /users/:id (delete user)\n  - PATCH /users/:id/verify-email (verify email)\n  - PATCH /users/:id/deactivate (deactivate user)\n\n- All modules are properly imported in AppModule\n- PrismaModule integration completed\n- Installed required dependencies: @nestjs/mapped-types, class-validator, class-transformer\n\nNext: Need to implement Auth service and other core modules with proper dependencies and business logic.\n</info added on 2025-07-03T14:41:03.733Z>",
             "testStrategy": "Run migration scripts against a development database and verify that the tables and relationships are created as expected. Implement unit tests for the core modules to ensure they function correctly."
           },
@@ -55,7 +61,9 @@
         "description": "[Backend/NestJS, Mobile/Flutter, Frontend/Next.js] Implement user registration, login (email/password, Google/Apple SSO), profile management, and data consent flows as per FR-01.",
         "status": "done",
         "priority": "high",
-        "dependencies": [1],
+        "dependencies": [
+          1
+        ],
         "subtasks": [
           {
             "id": 1,
@@ -70,7 +78,9 @@
             "id": 2,
             "title": "Integrate JWT Authentication with Passport.js",
             "description": "Set up JWT-based authentication using Passport.js to manage user sessions securely.",
-            "dependencies": [1],
+            "dependencies": [
+              1
+            ],
             "details": "Install and configure the '@nestjs/passport' and '@nestjs/jwt' packages. Define a JWT strategy that extracts tokens from the Authorization header and validates them. Implement guards to protect routes that require authentication. Ensure that the JWT secret is securely stored and managed.\n<info added on 2025-07-03T15:29:59.827Z>\nImplemented a comprehensive JWT authentication system using Passport.js, including:\n\n1. JWT Strategy with proper token validation and user lookup.\n2. Local Strategy for username/password authentication.\n3. JWT and Local Auth Guards for route protection.\n4. Token generation with access tokens (15 minutes) and refresh tokens (7 days).\n5. Refresh token endpoint for token renewal.\n6. Password reset functionality with a secure token-based flow.\n7. Environment configuration for JWT secrets.\n8. Updated auth module with all strategies and JWT module configuration.\n9. Type-safe payload interfaces for all JWT operations.\n\nBackend build completed successfully with no errors.\n</info added on 2025-07-03T15:29:59.827Z>",
             "status": "done",
             "testStrategy": "Develop unit tests for the JWT strategy to ensure correct token validation. Create integration tests to verify that protected routes are accessible only with valid tokens."
@@ -79,7 +89,9 @@
             "id": 3,
             "title": "Implement Google OAuth and Apple Sign-In Integration",
             "description": "Enable users to authenticate using Google and Apple accounts through OAuth integration.",
-            "dependencies": [2],
+            "dependencies": [
+              2
+            ],
             "details": "For the backend, configure Passport.js strategies for Google and Apple OAuth. For the frontend, use the 'google_sign_in' and 'sign_in_with_apple' packages in Flutter to handle the authentication flows. Ensure that the backend can process the OAuth tokens received from the frontend and create or link user accounts accordingly.",
             "status": "done",
             "testStrategy": "Write unit tests for the OAuth strategies to ensure correct handling of tokens and user information. Perform end-to-end tests to verify the complete authentication flow from frontend to backend."
@@ -88,7 +100,9 @@
             "id": 4,
             "title": "Develop Password Reset Functionality",
             "description": "Create a secure mechanism for users to reset their passwords.",
-            "dependencies": [1],
+            "dependencies": [
+              1
+            ],
             "details": "Implement an endpoint that allows users to request a password reset, generating a secure token and sending it via email. Create another endpoint to handle the actual password reset using the token. Ensure that tokens are time-limited and securely stored.",
             "status": "done",
             "testStrategy": "Write unit tests to verify token generation, storage, and validation. Conduct integration tests to ensure the password reset process works as intended, including email delivery and token expiration handling."
@@ -97,7 +111,9 @@
             "id": 5,
             "title": "Implement Session Management and Refresh Tokens",
             "description": "Manage user sessions effectively by implementing refresh tokens for prolonged authentication.",
-            "dependencies": [2],
+            "dependencies": [
+              2
+            ],
             "details": "Enhance the authentication system to issue refresh tokens alongside access tokens. Store refresh tokens securely and implement an endpoint to handle token refreshing. Ensure that refresh tokens can be revoked when necessary.",
             "status": "done",
             "testStrategy": "Develop unit tests to verify the issuance and validation of refresh tokens. Create integration tests to ensure the token refresh process works correctly and securely."
@@ -106,7 +122,9 @@
             "id": 6,
             "title": "Implement Data Consent and Privacy Controls",
             "description": "Provide users with options to manage their data consent and privacy settings.",
-            "dependencies": [1],
+            "dependencies": [
+              1
+            ],
             "details": "Develop endpoints that allow users to view, grant, or revoke data consent. Implement mechanisms to handle user data according to their consent preferences. Ensure compliance with relevant data protection regulations.",
             "status": "done",
             "testStrategy": "Write unit tests to verify the correct handling of consent preferences. Conduct integration tests to ensure that user data is managed appropriately based on consent settings."
@@ -119,7 +137,9 @@
         "description": "[Mobile/Flutter, Backend/NestJS] Integrate with Apple HealthKit and Google Fit to sync, process, and display biometric and activity data. The backend will store and manage the synced data.",
         "status": "done",
         "priority": "medium",
-        "dependencies": [2],
+        "dependencies": [
+          2
+        ],
         "subtasks": [
           {
             "id": 1,
@@ -143,7 +163,9 @@
             "id": 3,
             "title": "Develop Data Synchronization Processes",
             "description": "Create processes to periodically sync health data from the mobile application to the backend server.",
-            "dependencies": [2],
+            "dependencies": [
+              2
+            ],
             "details": "Implement background services in the mobile app to collect health data at regular intervals. Establish secure API endpoints on the backend to receive and store the synchronized data. Ensure data is transmitted securely and efficiently, handling potential network issues gracefully.\n<info added on 2025-07-03T17:41:48.108Z>\nTo enhance the data synchronization processes in the Flutter mobile application, the following improvements will be implemented:\n\n1. **Robust Background Processing with `workmanager`:** Integrate the `workmanager` plugin to schedule and execute background tasks reliably, even when the app is not active. This will replace the existing `Timer.periodic` implementation, providing more control over task execution and ensuring tasks run under specified conditions. ([pub.dev](https://pub.dev/packages/workmanager?utm_source=openai))\n\n2. **Network-Aware Synchronization Logic:** Implement logic to detect network availability before attempting data synchronization. This will prevent unnecessary sync attempts during network outages and ensure efficient use of resources. ([docs.flutter.dev](https://docs.flutter.dev/cookbook/architecture/offline-first?utm_source=openai))\n\n3. **Exponential Backoff Retry Mechanism:** Develop a retry strategy with exponential backoff to handle transient network failures gracefully. This approach will reduce the load on the server and improve the reliability of data synchronization. ([vibe-studio.ai](https://vibe-studio.ai/insights/building-offline-first-apps-with-conflict-resolution-logic?utm_source=openai))\n\n4. **Offline Queue for Failed Synchronizations:** Create a queue to store data that failed to synchronize due to network issues. This queue will attempt to resend the data when the network becomes available, ensuring no data is lost during connectivity disruptions. ([appsgemacht.de](https://appsgemacht.de/en/insights/offline-handling-flutter?utm_source=openai))\n\n5. **Conflict Resolution for Data Overlaps:** Implement strategies to detect and resolve conflicts that arise when multiple data sources modify the same data. This may involve using timestamps to determine the most recent changes or prompting the user to resolve conflicts manually when necessary. ([appsgemacht.de](https://appsgemacht.de/en/insights/offline-handling-flutter?utm_source=openai))\n\nThese enhancements aim to improve the robustness and efficiency of the mobile application's data synchronization processes, ensuring data integrity and a seamless user experience.\n</info added on 2025-07-03T17:41:48.108Z>\n<info added on 2025-07-03T17:50:30.282Z>\nThe implementation of robust data synchronization processes has been successfully completed, enhancing both the mobile application and backend systems.\n\n**Mobile Application Enhancements:**\n\n- **Background Sync Service:** Developed a comprehensive `BackgroundSyncService` utilizing the `workmanager` plugin to schedule and execute background tasks reliably, even when the app is inactive.\n\n- **Network-Aware Synchronization:** Integrated connectivity checks to ensure data synchronization attempts occur only when network conditions are favorable, conserving battery and data usage.\n\n- **Exponential Backoff Retry Mechanism:** Implemented a retry strategy with exponential backoff to handle transient network failures gracefully, reducing server load and improving synchronization reliability.\n\n- **Offline Queue for Failed Synchronizations:** Established a persistent storage mechanism to queue data that failed to synchronize due to network issues, ensuring no data loss during connectivity disruptions.\n\n- **Enhanced Health Data Manager:** Integrated the background synchronization service with the existing manual synchronization processes, providing a seamless user experience.\n\n**Backend System Enhancements:**\n\n- **Queue Service:** Created a `HealthDataQueueService` to manage job processing efficiently.\n\n- **Asynchronous Processing:** Added asynchronous synchronization endpoints to handle background processing tasks.\n\n- **Priority-Based Job Processing:** Implemented a priority queue system to manage synchronization jobs with high, normal, and low priorities.\n\n- **Retry Logic:** Built-in retry mechanisms for failed synchronization operations to enhance data integrity.\n\n- **Data Processing Jobs:** Established separate queues for data aggregation, analysis, and insight generation to optimize processing workflows.\n\n**Key Improvements:**\n\n- **Workmanager Integration:** Ensured reliable background task execution even when the application is closed.\n\n- **Network Detection:** Synchronization processes are now network-aware, initiating only when network conditions are suitable.\n\n- **Failure Recovery:** Implemented mechanisms to queue failed synchronization attempts for retry when conditions improve.\n\n- **Scalable Processing:** The backend queue system is designed to handle multiple users and large volumes of data efficiently.\n\n- **Monitoring:** Established queue statistics endpoints to monitor synchronization performance effectively.\n\n**Configuration Details:**\n\n- **Auto-Synchronization:** Background tasks are configured to auto-sync every 6 hours.\n\n- **Network-Aware Synchronization:** Synchronization attempts are conditioned on network availability.\n\n- **Retry Attempts:** A maximum of 3 retry attempts with exponential backoff are configured for handling transient failures.\n\n- **Priority-Based Job Processing:** Synchronization jobs are processed based on assigned priorities (high/normal/low).\n\nAll code has been successfully compiled, and the data synchronization system is now production-ready, featuring robust error handling, offline capabilities, and scalable backend processing.\n</info added on 2025-07-03T17:50:30.282Z>",
             "status": "done",
             "testStrategy": "Simulate data synchronization under various network conditions to ensure reliability. Verify that data is accurately transmitted and stored in the backend database."
@@ -152,7 +174,9 @@
             "id": 4,
             "title": "Implement Privacy Controls and User Consent Management",
             "description": "Ensure compliance with privacy regulations by implementing user consent management and data access controls.",
-            "dependencies": [2],
+            "dependencies": [
+              2
+            ],
             "details": "Develop user interfaces to inform users about the data being collected and obtain explicit consent. Implement mechanisms to allow users to manage their data preferences, including the ability to revoke access or delete their data. Ensure that all data handling practices comply with relevant privacy laws and guidelines.\n<info added on 2025-07-03T18:12:28.589Z>\nTo enhance user privacy controls and consent management, the following implementation plan is proposed:\n\n1. **Develop Comprehensive Privacy Settings Screen**: Design and implement a dedicated Privacy Settings interface within the mobile application, enabling users to manage their data preferences, including consent, data access, and deletion requests.\n\n2. **Enhance Backend Consent Management**: Upgrade the backend systems to support granular consent controls, allowing users to provide, withdraw, or modify consent for specific data processing activities.\n\n3. **Implement Data Deletion and Revocation Functionality**: Establish mechanisms that allow users to request the deletion or revocation of their personal data, ensuring compliance with their right to be forgotten.\n\n4. **Add Consent Audit Trail and Access Logging**: Introduce logging capabilities to maintain an audit trail of user consents and data access events, enhancing transparency and accountability.\n\n5. **Ensure Compliance with Vietnam's Decree 13/2023/ND-CP**: Align all data handling practices with the requirements set forth in Vietnam's Decree 13/2023/ND-CP on Personal Data Protection, including obtaining explicit user consent, providing data access and correction rights, and implementing appropriate security measures.\n\n6. **Add Data Export Functionality for User Transparency**: Enable users to export their personal data in a structured format, facilitating transparency and user control over their information.\n\nThe implementation will commence with the development of the Privacy Settings Screen in the mobile application.\n</info added on 2025-07-03T18:12:28.589Z>\n<info added on 2025-07-03T18:22:32.987Z>\nThe implementation of comprehensive privacy controls and user consent management has been successfully completed, encompassing the following key components:\n\n**Privacy Settings Screen (Mobile):**\n- Developed a comprehensive `PrivacySettingsScreen` featuring granular consent controls.\n- Implemented toggle switches for various consent types, including data processing, sharing, family sharing, analytics, and marketing.\n- Added data control actions such as export, delete, and revoke permissions.\n- Included transparency features like consent history and access logs.\n- Incorporated a legal compliance section referencing Vietnam's Decree 13/2023/ND-CP.\n\n**Enhanced HealthDataRepository (Mobile):**\n- Added `getHealthAccessLog()` method to enhance transparency.\n- Implemented `requestDataExport()` method to facilitate user data portability.\n- Introduced `requestDataDeletion()` method to comply with GDPR and Decree 13/2023 requirements.\n- Enhanced consent management functionality.\n\n**Backend Privacy Control Endpoints:**\n- Added `/health-record/access-log` endpoint for audit trail viewing.\n- Implemented `/health-record/export-data` endpoint for data export requests.\n- Established `/health-record/delete-all-data` endpoint for data deletion requests.\n- Created `/health-record/revoke-consent` endpoint for consent revocation.\n\n**Enhanced HealthRecordService (Backend):**\n- Implemented `getAccessLog()` for transparency audit trail.\n- Developed `requestDataExport()` with proper queuing mechanisms.\n- Established `requestDataDeletion()` with a 30-day grace period.\n- Implemented `revokeConsent()` for multiple consent types.\n- Added `logDataAccess()` private method for audit logging.\n\n**Database Schema Updates:**\n- Verified existing privacy models: `HealthDataConsent`, `HealthDataAccess`, `DataExportRequest`, `DataDeletionRequest`.\n- Ensured all relations are properly configured in the User model.\n- Successfully generated Prisma client with updated types.\n\n**Compliance Features:**\n- Incorporated messaging to comply with Vietnam's Decree 13/2023/ND-CP.\n- Implemented GDPR-style data portability and deletion rights.\n- Established explicit consent tracking with version control.\n- Developed an audit trail for all data access events.\n- Implemented a 30-day grace period for data deletion requests.\n\n**UI/UX Enhancements:**\n- Provided clear privacy messaging and explanations.\n- Designed easy-to-understand consent toggles.\n- Added warning dialogs for irreversible actions, such as data deletion.\n- Included progress indicators and success/error feedback.\n- Integrated navigation with the existing health data screen.\n\nThis implementation delivers comprehensive privacy controls that exceed basic compliance requirements, offering users full transparency and control over their health data.\n</info added on 2025-07-03T18:22:32.987Z>",
             "status": "done",
             "testStrategy": "Conduct usability testing to ensure that consent management interfaces are clear and user-friendly. Perform audits to verify that data access controls function as intended."
@@ -161,7 +185,9 @@
             "id": 5,
             "title": "Develop Data Processing and Analysis Workflows",
             "description": "Create workflows to process and analyze the synchronized health data to generate meaningful insights.",
-            "dependencies": [3],
+            "dependencies": [
+              3
+            ],
             "details": "Implement backend services to process raw health data, such as calculating daily step counts, detecting sleep patterns, or analyzing heart rate variability. Store processed data in the database and make it accessible through API endpoints for the mobile application to display.",
             "status": "done",
             "testStrategy": "Validate the accuracy of data processing algorithms by comparing outputs with known benchmarks. Ensure that processed data is correctly stored and retrievable via the API."
@@ -170,7 +196,9 @@
             "id": 6,
             "title": "Implement Data Visualization in Mobile Application",
             "description": "Develop user interfaces in the mobile application to display processed health data in an intuitive and informative manner.",
-            "dependencies": [5],
+            "dependencies": [
+              5
+            ],
             "details": "Design and implement charts, graphs, and other visual elements to present health metrics such as activity trends, sleep quality, and heart rate patterns. Ensure that the visualizations are responsive and provide a clear understanding of the user's health data.\n<info added on 2025-07-04T00:41:03.301Z>\nTo enhance the health data screen, implement comprehensive charting using the fl_chart library to visualize health data trends, patterns, and insights. ([pub.dev](https://pub.dev/packages/fl_chart?utm_source=openai))\n\n**Key requirements:**\n1. Line charts for time-series data (steps, heart rate, weight trends).\n2. Bar charts for daily/weekly summaries.\n3. Pie charts for sleep phase breakdowns.\n4. Interactive charts with zoom/pan capabilities.\n5. Responsive design for different screen sizes.\n6. Health data grouping by categories (activity, vitals, sleep, etc.).\n\n**Available health data types:**\n- Steps, distance, calories, exercise minutes.\n- Heart rate (resting, average, max).\n- Sleep duration, deep sleep, REM sleep.\n- Weight, BMI, body fat percentage.\n- Blood pressure, oxygen saturation.\n- Blood glucose, insulin levels.\n\n**Next steps:**\n1. Add fl_chart dependency to pubspec.yaml.\n2. Create visualization components for each health data category.\n3. Implement interactive chart features.\n4. Add data filtering and time range selection.\n5. Create summary/insights widgets.\n</info added on 2025-07-04T00:41:03.301Z>\n<info added on 2025-07-04T02:12:28.213Z>\n**Implementation Plan:**\n\n1. **Enhance Existing Chart Components:**\n   - Upgrade the fl_chart library to version 1.0.0 to utilize the latest features and improvements. ([pub.dev](https://pub.dev/packages/fl_chart?utm_source=openai))\n   - Implement zoom and pan functionalities in line, bar, and scatter charts by configuring the `FlTransformationConfig` class. ([pub.dev](https://pub.dev/packages/fl_chart/changelog?utm_source=openai))\n   - Add detailed tooltips and data overlays to provide more insights into the data points.\n\n2. **Add Time Range Selection Widget:**\n   - Develop a widget that allows users to filter data by selecting specific time ranges, enhancing the ability to analyze trends over desired periods.\n\n3. **Implement Advanced Analytics and Trend Visualization:**\n   - Introduce features such as moving averages, trend lines, and comparative analysis to offer deeper insights into health metrics.\n\n4. **Optimize Performance and Responsiveness:**\n   - Ensure that all visualizations are responsive across various screen sizes and devices.\n   - Optimize data processing and rendering to maintain smooth performance, especially when handling large datasets.\n</info added on 2025-07-04T02:12:28.213Z>\n<info added on 2025-07-04T02:31:26.521Z>\nThe enhanced data visualization system has been successfully implemented, providing users with interactive and insightful tools to analyze their health data trends and patterns.\n\n**Key Achievements:**\n\n1. **Interactive Health Charts:**\n   - Developed `InteractiveHealthChart` with zoom and pan capabilities, supporting multiple chart types (line, bar, area) with smooth animations.\n   - Integrated comprehensive touch interactions and detailed tooltips for enhanced user engagement.\n   - Resolved all deprecated Flutter API warnings, ensuring compatibility with Flutter 3.24+.\n\n2. **Advanced Analytics Widget:**\n   - Created `HealthAnalyticsWidget` offering real-time trend analysis and intelligent insights based on health data patterns.\n   - Displays comprehensive statistics, including current, average, best, and lowest values, along with contextual recommendations for various health metrics.\n\n3. **Time Range Selection:**\n   - Implemented `TimeRangeSelector` with an intuitive dropdown interface, supporting multiple time ranges (day, week, month, 3/6 months, year) with smooth animations and responsive design.\n\n4. **Enhanced Health Dashboard:**\n   - Updated the existing dashboard to incorporate new interactive components, featuring a tabbed interface with Overview, Trends, Activity, and Sleep sections.\n   - Integrated real-time analytics and time range filtering while maintaining backward compatibility with existing chart components.\n\n5. **Mobile Application Integration:**\n   - Updated `EnhancedHealthDashboard` to showcase all new features, modifying `HealthDataScreen` to navigate to the enhanced dashboard.\n   - Ensured all components are fully responsive and optimized for mobile devices.\n\n**Technical Achievements:**\n- Implemented interactive charts with zoom/pan functionality.\n- Developed comprehensive data analytics and trend visualization.\n- Ensured responsive design across different screen sizes.\n- Optimized performance for large datasets.\n- Achieved compliance with modern Flutter 3.24+ API standards.\n- Resolved all compilation errors and warnings.\n- Integrated smooth animations and transitions.\n\n**User Experience Improvements:**\n- Provided rich interactive visualizations with detailed tooltips.\n- Implemented intuitive time range selection and filtering.\n- Offered intelligent health insights and recommendations.\n- Enabled seamless navigation between dashboard views.\n- Adhered to professional design standards following Material Design 3 guidelines.\n\nThe enhanced data visualization system is now production-ready, offering users powerful tools to analyze their health data trends, patterns, and insights.\n</info added on 2025-07-04T02:31:26.521Z>",
             "status": "done",
             "testStrategy": "Conduct user testing to assess the clarity and usability of the visualizations. Verify that the data displayed matches the processed data from the backend."
@@ -181,9 +209,11 @@
         "id": 4,
         "title": "Prescription Management (OCR Scanner) (FR-03)",
         "description": "[Mobile/Flutter, Backend/NestJS] Develop the OCR-based prescription scanner, including image capture, data extraction (drug name, dosage, schedule), and manual entry/edit capabilities. The backend will handle the AI/OCR processing.",
-        "status": "in-progress",
+        "status": "done",
         "priority": "medium",
-        "dependencies": [2],
+        "dependencies": [
+          2
+        ],
         "subtasks": [
           {
             "id": 1,
@@ -207,27 +237,35 @@
             "id": 3,
             "title": "Establish Secure Communication Between Flutter App and NestJS Backend",
             "description": "Implement secure API communication between the Flutter frontend and the NestJS backend to transmit prescription images and receive extracted data.",
-            "dependencies": [1, 2],
-            "details": "Use HTTPS for secure data transmission and implement authentication mechanisms such as API keys or OAuth tokens to protect the API endpoints.",
-            "status": "in-progress",
+            "dependencies": [
+              1,
+              2
+            ],
+            "details": "Use HTTPS for secure data transmission and implement authentication mechanisms such as API keys or OAuth tokens to protect the API endpoints.\n<info added on 2025-07-04T04:52:36.270Z>\nThe secure communication between the Flutter app and the NestJS backend has been successfully implemented, enabling users to capture prescription images and perform OCR scanning through a complete end-to-end workflow.\n\n**Flutter OCR UI Integration:**\n- Added a scan button to prescription image tiles with appropriate icons and scanning states.\n- Implemented a scanning overlay featuring a progress indicator and status text.\n- Incorporated error handling mechanisms and navigation to the OCR results screen.\n- Integrated API service calls with loading states and user feedback.\n\n**API Service Features:**\n- Implemented multipart file upload with appropriate headers and timeout handling.\n- Conducted file validation, including format and size checks.\n- Established structured error and success response handling.\n- Added debug logging for API communications.\n- Set proper timeout management with a default of 30 seconds.\n\n**User Experience Enhancements:**\n- Provided visual feedback during scanning through a loading overlay.\n- Ensured clear scan button placement on image tiles.\n- Facilitated smooth navigation to the results screen.\n- Displayed error messages with appropriate styling.\n- Managed success and failure states effectively.\n\n**Ready for Testing:**\n- The backend OCR service is fully implemented.\n- The Flutter UI is complete with scan functionality.\n- API communication is established.\n- The results screen is prepared to display structured data.\n</info added on 2025-07-04T04:52:36.270Z>",
+            "status": "done",
             "testStrategy": "Conduct security tests to verify the integrity and confidentiality of data during transmission. Perform functional tests to ensure the Flutter app and backend communicate effectively."
           },
           {
             "id": 4,
             "title": "Develop Manual Entry and Edit Capabilities in Flutter",
             "description": "Create a user interface in the Flutter app that allows users to manually enter and edit prescription details.",
-            "dependencies": [1],
-            "details": "Design intuitive forms for inputting drug names, dosages, and schedules. Implement validation to ensure data accuracy and completeness.",
-            "status": "pending",
+            "dependencies": [
+              1
+            ],
+            "details": "Design intuitive forms for inputting drug names, dosages, and schedules. Implement validation to ensure data accuracy and completeness.\n<info added on 2025-07-04T04:57:35.129Z>\nCompleted manual entry and edit capabilities for prescriptions:\n\n- Built `PrescriptionManualEntryScreen` with comprehensive form UI, supporting both create and edit modes.\n- Implemented form validation for all prescription fields, including drug name, dosage with unit selection, frequency selection with predefined options, quantity, prescriber information, and instructions.\n- Added intuitive dropdowns for frequency and dosage units, with a custom frequency input option when \"Other\" is selected.\n- Integrated UI elements such as a floating action button for manual entry in the prescription scanner screen and an edit button in the OCR results screen to modify detected data.\n- Implemented navigation between screens with data passing, success/error feedback with snackbars, and an image preview dialog for prescription images.\n- Created structured data models for prescription information, with form-to-data conversion and validation, initialization from existing OCR data for editing, and proper disposal of text controllers and form resources.\n- Ensured a clear visual distinction between create and edit modes, proper form validation with helpful error messages, intuitive navigation flow from OCR results to manual editing, responsive design with proper padding and spacing, and a professional medical form appearance.\n\nThe manual entry and edit capabilities are now fully functional, allowing users to create prescriptions from scratch or edit OCR-detected data with a comprehensive, user-friendly interface.\n</info added on 2025-07-04T04:57:35.129Z>",
+            "status": "done",
             "testStrategy": "Perform usability testing to ensure the manual entry forms are user-friendly. Validate that data entered manually is correctly stored and can be edited as needed."
           },
           {
             "id": 5,
             "title": "Implement Data Storage and Management in the Backend",
             "description": "Set up a database in the NestJS backend to store extracted and manually entered prescription data securely.",
-            "dependencies": [2, 4],
-            "details": "Choose a suitable database (e.g., PostgreSQL, MongoDB) and design schemas to store prescription information. Implement CRUD operations to manage the data effectively.",
-            "status": "pending",
+            "dependencies": [
+              2,
+              4
+            ],
+            "details": "Choose a suitable database (e.g., PostgreSQL, MongoDB) and design schemas to store prescription information. Implement CRUD operations to manage the data effectively.\n<info added on 2025-07-04T05:02:11.981Z>\nThe backend data storage and management system has been successfully implemented, providing a secure, efficient, and comprehensive solution for prescription data management.\n\n**Database Schema Integration**:\n- Utilized PostgreSQL with Prisma ORM to define and manage the database schema.\n- Developed a comprehensive `Prescription` model with all necessary fields.\n- Established relationships with the existing `User` model to maintain data integrity.\n- Implemented foreign key constraints and cascading deletes to ensure referential integrity.\n\n**CRUD Operations Implementation**:\n- Developed a `PrescriptionService` encompassing full CRUD operations.\n- Implemented methods such as `createPrescription`, `getPrescriptionsByUser`, `getPrescriptionById`, `updatePrescription`, and `deletePrescription` (soft delete).\n- Added `createPrescriptionFromOCR` for seamless integration with the OCR system.\n- Introduced `getPrescriptionStats` to support analytics and dashboard functionalities.\n\n**API Endpoints**:\n- Established a RESTful API with appropriate HTTP methods (GET, POST, PUT, DELETE).\n- Provided comprehensive Swagger documentation for all endpoints.\n- Implemented structured error handling and responses.\n- Incorporated user validation and authorization checks.\n- Created a specialized endpoint for OCR-to-database conversion.\n\n**Data Transfer Objects (DTOs)**:\n- Designed `CreatePrescriptionDto` and `UpdatePrescriptionDto` for input validation.\n- Developed `PrescriptionResponseDto` for structured API responses.\n- Added `PrescriptionStatsDto` to facilitate analytics data.\n- Implemented validation decorators and API documentation.\n- Handled nullable fields to align with the database schema.\n\n**Advanced Features**:\n- Implemented prescription statistics and analytics capabilities.\n- Added support for OCR confidence tracking and verification status.\n- Integrated a reminder system within the existing schema.\n- Included storage for pharmacy and prescriber information.\n- Implemented data filtering and querying functionalities.\n\n**Data Security and Integrity**:\n- Ensured user-scoped data access with proper authorization mechanisms.\n- Implemented soft deletion to maintain data retention and audit trails.\n- Developed comprehensive error handling and validation processes.\n- Optimized database performance through proper indexing.\n- Established structured logging and error tracking systems.\n\nThis implementation ensures a robust backend system capable of managing prescription data effectively, with full CRUD operations, analytics, and seamless integration with the OCR system.\n</info added on 2025-07-04T05:02:11.981Z>",
+            "status": "done",
             "testStrategy": "Develop unit tests for database operations to ensure data integrity. Perform load testing to assess the database's performance under various conditions."
           }
         ]
@@ -238,7 +276,9 @@
         "description": "[Backend/NestJS, Mobile/Flutter] Build the smart reminder system with actionable notifications, audit logging, and the adaptive notification engine. The mobile app will receive and display the notifications.",
         "status": "pending",
         "priority": "high",
-        "dependencies": [4]
+        "dependencies": [
+          4
+        ]
       },
       {
         "id": 6,
@@ -246,7 +286,9 @@
         "description": "[Mobile/Flutter, Backend/NestJS] Implement the adaptive daily check-in feature with interactive notifications and personalized question flows. The backend will process and store the check-in data.",
         "status": "pending",
         "priority": "medium",
-        "dependencies": [5]
+        "dependencies": [
+          5
+        ]
       },
       {
         "id": 7,
@@ -254,7 +296,9 @@
         "description": "[Backend/NestJS, Mobile/Flutter, Frontend/Next.js] Create the Care Group functionality, including secure invitations, deep linking, role-based permissions, and the shared dashboard.",
         "status": "done",
         "priority": "high",
-        "dependencies": [2],
+        "dependencies": [
+          2
+        ],
         "subtasks": [
           {
             "id": 1,
@@ -269,7 +313,9 @@
             "id": 2,
             "title": "Implement Deep Linking for Care Group Access",
             "description": "Enable deep linking functionality to allow users to access specific Care Groups directly through a link, enhancing user experience and navigation.",
-            "dependencies": [1],
+            "dependencies": [
+              1
+            ],
             "details": "Utilize Flutter's deep linking capabilities to create links that open the app and navigate to the specific Care Group. Ensure that the links are secure and handle various app states (e.g., app closed, background, foreground).",
             "status": "done",
             "testStrategy": "Test deep links across different platforms and app states to ensure they navigate to the correct Care Group. Verify that unauthorized users cannot access groups via deep links."
@@ -278,7 +324,9 @@
             "id": 3,
             "title": "Establish Role-Based Permissions for Care Group Members",
             "description": "Define and enforce role-based access control within Care Groups to manage member permissions effectively.",
-            "dependencies": [1],
+            "dependencies": [
+              1
+            ],
             "details": "Implement roles such as Admin, Member, and Viewer, each with specific permissions regarding group management, content creation, and viewing rights. Ensure that role assignments are secure and can be updated as needed.",
             "status": "done",
             "testStrategy": "Test by assigning different roles to users and verifying that their access aligns with the defined permissions. Attempt unauthorized actions to ensure they are properly restricted."
@@ -287,7 +335,9 @@
             "id": 4,
             "title": "Develop Shared Dashboard for Care Groups",
             "description": "Create a shared dashboard interface that provides an overview of Care Group activities, accessible to members based on their roles.",
-            "dependencies": [3],
+            "dependencies": [
+              3
+            ],
             "details": "Design the dashboard to display relevant information such as recent activities, upcoming events, and member contributions. Ensure that the displayed content respects the role-based permissions established.",
             "status": "done",
             "testStrategy": "Test the dashboard by logging in with different roles and verifying that the displayed information corresponds to the user's permissions. Ensure that unauthorized data is not accessible."
@@ -296,7 +346,12 @@
             "id": 5,
             "title": "Integrate Backend Support for Care Group Features",
             "description": "Implement backend services to support the Care Group functionalities, including invitation management, deep linking, role-based permissions, and dashboard data retrieval.",
-            "dependencies": [1, 2, 3, 4],
+            "dependencies": [
+              1,
+              2,
+              3,
+              4
+            ],
             "details": "Develop APIs using NestJS to handle invitation creation and validation, deep link resolution, role assignment and enforcement, and data aggregation for the dashboard. Ensure that all endpoints are secure and performant.\n<info added on 2025-07-03T16:26:24.924Z>\nThe backend integration for Care Groups has been successfully completed. All services have been implemented and integrated, including CareGroupService for core CRUD operations, CareGroupInvitationService for JWT-based invitations with deep links, CareGroupDashboardService for dashboard data aggregation, DeepLinkService for universal deep link generation, and role-based guards and permission decorators. All API endpoints have been implemented and tested, with services properly integrated into the CareGroupModule, which has been imported into the main AppModule. TypeScript compilation is successful, ESLint passes without errors, and API documentation has been created. The backend is now ready for frontend integration, with all 15 API endpoints available with proper authentication and authorization.\n</info added on 2025-07-03T16:26:24.924Z>",
             "status": "done",
             "testStrategy": "Test backend endpoints individually and in integration with the frontend. Perform security testing to ensure that endpoints are protected against unauthorized access and data breaches."
@@ -309,7 +364,10 @@
         "description": "[Backend/NestJS] Develop the RAG-based AI system to generate summaries for medications, health conditions, and user data trends.",
         "status": "pending",
         "priority": "medium",
-        "dependencies": [3, 4]
+        "dependencies": [
+          3,
+          4
+        ]
       },
       {
         "id": 9,
@@ -317,7 +375,9 @@
         "description": "[Mobile/Flutter] Implement the feature to export user health summaries to a shareable PDF document.",
         "status": "pending",
         "priority": "low",
-        "dependencies": [3]
+        "dependencies": [
+          3
+        ]
       },
       {
         "id": 10,
@@ -325,7 +385,9 @@
         "description": "[Frontend/Next.js] Build the Next.js admin portal with system health dashboards, user management tools, and AI cost monitoring.",
         "status": "pending",
         "priority": "medium",
-        "dependencies": [1]
+        "dependencies": [
+          1
+        ]
       },
       {
         "id": 11,
@@ -333,7 +395,9 @@
         "description": "[Mobile/Flutter, Frontend/Next.js, Backend/NestJS] Implement the comprehensive user settings screen, including modular UI, granular notification controls, and privacy settings.",
         "status": "pending",
         "priority": "medium",
-        "dependencies": [2]
+        "dependencies": [
+          2
+        ]
       },
       {
         "id": 12,
@@ -341,7 +405,9 @@
         "description": "[Backend/NestJS, Mobile/Flutter] Implement the freemium model, in-app subscription purchases (IAP, MoMo, ZaloPay), and the user referral program.",
         "status": "pending",
         "priority": "high",
-        "dependencies": [2]
+        "dependencies": [
+          2
+        ]
       },
       {
         "id": 13,
@@ -349,7 +415,9 @@
         "description": "[Backend/NestJS, Mobile/Flutter] Develop the Health Points system, badges, and achievements to drive user engagement.",
         "status": "pending",
         "priority": "low",
-        "dependencies": [2]
+        "dependencies": [
+          2
+        ]
       },
       {
         "id": 14,
@@ -357,7 +425,9 @@
         "description": "[Mobile/Flutter] Implement the simplified 'Elder Mode' with a high-contrast UI, large fonts, and voice prompts.",
         "status": "pending",
         "priority": "medium",
-        "dependencies": [2]
+        "dependencies": [
+          2
+        ]
       },
       {
         "id": 15,
@@ -365,7 +435,9 @@
         "description": "[Mobile/Flutter, Backend/NestJS] Integrate with partner e-pharmacy platforms for medication refill requests.",
         "status": "pending",
         "priority": "low",
-        "dependencies": [4]
+        "dependencies": [
+          4
+        ]
       },
       {
         "id": 16,
@@ -373,12 +445,14 @@
         "description": "[Mobile/Flutter, Frontend/Next.js, Backend/NestJS] Add an in-app mechanism for users to submit feedback and bug reports.",
         "status": "pending",
         "priority": "low",
-        "dependencies": [2]
+        "dependencies": [
+          2
+        ]
       }
     ],
     "metadata": {
       "created": "2025-07-03T13:21:13.212Z",
-      "updated": "2025-07-04T04:42:45.793Z",
+      "updated": "2025-07-04T05:02:22.213Z",
       "description": "Tasks for master context"
     }
   }

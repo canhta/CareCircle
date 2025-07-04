@@ -36,3 +36,6 @@ mobile/build/
 # IDE
 .vscode/
 .idea/
+
+# Task master
+.taskmaster/

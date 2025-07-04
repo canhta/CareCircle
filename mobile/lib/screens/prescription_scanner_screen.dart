@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../services/prescription_scanner_service.dart';
 import '../services/prescription_api_service.dart';
 import 'prescription_ocr_results_screen.dart';
+import 'prescription_manual_entry_screen.dart';
 
 /// Screen for prescription scanning and management
 class PrescriptionScannerScreen extends StatefulWidget {
@@ -20,7 +21,7 @@ class _PrescriptionScannerScreenState extends State<PrescriptionScannerScreen> {
   List<File> _prescriptionImages = [];
   bool _isLoading = false;
   String _totalSize = '0 B';
-  Map<String, bool> _scanningImages = {};
+  final Map<String, bool> _scanningImages = {};
 
   @override
   void initState() {
@@ -75,7 +76,7 @@ class _PrescriptionScannerScreenState extends State<PrescriptionScannerScreen> {
     try {
       final result = await _apiService.scanPrescription(imageFile);
 
-      if (result.success) {
+      if (mounted && result.success) {
         // Navigate to results screen
         Navigator.push(
           context,
@@ -87,14 +88,20 @@ class _PrescriptionScannerScreenState extends State<PrescriptionScannerScreen> {
           ),
         );
       } else {
-        _showErrorSnackBar(result.error ?? 'Failed to scan prescription');
+        if (mounted) {
+          _showErrorSnackBar(result.error ?? 'Failed to scan prescription');
+        }
       }
     } catch (e) {
-      _showErrorSnackBar('Error scanning prescription: $e');
+      if (mounted) {
+        _showErrorSnackBar('Error scanning prescription: $e');
+      }
     } finally {
-      setState(() {
-        _scanningImages.remove(imagePath);
-      });
+      if (mounted) {
+        setState(() {
+          _scanningImages.remove(imagePath);
+        });
+      }
     }
   }
 
@@ -224,12 +231,44 @@ class _PrescriptionScannerScreenState extends State<PrescriptionScannerScreen> {
                 ),
               ],
             ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _addPrescriptionImage,
-        tooltip: 'Add Prescription Image',
-        child: const Icon(Icons.add_a_photo),
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          FloatingActionButton(
+            onPressed: _addManualPrescription,
+            tooltip: 'Add Manual Prescription',
+            heroTag: 'manual',
+            child: const Icon(Icons.edit),
+          ),
+          const SizedBox(height: 16),
+          FloatingActionButton(
+            onPressed: _addPrescriptionImage,
+            tooltip: 'Add Prescription Image',
+            heroTag: 'camera',
+            child: const Icon(Icons.add_a_photo),
+          ),
+        ],
       ),
     );
+  }
+
+  /// Handles adding a manual prescription
+  Future<void> _addManualPrescription() async {
+    try {
+      final result = await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const PrescriptionManualEntryScreen(),
+        ),
+      );
+
+      if (result != null && result is PrescriptionExtractedData) {
+        _showSuccessSnackBar('Prescription added successfully');
+        // You could save the prescription data to local storage or database here
+      }
+    } catch (e) {
+      _showErrorSnackBar('Error adding manual prescription: $e');
+    }
   }
 
   /// Builds empty state widget
@@ -241,7 +280,7 @@ class _PrescriptionScannerScreenState extends State<PrescriptionScannerScreen> {
           Icon(
             Icons.camera_alt_outlined,
             size: 80,
-            color: Theme.of(context).colorScheme.primary.withOpacity(0.5),
+            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.5),
           ),
           const SizedBox(height: 16),
           Text(
@@ -279,6 +318,9 @@ class _PrescriptionScannerScreenState extends State<PrescriptionScannerScreen> {
 
   /// Builds individual image tile
   Widget _buildImageTile(File imageFile) {
+    final imagePath = imageFile.path;
+    final isScanning = _scanningImages[imagePath] ?? false;
+
     return Card(
       clipBehavior: Clip.antiAlias,
       child: Stack(
@@ -297,6 +339,34 @@ class _PrescriptionScannerScreenState extends State<PrescriptionScannerScreen> {
               ),
             ),
           ),
+          // Scanning overlay
+          if (isScanning)
+            Container(
+              width: double.infinity,
+              height: double.infinity,
+              decoration: BoxDecoration(
+                color: Colors.black.withValues(alpha: 0.5),
+              ),
+              child: const Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                      'Scanning...',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           // Delete button
           Positioned(
             top: 8,
@@ -312,6 +382,27 @@ class _PrescriptionScannerScreenState extends State<PrescriptionScannerScreen> {
               ),
             ),
           ),
+          // Scan button
+          if (!isScanning)
+            Positioned(
+              top: 8,
+              left: 8,
+              child: GestureDetector(
+                onTap: () => _scanPrescriptionImage(imageFile),
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primary,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(
+                    Icons.document_scanner,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                ),
+              ),
+            ),
           // Image info overlay
           Positioned(
             bottom: 0,
@@ -323,7 +414,10 @@ class _PrescriptionScannerScreenState extends State<PrescriptionScannerScreen> {
                 gradient: LinearGradient(
                   begin: Alignment.bottomCenter,
                   end: Alignment.topCenter,
-                  colors: [Colors.black.withOpacity(0.7), Colors.transparent],
+                  colors: [
+                    Colors.black.withValues(alpha: 0.7),
+                    Colors.transparent,
+                  ],
                 ),
               ),
               child: Text(
