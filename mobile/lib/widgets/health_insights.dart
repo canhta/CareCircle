@@ -287,9 +287,8 @@ class HealthInsights extends StatelessWidget {
 
     if (data.length >= 2) {
       final weightChange = data.last.value - data.first.value;
-      final daysSpan = data.last.timestamp
-          .difference(data.first.timestamp)
-          .inDays;
+      final daysSpan =
+          data.last.timestamp.difference(data.first.timestamp).inDays;
 
       if (weightChange.abs() > 0.5 && daysSpan > 0) {
         final trend = weightChange > 0 ? 'gained' : 'lost';

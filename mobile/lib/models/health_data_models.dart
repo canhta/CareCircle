@@ -230,7 +230,7 @@ enum DataSource {
 
 class HealthInsight {
   final String
-  type; // 'warning', 'improvement', 'goal_achieved', 'recommendation'
+      type; // 'warning', 'improvement', 'goal_achieved', 'recommendation'
   final String title;
   final String description;
   final String severity; // 'low', 'medium', 'high'
@@ -469,9 +469,8 @@ class VitalsMetrics {
 
   factory VitalsMetrics.fromJson(Map<String, dynamic> json) {
     return VitalsMetrics(
-      weight: json['weight'] != null
-          ? (json['weight'] as num).toDouble()
-          : null,
+      weight:
+          json['weight'] != null ? (json['weight'] as num).toDouble() : null,
       bloodPressure: json['bloodPressure'] != null
           ? BloodPressureMetrics.fromJson(json['bloodPressure'])
           : null,

@@ -363,9 +363,8 @@ class _HealthDashboardState extends State<HealthDashboard>
   }
 
   Widget _buildQuickStatsChart(List<CareCircleHealthData> data) {
-    final stepsData = data
-        .where((d) => d.type == CareCircleHealthDataType.steps)
-        .toList();
+    final stepsData =
+        data.where((d) => d.type == CareCircleHealthDataType.steps).toList();
 
     if (stepsData.isEmpty) {
       return const Card(
@@ -465,8 +464,7 @@ class _HealthDashboardState extends State<HealthDashboard>
       );
     }
 
-    final avgSleep =
-        sleepData
+    final avgSleep = sleepData
             .where((d) => d.type == CareCircleHealthDataType.sleepInBed)
             .map((d) => d.value)
             .fold(0.0, (a, b) => a + b) /
@@ -475,13 +473,13 @@ class _HealthDashboardState extends State<HealthDashboard>
     final sleepQuality = avgSleep >= 480
         ? 'Good'
         : avgSleep >= 360
-        ? 'Fair'
-        : 'Poor';
+            ? 'Fair'
+            : 'Poor';
     final sleepColor = avgSleep >= 480
         ? Colors.green
         : avgSleep >= 360
-        ? Colors.orange
-        : Colors.red;
+            ? Colors.orange
+            : Colors.red;
 
     return Card(
       child: Padding(

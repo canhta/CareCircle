@@ -46,8 +46,7 @@ class PrescriptionScannerService {
           storageStatus = await Permission.storage.request();
         }
 
-        hasStoragePermission =
-            photosStatus.isGranted ||
+        hasStoragePermission = photosStatus.isGranted ||
             storageStatus.isGranted ||
             storageStatus.isLimited;
       }

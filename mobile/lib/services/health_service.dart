@@ -73,8 +73,8 @@ class CareCircleHealthData {
     double numericValue;
     try {
       if (dataPoint.value is NumericHealthValue) {
-        numericValue = (dataPoint.value as NumericHealthValue).numericValue
-            .toDouble();
+        numericValue =
+            (dataPoint.value as NumericHealthValue).numericValue.toDouble();
       } else if (dataPoint.value is AudiogramHealthValue) {
         // For audiogram data, we might want to extract frequencies or decibels
         // For now, we'll skip this type as it's not typically used in CareCircle
@@ -184,16 +184,14 @@ class HealthService {
       }
 
       // Convert to Flutter Health types
-      final healthTypes = types
-          .map((type) => _healthDataTypeMap[type]!)
-          .toList();
+      final healthTypes =
+          types.map((type) => _healthDataTypeMap[type]!).toList();
 
       // Request health data permissions
       final bool hasPermissions = await _health.requestAuthorization(
         healthTypes,
-        permissions: healthTypes
-            .map((type) => HealthDataAccess.READ_WRITE)
-            .toList(),
+        permissions:
+            healthTypes.map((type) => HealthDataAccess.READ_WRITE).toList(),
       );
 
       if (hasPermissions) {
@@ -218,15 +216,13 @@ class HealthService {
     }
 
     try {
-      final healthTypes = types
-          .map((type) => _healthDataTypeMap[type]!)
-          .toList();
+      final healthTypes =
+          types.map((type) => _healthDataTypeMap[type]!).toList();
 
       final bool? hasPermissions = await _health.hasPermissions(
         healthTypes,
-        permissions: healthTypes
-            .map((type) => HealthDataAccess.READ_WRITE)
-            .toList(),
+        permissions:
+            healthTypes.map((type) => HealthDataAccess.READ_WRITE).toList(),
       );
 
       return hasPermissions ?? false;
@@ -247,16 +243,15 @@ class HealthService {
     }
 
     try {
-      final healthTypes = types
-          .map((type) => _healthDataTypeMap[type]!)
-          .toList();
+      final healthTypes =
+          types.map((type) => _healthDataTypeMap[type]!).toList();
 
-      final List<HealthDataPoint> healthData = await _health
-          .getHealthDataFromTypes(
-            types: healthTypes,
-            startTime: startDate,
-            endTime: endDate,
-          );
+      final List<HealthDataPoint> healthData =
+          await _health.getHealthDataFromTypes(
+        types: healthTypes,
+        startTime: startDate,
+        endTime: endDate,
+      );
 
       // Remove duplicates and convert to CareCircle format
       final List<HealthDataPoint> uniqueData = _health.removeDuplicates(

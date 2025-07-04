@@ -196,14 +196,14 @@ class _HealthAnalyticsWidgetState extends State<HealthAnalyticsWidget> {
     final trendIcon = _analytics.trendDirection == TrendDirection.up
         ? Icons.trending_up
         : _analytics.trendDirection == TrendDirection.down
-        ? Icons.trending_down
-        : Icons.trending_flat;
+            ? Icons.trending_down
+            : Icons.trending_flat;
 
     final trendColor = _analytics.trendDirection == TrendDirection.up
         ? Colors.green
         : _analytics.trendDirection == TrendDirection.down
-        ? Colors.red
-        : Colors.grey;
+            ? Colors.red
+            : Colors.grey;
 
     return Container(
       padding: const EdgeInsets.all(12),
@@ -430,8 +430,8 @@ class HealthDataAnalytics {
     final trendDirection = trendPercentage > 5
         ? TrendDirection.up
         : trendPercentage < -5
-        ? TrendDirection.down
-        : TrendDirection.flat;
+            ? TrendDirection.down
+            : TrendDirection.flat;
 
     final trendDescription = _getTrendDescription(
       trendDirection,

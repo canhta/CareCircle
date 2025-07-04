@@ -94,21 +94,20 @@ class _HealthPieChartState extends State<HealthPieChart> {
                           enabled: widget.enableInteraction,
                           touchCallback:
                               (FlTouchEvent event, PieTouchResponse? response) {
-                                if (!event.isInterestedForInteractions ||
-                                    response == null ||
-                                    response.touchedSection == null) {
-                                  setState(() {
-                                    _touchedIndex = null;
-                                  });
-                                  return;
-                                }
+                            if (!event.isInterestedForInteractions ||
+                                response == null ||
+                                response.touchedSection == null) {
+                              setState(() {
+                                _touchedIndex = null;
+                              });
+                              return;
+                            }
 
-                                setState(() {
-                                  _touchedIndex = response
-                                      .touchedSection!
-                                      .touchedSectionIndex;
-                                });
-                              },
+                            setState(() {
+                              _touchedIndex =
+                                  response.touchedSection!.touchedSectionIndex;
+                            });
+                          },
                         ),
                         borderData: FlBorderData(show: false),
                         sectionsSpace: 2,
@@ -142,9 +141,8 @@ class _HealthPieChartState extends State<HealthPieChart> {
       return PieChartSectionData(
         color: data.color,
         value: data.value,
-        title: widget.showPercentages
-            ? '${percentage.toStringAsFixed(1)}%'
-            : '',
+        title:
+            widget.showPercentages ? '${percentage.toStringAsFixed(1)}%' : '',
         radius: isTouched ? widget.radius + 10 : widget.radius,
         titleStyle: TextStyle(
           fontSize: isTouched ? 14 : 12,
@@ -201,9 +199,8 @@ class _HealthPieChartState extends State<HealthPieChart> {
                         data.label,
                         style: TextStyle(
                           fontSize: 12,
-                          fontWeight: isSelected
-                              ? FontWeight.bold
-                              : FontWeight.normal,
+                          fontWeight:
+                              isSelected ? FontWeight.bold : FontWeight.normal,
                         ),
                       ),
                       Text(
@@ -211,9 +208,8 @@ class _HealthPieChartState extends State<HealthPieChart> {
                         style: TextStyle(
                           fontSize: 10,
                           color: Colors.grey[600],
-                          fontWeight: isSelected
-                              ? FontWeight.w500
-                              : FontWeight.normal,
+                          fontWeight:
+                              isSelected ? FontWeight.w500 : FontWeight.normal,
                         ),
                       ),
                     ],
@@ -305,8 +301,7 @@ class HealthPieChartHelper {
         .where((d) => d.type == CareCircleHealthDataType.sleepAsleep)
         .fold(0.0, (sum, d) => sum + d.value);
 
-    final lightSleep =
-        sleepData
+    final lightSleep = sleepData
             .where((d) => d.type == CareCircleHealthDataType.sleepInBed)
             .fold(0.0, (sum, d) => sum + d.value) -
         deepSleep;

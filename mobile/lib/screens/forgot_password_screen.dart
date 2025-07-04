@@ -56,9 +56,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               Text(
                 _emailSent ? 'Check Your Email' : 'Forgot Password?',
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
-                ),
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
                 textAlign: TextAlign.center,
               ),
 

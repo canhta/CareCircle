@@ -355,7 +355,7 @@ class _HealthDataScreenState extends State<HealthDataScreen> {
 
     // Group data by type for better display
     final Map<CareCircleHealthDataType, List<CareCircleHealthData>>
-    groupedData = {};
+        groupedData = {};
     for (final point in _recentData) {
       groupedData.putIfAbsent(point.type, () => []).add(point);
     }

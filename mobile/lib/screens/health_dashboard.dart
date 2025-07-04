@@ -11,8 +11,7 @@ class HealthDashboard extends StatefulWidget {
   const HealthDashboard({super.key, required this.healthData});
 
   @override
-  State<HealthDashboard> createState() =>
-      _HealthDashboardState();
+  State<HealthDashboard> createState() => _HealthDashboardState();
 }
 
 class _HealthDashboardState extends State<HealthDashboard>

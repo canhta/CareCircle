@@ -25,7 +25,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/register',
-        name: 'register',  
+        name: 'register',
         builder: (context, state) => const RegisterScreen(),
       ),
       GoRoute(
@@ -33,7 +33,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         name: 'forgot-password',
         builder: (context, state) => const ForgotPasswordScreen(),
       ),
-      
+
       // Main app routes (protected)
       ShellRoute(
         builder: (context, state, child) {
@@ -68,33 +68,33 @@ final routerProvider = Provider<GoRouter>((ref) {
         ],
       ),
     ],
-    
+
     // Global redirect for authentication
     redirect: (context, state) {
       final user = FirebaseAuth.instance.currentUser;
       final isAuthenticated = user != null;
-      
+
       // Public routes that don't require authentication
       final publicRoutes = ['/login', '/register', '/forgot-password'];
       final isPublicRoute = publicRoutes.contains(state.matchedLocation);
-      
+
       // If not authenticated and trying to access protected route
       if (!isAuthenticated && !isPublicRoute) {
         return '/login';
       }
-      
+
       // If authenticated and trying to access auth routes
       if (isAuthenticated && isPublicRoute) {
         return '/';
       }
-      
+
       // No redirect needed
       return null;
     },
-    
+
     // Error handling
     errorBuilder: (context, state) => ErrorScreen(error: state.error),
-    
+
     // Debug logging
     debugLogDiagnostics: true,
   );
@@ -103,7 +103,7 @@ final routerProvider = Provider<GoRouter>((ref) {
 // Main scaffold with bottom navigation
 class MainScaffold extends ConsumerWidget {
   final Widget child;
-  
+
   const MainScaffold({super.key, required this.child});
 
   @override
@@ -173,7 +173,7 @@ class MainScaffold extends ConsumerWidget {
 // Error screen for handling routing errors
 class ErrorScreen extends StatelessWidget {
   final Exception? error;
-  
+
   const ErrorScreen({super.key, this.error});
 
   @override
@@ -218,25 +218,25 @@ class ErrorScreen extends StatelessWidget {
 extension GoRouterExtensions on BuildContext {
   /// Navigate to login screen
   void goToLogin() => go('/login');
-  
+
   /// Navigate to register screen
   void goToRegister() => go('/register');
-  
+
   /// Navigate to home screen
   void goToHome() => go('/');
-  
+
   /// Navigate to health dashboard
   void goToHealth() => go('/health');
-  
+
   /// Navigate to health data screen
   void goToHealthData() => go('/health-data');
-  
+
   /// Navigate to profile screen
   void goToProfile() => go('/profile');
-  
+
   /// Navigate to settings screen
   void goToSettings() => go('/settings');
-  
+
   /// Navigate to forgot password screen
   void goToForgotPassword() => go('/forgot-password');
 }
