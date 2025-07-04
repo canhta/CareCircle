@@ -153,20 +153,20 @@ class _HealthLineChartState extends State<HealthLineChart> {
                     enabled: widget.enableInteraction,
                     touchCallback:
                         (FlTouchEvent event, LineTouchResponse? touchResponse) {
-                          if (!event.isInterestedForInteractions ||
-                              touchResponse == null ||
-                              touchResponse.lineBarSpots == null) {
-                            setState(() {
-                              _touchedIndex = null;
-                            });
-                            return;
-                          }
+                      if (!event.isInterestedForInteractions ||
+                          touchResponse == null ||
+                          touchResponse.lineBarSpots == null) {
+                        setState(() {
+                          _touchedIndex = null;
+                        });
+                        return;
+                      }
 
-                          final touchedSpot = touchResponse.lineBarSpots!.first;
-                          setState(() {
-                            _touchedIndex = touchedSpot.spotIndex;
-                          });
-                        },
+                      final touchedSpot = touchResponse.lineBarSpots!.first;
+                      setState(() {
+                        _touchedIndex = touchedSpot.spotIndex;
+                      });
+                    },
                     touchTooltipData: LineTouchTooltipData(
                       getTooltipColor: (touchedSpot) =>
                           isDark ? Colors.grey[800]! : Colors.grey[100]!,
@@ -248,7 +248,7 @@ class _HealthLineChartState extends State<HealthLineChart> {
       final text = _formatShortDate(date);
 
       return SideTitleWidget(
-        axisSide: meta.axisSide,
+        meta: meta,
         child: Text(text, style: style),
       );
     }
@@ -260,7 +260,7 @@ class _HealthLineChartState extends State<HealthLineChart> {
     const style = TextStyle(fontSize: 10, fontWeight: FontWeight.bold);
 
     return SideTitleWidget(
-      axisSide: meta.axisSide,
+      meta: meta,
       child: Text(value.toStringAsFixed(0), style: style),
     );
   }

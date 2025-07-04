@@ -4,11 +4,17 @@ import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'config/app_config.dart';
 import 'screens/home_screen.dart';
+import 'screens/login_screen.dart';
+import 'screens/register_screen.dart';
+import 'screens/forgot_password_screen.dart';
+import 'screens/profile_screen.dart';
 import 'screens/prescription_scanner_screen.dart';
 import 'services/background_sync_service.dart';
 import 'services/firebase_messaging_service.dart';
+import 'services/auth_service.dart';
 import 'managers/health_data_manager.dart';
 import 'widgets/notification_handler.dart';
+import 'models/auth_models.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,6 +28,15 @@ Future<void> main() async {
   // Validate configuration
   if (!AppConfig.validateConfig()) {
     debugPrint('Configuration validation failed. Please check your .env file.');
+  }
+
+  // Initialize Authentication Service
+  try {
+    final authService = AuthService();
+    await authService.initialize();
+    debugPrint('Auth Service initialized successfully');
+  } catch (e) {
+    debugPrint('Failed to initialize Auth Service: $e');
   }
 
   // Initialize Firebase Messaging Service
@@ -81,9 +96,22 @@ class MainApp extends StatelessWidget {
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
           useMaterial3: true,
+          elevatedButtonTheme: ElevatedButtonThemeData(
+            style: ElevatedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          ),
         ),
-        home: const HomeScreen(),
+        home: const AuthWrapper(),
         routes: {
+          '/login': (context) => const LoginScreen(),
+          '/register': (context) => const RegisterScreen(),
+          '/forgot-password': (context) => const ForgotPasswordScreen(),
+          '/home': (context) => const HomeScreen(),
+          '/profile': (context) => const ProfileScreen(),
           '/prescription-scanner': (context) =>
               const PrescriptionScannerScreen(),
           '/medications': (context) =>
@@ -97,5 +125,53 @@ class MainApp extends StatelessWidget {
         },
       ),
     );
+  }
+}
+
+class AuthWrapper extends StatefulWidget {
+  const AuthWrapper({super.key});
+
+  @override
+  State<AuthWrapper> createState() => _AuthWrapperState();
+}
+
+class _AuthWrapperState extends State<AuthWrapper> {
+  final AuthService _authService = AuthService();
+  User? _currentUser;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkAuthState();
+  }
+
+  Future<void> _checkAuthState() async {
+    try {
+      final user = await _authService.getCurrentUser();
+      if (mounted) {
+        setState(() {
+          _currentUser = user;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error checking auth state: $e');
+      if (mounted) {
+        setState(() {
+          _currentUser = null;
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
+    return _currentUser != null ? const HomeScreen() : const LoginScreen();
   }
 }

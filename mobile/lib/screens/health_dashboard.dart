@@ -5,17 +5,17 @@ import '../widgets/health_analytics_widget.dart';
 import '../widgets/time_range_selector.dart';
 import 'privacy_settings_screen.dart';
 
-class EnhancedHealthDashboard extends StatefulWidget {
+class HealthDashboard extends StatefulWidget {
   final List<CareCircleHealthData> healthData;
 
-  const EnhancedHealthDashboard({super.key, required this.healthData});
+  const HealthDashboard({super.key, required this.healthData});
 
   @override
-  State<EnhancedHealthDashboard> createState() =>
-      _EnhancedHealthDashboardState();
+  State<HealthDashboard> createState() =>
+      _HealthDashboardState();
 }
 
-class _EnhancedHealthDashboardState extends State<EnhancedHealthDashboard>
+class _HealthDashboardState extends State<HealthDashboard>
     with TickerProviderStateMixin {
   late TabController _tabController;
   TimeRange _selectedTimeRange = TimeRange.week;

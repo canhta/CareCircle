@@ -1,36 +1,110 @@
-name: care_circle
-description: 'CareCircle mobile app for healthcare management and care coordination'
+name: carecircle
+description: A new Flutter project.
 publish_to: 'none'
-version: 0.1.0
+version: 1.0.0+1
 
 environment:
-  sdk: ^3.8.1
+  sdk: '>=3.3.0 <4.0.0'
+  flutter: '>=3.22.0'
 
 dependencies:
-  firebase_ai: ^2.2.1
-  firebase_core: ^3.15.1
-  firebase_messaging: ^15.1.4
   flutter:
     sdk: flutter
-  flutter_ai_toolkit: ^0.9.1
-  flutter_dotenv: ^5.2.1
-  health: ^11.1.1
-  permission_handler: ^11.3.1
+  flutter_localizations:
+    sdk: flutter
+
+  # Modern, secure storage without iOS App Store issues
+  simple_secure_storage: ^0.3.4
+
+  # Modern navigation with Go Router
+  go_router: ^16.0.0
+
+  # Authentication packages
+  google_sign_in: ^7.1.0
+  sign_in_with_apple: ^7.0.1
+  firebase_auth: ^5.3.1
+
+  # HTTP and API packages
+  dio: ^5.7.0
   http: ^1.2.2
+
+  # State management
+  flutter_riverpod: ^2.6.1
+  riverpod_annotation: ^2.6.1
+
+  # Form validation
+  form_validator: ^2.1.1
+
+  # UI and Icons
+  cupertino_icons: ^1.0.8
+
+  # Background services
+  workmanager: ^0.8.0
+
+  # Notifications
+  flutter_local_notifications: ^19.3.0
+  awesome_notifications: ^0.10.1
+
+  # Image handling
+  image_picker: ^1.1.2
+
+  # Health and fitness
+  health: ^13.1.1
+
+  # OCR
+  google_mlkit_text_recognition: ^0.15.0
+
+  # Device info
+  device_info_plus: ^11.5.0
+
+  # Permission handling
+  permission_handler: ^12.0.1
+
+  # JSON handling
+  json_annotation: ^4.9.0
+
+  # Logging
+  logger: ^2.4.0
+
+  # URL launcher
+  url_launcher: ^6.3.1
+
+  # Shared preferences (for simple caching)
   shared_preferences: ^2.3.2
-  workmanager: ^0.6.0
-  connectivity_plus: ^6.1.0
-  fl_chart: ^0.69.0
-  image_picker: ^1.0.4
-  path_provider: ^2.1.1
-  path: ^1.8.3
-  flutter_local_notifications: ^17.2.3
+
+  # Connectivity checking
+  connectivity_plus: ^6.0.5
+
+  # Cache management
+  cached_network_image: ^3.4.1
+
+  # Environment variables
+  flutter_dotenv: ^5.2.1
+
+  # Firebase services
+  firebase_core: ^3.15.1
+  firebase_messaging: ^15.2.9
+
+  # File system and paths
+  path_provider: ^2.1.5
+  path: ^1.9.1
+
+  # Charts and data visualization
+  fl_chart: ^1.0.0
 
 dev_dependencies:
+  flutter_test:
+    sdk: flutter
   flutter_lints: ^6.0.0
+  build_runner: ^2.4.13
+  riverpod_generator: ^2.6.1
+  json_serializable: ^6.8.0
+  custom_lint: ^0.7.0
+  riverpod_lint: ^2.6.1
 
 flutter:
   uses-material-design: true
-
   assets:
     - .env
+    - assets/images/
+    - assets/icons/

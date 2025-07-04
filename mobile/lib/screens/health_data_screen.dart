@@ -3,7 +3,7 @@ import '../managers/health_data_manager.dart';
 import '../services/health_service.dart';
 import '../config/app_config.dart';
 import 'privacy_settings_screen.dart';
-import 'enhanced_health_dashboard.dart';
+import 'health_dashboard.dart';
 
 class HealthDataScreen extends StatefulWidget {
   const HealthDataScreen({super.key});
@@ -194,7 +194,7 @@ class _HealthDataScreenState extends State<HealthDataScreen> {
   void _showDashboard() {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => EnhancedHealthDashboard(healthData: _recentData),
+        builder: (context) => HealthDashboard(healthData: _recentData),
       ),
     );
   }

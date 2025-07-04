@@ -561,9 +561,9 @@ class _InteractiveHealthChartState extends State<InteractiveHealthChart>
     final dataCount = widget.data.length;
     final visibleCount = (dataCount / _zoomLevel).round();
     final startIndex = ((_panOffset / 100) * dataCount).round().clamp(
-      0,
-      dataCount - visibleCount,
-    );
+          0,
+          dataCount - visibleCount,
+        );
     final endIndex = (startIndex + visibleCount).clamp(0, dataCount);
 
     return widget.data.sublist(startIndex, endIndex);
@@ -609,7 +609,7 @@ class _InteractiveHealthChartState extends State<InteractiveHealthChart>
     if (index >= 0 && index < widget.data.length) {
       final date = widget.data[index].timestamp;
       return SideTitleWidget(
-        axisSide: meta.axisSide,
+        meta: meta,
         child: Text(_formatShortDate(date), style: style),
       );
     }
@@ -620,7 +620,7 @@ class _InteractiveHealthChartState extends State<InteractiveHealthChart>
   Widget _buildLeftTitle(double value, TitleMeta meta) {
     const style = TextStyle(fontSize: 10, fontWeight: FontWeight.bold);
     return SideTitleWidget(
-      axisSide: meta.axisSide,
+      meta: meta,
       child: Text(value.toStringAsFixed(0), style: style),
     );
   }

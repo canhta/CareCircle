@@ -181,19 +181,19 @@ class _HealthBarChartState extends State<HealthBarChart> {
                     enabled: widget.enableInteraction,
                     touchCallback:
                         (FlTouchEvent event, BarTouchResponse? response) {
-                          if (!event.isInterestedForInteractions ||
-                              response == null ||
-                              response.spot == null) {
-                            setState(() {
-                              _touchedIndex = null;
-                            });
-                            return;
-                          }
+                      if (!event.isInterestedForInteractions ||
+                          response == null ||
+                          response.spot == null) {
+                        setState(() {
+                          _touchedIndex = null;
+                        });
+                        return;
+                      }
 
-                          setState(() {
-                            _touchedIndex = response.spot!.touchedBarGroupIndex;
-                          });
-                        },
+                      setState(() {
+                        _touchedIndex = response.spot!.touchedBarGroupIndex;
+                      });
+                    },
                     touchTooltipData: BarTouchTooltipData(
                       getTooltipColor: (group) =>
                           isDark ? Colors.grey[800]! : Colors.grey[100]!,
@@ -284,7 +284,7 @@ class _HealthBarChartState extends State<HealthBarChart> {
       final text = _formatDateForAxis(date);
 
       return SideTitleWidget(
-        axisSide: meta.axisSide,
+        meta: meta,
         child: Text(text, style: style),
       );
     }
@@ -296,7 +296,7 @@ class _HealthBarChartState extends State<HealthBarChart> {
     const style = TextStyle(fontSize: 10, fontWeight: FontWeight.bold);
 
     return SideTitleWidget(
-      axisSide: meta.axisSide,
+      meta: meta,
       child: Text(value.toStringAsFixed(0), style: style),
     );
   }

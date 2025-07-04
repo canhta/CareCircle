@@ -188,7 +188,9 @@ class NotificationTestUtils {
               TextButton(
                 onPressed: () async {
                   await _messagingService.clearBackgroundMessages();
-                  Navigator.of(context).pop();
+                  if (context.mounted) {
+                    Navigator.of(context).pop();
+                  }
                 },
                 child: const Text('Clear'),
               ),

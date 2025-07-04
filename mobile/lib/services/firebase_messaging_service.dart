@@ -109,20 +109,17 @@ class FirebaseMessagingService {
 
     final DarwinInitializationSettings initializationSettingsIOS =
         DarwinInitializationSettings(
-          requestAlertPermission: true,
-          requestBadgePermission: true,
-          requestSoundPermission: true,
-          onDidReceiveLocalNotification:
-              (int id, String? title, String? body, String? payload) async {
-                debugPrint('Local notification received: $title - $body');
-              },
-        );
+      requestAlertPermission: true,
+      requestBadgePermission: true,
+      requestSoundPermission: true,
+      // Remove the deprecated onDidReceiveLocalNotification parameter
+    );
 
     final InitializationSettings initializationSettings =
         InitializationSettings(
-          android: initializationSettingsAndroid,
-          iOS: initializationSettingsIOS,
-        );
+      android: initializationSettingsAndroid,
+      iOS: initializationSettingsIOS,
+    );
 
     await _localNotifications!.initialize(
       initializationSettings,
@@ -188,26 +185,26 @@ class FirebaseMessagingService {
     });
 
     // Handle notification taps when app is in background
-    _onMessageOpenedAppSubscription = FirebaseMessaging.onMessageOpenedApp
-        .listen((RemoteMessage message) {
-          debugPrint('A new onMessageOpenedApp event was published!');
-          debugPrint('Message data: ${message.data}');
+    _onMessageOpenedAppSubscription =
+        FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+      debugPrint('A new onMessageOpenedApp event was published!');
+      debugPrint('Message data: ${message.data}');
 
-          // Call custom handler if set
-          _onMessageTap?.call(message);
-        });
+      // Call custom handler if set
+      _onMessageTap?.call(message);
+    });
 
     // Handle token refresh
-    _onTokenRefreshSubscription = FirebaseMessaging.instance.onTokenRefresh
-        .listen((String token) {
-          debugPrint('FCM token refreshed: ${token.substring(0, 20)}...');
-          _onTokenRefresh?.call(token);
-          _sendTokenToServer(token);
-        });
+    _onTokenRefreshSubscription =
+        FirebaseMessaging.instance.onTokenRefresh.listen((String token) {
+      debugPrint('FCM token refreshed: ${token.substring(0, 20)}...');
+      _onTokenRefresh?.call(token);
+      _sendTokenToServer(token);
+    });
 
     // Check for initial message (app opened from terminated state)
-    RemoteMessage? initialMessage = await FirebaseMessaging.instance
-        .getInitialMessage();
+    RemoteMessage? initialMessage =
+        await FirebaseMessaging.instance.getInitialMessage();
     if (initialMessage != null) {
       debugPrint('App opened from terminated state via notification');
       _onMessageTap?.call(initialMessage);
@@ -219,20 +216,20 @@ class FirebaseMessagingService {
     try {
       const AndroidNotificationDetails androidNotificationDetails =
           AndroidNotificationDetails(
-            'care_circle_channel',
-            'CareCircle Notifications',
-            channelDescription: 'Notifications for CareCircle app',
-            importance: Importance.high,
-            priority: Priority.high,
-            icon: '@mipmap/ic_launcher',
-          );
+        'care_circle_channel',
+        'CareCircle Notifications',
+        channelDescription: 'Notifications for CareCircle app',
+        importance: Importance.high,
+        priority: Priority.high,
+        icon: '@mipmap/ic_launcher',
+      );
 
       const DarwinNotificationDetails iOSNotificationDetails =
           DarwinNotificationDetails(
-            presentAlert: true,
-            presentBadge: true,
-            presentSound: true,
-          );
+        presentAlert: true,
+        presentBadge: true,
+        presentSound: true,
+      );
 
       const NotificationDetails notificationDetails = NotificationDetails(
         android: androidNotificationDetails,
