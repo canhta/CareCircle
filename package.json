@@ -35,5 +35,24 @@
     "husky": "^9.1.7",
     "lint-staged": "^16.1.2",
     "prettier": "^3.6.2"
+  },
+  "lint-staged": {
+    "backend/**/*.{ts,js}": [
+      "cd backend && npx eslint --fix",
+      "cd backend && npx prettier --write",
+      "cd backend && npx tsc --noEmit"
+    ],
+    "frontend/**/*.{ts,tsx,js,jsx}": [
+      "cd frontend && npx eslint --fix",
+      "cd frontend && npx prettier --write",
+      "cd frontend && npx tsc --noEmit"
+    ],
+    "mobile/**/*.dart": [
+      "cd mobile && flutter analyze",
+      "cd mobile && dart format ."
+    ],
+    "*.{json,md,yml,yaml}": [
+      "prettier --write"
+    ]
   }
 }
