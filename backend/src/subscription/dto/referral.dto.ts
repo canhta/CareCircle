@@ -74,9 +74,8 @@ export class CreateReferralDto {
   @IsString()
   referredUserId: string;
 
-  @IsOptional()
   @IsEnum(ReferralStatus)
-  status?: ReferralStatus = ReferralStatus.PENDING;
+  status: ReferralStatus = ReferralStatus.PENDING;
 }
 
 export class UpdateReferralDto {

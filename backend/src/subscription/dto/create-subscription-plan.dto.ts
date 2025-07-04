@@ -55,3 +55,57 @@ export class CreateSubscriptionPlanDto {
   @IsBoolean()
   isDefault?: boolean = false;
 }
+
+export class UpdateSubscriptionPlanDto {
+  @IsOptional()
+  @IsString()
+  name?: string;
+
+  @IsOptional()
+  @IsString()
+  description?: string;
+
+  @IsOptional()
+  @IsNumber()
+  price?: number;
+
+  @IsOptional()
+  @IsString()
+  currency?: string;
+
+  @IsOptional()
+  @IsNumber()
+  duration?: number; // in days
+
+  @IsOptional()
+  @IsArray()
+  features?: string[];
+
+  @IsOptional()
+  @IsNumber()
+  maxCareGroupSize?: number;
+
+  @IsOptional()
+  @IsNumber()
+  maxHealthDataSync?: number;
+
+  @IsOptional()
+  @IsNumber()
+  maxDocumentStorage?: number; // in MB
+
+  @IsOptional()
+  @IsNumber()
+  maxNotifications?: number; // per month
+
+  @IsOptional()
+  @IsNumber()
+  maxAIInsights?: number; // per month
+
+  @IsOptional()
+  @IsBoolean()
+  isActive?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  isDefault?: boolean;
+}

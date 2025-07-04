@@ -18,6 +18,7 @@ import {
   UpdateReferralCodeDto,
   CreateReferralDto,
   UpdateReferralDto,
+  ReferralStatus,
 } from './dto/referral.dto';
 
 @Injectable()
@@ -337,7 +338,10 @@ export class SubscriptionService {
 
     // Create referral and update code usage
     const referral = await this.prisma.referral.create({
-      data: createReferralDto,
+      data: {
+        ...createReferralDto,
+        status: createReferralDto.status || ReferralStatus.PENDING,
+      },
     });
 
     await this.prisma.referralCode.update({
