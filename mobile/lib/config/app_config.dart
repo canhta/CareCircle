@@ -52,9 +52,19 @@ class AppConfig {
 
       _logger.i('AppConfig initialized successfully');
     } catch (e) {
+      // Initialize a fallback logger for error reporting
+      _logger = Logger(
+        printer: SimplePrinter(),
+      );
+
+      _logger.e('Failed to initialize AppConfig: $e');
+
       if (kDebugMode) {
         print('Failed to initialize AppConfig: $e');
       }
+
+      // Re-throw the error to let the caller handle it
+      rethrow;
     }
   }
 
@@ -207,8 +217,18 @@ class AppConfig {
 
   // Print config method (for compatibility)
   static void printConfig() {
-    _logger.i('AppConfig loaded successfully');
-    _logger.d('API Base URL: $apiBaseUrl');
-    _logger.d('Debug Mode: $debugMode');
+    try {
+      _logger.i('AppConfig loaded successfully');
+      _logger.d('API Base URL: $apiBaseUrl');
+      _logger.d('Debug Mode: $debugMode');
+    } catch (e) {
+      // Fallback to print if logger is not initialized
+      if (kDebugMode) {
+        print('AppConfig loaded successfully');
+        print('API Base URL: $apiBaseUrl');
+        print('Debug Mode: $debugMode');
+        print('Note: Logger not initialized, using fallback print: $e');
+      }
+    }
   }
 }

@@ -31,6 +31,15 @@ Future<void> main() async {
   // Initialize Firebase
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
+  // Initialize AppConfig
+  try {
+    await AppConfig.initialize();
+    debugPrint('AppConfig initialized successfully');
+  } catch (e) {
+    debugPrint('Failed to initialize AppConfig: $e');
+    // Continue with app startup even if AppConfig fails
+  }
+
   // Validate configuration
   if (!AppConfig.validateConfig()) {
     debugPrint('Configuration validation failed. Please check your .env file.');
