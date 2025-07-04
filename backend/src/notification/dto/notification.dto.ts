@@ -6,13 +6,17 @@ import {
   IsDateString,
   IsObject,
 } from 'class-validator';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional, ApiSchema } from '@nestjs/swagger';
 import {
   NotificationType,
   NotificationChannel,
   NotificationPriority,
 } from '@prisma/client';
 
+@ApiSchema({
+  name: 'SendNotificationDto',
+  description: 'DTO for sending general notifications through various channels',
+})
 export class SendNotificationDto {
   @ApiProperty({ description: 'Notification title' })
   @IsString()

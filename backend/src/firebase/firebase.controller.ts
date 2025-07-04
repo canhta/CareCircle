@@ -23,7 +23,7 @@ import { User } from '@prisma/client';
 import {
   RegisterTokenDto,
   RemoveTokenDto,
-  SendNotificationDto,
+  SendPushNotificationDto,
   SubscribeTopicDto,
   TestNotificationDto,
 } from './dto/firebase.dto';
@@ -175,7 +175,7 @@ export class FirebaseController {
   })
   async sendNotification(
     @CurrentUser() user: User,
-    @Body(ValidationPipe) dto: SendNotificationDto,
+    @Body(ValidationPipe) dto: SendPushNotificationDto,
   ) {
     // TODO: Add admin role check
     const results = await this.firebaseService.sendNotificationToUsers(dto);

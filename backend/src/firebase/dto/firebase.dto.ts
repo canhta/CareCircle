@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiSchema } from '@nestjs/swagger';
 import {
   IsString,
   IsEnum,
@@ -61,7 +61,11 @@ export class RemoveTokenDto {
   token: string;
 }
 
-export class SendNotificationDto {
+@ApiSchema({
+  name: 'SendPushNotificationDto',
+  description: 'DTO for sending Firebase push notifications',
+})
+export class SendPushNotificationDto {
   @ApiProperty({
     description: 'Notification title',
     example: 'Medication Reminder',
