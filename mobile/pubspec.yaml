@@ -12,89 +12,32 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
-
-  # Secure storage - using industry standard package
   flutter_secure_storage: ^9.2.2
-
-  # Modern navigation with Go Router
   go_router: ^16.0.0
-
-  # Authentication packages
   google_sign_in: ^7.1.0
   sign_in_with_apple: ^7.0.1
   firebase_auth: ^5.3.1
-
-  # HTTP client - using dio for advanced features
   dio: ^5.7.0
-
-  # State management
   flutter_riverpod: ^2.6.1
-  riverpod_annotation: ^2.6.1
-
-  # Form validation
   form_validator: ^2.1.1
-
-  # UI and Icons
-  cupertino_icons: ^1.0.8
-
-  # Background services
   workmanager: ^0.8.0
-
-  # Notifications - using awesome_notifications for comprehensive support
   awesome_notifications: ^0.10.1
-
-  # Image handling
   image_picker: ^1.1.2
-
-  # Health and fitness
   health: ^13.1.1
-
-  # OCR
-  google_mlkit_text_recognition: ^0.15.0
-
-  # Device info
-  device_info_plus: ^11.5.0
-
-  # Permission handling
   permission_handler: ^12.0.1
-
-  # JSON handling
-  json_annotation: ^4.9.0
-
-  # Logging
   logger: ^2.4.0
-
-  # URL launcher
-  url_launcher: ^6.3.1
-
-  # Shared preferences (for simple caching)
   shared_preferences: ^2.3.2
-
-  # Connectivity checking
   connectivity_plus: ^6.0.5
-
-  # Cache management
-  cached_network_image: ^3.4.1
-
-  # Environment variables
   flutter_dotenv: ^5.2.1
-
-  # Firebase services
   firebase_core: ^3.15.1
   firebase_messaging: ^15.2.9
-
-  # File system and paths
   path_provider: ^2.1.5
   path: ^1.9.1
-
-  # Charts and data visualization
   fl_chart: ^1.0.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
-  # Linting - consolidated to flutter_lints
   flutter_lints: ^6.0.0
 
 flutter:
