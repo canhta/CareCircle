@@ -9,6 +9,7 @@ import { ReminderProcessor } from './processors/reminder.processor';
 import { TemplateRenderingService } from './template-rendering.service';
 import { NotificationTemplateService } from './notification-template.service';
 import { NotificationSchedulingService } from './notification-scheduling.service';
+import { NotificationAuditLoggingService } from './audit-logging.service';
 import { PrismaModule } from '../prisma/prisma.module';
 
 @Module({
@@ -35,12 +36,14 @@ import { PrismaModule } from '../prisma/prisma.module';
     TemplateRenderingService,
     NotificationTemplateService,
     NotificationSchedulingService,
+    NotificationAuditLoggingService,
   ],
   controllers: [NotificationController],
   exports: [
     NotificationService,
     NotificationTemplateService,
     NotificationSchedulingService,
+    NotificationAuditLoggingService,
   ],
 })
 export class NotificationModule {}

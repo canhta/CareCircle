@@ -18,11 +18,9 @@ import {
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
-import {
-  NotificationService,
-  NotificationPayload,
-} from './notification.service';
+import { NotificationService } from './notification.service';
 import { NotificationTemplateService } from './notification-template.service';
+import { NotificationAuditLoggingService } from './audit-logging.service';
 import {
   SendNotificationDto,
   ScheduleNotificationDto,
@@ -39,6 +37,7 @@ export class NotificationController {
   constructor(
     private readonly notificationService: NotificationService,
     private readonly templateService: NotificationTemplateService,
+    private readonly auditLoggingService: NotificationAuditLoggingService,
   ) {}
 
   @Post('send')
@@ -287,6 +286,116 @@ export class NotificationController {
     return {
       statusCode: HttpStatus.OK,
       message: 'Test templated medication reminder sent',
+    };
+  }
+
+  // Audit Logging Endpoints
+  @Get(':id/audit-logs')
+  @ApiOperation({ summary: 'Get audit logs for a notification' })
+  @ApiResponse({
+    status: 200,
+    description: 'Audit logs retrieved successfully',
+  })
+  async getAuditLogs(@Param('id') notificationId: string) {
+    const auditLogs =
+      await this.auditLoggingService.getAuditLogs(notificationId);
+    return {
+      statusCode: HttpStatus.OK,
+      data: auditLogs,
+    };
+  }
+
+  @Get(':id/delivery-logs')
+  @ApiOperation({ summary: 'Get delivery logs for a notification' })
+  @ApiResponse({
+    status: 200,
+    description: 'Delivery logs retrieved successfully',
+  })
+  async getDeliveryLogs(@Param('id') notificationId: string) {
+    const deliveryLogs =
+      await this.auditLoggingService.getDeliveryLogs(notificationId);
+    return {
+      statusCode: HttpStatus.OK,
+      data: deliveryLogs,
+    };
+  }
+
+  @Get('users/:userId/delivery-stats')
+  @ApiOperation({ summary: 'Get delivery statistics for a user' })
+  @ApiResponse({
+    status: 200,
+    description: 'Delivery statistics retrieved successfully',
+  })
+  async getDeliveryStats(
+    @Param('userId') userId: string,
+    @Query('days', new DefaultValuePipe(30), ParseIntPipe) days: number,
+  ) {
+    const stats = await this.auditLoggingService.getDeliveryStats(userId, days);
+    return {
+      statusCode: HttpStatus.OK,
+      data: stats,
+    };
+  }
+
+  @Get('my-delivery-stats')
+  @ApiOperation({ summary: 'Get delivery statistics for current user' })
+  @ApiResponse({
+    status: 200,
+    description: 'Delivery statistics retrieved successfully',
+  })
+  async getMyDeliveryStats(
+    @CurrentUser() user: User,
+    @Query('days', new DefaultValuePipe(30), ParseIntPipe) days: number,
+  ) {
+    const stats = await this.auditLoggingService.getDeliveryStats(
+      user.id,
+      days,
+    );
+    return {
+      statusCode: HttpStatus.OK,
+      data: stats,
+    };
+  }
+
+  @Post(':id/track-opened')
+  @ApiOperation({ summary: 'Track notification opened' })
+  @ApiResponse({
+    status: 200,
+    description: 'Notification tracking updated successfully',
+  })
+  async trackNotificationOpened(
+    @Param('id') notificationId: string,
+    @Body() trackingData: { channel: string; metadata?: any },
+  ) {
+    await this.auditLoggingService.logNotificationOpened(
+      notificationId,
+      trackingData.channel as any,
+      trackingData.metadata,
+    );
+    return {
+      statusCode: HttpStatus.OK,
+      message: 'Notification opened tracked successfully',
+    };
+  }
+
+  @Post(':id/track-clicked')
+  @ApiOperation({ summary: 'Track notification clicked' })
+  @ApiResponse({
+    status: 200,
+    description: 'Notification tracking updated successfully',
+  })
+  async trackNotificationClicked(
+    @Param('id') notificationId: string,
+    @Body() trackingData: { channel: string; metadata?: any },
+  ) {
+    await this.auditLoggingService.logNotificationClicked(
+      notificationId,
+      trackingData.channel as any,
+      trackingData.metadata,
+    );
+    return {
+      statusCode: HttpStatus.OK,
+      message: 'Notification clicked tracked successfully',
     };
   }
 }

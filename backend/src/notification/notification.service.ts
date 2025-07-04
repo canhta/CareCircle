@@ -4,6 +4,7 @@ import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { PrismaService } from '../prisma/prisma.service';
 import { NotificationTemplateService } from './notification-template.service';
+import { NotificationAuditLoggingService } from './audit-logging.service';
 import {
   TemplateContext,
   TemplateRenderingService,
@@ -46,6 +47,7 @@ export class NotificationService {
     private readonly prisma: PrismaService,
     private readonly templateService: NotificationTemplateService,
     private readonly templateRenderer: TemplateRenderingService,
+    private readonly auditLoggingService: NotificationAuditLoggingService,
     @InjectQueue('notification') private notificationQueue: Queue,
     @InjectQueue('reminder') private reminderQueue: Queue,
   ) {}
@@ -54,6 +56,8 @@ export class NotificationService {
    * Send immediate notification
    */
   async sendNotification(payload: NotificationPayload): Promise<Notification> {
+    const startTime = Date.now();
+    
     const notification = await this.prisma.notification.create({
       data: {
         userId: payload.userId,
@@ -65,6 +69,14 @@ export class NotificationService {
         actionUrl: payload.actionUrl,
       },
     });
+
+    // Log notification creation
+    const creationTime = Date.now() - startTime;
+    await this.auditLoggingService.logNotificationCreated(
+      notification.id,
+      payload.channels,
+      creationTime,
+    );
 
     // Queue for immediate delivery
     await this.notificationQueue.add(
@@ -83,6 +95,12 @@ export class NotificationService {
           delay: 2000,
         },
       },
+    );
+
+    // Log notification queued
+    await this.auditLoggingService.logNotificationQueued(
+      notification.id,
+      payload.channels,
     );
 
     this.logger.debug(

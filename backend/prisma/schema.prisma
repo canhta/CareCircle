@@ -508,10 +508,75 @@ model Notification {
   actionUrl String?
   priority  NotificationPriority @default(NORMAL)
 
+  // Audit and tracking
+  auditLogs NotificationAuditLog[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@map("notifications")
+}
+
+// Notification Audit Logging for delivery tracking
+model NotificationAuditLog {
+  id             String @id @default(uuid())
+  notificationId String
+  notification   Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+
+  // Event tracking
+  event      NotificationEvent
+  channel    NotificationChannel
+  status     DeliveryStatus
+  
+  // Delivery details
+  deliveryId String? // External delivery ID from push/email/SMS services
+  providerId String? // Provider-specific tracking ID
+  
+  // Error tracking
+  errorCode    String?
+  errorMessage String?
+  
+  // Performance metrics
+  processingTime Int? // Time in milliseconds
+  retryCount     Int  @default(0)
+  
+  // Metadata
+  metadata Json? // Additional context (IP, user agent, etc.)
+  
+  createdAt DateTime @default(now())
+  
+  @@map("notification_audit_logs")
+}
+
+// Notification Delivery Tracking
+model NotificationDeliveryLog {
+  id             String @id @default(uuid())
+  notificationId String
+  
+  // Delivery details
+  channel        NotificationChannel
+  deliveryStatus DeliveryStatus
+  deliveryTime   DateTime?
+  
+  // External service tracking
+  externalId     String? // FCM message ID, email ID, etc.
+  providerName   String? // 'FCM', 'SendGrid', 'Twilio', etc.
+  
+  // Engagement tracking
+  openedAt   DateTime?
+  clickedAt  DateTime?
+  
+  // Error details
+  errorCode    String?
+  errorMessage String?
+  
+  // Performance
+  latency Int? // Time from queue to delivery (ms)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("notification_delivery_logs")
 }
 
 // Notification Templates for personalization
@@ -602,4 +667,29 @@ enum NotificationPriority {
   NORMAL
   HIGH
   CRITICAL
+}
+
+enum NotificationEvent {
+  CREATED
+  QUEUED
+  PROCESSING
+  SENT
+  DELIVERED
+  OPENED
+  CLICKED
+  FAILED
+  RETRIED
+  EXPIRED
+}
+
+enum DeliveryStatus {
+  PENDING
+  PROCESSING
+  SENT
+  DELIVERED
+  FAILED
+  BOUNCED
+  OPENED
+  CLICKED
+  UNSUBSCRIBED
 }
