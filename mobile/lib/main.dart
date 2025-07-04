@@ -28,7 +28,14 @@ Future<void> main() async {
   await dotenv.load(fileName: ".env");
 
   // Initialize Firebase using centralized initializer
-  await FirebaseInitializer.ensureInitialized();
+  // This will handle the duplicate app error gracefully
+  try {
+    await FirebaseInitializer.ensureInitialized();
+    debugPrint('Firebase initialized successfully');
+  } catch (e) {
+    debugPrint('Firebase initialization handled: $e');
+    // Continue with app startup even if Firebase initialization has issues
+  }
 
   // Initialize AppConfig
   try {
