@@ -203,7 +203,7 @@ class _CareGroupsScreenState extends State<CareGroupsScreen> {
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: roleColor.withOpacity(0.1),
+                        color: roleColor.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
@@ -252,13 +252,13 @@ class _CareGroupsScreenState extends State<CareGroupsScreen> {
 
   Color _getRoleColor(CareRole? role) {
     switch (role) {
-      case CareRole.OWNER:
+      case CareRole.owner:
         return Colors.purple;
-      case CareRole.ADMIN:
+      case CareRole.admin:
         return Colors.blue;
-      case CareRole.CAREGIVER:
+      case CareRole.caregiver:
         return Colors.green;
-      case CareRole.MEMBER:
+      case CareRole.member:
         return Colors.orange;
       default:
         return Colors.grey;

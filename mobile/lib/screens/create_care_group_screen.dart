@@ -87,7 +87,7 @@ class _CreateCareGroupScreenState extends State<CreateCareGroupScreen> {
           padding: const EdgeInsets.all(16),
           children: [
             const SizedBox(height: 16),
-            
+
             // Header
             Center(
               child: Column(
@@ -96,7 +96,10 @@ class _CreateCareGroupScreenState extends State<CreateCareGroupScreen> {
                     width: 80,
                     height: 80,
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                      color: Theme.of(context)
+                          .colorScheme
+                          .primary
+                          .withValues(alpha: 0.1),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
@@ -119,9 +122,9 @@ class _CreateCareGroupScreenState extends State<CreateCareGroupScreen> {
                 ],
               ),
             ),
-            
+
             const SizedBox(height: 32),
-            
+
             // Name Field
             TextFormField(
               controller: _nameController,
@@ -145,9 +148,9 @@ class _CreateCareGroupScreenState extends State<CreateCareGroupScreen> {
               },
               textInputAction: TextInputAction.next,
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // Description Field
             TextFormField(
               controller: _descriptionController,
@@ -166,9 +169,9 @@ class _CreateCareGroupScreenState extends State<CreateCareGroupScreen> {
               },
               textInputAction: TextInputAction.done,
             ),
-            
+
             const SizedBox(height: 32),
-            
+
             // Info Card
             Card(
               child: Padding(
@@ -200,9 +203,9 @@ class _CreateCareGroupScreenState extends State<CreateCareGroupScreen> {
                 ),
               ),
             ),
-            
+
             const SizedBox(height: 32),
-            
+
             // Create Button
             SizedBox(
               width: double.infinity,
@@ -231,9 +234,9 @@ class _CreateCareGroupScreenState extends State<CreateCareGroupScreen> {
                       ),
               ),
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // Cancel Button
             SizedBox(
               width: double.infinity,

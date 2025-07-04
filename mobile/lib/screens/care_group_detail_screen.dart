@@ -44,13 +44,13 @@ class _CareGroupDetailScreenState extends State<CareGroupDetailScreen> {
   }
 
   bool _canManageGroup() {
-    return _currentUserMember?.role == CareRole.OWNER ||
-        _currentUserMember?.role == CareRole.ADMIN;
+    return _currentUserMember?.role == CareRole.owner ||
+        _currentUserMember?.role == CareRole.admin;
   }
 
   bool _canInviteMembers() {
-    return _currentUserMember?.role == CareRole.OWNER ||
-        _currentUserMember?.role == CareRole.ADMIN;
+    return _currentUserMember?.role == CareRole.owner ||
+        _currentUserMember?.role == CareRole.admin;
   }
 
   @override
@@ -80,12 +80,13 @@ class _CareGroupDetailScreenState extends State<CareGroupDetailScreen> {
                     contentPadding: EdgeInsets.zero,
                   ),
                 ),
-                if (_currentUserMember?.role == CareRole.OWNER)
+                if (_currentUserMember?.role == CareRole.owner)
                   const PopupMenuItem(
                     value: 'delete',
                     child: ListTile(
                       leading: Icon(Icons.delete, color: Colors.red),
-                      title: Text('Delete Group', style: TextStyle(color: Colors.red)),
+                      title: Text('Delete Group',
+                          style: TextStyle(color: Colors.red)),
                       contentPadding: EdgeInsets.zero,
                     ),
                   ),
@@ -105,16 +106,16 @@ class _CareGroupDetailScreenState extends State<CareGroupDetailScreen> {
         children: [
           // Header Card
           _buildHeaderCard(),
-          
+
           // Quick Actions
           _buildQuickActions(),
-          
+
           // Dashboard Summary
           _buildDashboardSummary(),
-          
+
           // Members Preview
           _buildMembersPreview(),
-          
+
           // Actions
           _buildActionButtons(),
         ],
@@ -168,7 +169,8 @@ class _CareGroupDetailScreenState extends State<CareGroupDetailScreen> {
                       vertical: 6,
                     ),
                     decoration: BoxDecoration(
-                      color: _getRoleColor(_currentUserMember!.role).withOpacity(0.1),
+                      color: _getRoleColor(_currentUserMember!.role)
+                          .withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Text(
@@ -208,7 +210,7 @@ class _CareGroupDetailScreenState extends State<CareGroupDetailScreen> {
         color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: Theme.of(context).colorScheme.outline.withOpacity(0.3),
+          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
         ),
       ),
       child: Row(
@@ -330,7 +332,7 @@ class _CareGroupDetailScreenState extends State<CareGroupDetailScreen> {
 
   Widget _buildMembersPreview() {
     final visibleMembers = _careGroup.members.take(3).toList();
-    
+
     return Card(
       margin: const EdgeInsets.all(16),
       child: Padding(
@@ -430,13 +432,13 @@ class _CareGroupDetailScreenState extends State<CareGroupDetailScreen> {
 
   Color _getRoleColor(CareRole role) {
     switch (role) {
-      case CareRole.OWNER:
+      case CareRole.owner:
         return Colors.purple;
-      case CareRole.ADMIN:
+      case CareRole.admin:
         return Colors.blue;
-      case CareRole.CAREGIVER:
+      case CareRole.caregiver:
         return Colors.green;
-      case CareRole.MEMBER:
+      case CareRole.member:
         return Colors.orange;
     }
   }
@@ -482,10 +484,11 @@ class _CareGroupDetailScreenState extends State<CareGroupDetailScreen> {
   void _shareGroup() async {
     try {
       final deepLink = await _careGroupService.generateDeepLink(_careGroup.id);
-      final shareText = 'Join my care group "${_careGroup.name}" on CareCircle: ${deepLink.url}';
-      
+      final shareText =
+          'Join my care group "${_careGroup.name}" on CareCircle: ${deepLink.url}';
+
       await Clipboard.setData(ClipboardData(text: shareText));
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(

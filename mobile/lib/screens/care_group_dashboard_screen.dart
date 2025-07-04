@@ -15,7 +15,8 @@ class CareGroupDashboardScreen extends StatefulWidget {
   });
 
   @override
-  State<CareGroupDashboardScreen> createState() => _CareGroupDashboardScreenState();
+  State<CareGroupDashboardScreen> createState() =>
+      _CareGroupDashboardScreenState();
 }
 
 class _CareGroupDashboardScreenState extends State<CareGroupDashboardScreen> {
@@ -37,8 +38,9 @@ class _CareGroupDashboardScreenState extends State<CareGroupDashboardScreen> {
         _error = null;
       });
 
-      final dashboardData = await _careGroupService.getDashboardData(widget.careGroup.id);
-      
+      final dashboardData =
+          await _careGroupService.getDashboardData(widget.careGroup.id);
+
       setState(() {
         _dashboardData = dashboardData;
         _isLoading = false;
@@ -191,7 +193,7 @@ class _CareGroupDashboardScreenState extends State<CareGroupDashboardScreen> {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: color.withOpacity(0.1),
+                    color: color.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Icon(icon, color: color, size: 20),
@@ -203,9 +205,9 @@ class _CareGroupDashboardScreenState extends State<CareGroupDashboardScreen> {
             Text(
               value,
               style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: color,
-              ),
+                    fontWeight: FontWeight.bold,
+                    color: color,
+                  ),
             ),
             const SizedBox(height: 4),
             Text(
@@ -277,7 +279,7 @@ class _CareGroupDashboardScreenState extends State<CareGroupDashboardScreen> {
   Widget _buildActivityItem(RecentActivity activity) {
     return ListTile(
       leading: CircleAvatar(
-        backgroundColor: _getActivityColor(activity.type).withOpacity(0.1),
+        backgroundColor: _getActivityColor(activity.type).withValues(alpha: 0.1),
         child: Icon(
           _getActivityIcon(activity.type),
           color: _getActivityColor(activity.type),
@@ -343,7 +345,7 @@ class _CareGroupDashboardScreenState extends State<CareGroupDashboardScreen> {
   Widget _buildMemberItem(CareGroupMember member) {
     return ListTile(
       leading: CircleAvatar(
-        backgroundColor: _getRoleColor(member.role).withOpacity(0.1),
+        backgroundColor: _getRoleColor(member.role).withValues(alpha: 0.1),
         child: Text(
           member.user?.name?.substring(0, 1).toUpperCase() ?? 'U',
           style: TextStyle(
@@ -377,13 +379,13 @@ class _CareGroupDashboardScreenState extends State<CareGroupDashboardScreen> {
 
   Color _getRoleColor(CareRole role) {
     switch (role) {
-      case CareRole.OWNER:
+      case CareRole.owner:
         return Colors.purple;
-      case CareRole.ADMIN:
+      case CareRole.admin:
         return Colors.blue;
-      case CareRole.CAREGIVER:
+      case CareRole.caregiver:
         return Colors.green;
-      case CareRole.MEMBER:
+      case CareRole.member:
         return Colors.orange;
     }
   }

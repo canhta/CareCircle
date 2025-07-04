@@ -6,7 +6,7 @@
   },
   "scripts": {
     "prepare": "husky",
-    "lint": "npm run lint:backend && npm run lint:frontend",
+    "lint": "npm run lint:backend && npm run lint:frontend && npm run lint:mobile",
     "lint:backend": "cd backend && npm run lint",
     "lint:frontend": "cd frontend && npm run lint",
     "lint:mobile": "cd mobile && flutter analyze",

@@ -4,10 +4,10 @@
 import 'auth_models.dart';
 
 enum CareRole {
-  OWNER,
-  ADMIN,
-  CAREGIVER,
-  MEMBER,
+  owner,
+  admin,
+  caregiver,
+  member,
 }
 
 class CareGroup {
@@ -94,7 +94,7 @@ class CareGroupMember {
       user: json['user'] != null ? User.fromJson(json['user']) : null,
       role: CareRole.values.firstWhere(
         (role) => role.name == json['role'],
-        orElse: () => CareRole.MEMBER,
+        orElse: () => CareRole.member,
       ),
       joinedAt: DateTime.parse(json['joinedAt'] as String),
       isActive: json['isActive'] as bool,
@@ -147,7 +147,7 @@ class InviteCareGroupMemberRequest {
 
   InviteCareGroupMemberRequest({
     required this.email,
-    this.role = CareRole.MEMBER,
+    this.role = CareRole.member,
     this.canViewHealth = false,
     this.canReceiveAlerts = true,
     this.canManageSettings = false,
@@ -313,26 +313,26 @@ class DeepLinkInfo {
 extension CareRoleExtension on CareRole {
   String get displayName {
     switch (this) {
-      case CareRole.OWNER:
+      case CareRole.owner:
         return 'Owner';
-      case CareRole.ADMIN:
+      case CareRole.admin:
         return 'Admin';
-      case CareRole.CAREGIVER:
+      case CareRole.caregiver:
         return 'Caregiver';
-      case CareRole.MEMBER:
+      case CareRole.member:
         return 'Member';
     }
   }
 
   String get description {
     switch (this) {
-      case CareRole.OWNER:
+      case CareRole.owner:
         return 'Full access to all features and settings';
-      case CareRole.ADMIN:
+      case CareRole.admin:
         return 'Can manage members and group settings';
-      case CareRole.CAREGIVER:
+      case CareRole.caregiver:
         return 'Can view health data and receive alerts';
-      case CareRole.MEMBER:
+      case CareRole.member:
         return 'Basic access to group features';
     }
   }

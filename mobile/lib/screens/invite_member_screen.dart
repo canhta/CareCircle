@@ -24,8 +24,8 @@ class _InviteMemberScreenState extends State<InviteMemberScreen> {
   final _emailController = TextEditingController();
   final _messageController = TextEditingController();
   final CareGroupService _careGroupService = CareGroupService();
-  
-  CareRole _selectedRole = CareRole.MEMBER;
+
+  CareRole _selectedRole = CareRole.member;
   bool _canViewHealth = false;
   bool _canReceiveAlerts = true;
   bool _canManageSettings = false;
@@ -51,37 +51,37 @@ class _InviteMemberScreenState extends State<InviteMemberScreen> {
           padding: const EdgeInsets.all(16),
           children: [
             const SizedBox(height: 16),
-            
+
             // Header
             _buildHeader(),
-            
+
             const SizedBox(height: 32),
-            
+
             // Email Field
             _buildEmailField(),
-            
+
             const SizedBox(height: 24),
-            
+
             // Role Selection
             _buildRoleSelection(),
-            
+
             const SizedBox(height: 24),
-            
+
             // Permissions
             _buildPermissions(),
-            
+
             const SizedBox(height: 24),
-            
+
             // Optional Message
             _buildMessageField(),
-            
+
             const SizedBox(height: 32),
-            
+
             // Send Invitation Button
             _buildSendButton(),
-            
+
             const SizedBox(height: 16),
-            
+
             // Cancel Button
             _buildCancelButton(),
           ],
@@ -98,7 +98,7 @@ class _InviteMemberScreenState extends State<InviteMemberScreen> {
             width: 80,
             height: 80,
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(
@@ -138,12 +138,12 @@ class _InviteMemberScreenState extends State<InviteMemberScreen> {
         if (value == null || value.trim().isEmpty) {
           return 'Please enter an email address';
         }
-        
+
         final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+$');
         if (!emailRegex.hasMatch(value.trim())) {
           return 'Please enter a valid email address';
         }
-        
+
         return null;
       },
       textInputAction: TextInputAction.next,
@@ -164,9 +164,9 @@ class _InviteMemberScreenState extends State<InviteMemberScreen> {
           style: Theme.of(context).textTheme.bodyMedium,
         ),
         const SizedBox(height: 16),
-        ...CareRole.values.where((role) => role != CareRole.OWNER).map(
-          (role) => _buildRoleOption(role),
-        ),
+        ...CareRole.values.where((role) => role != CareRole.owner).map(
+              (role) => _buildRoleOption(role),
+            ),
       ],
     );
   }
@@ -236,14 +236,14 @@ class _InviteMemberScreenState extends State<InviteMemberScreen> {
                 subtitle: 'Can modify group settings and member permissions',
                 icon: Icons.settings,
                 value: _canManageSettings,
-                onChanged: _selectedRole == CareRole.ADMIN
+                onChanged: _selectedRole == CareRole.admin
                     ? (value) {
                         setState(() {
                           _canManageSettings = value;
                         });
                       }
                     : null,
-                enabled: _selectedRole == CareRole.ADMIN,
+                enabled: _selectedRole == CareRole.admin,
               ),
             ],
           ),
@@ -354,22 +354,22 @@ class _InviteMemberScreenState extends State<InviteMemberScreen> {
 
   void _updatePermissionsForRole(CareRole role) {
     switch (role) {
-      case CareRole.ADMIN:
+      case CareRole.admin:
         _canViewHealth = true;
         _canReceiveAlerts = true;
         _canManageSettings = true;
         break;
-      case CareRole.CAREGIVER:
+      case CareRole.caregiver:
         _canViewHealth = true;
         _canReceiveAlerts = true;
         _canManageSettings = false;
         break;
-      case CareRole.MEMBER:
+      case CareRole.member:
         _canViewHealth = false;
         _canReceiveAlerts = true;
         _canManageSettings = false;
         break;
-      case CareRole.OWNER:
+      case CareRole.owner:
         // Should not reach here as OWNER is filtered out
         break;
     }
@@ -396,10 +396,13 @@ class _InviteMemberScreenState extends State<InviteMemberScreen> {
             : _messageController.text.trim(),
       );
 
-      final deepLink = await _careGroupService.inviteMember(
+      await _careGroupService.inviteMember(
         widget.careGroup.id,
         request,
       );
+
+      // Generate deep link for sharing
+      final deepLink = await _careGroupService.generateDeepLink(widget.careGroup.id);
 
       if (mounted) {
         _showInvitationSentDialog(deepLink);
@@ -470,7 +473,8 @@ class _InviteMemberScreenState extends State<InviteMemberScreen> {
                     onPressed: () {
                       Clipboard.setData(ClipboardData(text: deepLink.url));
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Link copied to clipboard')),
+                        const SnackBar(
+                            content: Text('Link copied to clipboard')),
                       );
                     },
                   ),

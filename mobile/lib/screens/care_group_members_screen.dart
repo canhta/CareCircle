@@ -39,8 +39,8 @@ class _CareGroupMembersScreenState extends State<CareGroupMembersScreen> {
         _error = null;
       });
 
-      final members = await _careGroupService.getMembers(widget.careGroup.id);
-      
+      final members = await _careGroupService.getCareGroupMembers(widget.careGroup.id);
+
       setState(() {
         _members = members;
         _currentUserMember = _getCurrentUserMember();
@@ -62,13 +62,13 @@ class _CareGroupMembersScreenState extends State<CareGroupMembersScreen> {
   }
 
   bool _canManageMembers() {
-    return _currentUserMember?.role == CareRole.OWNER ||
-        _currentUserMember?.role == CareRole.ADMIN;
+    return _currentUserMember?.role == CareRole.owner ||
+        _currentUserMember?.role == CareRole.admin;
   }
 
   bool _canInviteMembers() {
-    return _currentUserMember?.role == CareRole.OWNER ||
-        _currentUserMember?.role == CareRole.ADMIN;
+    return _currentUserMember?.role == CareRole.owner ||
+        _currentUserMember?.role == CareRole.admin;
   }
 
   @override
@@ -179,7 +179,7 @@ class _CareGroupMembersScreenState extends State<CareGroupMembersScreen> {
 
   Widget _buildMembersHeader() {
     final activeMembers = _members.where((m) => m.isActive).length;
-    
+
     return Container(
       padding: const EdgeInsets.all(16),
       child: Row(
@@ -218,16 +218,19 @@ class _CareGroupMembersScreenState extends State<CareGroupMembersScreen> {
     }
 
     // Sort roles by hierarchy
-    final sortedRoles = [CareRole.OWNER, CareRole.ADMIN, CareRole.CAREGIVER, CareRole.MEMBER]
-        .where((role) => groupedMembers.containsKey(role))
-        .toList();
+    final sortedRoles = [
+      CareRole.owner,
+      CareRole.admin,
+      CareRole.caregiver,
+      CareRole.member
+    ].where((role) => groupedMembers.containsKey(role)).toList();
 
     return ListView.builder(
       itemCount: sortedRoles.length,
       itemBuilder: (context, index) {
         final role = sortedRoles[index];
         final members = groupedMembers[role]!;
-        
+
         return _buildRoleSection(role, members);
       },
     );
@@ -253,9 +256,9 @@ class _CareGroupMembersScreenState extends State<CareGroupMembersScreen> {
               Text(
                 '${role.displayName}s (${members.length})',
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: _getRoleColor(role),
-                  fontWeight: FontWeight.w600,
-                ),
+                      color: _getRoleColor(role),
+                      fontWeight: FontWeight.w600,
+                    ),
               ),
             ],
           ),
@@ -268,14 +271,14 @@ class _CareGroupMembersScreenState extends State<CareGroupMembersScreen> {
 
   Widget _buildMemberItem(CareGroupMember member) {
     final isCurrentUser = member.id == _currentUserMember?.id;
-    
+
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       child: ListTile(
         leading: Stack(
           children: [
             CircleAvatar(
-              backgroundColor: _getRoleColor(member.role).withOpacity(0.1),
+              backgroundColor: _getRoleColor(member.role).withValues(alpha: 0.1),
               child: Text(
                 member.user?.name?.substring(0, 1).toUpperCase() ?? 'U',
                 style: TextStyle(
@@ -311,7 +314,7 @@ class _CareGroupMembersScreenState extends State<CareGroupMembersScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
@@ -372,7 +375,8 @@ class _CareGroupMembersScreenState extends State<CareGroupMembersScreen> {
                     value: 'remove',
                     child: ListTile(
                       leading: Icon(Icons.remove_circle, color: Colors.red),
-                      title: Text('Remove', style: TextStyle(color: Colors.red)),
+                      title:
+                          Text('Remove', style: TextStyle(color: Colors.red)),
                       contentPadding: EdgeInsets.zero,
                     ),
                   ),
@@ -390,8 +394,8 @@ class _CareGroupMembersScreenState extends State<CareGroupMembersScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
         color: enabled
-            ? Colors.green.withOpacity(0.1)
-            : Colors.grey.withOpacity(0.1),
+            ? Colors.green.withValues(alpha: 0.1)
+            : Colors.grey.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
@@ -418,13 +422,13 @@ class _CareGroupMembersScreenState extends State<CareGroupMembersScreen> {
 
   Color _getRoleColor(CareRole role) {
     switch (role) {
-      case CareRole.OWNER:
+      case CareRole.owner:
         return Colors.purple;
-      case CareRole.ADMIN:
+      case CareRole.admin:
         return Colors.blue;
-      case CareRole.CAREGIVER:
+      case CareRole.caregiver:
         return Colors.green;
-      case CareRole.MEMBER:
+      case CareRole.member:
         return Colors.orange;
     }
   }
@@ -443,7 +447,8 @@ class _CareGroupMembersScreenState extends State<CareGroupMembersScreen> {
   void _editMemberRole(CareGroupMember member) {
     // TODO: Implement edit member role functionality
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Edit member role functionality coming soon!')),
+      const SnackBar(
+          content: Text('Edit member role functionality coming soon!')),
     );
   }
 
@@ -476,15 +481,19 @@ class _CareGroupMembersScreenState extends State<CareGroupMembersScreen> {
   Future<void> _performRemoveMember(CareGroupMember member) async {
     try {
       await _careGroupService.removeMember(widget.careGroup.id, member.id);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Member removed successfully')),
-      );
-      _loadMembers();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Member removed successfully')),
+        );
+        _loadMembers();
+      }
     } catch (e) {
       log('Error removing member: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to remove member')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to remove member')),
+        );
+      }
     }
   }
 

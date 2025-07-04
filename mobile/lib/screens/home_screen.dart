@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../screens/health_data_screen.dart';
 import '../screens/profile_screen.dart';
 import '../screens/care_groups_screen.dart';
+import '../screens/daily_check_in_screen.dart';
 import '../utils/notification_test_utils.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -136,7 +137,12 @@ class HomeScreen extends StatelessWidget {
                     title: 'Daily Check-ins',
                     subtitle: 'Track your wellness',
                     color: Colors.purple,
-                    onTap: () => _showComingSoon(context, 'Daily Check-ins'),
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const DailyCheckInScreen(),
+                      ),
+                    ),
                   ),
                   _buildFeatureCard(
                     context,
