@@ -111,7 +111,7 @@ class HealthDataRepository {
     bool shareWithFamily = false,
   }) async {
     try {
-      final url = Uri.parse('$_baseUrl/api/health-data/consent');
+      final url = Uri.parse('$_baseUrl/health-record/consent');
 
       final body = jsonEncode({
         'consentType': consentType,
@@ -144,7 +144,7 @@ class HealthDataRepository {
   /// Get user's health data consents
   Future<List<Map<String, dynamic>>?> getHealthConsents() async {
     try {
-      final url = Uri.parse('$_baseUrl/api/health-data/consent');
+      final url = Uri.parse('$_baseUrl/health-record/consent');
 
       final response = await http.get(url, headers: _headers);
 
@@ -166,7 +166,7 @@ class HealthDataRepository {
   /// Get health data access log for transparency
   Future<List<Map<String, dynamic>>?> getHealthAccessLog() async {
     try {
-      final url = Uri.parse('$_baseUrl/api/health-record/access-log');
+      final url = Uri.parse('$_baseUrl/health-record/access-log');
 
       final response = await http.get(url, headers: _headers);
 
@@ -188,7 +188,7 @@ class HealthDataRepository {
   /// Request data export for user transparency
   Future<bool> requestDataExport() async {
     try {
-      final url = Uri.parse('$_baseUrl/api/health-record/export-data');
+      final url = Uri.parse('$_baseUrl/health-record/export-data');
 
       final response = await http.post(url, headers: _headers);
 

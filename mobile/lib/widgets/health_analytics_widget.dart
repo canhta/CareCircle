@@ -143,38 +143,48 @@ class _HealthAnalyticsWidgetState extends State<HealthAnalyticsWidget> {
       padding: const EdgeInsets.all(12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
           Row(
             children: [
               Icon(icon, size: 16, color: color),
               const SizedBox(width: 4),
-              Text(
-                title,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: color.withValues(alpha: 0.8),
-                  fontWeight: FontWeight.w500,
+              Expanded(
+                child: Text(
+                  title,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: color.withValues(alpha: 0.8),
+                    fontWeight: FontWeight.w500,
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],
           ),
           const SizedBox(height: 4),
-          Row(
-            children: [
-              Text(
-                value,
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: color,
+          Flexible(
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    value,
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: color,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
-              ),
-              const SizedBox(width: 4),
-              Text(
-                unit,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: color.withValues(alpha: 0.7),
+                const SizedBox(width: 4),
+                Text(
+                  unit,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: color.withValues(alpha: 0.7),
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),

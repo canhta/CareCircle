@@ -191,11 +191,8 @@ class _InteractiveHealthChartState extends State<InteractiveHealthChart>
             onScaleUpdate: (details) {
               setState(() {
                 _zoomLevel = (_zoomLevel * details.scale).clamp(0.5, 3.0);
-              });
-            },
-            onPanUpdate: (details) {
-              setState(() {
-                _panOffset += details.delta.dx;
+                // Handle panning with scale gesture
+                _panOffset += details.focalPointDelta.dx;
               });
             },
             child: _buildChartByType(),

@@ -225,6 +225,7 @@ class _EnhancedHealthDashboardState extends State<EnhancedHealthDashboard>
             padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Row(
                   children: [
@@ -246,17 +247,28 @@ class _EnhancedHealthDashboardState extends State<EnhancedHealthDashboard>
                     ),
                   ],
                 ),
-                const Spacer(),
-                Text(
-                  '${latestValue.toStringAsFixed(1)} ${data.last.unit}',
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
+                const SizedBox(height: 8),
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '${latestValue.toStringAsFixed(1)} ${data.last.unit}',
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '${data.length} readings',
+                        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
                   ),
-                ),
-                Text(
-                  '${data.length} readings',
-                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                 ),
               ],
             ),
