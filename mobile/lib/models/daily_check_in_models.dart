@@ -265,7 +265,7 @@ class CheckInInsight {
       supportingData: json['supportingData'],
       confidence: json['confidence']?.toDouble(),
       timeframe: json['timeframe'],
-      relatedMetrics: json['relatedMetrics'] != null 
+      relatedMetrics: json['relatedMetrics'] != null
           ? List<String>.from(json['relatedMetrics'])
           : null,
     );

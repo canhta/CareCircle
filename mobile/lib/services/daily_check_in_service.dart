@@ -41,7 +41,8 @@ class DailyCheckInService {
         return DailyCheckIn.fromJson(response.data);
       } else {
         final error = response.data;
-        throw Exception('Failed to create check-in: ${error['message'] ?? 'Unknown error'}');
+        throw Exception(
+            'Failed to create check-in: ${error['message'] ?? 'Unknown error'}');
       }
     } catch (e) {
       log('Error creating check-in: $e');
@@ -49,7 +50,8 @@ class DailyCheckInService {
     }
   }
 
-  Future<DailyCheckIn> updateCheckIn(String checkInId, CreateDailyCheckInRequest request) async {
+  Future<DailyCheckIn> updateCheckIn(
+      String checkInId, CreateDailyCheckInRequest request) async {
     try {
       final response = await _dio.put(
         '/daily-check-ins/$checkInId',
@@ -61,7 +63,8 @@ class DailyCheckInService {
         return DailyCheckIn.fromJson(response.data);
       } else {
         final error = response.data;
-        throw Exception('Failed to update check-in: ${error['message'] ?? 'Unknown error'}');
+        throw Exception(
+            'Failed to update check-in: ${error['message'] ?? 'Unknown error'}');
       }
     } catch (e) {
       log('Error updating check-in: $e');
@@ -81,7 +84,8 @@ class DailyCheckInService {
         return data != null ? DailyCheckIn.fromJson(data) : null;
       } else {
         final error = response.data;
-        throw Exception('Failed to get today\'s check-in: ${error['message'] ?? 'Unknown error'}');
+        throw Exception(
+            'Failed to get today\'s check-in: ${error['message'] ?? 'Unknown error'}');
       }
     } catch (e) {
       log('Error getting today\'s check-in: $e');
@@ -89,7 +93,8 @@ class DailyCheckInService {
     }
   }
 
-  Future<DailyCheckIn> submitQuestionAnswers(String checkInId, AnswerQuestionRequest request) async {
+  Future<DailyCheckIn> submitQuestionAnswers(
+      String checkInId, AnswerQuestionRequest request) async {
     try {
       final response = await _dio.post(
         '/daily-check-ins/$checkInId/answers',
@@ -101,7 +106,8 @@ class DailyCheckInService {
         return DailyCheckIn.fromJson(response.data);
       } else {
         final error = response.data;
-        throw Exception('Failed to submit answers: ${error['message'] ?? 'Unknown error'}');
+        throw Exception(
+            'Failed to submit answers: ${error['message'] ?? 'Unknown error'}');
       }
     } catch (e) {
       log('Error submitting answers: $e');
@@ -118,10 +124,13 @@ class DailyCheckInService {
 
       if (response.statusCode == 200) {
         final List<dynamic> data = response.data;
-        return data.map((question) => PersonalizedQuestion.fromJson(question)).toList();
+        return data
+            .map((question) => PersonalizedQuestion.fromJson(question))
+            .toList();
       } else {
         final error = response.data;
-        throw Exception('Failed to get personalized questions: ${error['message'] ?? 'Unknown error'}');
+        throw Exception(
+            'Failed to get personalized questions: ${error['message'] ?? 'Unknown error'}');
       }
     } catch (e) {
       log('Error getting personalized questions: $e');
@@ -159,7 +168,8 @@ class DailyCheckInService {
         return data.map((checkIn) => DailyCheckIn.fromJson(checkIn)).toList();
       } else {
         final error = response.data;
-        throw Exception('Failed to get check-in history: ${error['message'] ?? 'Unknown error'}');
+        throw Exception(
+            'Failed to get check-in history: ${error['message'] ?? 'Unknown error'}');
       }
     } catch (e) {
       log('Error getting check-in history: $e');
@@ -194,7 +204,8 @@ class DailyCheckInService {
         return WeeklyInsightsSummary.fromJson(response.data);
       } else {
         final error = response.data;
-        throw Exception('Failed to get insights: ${error['message'] ?? 'Unknown error'}');
+        throw Exception(
+            'Failed to get insights: ${error['message'] ?? 'Unknown error'}');
       }
     } catch (e) {
       log('Error getting insights: $e');
@@ -217,7 +228,8 @@ class DailyCheckInService {
         ];
       } else {
         final error = response.data;
-        throw Exception('Failed to get streak: ${error['message'] ?? 'Unknown error'}');
+        throw Exception(
+            'Failed to get streak: ${error['message'] ?? 'Unknown error'}');
       }
     } catch (e) {
       log('Error getting streak: $e');
@@ -226,7 +238,8 @@ class DailyCheckInService {
   }
 
   // Helper method to show snackbar
-  void showSnackBar(BuildContext context, String message, {Color? backgroundColor}) {
+  void showSnackBar(BuildContext context, String message,
+      {Color? backgroundColor}) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
@@ -248,7 +261,8 @@ class DailyCheckInService {
 
   // Helper methods for screens
 
-  Future<DailyCheckIn> createOrUpdateTodaysCheckIn(CreateDailyCheckInRequest request) async {
+  Future<DailyCheckIn> createOrUpdateTodaysCheckIn(
+      CreateDailyCheckInRequest request) async {
     final existingCheckIn = await getTodayCheckIn();
 
     if (existingCheckIn != null) {
@@ -281,11 +295,13 @@ class DailyCheckInService {
     }
 
     if (checkIn.painLevel != null) {
-      score -= (checkIn.painLevel! - 1) * 2; // 0 to -18 (less pain = better score)
+      score -=
+          (checkIn.painLevel! - 1) * 2; // 0 to -18 (less pain = better score)
     }
 
     if (checkIn.stressLevel != null) {
-      score -= (checkIn.stressLevel! - 1) * 2; // 0 to -18 (less stress = better score)
+      score -= (checkIn.stressLevel! - 1) *
+          2; // 0 to -18 (less stress = better score)
     }
 
     // Factor in symptoms (more symptoms = lower score)

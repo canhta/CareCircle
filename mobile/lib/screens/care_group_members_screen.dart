@@ -39,7 +39,8 @@ class _CareGroupMembersScreenState extends State<CareGroupMembersScreen> {
         _error = null;
       });
 
-      final members = await _careGroupService.getCareGroupMembers(widget.careGroup.id);
+      final members =
+          await _careGroupService.getCareGroupMembers(widget.careGroup.id);
 
       setState(() {
         _members = members;
@@ -278,7 +279,8 @@ class _CareGroupMembersScreenState extends State<CareGroupMembersScreen> {
         leading: Stack(
           children: [
             CircleAvatar(
-              backgroundColor: _getRoleColor(member.role).withValues(alpha: 0.1),
+              backgroundColor:
+                  _getRoleColor(member.role).withValues(alpha: 0.1),
               child: Text(
                 member.user?.name?.substring(0, 1).toUpperCase() ?? 'U',
                 style: TextStyle(
@@ -314,7 +316,10 @@ class _CareGroupMembersScreenState extends State<CareGroupMembersScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                  color: Theme.of(context)
+                      .colorScheme
+                      .primary
+                      .withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(

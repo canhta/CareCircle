@@ -279,7 +279,8 @@ class _CareGroupDashboardScreenState extends State<CareGroupDashboardScreen> {
   Widget _buildActivityItem(RecentActivity activity) {
     return ListTile(
       leading: CircleAvatar(
-        backgroundColor: _getActivityColor(activity.type).withValues(alpha: 0.1),
+        backgroundColor:
+            _getActivityColor(activity.type).withValues(alpha: 0.1),
         child: Icon(
           _getActivityIcon(activity.type),
           color: _getActivityColor(activity.type),

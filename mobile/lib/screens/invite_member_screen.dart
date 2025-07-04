@@ -98,7 +98,8 @@ class _InviteMemberScreenState extends State<InviteMemberScreen> {
             width: 80,
             height: 80,
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+              color:
+                  Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(
@@ -402,7 +403,8 @@ class _InviteMemberScreenState extends State<InviteMemberScreen> {
       );
 
       // Generate deep link for sharing
-      final deepLink = await _careGroupService.generateDeepLink(widget.careGroup.id);
+      final deepLink =
+          await _careGroupService.generateDeepLink(widget.careGroup.id);
 
       if (mounted) {
         _showInvitationSentDialog(deepLink);

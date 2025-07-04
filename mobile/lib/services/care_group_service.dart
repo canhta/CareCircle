@@ -88,7 +88,8 @@ class CareGroupService {
   }
 
   // Update a care group
-  Future<CareGroup> updateCareGroup(String id, UpdateCareGroupRequest request) async {
+  Future<CareGroup> updateCareGroup(
+      String id, UpdateCareGroupRequest request) async {
     try {
       final response = await _dio.patch(
         '/care-groups/$id',
@@ -125,7 +126,8 @@ class CareGroupService {
   }
 
   // Invite a member to a care group
-  Future<void> inviteMember(String careGroupId, InviteCareGroupMemberRequest request) async {
+  Future<void> inviteMember(
+      String careGroupId, InviteCareGroupMemberRequest request) async {
     try {
       final response = await _dio.post(
         '/care-groups/$careGroupId/invite',
@@ -190,7 +192,8 @@ class CareGroupService {
         final List<dynamic> data = response.data;
         return data.map((member) => CareGroupMember.fromJson(member)).toList();
       } else {
-        throw Exception('Failed to get care group members: ${response.statusCode}');
+        throw Exception(
+            'Failed to get care group members: ${response.statusCode}');
       }
     } catch (e) {
       log('Error getting care group members: $e');
@@ -199,7 +202,8 @@ class CareGroupService {
   }
 
   // Update member role and permissions
-  Future<void> updateMemberRole(String careGroupId, String memberId, UpdateMemberRoleRequest request) async {
+  Future<void> updateMemberRole(String careGroupId, String memberId,
+      UpdateMemberRoleRequest request) async {
     try {
       final response = await _dio.patch(
         '/care-groups/$careGroupId/members/$memberId',

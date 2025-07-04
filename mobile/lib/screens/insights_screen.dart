@@ -440,7 +440,8 @@ class _InsightsScreenState extends State<InsightsScreen>
               const SizedBox(height: 8),
 
               // Supporting data
-              if (insight.supportingData != null && insight.supportingData!.isNotEmpty) ...[
+              if (insight.supportingData != null &&
+                  insight.supportingData!.isNotEmpty) ...[
                 const Text(
                   'Supporting Data:',
                   style: TextStyle(
@@ -593,7 +594,8 @@ class _InsightsScreenState extends State<InsightsScreen>
             insight.description,
             style: const TextStyle(fontSize: 13),
           ),
-          if (insight.relatedMetrics != null && insight.relatedMetrics!.isNotEmpty) ...[
+          if (insight.relatedMetrics != null &&
+              insight.relatedMetrics!.isNotEmpty) ...[
             const SizedBox(height: 4),
             Wrap(
               spacing: 4,
