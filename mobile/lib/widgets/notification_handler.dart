@@ -606,6 +606,7 @@ class _NotificationHandlerState extends State<NotificationHandler>
   @override
   Widget build(BuildContext context) {
     return Stack(
+      alignment: Alignment.topCenter, // Use non-directional alignment
       children: [
         widget.child,
         // Debug status indicator (only in debug mode)

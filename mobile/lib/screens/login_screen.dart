@@ -206,12 +206,10 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     side: BorderSide(color: Colors.grey[300]!),
                   ),
-                  icon: Image.asset(
-                    'assets/images/google_logo.png',
-                    height: 24,
-                    width: 24,
-                    errorBuilder: (context, error, stackTrace) =>
-                        const Icon(Icons.login, color: Colors.red),
+                  icon: const Icon(
+                    Icons.login,
+                    color: Colors.red,
+                    size: 24,
                   ),
                   label: const Text(
                     'Continue with Google',
