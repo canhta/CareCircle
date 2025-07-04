@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../managers/health_data_manager.dart';
 import '../services/health_service.dart';
 import '../config/app_config.dart';
+import '../widgets/health_dashboard.dart';
 import 'privacy_settings_screen.dart';
 
 class HealthDataScreen extends StatefulWidget {
@@ -32,9 +33,11 @@ class _HealthDataScreenState extends State<HealthDataScreen> {
       if (!_healthDataManager.isAvailable) {
         String errorMessage;
         if (!AppConfig.enableHealthKit) {
-          errorMessage = 'HealthKit is disabled in app configuration. Please set ENABLE_HEALTHKIT=true in your .env file and restart the app to enable health features.';
+          errorMessage =
+              'HealthKit is disabled in app configuration. Please set ENABLE_HEALTHKIT=true in your .env file and restart the app to enable health features.';
         } else {
-          errorMessage = 'Health data services are not available on this device or not properly initialized. Please restart the app.';
+          errorMessage =
+              'Health data services are not available on this device or not properly initialized. Please restart the app.';
         }
         setState(() => _error = errorMessage);
         return;
@@ -59,9 +62,11 @@ class _HealthDataScreenState extends State<HealthDataScreen> {
       if (!_healthDataManager.isAvailable) {
         String errorMessage;
         if (!AppConfig.enableHealthKit) {
-          errorMessage = 'HealthKit is disabled in app configuration. Please set ENABLE_HEALTHKIT=true in your .env file and restart the app to enable health features.';
+          errorMessage =
+              'HealthKit is disabled in app configuration. Please set ENABLE_HEALTHKIT=true in your .env file and restart the app to enable health features.';
         } else {
-          errorMessage = 'Health data services are not available on this device or not properly initialized. Please restart the app.';
+          errorMessage =
+              'Health data services are not available on this device or not properly initialized. Please restart the app.';
         }
         setState(() => _error = errorMessage);
         return;
@@ -93,9 +98,11 @@ class _HealthDataScreenState extends State<HealthDataScreen> {
       if (!_healthDataManager.isAvailable) {
         String errorMessage;
         if (!AppConfig.enableHealthKit) {
-          errorMessage = 'HealthKit is disabled in app configuration. Please set ENABLE_HEALTHKIT=true in your .env file and restart the app to enable health features.';
+          errorMessage =
+              'HealthKit is disabled in app configuration. Please set ENABLE_HEALTHKIT=true in your .env file and restart the app to enable health features.';
         } else {
-          errorMessage = 'Health data services are not available on this device or not properly initialized. Please restart the app.';
+          errorMessage =
+              'Health data services are not available on this device or not properly initialized. Please restart the app.';
         }
         setState(() => _error = errorMessage);
         return;
@@ -139,9 +146,11 @@ class _HealthDataScreenState extends State<HealthDataScreen> {
       if (!_healthDataManager.isAvailable) {
         String errorMessage;
         if (!AppConfig.enableHealthKit) {
-          errorMessage = 'HealthKit is disabled in app configuration. Please set ENABLE_HEALTHKIT=true in your .env file and restart the app to enable health features.';
+          errorMessage =
+              'HealthKit is disabled in app configuration. Please set ENABLE_HEALTHKIT=true in your .env file and restart the app to enable health features.';
         } else {
-          errorMessage = 'Health data services are not available on this device or not properly initialized. Please restart the app.';
+          errorMessage =
+              'Health data services are not available on this device or not properly initialized. Please restart the app.';
         }
         setState(() => _error = errorMessage);
         return;
@@ -182,12 +191,43 @@ class _HealthDataScreenState extends State<HealthDataScreen> {
     }
   }
 
+  void _showDashboard() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => Scaffold(
+          appBar: AppBar(
+            title: const Text('Health Dashboard'),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.sync),
+                onPressed: _isLoading ? null : _syncData,
+                tooltip: 'Sync Health Data',
+              ),
+            ],
+          ),
+          body: HealthDashboard(
+            healthData: _recentData,
+            title: 'Health Overview',
+            timeRange: TimeRange.week,
+            onRefresh: _syncData,
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Health Data'),
         actions: [
+          if (_permissionsGranted && _recentData.isNotEmpty)
+            IconButton(
+              icon: const Icon(Icons.dashboard),
+              onPressed: () => _showDashboard(),
+              tooltip: 'View Dashboard',
+            ),
           if (_permissionsGranted)
             IconButton(
               icon: const Icon(Icons.sync),
@@ -354,6 +394,47 @@ class _HealthDataScreenState extends State<HealthDataScreen> {
                 Text(
                   'Last synced: ${DateTime.now().toString().split('.')[0]}',
                   style: const TextStyle(color: Colors.grey),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+        Card(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.dashboard, color: Colors.blue),
+                    const SizedBox(width: 8),
+                    const Text(
+                      'Health Dashboard',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'View interactive charts and trends of your health data with detailed insights.',
+                  style: TextStyle(color: Colors.grey),
+                ),
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: _showDashboard,
+                    icon: const Icon(Icons.trending_up),
+                    label: const Text('View Dashboard'),
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
+                  ),
                 ),
               ],
             ),

@@ -32,7 +32,9 @@ class HealthDataManager {
     try {
       // Check if HealthKit is enabled in configuration
       if (!AppConfig.enableHealthKit) {
-        debugPrint('HealthDataManager: HealthKit is disabled in configuration. Set ENABLE_HEALTHKIT=true in .env file to enable health features.');
+        debugPrint(
+          'HealthDataManager: HealthKit is disabled in configuration. Set ENABLE_HEALTHKIT=true in .env file to enable health features.',
+        );
         // We still mark as initialized but health service won't be available
         _isInitialized = true;
         return;
