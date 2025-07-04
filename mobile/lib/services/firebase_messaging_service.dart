@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
@@ -9,13 +8,14 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:dio/dio.dart';
 import '../config/app_config.dart';
+import '../config/firebase_initializer.dart';
 
 /// Top-level function to handle background messages
 /// This function MUST be top-level (not inside a class) and annotated with @pragma('vm:entry-point')
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  // Ensure Firebase is initialized
-  await Firebase.initializeApp();
+  // Ensure Firebase is initialized using centralized initializer
+  await FirebaseInitializer.ensureInitialized();
 
   debugPrint('Handling a background message: ${message.messageId}');
   debugPrint('Message data: ${message.data}');
