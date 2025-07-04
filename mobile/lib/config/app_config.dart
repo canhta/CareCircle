@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:simple_secure_storage/simple_secure_storage.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:logger/logger.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -18,6 +18,16 @@ class AppConfig {
   static late SharedPreferences _prefs;
   static late Logger _logger;
   static late Connectivity _connectivity;
+
+  // Secure storage instance
+  static const FlutterSecureStorage _secureStorage = FlutterSecureStorage(
+    aOptions: AndroidOptions(
+      encryptedSharedPreferences: true,
+    ),
+    iOptions: IOSOptions(
+      accessibility: KeychainAccessibility.first_unlock_this_device,
+    ),
+  );
 
   /// Initialize the app configuration
   static Future<void> initialize() async {
@@ -109,58 +119,58 @@ class AppConfig {
 
   // Secure storage methods
   static Future<void> setAccessToken(String token) async {
-    await SimpleSecureStorage.write(_accessToken, token);
+    await _secureStorage.write(key: _accessToken, value: token);
     _logger.d('Access token stored securely');
   }
 
   static Future<String?> getAccessToken() async {
-    return await SimpleSecureStorage.read(_accessToken);
+    return await _secureStorage.read(key: _accessToken);
   }
 
   static Future<void> setRefreshToken(String token) async {
-    await SimpleSecureStorage.write(_refreshToken, token);
+    await _secureStorage.write(key: _refreshToken, value: token);
     _logger.d('Refresh token stored securely');
   }
 
   static Future<String?> getRefreshToken() async {
-    return await SimpleSecureStorage.read(_refreshToken);
+    return await _secureStorage.read(key: _refreshToken);
   }
 
   static Future<void> setUserId(String id) async {
-    await SimpleSecureStorage.write(_userId, id);
+    await _secureStorage.write(key: _userId, value: id);
     _logger.d('User ID stored securely');
   }
 
   static Future<String?> getUserId() async {
-    return await SimpleSecureStorage.read(_userId);
+    return await _secureStorage.read(key: _userId);
   }
 
   static Future<void> setUserEmail(String email) async {
-    await SimpleSecureStorage.write(_userEmail, email);
+    await _secureStorage.write(key: _userEmail, value: email);
     _logger.d('User email stored securely');
   }
 
   static Future<String?> getUserEmail() async {
-    return await SimpleSecureStorage.read(_userEmail);
+    return await _secureStorage.read(key: _userEmail);
   }
 
   static Future<void> setBiometricKey(String key) async {
-    await SimpleSecureStorage.write(_biometricKey, key);
+    await _secureStorage.write(key: _biometricKey, value: key);
     _logger.d('Biometric key stored securely');
   }
 
   static Future<String?> getBiometricKey() async {
-    return await SimpleSecureStorage.read(_biometricKey);
+    return await _secureStorage.read(key: _biometricKey);
   }
 
   /// Clear all secure storage
   static Future<void> clearSecureStorage() async {
-    // Clear each key individually since SimpleSecureStorage doesn't have deleteAll
-    await SimpleSecureStorage.delete(_accessToken);
-    await SimpleSecureStorage.delete(_refreshToken);
-    await SimpleSecureStorage.delete(_userId);
-    await SimpleSecureStorage.delete(_userEmail);
-    await SimpleSecureStorage.delete(_biometricKey);
+    // Clear each key individually or use deleteAll if available
+    await _secureStorage.delete(key: _accessToken);
+    await _secureStorage.delete(key: _refreshToken);
+    await _secureStorage.delete(key: _userId);
+    await _secureStorage.delete(key: _userEmail);
+    await _secureStorage.delete(key: _biometricKey);
     _logger.i('Secure storage cleared');
   }
 

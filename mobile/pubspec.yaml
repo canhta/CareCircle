@@ -13,8 +13,8 @@ dependencies:
   flutter_localizations:
     sdk: flutter
 
-  # Modern, secure storage without iOS App Store issues
-  simple_secure_storage: ^0.3.4
+  # Secure storage - using industry standard package
+  flutter_secure_storage: ^9.2.2
 
   # Modern navigation with Go Router
   go_router: ^16.0.0
@@ -24,9 +24,8 @@ dependencies:
   sign_in_with_apple: ^7.0.1
   firebase_auth: ^5.3.1
 
-  # HTTP and API packages
+  # HTTP client - using dio for advanced features
   dio: ^5.7.0
-  http: ^1.2.2
 
   # State management
   flutter_riverpod: ^2.6.1
@@ -41,8 +40,7 @@ dependencies:
   # Background services
   workmanager: ^0.8.0
 
-  # Notifications
-  flutter_local_notifications: ^19.3.0
+  # Notifications - using awesome_notifications for comprehensive support
   awesome_notifications: ^0.10.1
 
   # Image handling
@@ -95,12 +93,14 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+
+  # Linting - consolidated to flutter_lints
   flutter_lints: ^6.0.0
+
+  # Code generation
   build_runner: ^2.4.13
   riverpod_generator: ^2.6.1
   json_serializable: ^6.8.0
-  custom_lint: ^0.7.0
-  riverpod_lint: ^2.6.1
 
 flutter:
   uses-material-design: true

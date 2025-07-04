@@ -1,6 +1,5 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
 import '../services/firebase_messaging_service.dart';
 import '../config/app_config.dart';
 
@@ -36,14 +35,17 @@ class NotificationTestUtils {
         return;
       }
 
-      final response = await http.post(
-        Uri.parse('${AppConfig.apiBaseUrl}/api/notifications/send-test'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
+      final dio = Dio();
+      final response = await dio.post(
+        '${AppConfig.apiBaseUrl}/api/notifications/send-test',
+        data: {
           'token': token,
           'notification': {'title': title, 'body': body},
           'data': data ?? {},
-        }),
+        },
+        options: Options(
+          headers: {'Content-Type': 'application/json'},
+        ),
       );
 
       if (response.statusCode == 200) {

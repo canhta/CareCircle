@@ -1,6 +1,5 @@
-import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../services/health_service.dart';
 
@@ -9,8 +8,26 @@ class HealthDataRepository {
   static final HealthDataRepository _instance =
       HealthDataRepository._internal();
   factory HealthDataRepository() => _instance;
-  HealthDataRepository._internal();
+  HealthDataRepository._internal() {
+    _dio = Dio(BaseOptions(
+      baseUrl: _baseUrl,
+      connectTimeout: const Duration(seconds: 30),
+      receiveTimeout: const Duration(seconds: 30),
+    ));
 
+    // Add auth interceptor
+    _dio.interceptors.add(InterceptorsWrapper(
+      onRequest: (options, handler) {
+        if (_authToken != null) {
+          options.headers['Authorization'] = 'Bearer $_authToken';
+        }
+        options.headers['Content-Type'] = 'application/json';
+        handler.next(options);
+      },
+    ));
+  }
+
+  late final Dio _dio;
   final String _baseUrl = dotenv.env['API_BASE_URL'] ?? 'http://localhost:3000';
   String? _authToken;
 
@@ -19,18 +36,7 @@ class HealthDataRepository {
     _authToken = token;
   }
 
-  /// Get common headers for API requests
-  Map<String, String> get _headers {
-    final headers = {'Content-Type': 'application/json'};
-
-    if (_authToken != null) {
-      headers['Authorization'] = 'Bearer $_authToken';
-    }
-
-    return headers;
-  }
-
-  /// Sync health data to backend
+  /// Sync health data to the server
   Future<Map<String, dynamic>> syncHealthData(
     List<CareCircleHealthData> healthData,
     String source,
@@ -38,30 +44,28 @@ class HealthDataRepository {
     DateTime endDate,
   ) async {
     try {
-      final url = Uri.parse('$_baseUrl/health-record/sync');
-
-      final body = jsonEncode({
+      final data = {
         'data': healthData.map((data) => data.toJson()).toList(),
         'source': source,
         'syncStartDate': startDate.toIso8601String(),
         'syncEndDate': endDate.toIso8601String(),
-      });
+      };
 
       debugPrint(
-        'HealthDataRepository: Syncing ${healthData.length} data points to $url',
+        'HealthDataRepository: Syncing ${healthData.length} data points',
       );
 
-      final response = await http.post(url, headers: _headers, body: body);
+      final response = await _dio.post('/health-record/sync', data: data);
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         debugPrint('HealthDataRepository: Successfully synced health data');
-        return jsonDecode(response.body);
+        return response.data;
       } else {
         debugPrint(
-          'HealthDataRepository: Failed to sync health data - ${response.statusCode}: ${response.body}',
+          'HealthDataRepository: Failed to sync health data - ${response.statusCode}: ${response.data}',
         );
         throw Exception(
-          'Sync failed: ${response.statusCode} - ${response.body}',
+          'Sync failed: ${response.statusCode} - ${response.data}',
         );
       }
     } catch (e) {
@@ -76,21 +80,20 @@ class HealthDataRepository {
     required DateTime endDate,
   }) async {
     try {
-      final url = Uri.parse('$_baseUrl/api/health-data/metrics').replace(
+      final response = await _dio.get(
+        '/api/health-data/metrics',
         queryParameters: {
           'startDate': startDate.toIso8601String(),
           'endDate': endDate.toIso8601String(),
         },
       );
 
-      final response = await http.get(url, headers: _headers);
-
       if (response.statusCode == 200) {
-        final List<dynamic> data = jsonDecode(response.body);
+        final List<dynamic> data = response.data;
         return data.cast<Map<String, dynamic>>();
       } else {
         debugPrint(
-          'HealthDataRepository: Failed to get health metrics - ${response.statusCode}: ${response.body}',
+          'HealthDataRepository: Failed to get health metrics - ${response.statusCode}: ${response.data}',
         );
         return null;
       }
@@ -103,35 +106,37 @@ class HealthDataRepository {
   /// Create or update health consent
   Future<bool> updateHealthConsent({
     required String consentType,
-    required List<String> dataCategories,
-    required String purpose,
-    required bool consentGranted,
-    required String consentVersion,
+    required bool granted,
+    List<String>? dataCategories,
+    String? purpose,
+    bool? consentGranted,
+    String? consentVersion,
     String? careGroupId,
-    bool shareWithFamily = false,
+    bool? shareWithFamily,
+    Map<String, dynamic>? metadata,
   }) async {
     try {
-      final url = Uri.parse('$_baseUrl/health-record/consent');
-
-      final body = jsonEncode({
+      final data = {
         'consentType': consentType,
+        'granted': granted,
         'dataCategories': dataCategories,
         'purpose': purpose,
-        'consentGranted': consentGranted,
+        'consentGranted': consentGranted ?? granted,
         'consentVersion': consentVersion,
         'careGroupId': careGroupId,
         'shareWithFamily': shareWithFamily,
-        'legalBasis': 'Vietnam Decree 13/2022',
-      });
+        'timestamp': DateTime.now().toIso8601String(),
+        'metadata': metadata ?? {},
+      };
 
-      final response = await http.post(url, headers: _headers, body: body);
+      final response = await _dio.post('/api/health-consent', data: data);
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         debugPrint('HealthDataRepository: Successfully updated health consent');
         return true;
       } else {
         debugPrint(
-          'HealthDataRepository: Failed to update health consent - ${response.statusCode}: ${response.body}',
+          'HealthDataRepository: Failed to update health consent - ${response.statusCode}: ${response.data}',
         );
         return false;
       }
@@ -141,19 +146,17 @@ class HealthDataRepository {
     }
   }
 
-  /// Get user's health data consents
+  /// Get all health consents for the user
   Future<List<Map<String, dynamic>>?> getHealthConsents() async {
     try {
-      final url = Uri.parse('$_baseUrl/health-record/consent');
-
-      final response = await http.get(url, headers: _headers);
+      final response = await _dio.get('/api/health-consent');
 
       if (response.statusCode == 200) {
-        final List<dynamic> data = jsonDecode(response.body);
+        final List<dynamic> data = response.data;
         return data.cast<Map<String, dynamic>>();
       } else {
         debugPrint(
-          'HealthDataRepository: Failed to get health consents - ${response.statusCode}: ${response.body}',
+          'HealthDataRepository: Failed to get health consents - ${response.statusCode}: ${response.data}',
         );
         return null;
       }
@@ -163,41 +166,37 @@ class HealthDataRepository {
     }
   }
 
-  /// Get health data access log for transparency
+  /// Get health data access log
   Future<List<Map<String, dynamic>>?> getHealthAccessLog() async {
     try {
-      final url = Uri.parse('$_baseUrl/health-record/access-log');
-
-      final response = await http.get(url, headers: _headers);
+      final response = await _dio.get('/api/health-data/access-log');
 
       if (response.statusCode == 200) {
-        final List<dynamic> data = jsonDecode(response.body);
+        final List<dynamic> data = response.data;
         return data.cast<Map<String, dynamic>>();
       } else {
         debugPrint(
-          'HealthDataRepository: Failed to get access log - ${response.statusCode}: ${response.body}',
+          'HealthDataRepository: Failed to get health access log - ${response.statusCode}: ${response.data}',
         );
         return null;
       }
     } catch (e) {
-      debugPrint('HealthDataRepository: Error getting access log - $e');
+      debugPrint('HealthDataRepository: Error getting health access log - $e');
       return null;
     }
   }
 
-  /// Request data export for user transparency
+  /// Request data export
   Future<bool> requestDataExport() async {
     try {
-      final url = Uri.parse('$_baseUrl/health-record/export-data');
-
-      final response = await http.post(url, headers: _headers);
+      final response = await _dio.post('/api/health-data/export');
 
       if (response.statusCode == 200 || response.statusCode == 202) {
-        debugPrint('HealthDataRepository: Data export requested successfully');
+        debugPrint('HealthDataRepository: Successfully requested data export');
         return true;
       } else {
         debugPrint(
-          'HealthDataRepository: Failed to request data export - ${response.statusCode}: ${response.body}',
+          'HealthDataRepository: Failed to request data export - ${response.statusCode}: ${response.data}',
         );
         return false;
       }
@@ -207,21 +206,18 @@ class HealthDataRepository {
     }
   }
 
-  /// Request complete data deletion (GDPR/Decree 13/2023 compliance)
+  /// Request data deletion
   Future<bool> requestDataDeletion() async {
     try {
-      final url = Uri.parse('$_baseUrl/api/health-record/delete-all-data');
+      final response = await _dio.delete('/api/health-data');
 
-      final response = await http.delete(url, headers: _headers);
-
-      if (response.statusCode == 200 || response.statusCode == 202) {
+      if (response.statusCode == 200 || response.statusCode == 204) {
         debugPrint(
-          'HealthDataRepository: Data deletion requested successfully',
-        );
+            'HealthDataRepository: Successfully requested data deletion');
         return true;
       } else {
         debugPrint(
-          'HealthDataRepository: Failed to request data deletion - ${response.statusCode}: ${response.body}',
+          'HealthDataRepository: Failed to request data deletion - ${response.statusCode}: ${response.data}',
         );
         return false;
       }
@@ -233,28 +229,28 @@ class HealthDataRepository {
 
   /// Update sync status
   Future<void> updateSyncStatus({
-    required String source,
     required String status,
-    required int recordsCount,
+    required int recordCount,
+    String? source,
+    int? recordsCount,
+    String? error,
     String? errorMessage,
   }) async {
     try {
-      final url = Uri.parse('$_baseUrl/api/health-data/sync-status');
-
-      final body = jsonEncode({
-        'source': source,
+      final data = {
         'status': status,
-        'recordsCount': recordsCount,
-        'errorMessage': errorMessage,
+        'recordCount': recordCount,
+        'source': source,
+        'recordsCount': recordsCount ?? recordCount,
         'timestamp': DateTime.now().toIso8601String(),
-      });
+        'error': error ?? errorMessage,
+      };
 
-      final response = await http.post(url, headers: _headers, body: body);
+      final response =
+          await _dio.post('/api/health-data/sync-status', data: data);
 
-      if (response.statusCode != 200 && response.statusCode != 201) {
-        debugPrint(
-          'HealthDataRepository: Failed to update sync status - ${response.statusCode}: ${response.body}',
-        );
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        debugPrint('HealthDataRepository: Successfully updated sync status');
       }
     } catch (e) {
       debugPrint('HealthDataRepository: Error updating sync status - $e');
@@ -264,16 +260,14 @@ class HealthDataRepository {
   /// Get sync history
   Future<List<Map<String, dynamic>>?> getSyncHistory() async {
     try {
-      final url = Uri.parse('$_baseUrl/api/health-data/sync-history');
-
-      final response = await http.get(url, headers: _headers);
+      final response = await _dio.get('/api/health-data/sync-history');
 
       if (response.statusCode == 200) {
-        final List<dynamic> data = jsonDecode(response.body);
+        final List<dynamic> data = response.data;
         return data.cast<Map<String, dynamic>>();
       } else {
         debugPrint(
-          'HealthDataRepository: Failed to get sync history - ${response.statusCode}: ${response.body}',
+          'HealthDataRepository: Failed to get sync history - ${response.statusCode}: ${response.data}',
         );
         return null;
       }
@@ -283,37 +277,32 @@ class HealthDataRepository {
     }
   }
 
-  /// Get health data analysis and insights
+  /// Get health analysis
   Future<Map<String, dynamic>?> getHealthAnalysis({
-    DateTime? startDate,
-    DateTime? endDate,
-    String period = 'week',
+    required DateTime startDate,
+    required DateTime endDate,
+    List<String>? includeMetrics,
   }) async {
     try {
-      final queryParams = <String, String>{'period': period};
+      final queryParams = {
+        'startDate': startDate.toIso8601String(),
+        'endDate': endDate.toIso8601String(),
+      };
 
-      if (startDate != null) {
-        queryParams['startDate'] = startDate.toIso8601String();
+      if (includeMetrics != null && includeMetrics.isNotEmpty) {
+        queryParams['metrics'] = includeMetrics.join(',');
       }
 
-      if (endDate != null) {
-        queryParams['endDate'] = endDate.toIso8601String();
-      }
-
-      final uri = Uri.parse(
-        '$_baseUrl/health-record/analysis',
-      ).replace(queryParameters: queryParams);
-
-      final response = await http.get(uri, headers: _headers);
+      final response = await _dio.get(
+        '/api/health-analysis',
+        queryParameters: queryParams,
+      );
 
       if (response.statusCode == 200) {
-        debugPrint(
-          'HealthDataRepository: Health analysis retrieved successfully',
-        );
-        return jsonDecode(response.body);
+        return response.data;
       } else {
         debugPrint(
-          'HealthDataRepository: Failed to get health analysis - ${response.statusCode}: ${response.body}',
+          'HealthDataRepository: Failed to get health analysis - ${response.statusCode}: ${response.data}',
         );
         return null;
       }
@@ -323,28 +312,22 @@ class HealthDataRepository {
     }
   }
 
-  /// Get latest health analysis for user
+  /// Get latest health analysis
   Future<Map<String, dynamic>?> getLatestHealthAnalysis() async {
     try {
-      final url = Uri.parse('$_baseUrl/health-record/analysis/latest');
-
-      final response = await http.get(url, headers: _headers);
+      final response = await _dio.get('/api/health-analysis/latest');
 
       if (response.statusCode == 200) {
-        debugPrint(
-          'HealthDataRepository: Latest health analysis retrieved successfully',
-        );
-        return jsonDecode(response.body);
+        return response.data;
       } else {
         debugPrint(
-          'HealthDataRepository: Failed to get latest health analysis - ${response.statusCode}: ${response.body}',
+          'HealthDataRepository: Failed to get latest health analysis - ${response.statusCode}: ${response.data}',
         );
         return null;
       }
     } catch (e) {
       debugPrint(
-        'HealthDataRepository: Error getting latest health analysis - $e',
-      );
+          'HealthDataRepository: Error getting latest health analysis - $e');
       return null;
     }
   }

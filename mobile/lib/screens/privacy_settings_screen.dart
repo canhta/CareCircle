@@ -82,6 +82,7 @@ class _PrivacySettingsScreenState extends State<PrivacySettingsScreen> {
     try {
       final success = await _repository.updateHealthConsent(
         consentType: consentType,
+        granted: granted,
         dataCategories: _getDataCategoriesForType(consentType),
         purpose: _getPurposeForType(consentType),
         consentGranted: granted,
@@ -553,6 +554,7 @@ class _PrivacySettingsScreenState extends State<PrivacySettingsScreen> {
       for (final type in consentTypes) {
         await _repository.updateHealthConsent(
           consentType: type,
+          granted: false,
           dataCategories: _getDataCategoriesForType(type),
           purpose: _getPurposeForType(type),
           consentGranted: false,

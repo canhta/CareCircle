@@ -177,22 +177,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.4"
-  ci:
-    dependency: transitive
-    description:
-      name: ci
-      sha256: "145d095ce05cddac4d797a158bc4cf3b6016d1fe63d8c3d2fbd7212590adca13"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.1.0"
-  cli_util:
-    dependency: transitive
-    description:
-      name: cli_util
-      sha256: ff6785f7e9e3c38ac98b2fb035701789de90154024a75b6cb926445e83197d1c
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.4.2"
   clock:
     dependency: transitive
     description:
@@ -265,22 +249,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.8"
-  custom_lint:
-    dependency: "direct dev"
-    description:
-      name: custom_lint
-      sha256: "409c485fd14f544af1da965d5a0d160ee57cd58b63eeaa7280a4f28cf5bda7f1"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.7.5"
-  custom_lint_builder:
-    dependency: transitive
-    description:
-      name: custom_lint_builder
-      sha256: "107e0a43606138015777590ee8ce32f26ba7415c25b722ff0908a6f5d7a4c228"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.7.5"
   custom_lint_core:
     dependency: transitive
     description:
@@ -526,38 +494,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "6.0.0"
-  flutter_local_notifications:
-    dependency: "direct main"
-    description:
-      name: flutter_local_notifications
-      sha256: edae0c34573233ab03f5ba1f07465e55c384743893042cb19e010b4ee8541c12
-      url: "https://pub.dev"
-    source: hosted
-    version: "19.3.0"
-  flutter_local_notifications_linux:
-    dependency: transitive
-    description:
-      name: flutter_local_notifications_linux
-      sha256: e3c277b2daab8e36ac5a6820536668d07e83851aeeb79c446e525a70710770a5
-      url: "https://pub.dev"
-    source: hosted
-    version: "6.0.0"
-  flutter_local_notifications_platform_interface:
-    dependency: transitive
-    description:
-      name: flutter_local_notifications_platform_interface
-      sha256: "277d25d960c15674ce78ca97f57d0bae2ee401c844b6ac80fcd972a9c99d09fe"
-      url: "https://pub.dev"
-    source: hosted
-    version: "9.1.0"
-  flutter_local_notifications_windows:
-    dependency: transitive
-    description:
-      name: flutter_local_notifications_windows
-      sha256: f8fc0652a601f83419d623c85723a3e82ad81f92b33eaa9bcc21ea1b94773e6e
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.0"
   flutter_localizations:
     dependency: "direct main"
     description: flutter
@@ -579,6 +515,54 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.6.1"
+  flutter_secure_storage:
+    dependency: "direct main"
+    description:
+      name: flutter_secure_storage
+      sha256: "9cad52d75ebc511adfae3d447d5d13da15a55a92c9410e50f67335b6d21d16ea"
+      url: "https://pub.dev"
+    source: hosted
+    version: "9.2.4"
+  flutter_secure_storage_linux:
+    dependency: transitive
+    description:
+      name: flutter_secure_storage_linux
+      sha256: be76c1d24a97d0b98f8b54bce6b481a380a6590df992d0098f868ad54dc8f688
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.2.3"
+  flutter_secure_storage_macos:
+    dependency: transitive
+    description:
+      name: flutter_secure_storage_macos
+      sha256: "6c0a2795a2d1de26ae202a0d78527d163f4acbb11cde4c75c670f3a0fc064247"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.1.3"
+  flutter_secure_storage_platform_interface:
+    dependency: transitive
+    description:
+      name: flutter_secure_storage_platform_interface
+      sha256: cf91ad32ce5adef6fba4d736a542baca9daf3beac4db2d04be350b87f69ac4a8
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.2"
+  flutter_secure_storage_web:
+    dependency: transitive
+    description:
+      name: flutter_secure_storage_web
+      sha256: f4ebff989b4f07b2656fb16b47852c0aab9fed9b4ec1c70103368337bc1886a9
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.2.1"
+  flutter_secure_storage_windows:
+    dependency: transitive
+    description:
+      name: flutter_secure_storage_windows
+      sha256: b20b07cb5ed4ed74fc567b78a72936203f587eba460af1df11281c9326cd3709
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.1.2"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -709,16 +693,8 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "13.1.1"
-  hotreloader:
-    dependency: transitive
-    description:
-      name: hotreloader
-      sha256: bc167a1163807b03bada490bfe2df25b0d744df359227880220a5cbd04e5734b
-      url: "https://pub.dev"
-    source: hosted
-    version: "4.3.0"
   http:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: http
       sha256: "2c11f3f94c687ee9bad77c171151672986360b2b001d109814ee7140b2cf261b"
@@ -741,14 +717,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.1.2"
-  idb_shim:
-    dependency: transitive
-    description:
-      name: idb_shim
-      sha256: ee391deb010143823d25db15f8b002945e19dcb5f2dd5b696a98cb6db7644012
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.6.7"
   image_picker:
     dependency: "direct main"
     description:
@@ -833,10 +801,10 @@ packages:
     dependency: transitive
     description:
       name: js
-      sha256: "53385261521cc4a0c4658fd0ad07a7d14591cf8fc33abbceae306ddb974888dc"
+      sha256: f2c445dce49627136094980615a031419f7f3eb393237e4ecd97ac15dea343f3
       url: "https://pub.dev"
     source: hosted
-    version: "0.7.2"
+    version: "0.6.7"
   json_annotation:
     dependency: "direct main"
     description:
@@ -853,14 +821,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "6.9.5"
-  just_throttle_it:
-    dependency: transitive
-    description:
-      name: just_throttle_it
-      sha256: "936bbcd0aedc0d788f74afe96d915cb06d559190c5125c042684e5503bd2cffa"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.1.0"
   leak_tracker:
     dependency: transitive
     description:
@@ -1149,14 +1109,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.6.5"
-  riverpod_lint:
-    dependency: "direct dev"
-    description:
-      name: riverpod_lint
-      sha256: "89a52b7334210dbff8605c3edf26cfe69b15062beed5cbfeff2c3812c33c9e35"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.6.5"
   rxdart:
     dependency: transitive
     description:
@@ -1165,22 +1117,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.28.0"
-  sembast:
-    dependency: transitive
-    description:
-      name: sembast
-      sha256: "7119cf6f79bd1d48c8ec7943f4facd96c15ab26823021ed0792a487c7cd34441"
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.8.5+1"
-  sembast_web:
-    dependency: transitive
-    description:
-      name: sembast_web
-      sha256: "0362c7c241ad6546d3e27b4cfffaae505e5a9661e238dbcdd176756cc960fe7a"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.4.2"
   shared_preferences:
     dependency: "direct main"
     description:
@@ -1277,62 +1213,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.0"
-  simple_secure_storage:
-    dependency: "direct main"
-    description:
-      name: simple_secure_storage
-      sha256: "44ce1261cc4b390346cd5aa8f175b8ae261b79fabe1d17133edb8ad6efc205ff"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.3.4"
-  simple_secure_storage_android:
-    dependency: transitive
-    description:
-      name: simple_secure_storage_android
-      sha256: "39acabc1776afd2e486aa83847dfebeaee2853f0b36406990a9868cf8c64ea7e"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.2.1+1"
-  simple_secure_storage_darwin:
-    dependency: transitive
-    description:
-      name: simple_secure_storage_darwin
-      sha256: "23f83fd3db3794ec54d9daa425c97dd37ce1d1cb64206ef3ef320aebcef76365"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.2.0+1"
-  simple_secure_storage_linux:
-    dependency: transitive
-    description:
-      name: simple_secure_storage_linux
-      sha256: be0bc1885d0218b3d75354d3a3d04e95048042b982dc9d513b7d774ea3176285
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.2.2"
-  simple_secure_storage_platform_interface:
-    dependency: transitive
-    description:
-      name: simple_secure_storage_platform_interface
-      sha256: b8b0e094c3f728b7f40daccaea4d9a667463ed2da6f91d04c6f7af89aa4f07fd
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.2.1"
-  simple_secure_storage_web:
-    dependency: transitive
-    description:
-      name: simple_secure_storage_web
-      sha256: "313abbe5e9e419e567fc700cf7b8114a07f08de38816070c18b5882c863b2940"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.2.1"
-  simple_secure_storage_windows:
-    dependency: transitive
-    description:
-      name: simple_secure_storage_windows
-      sha256: "07c9b33da5d152c8c1d158c399a28ec53334714f26c469de88405cb49c569683"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.3.0+1"
   sky_engine:
     dependency: transitive
     description: flutter
@@ -1474,14 +1354,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.7.4"
-  timezone:
-    dependency: transitive
-    description:
-      name: timezone
-      sha256: dd14a3b83cfd7cb19e7888f1cbc20f258b8d71b54c06f79ac585f14093a287d1
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.10.1"
   timing:
     dependency: transitive
     description:
@@ -1618,14 +1490,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.3"
-  webcrypto:
-    dependency: transitive
-    description:
-      name: webcrypto
-      sha256: e393b3d0b01694a8f81efecf278ed7392877130e6e7b29f578863e4f2d0b2ebd
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.5.8"
   win32:
     dependency: transitive
     description:

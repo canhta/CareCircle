@@ -100,6 +100,7 @@ class HealthDataManager {
       // Update consent records
       await _repository.updateHealthConsent(
         consentType: 'DATA_COLLECTION',
+        granted: true,
         dataCategories: requiredTypes.map((type) => type.name).toList(),
         purpose: 'Health monitoring and family care coordination',
         consentGranted: true,
@@ -139,8 +140,9 @@ class HealthDataManager {
 
       // Update sync status to in progress
       await _repository.updateSyncStatus(
-        source: 'MOBILE_APP',
         status: 'IN_PROGRESS',
+        recordCount: 0,
+        source: 'MOBILE_APP',
         recordsCount: 0,
       );
 
@@ -185,8 +187,9 @@ class HealthDataManager {
 
       // Update sync status to failed
       await _repository.updateSyncStatus(
-        source: 'MOBILE_APP',
         status: 'FAILED',
+        recordCount: 0,
+        source: 'MOBILE_APP',
         recordsCount: 0,
         errorMessage: e.toString(),
       );
@@ -344,6 +347,7 @@ class HealthDataManager {
   }) async {
     return await _repository.updateHealthConsent(
       consentType: 'FAMILY_SHARING',
+      granted: shareWithFamily,
       dataCategories: ['health_metrics', 'activity_data'],
       purpose: 'Family care coordination and monitoring',
       consentGranted: shareWithFamily,
@@ -426,10 +430,12 @@ class SyncResult {
   final int? recordsCount;
 
   SyncResult.success(this.recordsCount)
-    : success = true,
-      message = 'Sync completed successfully. $recordsCount records synced.';
+      : success = true,
+        message = 'Sync completed successfully. $recordsCount records synced.';
 
-  SyncResult.failure(this.message) : success = false, recordsCount = null;
+  SyncResult.failure(this.message)
+      : success = false,
+        recordsCount = null;
 
   @override
   String toString() {

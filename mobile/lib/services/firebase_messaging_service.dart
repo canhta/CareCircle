@@ -3,12 +3,11 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
 import '../config/app_config.dart';
 
 /// Top-level function to handle background messages
@@ -70,7 +69,6 @@ class FirebaseMessagingService {
   FirebaseMessagingService._internal();
 
   FirebaseMessaging? _messaging;
-  FlutterLocalNotificationsPlugin? _localNotifications;
   StreamSubscription<RemoteMessage>? _onMessageSubscription;
   StreamSubscription<RemoteMessage>? _onMessageOpenedAppSubscription;
   StreamSubscription<String>? _onTokenRefreshSubscription;
@@ -102,32 +100,64 @@ class FirebaseMessagingService {
 
   /// Initialize local notifications
   Future<void> _initializeLocalNotifications() async {
-    _localNotifications = FlutterLocalNotificationsPlugin();
-
-    const AndroidInitializationSettings initializationSettingsAndroid =
-        AndroidInitializationSettings('@mipmap/ic_launcher');
-
-    final DarwinInitializationSettings initializationSettingsIOS =
-        DarwinInitializationSettings(
-      requestAlertPermission: true,
-      requestBadgePermission: true,
-      requestSoundPermission: true,
-      // Remove the deprecated onDidReceiveLocalNotification parameter
+    // Initialize AwesomeNotifications
+    await AwesomeNotifications().initialize(
+      'resource://drawable/res_app_icon',
+      [
+        NotificationChannel(
+          channelKey: 'basic_channel',
+          channelName: 'Basic notifications',
+          channelDescription: 'Notification channel for basic notifications',
+          defaultColor: const Color(0xFF9D50DD),
+          ledColor: Colors.white,
+          importance: NotificationImportance.High,
+          channelShowBadge: true,
+          playSound: true,
+          enableVibration: true,
+        ),
+        NotificationChannel(
+          channelKey: 'scheduled_channel',
+          channelName: 'Scheduled notifications',
+          channelDescription:
+              'Notification channel for scheduled notifications',
+          defaultColor: const Color(0xFF9D50DD),
+          ledColor: Colors.white,
+          importance: NotificationImportance.High,
+          channelShowBadge: true,
+          playSound: true,
+          enableVibration: true,
+        ),
+      ],
     );
 
-    final InitializationSettings initializationSettings =
-        InitializationSettings(
-      android: initializationSettingsAndroid,
-      iOS: initializationSettingsIOS,
+    // Set up notification action listeners
+    AwesomeNotifications().setListeners(
+      onActionReceivedMethod: _onNotificationTap,
+      onNotificationCreatedMethod: _onNotificationCreated,
+      onNotificationDisplayedMethod: _onNotificationDisplayed,
+      onDismissActionReceivedMethod: _onDismissActionReceived,
     );
+  }
 
-    await _localNotifications!.initialize(
-      initializationSettings,
-      onDidReceiveNotificationResponse: (NotificationResponse response) async {
-        debugPrint('Local notification tapped: ${response.payload}');
-        await _handleNotificationTap(response.payload);
-      },
-    );
+  // Notification event handlers
+  static Future<void> _onNotificationCreated(
+      ReceivedNotification receivedNotification) async {
+    debugPrint('Notification created: ${receivedNotification.id}');
+  }
+
+  static Future<void> _onNotificationDisplayed(
+      ReceivedNotification receivedNotification) async {
+    debugPrint('Notification displayed: ${receivedNotification.id}');
+  }
+
+  static Future<void> _onDismissActionReceived(
+      ReceivedAction receivedAction) async {
+    debugPrint('Notification dismissed: ${receivedAction.id}');
+  }
+
+  static Future<void> _onNotificationTap(ReceivedAction receivedAction) async {
+    debugPrint('Notification tapped: ${receivedAction.payload}');
+    // Handle notification tap
   }
 
   /// Request notification permissions
@@ -214,53 +244,19 @@ class FirebaseMessagingService {
   /// Show local notification for foreground messages
   Future<void> _showLocalNotification(RemoteMessage message) async {
     try {
-      const AndroidNotificationDetails androidNotificationDetails =
-          AndroidNotificationDetails(
-        'care_circle_channel',
-        'CareCircle Notifications',
-        channelDescription: 'Notifications for CareCircle app',
-        importance: Importance.high,
-        priority: Priority.high,
-        icon: '@mipmap/ic_launcher',
-      );
-
-      const DarwinNotificationDetails iOSNotificationDetails =
-          DarwinNotificationDetails(
-        presentAlert: true,
-        presentBadge: true,
-        presentSound: true,
-      );
-
-      const NotificationDetails notificationDetails = NotificationDetails(
-        android: androidNotificationDetails,
-        iOS: iOSNotificationDetails,
-      );
-
-      await _localNotifications!.show(
-        message.hashCode,
-        message.notification?.title ?? 'CareCircle',
-        message.notification?.body ?? 'You have a new notification',
-        notificationDetails,
-        payload: jsonEncode(message.data),
+      await AwesomeNotifications().createNotification(
+        content: NotificationContent(
+          id: message.hashCode,
+          channelKey: 'basic_channel',
+          title: message.notification?.title ?? 'CareCircle',
+          body: message.notification?.body ?? 'You have a new notification',
+          payload:
+              message.data.map((key, value) => MapEntry(key, value.toString())),
+          notificationLayout: NotificationLayout.Default,
+        ),
       );
     } catch (e) {
       debugPrint('Error showing local notification: $e');
-    }
-  }
-
-  /// Handle notification tap
-  Future<void> _handleNotificationTap(String? payload) async {
-    if (payload != null) {
-      try {
-        final data = jsonDecode(payload) as Map<String, dynamic>;
-        final message = RemoteMessage(
-          messageId: data['messageId'],
-          data: Map<String, String>.from(data['data'] ?? {}),
-        );
-        _onMessageTap?.call(message);
-      } catch (e) {
-        debugPrint('Error handling notification tap: $e');
-      }
     }
   }
 
@@ -282,17 +278,20 @@ class FirebaseMessagingService {
   /// Send token to server
   Future<void> _sendTokenToServer(String token) async {
     try {
-      final response = await http.post(
-        Uri.parse('${AppConfig.apiBaseUrl}/api/notifications/register-token'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ${await _getAuthToken()}',
-        },
-        body: jsonEncode({
+      final dio = Dio();
+      final response = await dio.post(
+        '${AppConfig.apiBaseUrl}/api/notifications/register-token',
+        data: {
           'token': token,
           'platform': Platform.isIOS ? 'ios' : 'android',
           'timestamp': DateTime.now().toIso8601String(),
-        }),
+        },
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ${await _getAuthToken()}',
+          },
+        ),
       );
 
       if (response.statusCode == 200) {

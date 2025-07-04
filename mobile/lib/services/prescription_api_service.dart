@@ -1,8 +1,7 @@
 import 'dart:io';
-import 'dart:convert';
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
 import '../config/app_config.dart';
 
 /// Response model for prescription OCR API
@@ -123,8 +122,12 @@ class PrescriptionOCRResult {
   final PrescriptionOCRResponse? data;
   final String? error;
 
-  PrescriptionOCRResult.success(this.data) : success = true, error = null;
-  PrescriptionOCRResult.error(this.error) : success = false, data = null;
+  PrescriptionOCRResult.success(this.data)
+      : success = true,
+        error = null;
+  PrescriptionOCRResult.error(this.error)
+      : success = false,
+        data = null;
 }
 
 /// Service for handling prescription OCR API communication
@@ -158,58 +161,46 @@ class PrescriptionAPIService {
     try {
       debugPrint('Starting prescription OCR API call...');
 
-      final uri = Uri.parse('${AppConfig.apiBaseUrl}$_prescriptionEndpoint');
-      debugPrint('API URL: $uri');
+      final dio = Dio();
+      final url = '${AppConfig.apiBaseUrl}$_prescriptionEndpoint';
+      debugPrint('API URL: $url');
 
-      // Create multipart request
-      final request = http.MultipartRequest('POST', uri);
-
-      // Add headers
-      request.headers.addAll({
-        'Content-Type': 'multipart/form-data',
-        'Accept': 'application/json',
+      // Create form data with the image file
+      final formData = FormData.fromMap({
+        'file': await MultipartFile.fromFile(
+          imageFile.path,
+          filename: _getFileName(imageFile),
+        ),
       });
 
-      // Add the image file
-      final imageStream = http.ByteStream(imageFile.openRead());
       final imageLength = await imageFile.length();
-
-      final multipartFile = http.MultipartFile(
-        'file',
-        imageStream,
-        imageLength,
-        filename: _getFileName(imageFile),
-      );
-
-      request.files.add(multipartFile);
-
-      debugPrint('Sending request with file: ${multipartFile.filename}');
+      debugPrint('Sending request with file: ${_getFileName(imageFile)}');
       debugPrint('File size: ${_formatFileSize(imageLength)}');
 
       // Send the request with timeout
-      final streamedResponse = await request.send().timeout(
-        Duration(milliseconds: AppConfig.apiTimeout),
-        onTimeout: () {
-          throw TimeoutException(
-            'Request timed out after ${AppConfig.apiTimeout}ms',
-            Duration(milliseconds: AppConfig.apiTimeout),
-          );
-        },
+      final response = await dio.post(
+        url,
+        data: formData,
+        options: Options(
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            'Accept': 'application/json',
+          },
+          sendTimeout: Duration(milliseconds: AppConfig.apiTimeout),
+          receiveTimeout: Duration(milliseconds: AppConfig.apiTimeout),
+        ),
       );
-
-      // Convert to regular response
-      final response = await http.Response.fromStream(streamedResponse);
 
       debugPrint('Response status: ${response.statusCode}');
       debugPrint('Response headers: ${response.headers}');
 
       if (response.statusCode == 200) {
-        final responseData = json.decode(response.body);
+        final responseData = response.data;
         debugPrint('OCR processing successful');
         return PrescriptionOCRResponse.fromJson(responseData);
       } else {
         // Handle error response
-        debugPrint('API error: ${response.statusCode} - ${response.body}');
+        debugPrint('API error: ${response.statusCode} - ${response.data}');
         throw _handleErrorResponse(response);
       }
     } catch (e) {
@@ -219,16 +210,16 @@ class PrescriptionAPIService {
   }
 
   /// Handles error responses from the API
-  PrescriptionOCRError _handleErrorResponse(http.Response response) {
+  PrescriptionOCRError _handleErrorResponse(Response response) {
     try {
-      final errorData = json.decode(response.body);
+      final errorData = response.data;
       return PrescriptionOCRError.fromJson(errorData);
     } catch (e) {
       // If we can't parse the error response, return a generic error
       return PrescriptionOCRError(
         message: 'API request failed with status ${response.statusCode}',
         code: 'HTTP_${response.statusCode}',
-        details: response.body,
+        details: response.data.toString(),
       );
     }
   }

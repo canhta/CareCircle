@@ -3,7 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
-import 'package:simple_secure_storage/simple_secure_storage.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../config/app_config.dart';
 import '../models/auth_models.dart';
@@ -15,6 +15,16 @@ class AuthService {
 
   late final Dio _dio;
   late final GoogleSignIn _googleSignIn;
+
+  // Secure storage instance
+  static const FlutterSecureStorage _secureStorage = FlutterSecureStorage(
+    aOptions: AndroidOptions(
+      encryptedSharedPreferences: true,
+    ),
+    iOptions: IOSOptions(
+      accessibility: KeychainAccessibility.first_unlock_this_device,
+    ),
+  );
 
   // Storage keys
   static const String _accessTokenKey = 'access_token';
@@ -93,7 +103,7 @@ class AuthService {
   // Get current user
   Future<User?> getCurrentUser() async {
     try {
-      final userData = await SimpleSecureStorage.read(_userDataKey);
+      final userData = await _secureStorage.read(key: _userDataKey);
       if (userData != null) {
         return User.fromJson(jsonDecode(userData));
       }
@@ -323,7 +333,7 @@ class AuthService {
   // Get access token
   Future<String?> getAccessToken() async {
     try {
-      return await SimpleSecureStorage.read(_accessTokenKey);
+      return await _secureStorage.read(key: _accessTokenKey);
     } catch (e) {
       return null;
     }
@@ -333,18 +343,19 @@ class AuthService {
 
   Future<void> _storeTokens(AuthTokens tokens) async {
     await Future.wait([
-      SimpleSecureStorage.write(_accessTokenKey, tokens.accessToken),
-      SimpleSecureStorage.write(_refreshTokenKey, tokens.refreshToken),
+      _secureStorage.write(key: _accessTokenKey, value: tokens.accessToken),
+      _secureStorage.write(key: _refreshTokenKey, value: tokens.refreshToken),
     ]);
   }
 
   Future<void> _storeUser(User user) async {
-    await SimpleSecureStorage.write(_userDataKey, jsonEncode(user.toJson()));
+    await _secureStorage.write(
+        key: _userDataKey, value: jsonEncode(user.toJson()));
   }
 
   Future<bool> _refreshToken() async {
     try {
-      final refreshToken = await SimpleSecureStorage.read(_refreshTokenKey);
+      final refreshToken = await _secureStorage.read(key: _refreshTokenKey);
       if (refreshToken == null) return false;
 
       final response = await _dio.post('/auth/refresh', data: {
@@ -365,8 +376,8 @@ class AuthService {
 
   Future<void> _clearTokens() async {
     await Future.wait([
-      SimpleSecureStorage.delete(_accessTokenKey),
-      SimpleSecureStorage.delete(_refreshTokenKey),
+      _secureStorage.delete(key: _accessTokenKey),
+      _secureStorage.delete(key: _refreshTokenKey),
     ]);
   }
 }
