@@ -18,12 +18,14 @@ import { NotificationRuleEngine } from './notification-rule-engine.service';
 import { PrismaModule } from '../prisma/prisma.module';
 import { VectorModule } from '../vector/vector.module';
 import { AIModule } from '../ai/ai.module';
+import { FirebaseModule } from '../firebase/firebase.module';
 
 @Module({
   imports: [
     PrismaModule,
     VectorModule,
     AIModule,
+    FirebaseModule,
     ScheduleModule.forRoot(),
     CacheModule.register({
       ttl: 300, // 5 minutes

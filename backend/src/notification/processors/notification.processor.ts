@@ -5,6 +5,7 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { NotificationPayload } from '../notification.service';
 import { NotificationAuditLoggingService } from '../audit-logging.service';
 import { NotificationChannel } from '@prisma/client';
+import { FirebaseService } from '../../firebase/firebase.service';
 
 @Processor('notification')
 export class NotificationProcessor extends WorkerHost {
@@ -13,6 +14,7 @@ export class NotificationProcessor extends WorkerHost {
   constructor(
     private readonly prisma: PrismaService,
     private readonly auditLoggingService: NotificationAuditLoggingService,
+    private readonly firebaseService: FirebaseService,
   ) {
     super();
   }
@@ -124,15 +126,42 @@ export class NotificationProcessor extends WorkerHost {
 
     return results;
   }
-
   private async sendPushNotification(
     payload: NotificationPayload,
   ): Promise<void> {
-    // TODO: Implement Firebase Cloud Messaging
     this.logger.debug(`Sending push notification: ${payload.title}`);
 
-    // For now, simulate delivery
-    await new Promise((resolve) => setTimeout(resolve, 100));
+    // Get user's FCM tokens
+    const tokens = await this.firebaseService.getUserTokens(payload.userId);
+
+    if (tokens.length === 0) {
+      this.logger.warn(`No FCM tokens found for user ${payload.userId}`);
+      return;
+    }
+
+    // Send to multiple devices if user has multiple tokens
+    const fcmMessage = {
+      title: payload.title,
+      body: payload.message,
+      tokens,
+      data: payload.templateData
+        ? Object.fromEntries(
+            Object.entries(payload.templateData).map(([key, value]) => [
+              key,
+              String(value),
+            ]),
+          )
+        : undefined,
+      actionUrl: payload.actionUrl,
+      priority:
+        payload.priority === 'HIGH' ? ('high' as const) : ('normal' as const),
+    };
+
+    const result = await this.firebaseService.sendToDevices(fcmMessage);
+
+    if (!result.success) {
+      throw new Error(`FCM send failed: ${result.error}`);
+    }
   }
 
   private async sendEmailNotification(
