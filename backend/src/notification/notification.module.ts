@@ -13,6 +13,8 @@ import { NotificationAuditLoggingService } from './audit-logging.service';
 import { UserBehaviorAnalyticsService } from './user-behavior-analytics.service';
 import { AdaptiveNotificationEngineService } from './adaptive-notification-engine.service';
 import { NotificationBehaviorService } from './notification-behavior.service';
+import { InteractiveNotificationService } from './interactive-notification.service';
+import { NotificationRuleEngine } from './notification-rule-engine.service';
 import { PrismaModule } from '../prisma/prisma.module';
 import { VectorModule } from '../vector/vector.module';
 import { AIModule } from '../ai/ai.module';
@@ -47,6 +49,8 @@ import { AIModule } from '../ai/ai.module';
     UserBehaviorAnalyticsService,
     AdaptiveNotificationEngineService,
     NotificationBehaviorService,
+    InteractiveNotificationService,
+    NotificationRuleEngine,
   ],
   controllers: [NotificationController],
   exports: [
@@ -57,6 +61,8 @@ import { AIModule } from '../ai/ai.module';
     UserBehaviorAnalyticsService,
     AdaptiveNotificationEngineService,
     NotificationBehaviorService,
+    InteractiveNotificationService,
+    NotificationRuleEngine,
   ],
 })
 export class NotificationModule {}

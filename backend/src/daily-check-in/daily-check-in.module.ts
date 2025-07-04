@@ -6,6 +6,8 @@ import { PrismaModule } from '../prisma/prisma.module';
 import { AIModule } from '../ai/ai.module';
 import { VectorModule } from '../vector/vector.module';
 import { AnalyticsModule } from '../analytics/analytics.module';
+import { InsightsModule } from '../insights/insights.module';
+import { NotificationModule } from '../notification/notification.module';
 
 @Module({
   imports: [
@@ -14,6 +16,8 @@ import { AnalyticsModule } from '../analytics/analytics.module';
     AIModule,
     VectorModule,
     AnalyticsModule,
+    InsightsModule,
+    NotificationModule,
   ],
   providers: [DailyCheckInService],
   controllers: [DailyCheckInController],
