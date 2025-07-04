@@ -78,7 +78,7 @@ export class FirebaseController {
   })
   async sendTestNotification(@CurrentUser() user: User) {
     const tokens = await this.firebaseService.getUserTokens(user.id);
-    
+
     if (tokens.length === 0) {
       return {
         statusCode: HttpStatus.OK,
