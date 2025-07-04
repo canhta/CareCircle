@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import { seedNotificationTemplates } from '../src/notification/seed-templates';
 
 const prisma = new PrismaClient();
 
@@ -159,6 +160,11 @@ async function main() {
   });
 
   console.log('✅ Created sample daily check-in');
+
+  // Seed notification templates
+  console.log('🌱 Seeding notification templates...');
+  await seedNotificationTemplates();
+  console.log('✅ Notification templates seeded');
 
   console.log('🎉 Database seeding completed successfully!');
 }

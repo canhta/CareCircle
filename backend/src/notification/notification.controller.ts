@@ -22,6 +22,7 @@ import {
   NotificationService,
   NotificationPayload,
 } from './notification.service';
+import { NotificationTemplateService } from './notification-template.service';
 import {
   SendNotificationDto,
   ScheduleNotificationDto,
@@ -35,7 +36,10 @@ import { User } from '@prisma/client';
 @Controller('notifications')
 @UseGuards(JwtAuthGuard)
 export class NotificationController {
-  constructor(private readonly notificationService: NotificationService) {}
+  constructor(
+    private readonly notificationService: NotificationService,
+    private readonly templateService: NotificationTemplateService,
+  ) {}
 
   @Post('send')
   @ApiOperation({ summary: 'Send immediate notification' })
@@ -193,6 +197,96 @@ export class NotificationController {
     return {
       statusCode: HttpStatus.OK,
       message: 'Test health insight sent',
+    };
+  }
+
+  @Get('templates')
+  @ApiOperation({ summary: 'Get all notification templates' })
+  @ApiResponse({ status: 200, description: 'List of notification templates' })
+  async getTemplates() {
+    const templates = await this.templateService.listTemplates();
+    return {
+      statusCode: HttpStatus.OK,
+      data: templates,
+    };
+  }
+
+  @Get('templates/:id/preview')
+  @ApiOperation({ summary: 'Preview a template with sample data' })
+  @ApiResponse({ status: 200, description: 'Template preview' })
+  async previewTemplate(
+    @Param('id') templateId: string,
+    @CurrentUser() user: User,
+  ) {
+    const sampleContext = {
+      userName: user.firstName,
+      medicationName: 'Sample Medication',
+      dosage: '10mg',
+      timeOfDay: 'morning',
+      careGroupName: 'Family Care Circle',
+      inviterName: 'Dr. Smith',
+    };
+
+    const rendered = await this.templateService.renderTemplate(
+      templateId,
+      sampleContext,
+    );
+    return {
+      statusCode: HttpStatus.OK,
+      data: rendered,
+    };
+  }
+
+  @Post('send-templated')
+  @ApiOperation({ summary: 'Send notification using a template' })
+  @ApiResponse({ status: 201, description: 'Templated notification sent' })
+  async sendTemplatedNotification(
+    @CurrentUser() user: User,
+    @Body()
+    dto: {
+      templateName: string;
+      context: Record<string, any>;
+      scheduledFor?: Date;
+    },
+  ) {
+    const notification =
+      await this.notificationService.sendTemplatedNotification(
+        user.id,
+        dto.templateName,
+        dto.context,
+        { scheduledFor: dto.scheduledFor },
+      );
+
+    return {
+      statusCode: HttpStatus.CREATED,
+      data: notification,
+    };
+  }
+
+  @Post('test/templated-medication-reminder')
+  @ApiOperation({ summary: 'Test templated medication reminder' })
+  @ApiResponse({
+    status: 200,
+    description: 'Test templated medication reminder sent',
+  })
+  async testTemplatedMedicationReminder(@CurrentUser() user: User) {
+    const mockReminderData = {
+      id: 'test-reminder-id',
+      prescriptionId: 'test-prescription-id',
+      userId: user.id,
+      medicationName: 'Test Medication',
+      dosage: '10mg',
+      scheduledAt: new Date(),
+      frequency: 'twice daily',
+    };
+
+    await this.notificationService.sendTemplatedMedicationReminder(
+      mockReminderData,
+    );
+
+    return {
+      statusCode: HttpStatus.OK,
+      message: 'Test templated medication reminder sent',
     };
   }
 }
