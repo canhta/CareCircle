@@ -3,6 +3,7 @@ import '../features/auth/auth.dart';
 import '../common/common.dart';
 import '../models/user_preferences_model.dart';
 import '../services/user_preferences_service.dart';
+import '../widgets/widget_optimizer.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -175,7 +176,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
       appBar: AppBar(
         title: const Text('Settings'),
       ),
-      body: ListView(
+      body: WidgetOptimizer.optimizeListView(
+        addRepaintBoundaries: true,
         children: [
           _buildSection(
             'Notifications',

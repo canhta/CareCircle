@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../features/prescription/prescription.dart';
 import '../features/prescription_scanner/prescription_scanner.dart';
 import '../common/common.dart';
+import '../widgets/optimized_image.dart';
 import 'prescription_ocr_results_screen.dart';
 import 'prescription_manual_entry_screen.dart';
 
@@ -469,18 +470,12 @@ class _PrescriptionScannerScreenState extends State<PrescriptionScannerScreen> {
       child: Stack(
         children: [
           // Image
-          GestureDetector(
+          PrescriptionImage(
+            imageFile: capturedImage.file,
+            width: double.infinity,
+            height: double.infinity,
+            fit: BoxFit.cover,
             onTap: () => _showFullScreenImage(capturedImage.file),
-            child: Container(
-              width: double.infinity,
-              height: double.infinity,
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: FileImage(capturedImage.file),
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
           ),
           // Scanning overlay
           if (isScanning)
@@ -615,7 +610,12 @@ class _FullScreenImageView extends StatelessWidget {
           boundaryMargin: const EdgeInsets.all(20),
           minScale: 0.5,
           maxScale: 4.0,
-          child: Image.file(imageFile, fit: BoxFit.contain),
+          child: OptimizedImage(
+            imageFile: imageFile,
+            fit: BoxFit.contain,
+            memCacheWidth: 800,
+            memCacheHeight: 800,
+          ),
         ),
       ),
     );

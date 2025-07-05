@@ -17,7 +17,7 @@ class _ContactSupportScreenState extends State<ContactSupportScreen> {
   final _emailController = TextEditingController();
   final _subjectController = TextEditingController();
   final _messageController = TextEditingController();
-  
+
   String _selectedCategory = 'General';
   String _selectedPriority = 'Medium';
   bool _isSubmitting = false;
@@ -141,7 +141,7 @@ class _ContactSupportScreenState extends State<ContactSupportScreen> {
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey.withOpacity(0.3)),
+          border: Border.all(color: Colors.grey.withValues(alpha: 0.3)),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Row(
@@ -149,7 +149,7 @@ class _ContactSupportScreenState extends State<ContactSupportScreen> {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
+                color: color.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Icon(icon, color: color, size: 20),
@@ -200,7 +200,7 @@ class _ContactSupportScreenState extends State<ContactSupportScreen> {
                 ),
               ),
               const SizedBox(height: 16),
-              
+
               // Name field
               TextFormField(
                 controller: _nameController,
@@ -216,7 +216,7 @@ class _ContactSupportScreenState extends State<ContactSupportScreen> {
                 },
               ),
               const SizedBox(height: 16),
-              
+
               // Email field
               TextFormField(
                 controller: _emailController,
@@ -229,14 +229,15 @@ class _ContactSupportScreenState extends State<ContactSupportScreen> {
                   if (value == null || value.trim().isEmpty) {
                     return 'Please enter your email';
                   }
-                  if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+                  if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                      .hasMatch(value)) {
                     return 'Please enter a valid email';
                   }
                   return null;
                 },
               ),
               const SizedBox(height: 16),
-              
+
               // Category dropdown
               DropdownButtonFormField<String>(
                 value: _selectedCategory,
@@ -257,7 +258,7 @@ class _ContactSupportScreenState extends State<ContactSupportScreen> {
                 },
               ),
               const SizedBox(height: 16),
-              
+
               // Priority dropdown
               DropdownButtonFormField<String>(
                 value: _selectedPriority,
@@ -278,7 +279,7 @@ class _ContactSupportScreenState extends State<ContactSupportScreen> {
                 },
               ),
               const SizedBox(height: 16),
-              
+
               // Subject field
               TextFormField(
                 controller: _subjectController,
@@ -294,7 +295,7 @@ class _ContactSupportScreenState extends State<ContactSupportScreen> {
                 },
               ),
               const SizedBox(height: 16),
-              
+
               // Message field
               TextFormField(
                 controller: _messageController,
@@ -315,7 +316,7 @@ class _ContactSupportScreenState extends State<ContactSupportScreen> {
                 },
               ),
               const SizedBox(height: 24),
-              
+
               // Submit button
               SizedBox(
                 width: double.infinity,
@@ -338,7 +339,7 @@ class _ContactSupportScreenState extends State<ContactSupportScreen> {
                 ),
               ),
               const SizedBox(height: 12),
-              
+
               Text(
                 'We typically respond within 24 hours during business days.',
                 style: TextStyle(
@@ -360,7 +361,7 @@ class _ContactSupportScreenState extends State<ContactSupportScreen> {
       path: 'support@carecircle.com',
       query: 'subject=CareCircle Support Request',
     );
-    
+
     try {
       if (await canLaunchUrl(emailUri)) {
         await launchUrl(emailUri);
@@ -375,7 +376,7 @@ class _ContactSupportScreenState extends State<ContactSupportScreen> {
 
   Future<void> _launchPhone() async {
     final Uri phoneUri = Uri(scheme: 'tel', path: '+15551234567');
-    
+
     try {
       if (await canLaunchUrl(phoneUri)) {
         await launchUrl(phoneUri);
@@ -436,7 +437,7 @@ class _ContactSupportScreenState extends State<ContactSupportScreen> {
 
       // In a real app, you would send this to your support system
       // For now, we'll show a success message
-      
+
       if (mounted) {
         showDialog(
           context: context,
@@ -458,7 +459,7 @@ class _ContactSupportScreenState extends State<ContactSupportScreen> {
             ],
           ),
         );
-        
+
         // Clear form
         _nameController.clear();
         _emailController.clear();
@@ -471,7 +472,7 @@ class _ContactSupportScreenState extends State<ContactSupportScreen> {
       }
     } catch (e) {
       _logger.error('Failed to submit support request', error: e);
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

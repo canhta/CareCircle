@@ -5,12 +5,17 @@ import {
   BadRequestException,
   Logger,
 } from '@nestjs/common';
+import {
+  TransformableObject,
+  TransformableQueryParams,
+  FilterQueryParams,
+} from '../interfaces/transformation.interfaces';
 
 @Injectable()
 export class TransformationPipe implements PipeTransform {
   private readonly logger = new Logger(TransformationPipe.name);
 
-  transform(value: any, metadata: ArgumentMetadata) {
+  transform(value: unknown, metadata: ArgumentMetadata): unknown {
     if (!value) {
       return value;
     }
@@ -18,9 +23,9 @@ export class TransformationPipe implements PipeTransform {
     try {
       switch (metadata.type) {
         case 'body':
-          return this.transformBody(value);
+          return this.transformBody(value as TransformableObject);
         case 'query':
-          return this.transformQuery(value);
+          return this.transformQuery(value as TransformableQueryParams);
         case 'param':
           return this.transformParam(value, metadata);
         default:
@@ -32,12 +37,12 @@ export class TransformationPipe implements PipeTransform {
     }
   }
 
-  private transformBody(body: any): any {
-    if (typeof body !== 'object') {
+  private transformBody(body: TransformableObject): TransformableObject {
+    if (typeof body !== 'object' || body === null) {
       return body;
     }
 
-    const transformed = { ...body };
+    const transformed: TransformableObject = { ...body };
 
     // Transform common fields
     Object.keys(transformed).forEach((key) => {
@@ -45,7 +50,7 @@ export class TransformationPipe implements PipeTransform {
 
       // Transform date strings to Date objects
       if (this.isDateString(value)) {
-        transformed[key] = new Date(value);
+        transformed[key] = new Date(value as string);
       }
 
       // Transform string numbers to actual numbers
@@ -55,7 +60,7 @@ export class TransformationPipe implements PipeTransform {
 
       // Transform string booleans to actual booleans
       if (this.isBooleanString(value)) {
-        transformed[key] = value.toLowerCase() === 'true';
+        transformed[key] = (value as string).toLowerCase() === 'true';
       }
 
       // Trim string values
@@ -66,7 +71,9 @@ export class TransformationPipe implements PipeTransform {
       // Transform arrays recursively
       if (Array.isArray(value)) {
         transformed[key] = value.map((item) =>
-          typeof item === 'object' ? this.transformBody(item) : item,
+          typeof item === 'object' && item !== null
+            ? this.transformBody(item as TransformableObject)
+            : item,
         );
       }
 
@@ -76,15 +83,17 @@ export class TransformationPipe implements PipeTransform {
         value !== null &&
         !Array.isArray(value)
       ) {
-        transformed[key] = this.transformBody(value);
+        transformed[key] = this.transformBody(value as TransformableObject);
       }
     });
 
     return transformed;
   }
 
-  private transformQuery(query: any): any {
-    const transformed = { ...query };
+  private transformQuery(
+    query: TransformableQueryParams,
+  ): TransformableQueryParams {
+    const transformed: TransformableQueryParams = { ...query };
 
     Object.keys(transformed).forEach((key) => {
       const value = transformed[key];
@@ -105,51 +114,69 @@ export class TransformationPipe implements PipeTransform {
         if (!transformed.filters) {
           transformed.filters = {};
         }
-        transformed.filters[filterKey] = value;
+
+        // Ensure the value is of the correct type for FilterQueryParams
+        if (
+          typeof value === 'string' ||
+          typeof value === 'number' ||
+          typeof value === 'boolean'
+        ) {
+          transformed.filters[filterKey] = value;
+        }
         delete transformed[key];
       }
 
       // Transform date range parameters
       if (['startDate', 'endDate', 'fromDate', 'toDate'].includes(key)) {
         if (this.isDateString(value)) {
-          transformed[key] = new Date(value);
+          transformed[key] = new Date(value as string);
         }
       }
 
       // Transform boolean query parameters
       if (this.isBooleanString(value)) {
-        transformed[key] = value.toLowerCase() === 'true';
+        transformed[key] = (value as string).toLowerCase() === 'true';
       }
     });
 
     return transformed;
   }
 
-  private transformParam(param: any, metadata: ArgumentMetadata): any {
+  private transformParam(param: unknown, metadata: ArgumentMetadata): unknown {
     const paramName = metadata.data;
 
     // Transform ID parameters to ensure they're strings
-    if (paramName && paramName.toLowerCase().includes('id')) {
+    if (
+      typeof paramName === 'string' &&
+      paramName.toLowerCase().includes('id')
+    ) {
       return String(param);
     }
 
     // Transform numeric parameters
-    if (paramName && ['page', 'limit', 'offset'].includes(paramName)) {
+    if (
+      typeof paramName === 'string' &&
+      ['page', 'limit', 'offset'].includes(paramName)
+    ) {
       return this.parseInteger(param, paramName);
     }
 
     return param;
   }
 
-  private parseInteger(value: any, fieldName: string): number {
-    const parsed = parseInt(value, 10);
+  private parseInteger(value: unknown, fieldName: string): number {
+    if (typeof value === 'number') {
+      return Math.floor(value);
+    }
+
+    const parsed = parseInt(String(value), 10);
     if (isNaN(parsed)) {
       throw new BadRequestException(`${fieldName} must be a valid integer`);
     }
     return parsed;
   }
 
-  private isDateString(value: any): boolean {
+  private isDateString(value: unknown): boolean {
     if (typeof value !== 'string') {
       return false;
     }
@@ -169,7 +196,7 @@ export class TransformationPipe implements PipeTransform {
     return false;
   }
 
-  private isNumericString(value: any): boolean {
+  private isNumericString(value: unknown): boolean {
     return (
       typeof value === 'string' &&
       !isNaN(Number(value)) &&
@@ -177,7 +204,7 @@ export class TransformationPipe implements PipeTransform {
     );
   }
 
-  private isBooleanString(value: any): boolean {
+  private isBooleanString(value: unknown): boolean {
     return (
       typeof value === 'string' &&
       ['true', 'false'].includes(value.toLowerCase())

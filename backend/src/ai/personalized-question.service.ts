@@ -6,38 +6,15 @@ import {
   PersonalizedQuestionDto,
   GenerateQuestionsDto,
 } from '../daily-check-in/dto/daily-check-in.dto';
-
-interface UserHealthProfile {
-  age?: number;
-  gender?: string;
-  recentHealthMetrics?: {
-    averageMoodScore?: number;
-    averageEnergyLevel?: number;
-    averageSleepQuality?: number;
-    averagePainLevel?: number;
-    averageStressLevel?: number;
-    commonSymptoms?: string[];
-  };
-  prescriptions?: {
-    medicationName: string;
-    dosage: string;
-    frequency: string;
-  }[];
-  recentCheckIns?: {
-    date: string;
-    moodScore?: number;
-    energyLevel?: number;
-    sleepQuality?: number;
-    painLevel?: number;
-    stressLevel?: number;
-    symptoms?: string[];
-    notes?: string;
-  }[];
-  careGroupContext?: {
-    hasCaregivers: boolean;
-    caregiverConcerns?: string[];
-  };
-}
+import {
+  AIGeneratedQuestion,
+  AIMetricAccumulator,
+  CheckInDataWithMetadata,
+  HealthMetricsAverages,
+  HealthMetricsData,
+  ParsedAIResponse,
+  UserHealthProfile,
+} from '../common/interfaces/ai.interfaces';
 
 @Injectable()
 export class PersonalizedQuestionService {
@@ -182,13 +159,13 @@ export class PersonalizedQuestionService {
   }
 
   private calculateHealthMetricsAverages(
-    checkIns: any[],
-    _healthMetrics: any[],
-  ): UserHealthProfile['recentHealthMetrics'] {
+    checkIns: CheckInDataWithMetadata[],
+    _healthMetrics: unknown[],
+  ): HealthMetricsAverages {
     if (checkIns.length === 0) return {};
 
     const totals = checkIns.reduce(
-      (acc, checkIn: any) => ({
+      (acc: AIMetricAccumulator, checkIn: CheckInDataWithMetadata) => ({
         moodScore: acc.moodScore + (checkIn.moodScore || 0),
         energyLevel: acc.energyLevel + (checkIn.energyLevel || 0),
         sleepQuality: acc.sleepQuality + (checkIn.sleepQuality || 0),
@@ -220,10 +197,10 @@ export class PersonalizedQuestionService {
     return averages;
   }
 
-  private getCommonSymptoms(checkIns: any[]): string[] {
+  private getCommonSymptoms(checkIns: CheckInDataWithMetadata[]): string[] {
     const symptomCounts = new Map<string, number>();
 
-    checkIns.forEach((checkIn: any) => {
+    checkIns.forEach((checkIn: CheckInDataWithMetadata) => {
       if (checkIn.symptoms) {
         checkIn.symptoms.forEach((symptom: string) => {
           symptomCounts.set(symptom, (symptomCounts.get(symptom) || 0) + 1);
@@ -390,34 +367,22 @@ Guidelines:
         throw new Error('No JSON found in response');
       }
 
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      const parsed: any = JSON.parse(jsonMatch[0]);
+      const parsed = JSON.parse(jsonMatch[0]) as ParsedAIResponse;
 
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       if (!parsed.questions || !Array.isArray(parsed.questions)) {
         throw new Error('Invalid response format');
       }
 
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-      return parsed.questions.map((q: any) => ({
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        id: (q.id as string) || `question_${Date.now()}_${Math.random()}`,
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        question: q.question as string,
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        type: (q.type as string) || 'text',
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        options: q.options as string[] | undefined,
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        minValue: q.minValue as number | undefined,
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        maxValue: q.maxValue as number | undefined,
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        category: (q.category as string) || 'general',
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        priority: (q.priority as number) || 3,
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        followUpQuestions: (q.followUpQuestions as string[]) || [],
+      return parsed.questions.map((q: AIGeneratedQuestion) => ({
+        id: q.id || `question_${Date.now()}_${Math.random()}`,
+        question: q.question,
+        type: q.type || 'text',
+        options: q.options,
+        minValue: q.minValue,
+        maxValue: q.maxValue,
+        category: q.category || 'general',
+        priority: q.priority || 3,
+        followUpQuestions: q.followUpQuestions || [],
       }));
     } catch (error) {
       this.logger.error('Error parsing AI response:', error);

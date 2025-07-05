@@ -3,7 +3,11 @@ import '../common/common.dart';
 import '../features/auth/auth.dart';
 import '../features/firebase_messaging/firebase_messaging.dart';
 import '../features/background_sync/background_sync.dart';
+import '../features/medication/data/medication_service.dart';
+import '../features/health/data/health_service.dart';
+import '../features/health/data/health_data_export_service.dart';
 import '../managers/health_data_manager.dart';
+import '../services/error_tracking_service.dart';
 import '../utils/notification_manager.dart';
 import '../utils/app_initializer.dart';
 import '../utils/firebase_initializer.dart';
@@ -100,6 +104,32 @@ class ServiceLocator {
       ),
     );
 
+    // Medication Service - singleton with dependencies
+    _instance.registerLazySingleton<MedicationService>(
+      () => MedicationService(
+        apiClient: get<ApiClient>(),
+        logger: get<AppLogger>(),
+        secureStorage: get<SecureStorageService>(),
+      ),
+    );
+
+    // Health Service - singleton with dependencies
+    _instance.registerLazySingleton<HealthService>(
+      () => HealthService(
+        apiClient: get<ApiClient>(),
+        logger: get<AppLogger>(),
+        secureStorage: get<SecureStorageService>(),
+      ),
+    );
+
+    // Health Data Export Service - singleton with dependencies
+    _instance.registerLazySingleton<HealthDataExportService>(
+      () => HealthDataExportService(
+        apiClient: get<ApiClient>(),
+        logger: get<AppLogger>(),
+      ),
+    );
+
     // Background Sync Service - async singleton
     _instance.registerSingletonAsync<BackgroundSyncService>(
       () async {
@@ -136,6 +166,19 @@ class ServiceLocator {
         await analyticsService.initialize();
         return analyticsService;
       },
+    );
+
+    // Error Tracking Service - async singleton
+    _instance.registerSingletonAsync<ErrorTrackingService>(
+      () async {
+        final errorTrackingService = ErrorTrackingService(
+          analytics: get<AnalyticsService>(),
+          logger: get<AppLogger>(),
+        );
+        await errorTrackingService.initialize();
+        return errorTrackingService;
+      },
+      dependsOn: [AnalyticsService, AppLogger],
     );
 
     // Notification Manager - async singleton

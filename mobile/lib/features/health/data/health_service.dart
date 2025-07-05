@@ -156,6 +156,67 @@ class HealthService extends BaseRepository implements HealthRepository {
     }
   }
 
+  /// Get paginated health data
+  Future<Result<List<CareCircleHealthData>>> getHealthDataPaginated(
+    HealthDataRequest request, {
+    int page = 0,
+    int pageSize = 20,
+  }) async {
+    try {
+      if (!_isConfigured) {
+        final initResult = await initialize();
+        if (initResult.isFailure) return Result.failure(initResult.exception!);
+      }
+
+      final healthTypes =
+          request.types.map((type) => healthDataTypeMap[type]!).toList();
+
+      final List<HealthDataPoint> healthData =
+          await _health.getHealthDataFromTypes(
+        types: healthTypes,
+        startTime: request.startDate,
+        endTime: request.endDate,
+      );
+
+      // Sort by date descending (most recent first)
+      healthData.sort((a, b) => b.dateFrom.compareTo(a.dateFrom));
+
+      // Apply pagination
+      final startIndex = page * pageSize;
+      final endIndex = (startIndex + pageSize).clamp(0, healthData.length);
+
+      if (startIndex >= healthData.length) {
+        return const Result.success([]);
+      }
+
+      final paginatedData = healthData.sublist(startIndex, endIndex);
+
+      // Convert to CareCircleHealthData
+      final careCircleData = paginatedData
+          .map((point) => CareCircleHealthData.fromHealthDataPoint(point))
+          .toList();
+
+      logger.info(
+        'Retrieved ${careCircleData.length} health data points '
+        '(page $page, pageSize $pageSize)',
+      );
+
+      return Result.success(careCircleData);
+    } catch (e, stackTrace) {
+      logger.error(
+        'Failed to get paginated health data',
+        error: e,
+        stackTrace: stackTrace,
+      );
+      return Result.failure(
+        NetworkException(
+          'Failed to get health data: ${e.toString()}',
+          type: NetworkExceptionType.unknown,
+        ),
+      );
+    }
+  }
+
   @override
   Future<Result<List<CareCircleHealthData>>> getHealthData(
     HealthDataRequest request,

@@ -6,6 +6,7 @@ import 'dart:developer';
 import '../features/care_group/domain/care_group_models.dart';
 import '../features/care_group/data/care_group_service.dart';
 import '../common/common.dart';
+import '../widgets/widget_optimizer.dart';
 
 class InviteMemberScreen extends StatefulWidget {
   final CareGroup careGroup;
@@ -56,8 +57,9 @@ class _InviteMemberScreenState extends State<InviteMemberScreen> {
       ),
       body: Form(
         key: _formKey,
-        child: ListView(
+        child: WidgetOptimizer.optimizeListView(
           padding: const EdgeInsets.all(16),
+          addRepaintBoundaries: true,
           children: [
             const SizedBox(height: 16),
 

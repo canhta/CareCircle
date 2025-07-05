@@ -7,6 +7,17 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { Response } from 'express';
+import {
+  DomainExceptionDetails,
+  HealthDataErrorDetails,
+  CareGroupErrorDetails,
+  SubscriptionErrorDetails,
+  NotificationErrorDetails,
+  PrescriptionErrorDetails,
+  AIServiceErrorDetails,
+  ComplianceErrorDetails,
+  DataIntegrityErrorDetails,
+} from '../interfaces/error.interfaces';
 
 // Domain-specific exceptions
 export class DomainException extends Error {
@@ -14,7 +25,7 @@ export class DomainException extends Error {
     message: string,
     public readonly code: string,
     public readonly statusCode: number = HttpStatus.BAD_REQUEST,
-    public readonly details?: any,
+    public readonly details?: DomainExceptionDetails,
   ) {
     super(message);
     this.name = 'DomainException';
@@ -22,56 +33,56 @@ export class DomainException extends Error {
 }
 
 export class HealthDataException extends DomainException {
-  constructor(message: string, details?: any) {
+  constructor(message: string, details?: HealthDataErrorDetails) {
     super(message, 'HEALTH_DATA_ERROR', HttpStatus.BAD_REQUEST, details);
     this.name = 'HealthDataException';
   }
 }
 
 export class CareGroupException extends DomainException {
-  constructor(message: string, details?: any) {
+  constructor(message: string, details?: CareGroupErrorDetails) {
     super(message, 'CARE_GROUP_ERROR', HttpStatus.BAD_REQUEST, details);
     this.name = 'CareGroupException';
   }
 }
 
 export class SubscriptionException extends DomainException {
-  constructor(message: string, details?: any) {
+  constructor(message: string, details?: SubscriptionErrorDetails) {
     super(message, 'SUBSCRIPTION_ERROR', HttpStatus.PAYMENT_REQUIRED, details);
     this.name = 'SubscriptionException';
   }
 }
 
 export class NotificationException extends DomainException {
-  constructor(message: string, details?: any) {
+  constructor(message: string, details?: NotificationErrorDetails) {
     super(message, 'NOTIFICATION_ERROR', HttpStatus.BAD_REQUEST, details);
     this.name = 'NotificationException';
   }
 }
 
 export class PrescriptionException extends DomainException {
-  constructor(message: string, details?: any) {
+  constructor(message: string, details?: PrescriptionErrorDetails) {
     super(message, 'PRESCRIPTION_ERROR', HttpStatus.BAD_REQUEST, details);
     this.name = 'PrescriptionException';
   }
 }
 
 export class AIServiceException extends DomainException {
-  constructor(message: string, details?: any) {
+  constructor(message: string, details?: AIServiceErrorDetails) {
     super(message, 'AI_SERVICE_ERROR', HttpStatus.SERVICE_UNAVAILABLE, details);
     this.name = 'AIServiceException';
   }
 }
 
 export class ComplianceException extends DomainException {
-  constructor(message: string, details?: any) {
+  constructor(message: string, details?: ComplianceErrorDetails) {
     super(message, 'COMPLIANCE_ERROR', HttpStatus.FORBIDDEN, details);
     this.name = 'ComplianceException';
   }
 }
 
 export class DataIntegrityException extends DomainException {
-  constructor(message: string, details?: any) {
+  constructor(message: string, details?: DataIntegrityErrorDetails) {
     super(message, 'DATA_INTEGRITY_ERROR', HttpStatus.CONFLICT, details);
     this.name = 'DataIntegrityException';
   }
@@ -119,46 +130,58 @@ export class DomainExceptionFilter implements ExceptionFilter {
 }
 
 // Utility functions for throwing domain exceptions
-export const throwHealthDataError = (message: string, details?: any): never => {
+export const throwHealthDataError = (
+  message: string,
+  details?: HealthDataErrorDetails,
+): never => {
   throw new HealthDataException(message, details);
 };
 
-export const throwCareGroupError = (message: string, details?: any): never => {
+export const throwCareGroupError = (
+  message: string,
+  details?: CareGroupErrorDetails,
+): never => {
   throw new CareGroupException(message, details);
 };
 
 export const throwSubscriptionError = (
   message: string,
-  details?: any,
+  details?: SubscriptionErrorDetails,
 ): never => {
   throw new SubscriptionException(message, details);
 };
 
 export const throwNotificationError = (
   message: string,
-  details?: any,
+  details?: NotificationErrorDetails,
 ): never => {
   throw new NotificationException(message, details);
 };
 
 export const throwPrescriptionError = (
   message: string,
-  details?: any,
+  details?: PrescriptionErrorDetails,
 ): never => {
   throw new PrescriptionException(message, details);
 };
 
-export const throwAIServiceError = (message: string, details?: any): never => {
+export const throwAIServiceError = (
+  message: string,
+  details?: AIServiceErrorDetails,
+): never => {
   throw new AIServiceException(message, details);
 };
 
-export const throwComplianceError = (message: string, details?: any): never => {
+export const throwComplianceError = (
+  message: string,
+  details?: ComplianceErrorDetails,
+): never => {
   throw new ComplianceException(message, details);
 };
 
 export const throwDataIntegrityError = (
   message: string,
-  details?: any,
+  details?: DataIntegrityErrorDetails,
 ): never => {
   throw new DataIntegrityException(message, details);
 };

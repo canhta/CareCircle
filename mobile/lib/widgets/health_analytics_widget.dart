@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../features/health/health.dart';
 import 'time_range_selector.dart';
+import 'performance_optimized_widget.dart';
 
 class HealthAnalyticsWidget extends StatefulWidget {
   final List<CareCircleHealthData> healthData;
@@ -49,36 +50,39 @@ class _HealthAnalyticsWidgetState extends State<HealthAnalyticsWidget> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Card(
-      elevation: 2,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(
-                  _getIconForDataType(widget.dataType),
-                  color: theme.colorScheme.primary,
-                  size: 24,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  _getDisplayNameForType(widget.dataType),
-                  style: theme.textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
+    return PerformanceOptimizedWidget(
+      debugLabel: 'HealthAnalyticsWidget-${widget.dataType}',
+      child: Card(
+        elevation: 2,
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(
+                    _getIconForDataType(widget.dataType),
+                    color: theme.colorScheme.primary,
+                    size: 24,
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            _buildStatsGrid(),
-            const SizedBox(height: 16),
-            _buildTrendAnalysis(),
-            const SizedBox(height: 16),
-            _buildInsights(),
-          ],
+                  const SizedBox(width: 8),
+                  Text(
+                    _getDisplayNameForType(widget.dataType),
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              _buildStatsGrid(),
+              const SizedBox(height: 16),
+              _buildTrendAnalysis(),
+              const SizedBox(height: 16),
+              _buildInsights(),
+            ],
+          ),
         ),
       ),
     );

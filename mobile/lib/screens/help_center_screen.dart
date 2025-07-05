@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../common/common.dart';
+import '../widgets/widget_optimizer.dart';
 
 class HelpCenterScreen extends StatefulWidget {
   const HelpCenterScreen({super.key});
@@ -9,14 +9,12 @@ class HelpCenterScreen extends StatefulWidget {
 }
 
 class _HelpCenterScreenState extends State<HelpCenterScreen> {
-  late final AppLogger _logger;
   String _searchQuery = '';
   final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    _logger = AppLogger('HelpCenterScreen');
   }
 
   @override
@@ -64,7 +62,7 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
               },
             ),
           ),
-          
+
           // Content
           Expanded(
             child: _searchQuery.isEmpty
@@ -77,8 +75,9 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
   }
 
   Widget _buildHelpCategories() {
-    return ListView(
+    return WidgetOptimizer.optimizeListView(
       padding: const EdgeInsets.all(16.0),
+      addRepaintBoundaries: true,
       children: [
         _buildQuickActions(),
         const SizedBox(height: 24),
@@ -203,9 +202,9 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
+          color: color.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: color.withOpacity(0.3)),
+          border: Border.all(color: color.withValues(alpha: 0.3)),
         ),
         child: Column(
           children: [
@@ -326,15 +325,30 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
   }
 
   void _showVideoTutorials() {
-    _showComingSoonDialog('Video Tutorials');
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const VideoTutorialsScreen(),
+      ),
+    );
   }
 
   void _showUserGuide() {
-    _showComingSoonDialog('User Guide');
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const UserGuideScreen(),
+      ),
+    );
   }
 
   void _showReportIssue() {
-    _showComingSoonDialog('Report Issue');
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const ReportIssueScreen(),
+      ),
+    );
   }
 
   void _showComingSoonDialog(String feature) {

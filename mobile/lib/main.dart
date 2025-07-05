@@ -29,6 +29,7 @@ import 'screens/insights_screen.dart';
 // Features and widgets
 import 'features/auth/auth.dart';
 import 'widgets/notification_handler.dart';
+import 'widgets/error_boundary.dart';
 
 /// Background message handler - must be top-level function
 @pragma('vm:entry-point')
@@ -94,9 +95,12 @@ class MainApp extends StatelessWidget {
           ),
         ),
       ),
-      // Wrap the entire app with NotificationHandler
-      home: const NotificationHandler(
-        child: AuthWrapper(),
+      // Wrap the entire app with NotificationHandler and ErrorBoundary
+      home: const ErrorBoundary(
+        errorMessage: 'Unable to load CareCircle app',
+        child: NotificationHandler(
+          child: AuthWrapper(),
+        ),
       ),
       routes: {
         '/login': (context) => const LoginScreen(),

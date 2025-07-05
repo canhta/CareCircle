@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../features/daily_check_in/daily_check_in.dart';
 import '../common/common.dart';
+import '../widgets/widget_optimizer.dart';
 
 class CheckInHistoryScreen extends StatefulWidget {
   const CheckInHistoryScreen({super.key});
@@ -226,16 +227,19 @@ class _CheckInHistoryScreenState extends State<CheckInHistoryScreen> {
   }
 
   Widget _buildHistoryList() {
-    return RefreshIndicator(
+    return WidgetOptimizer.optimizedRefreshIndicator(
       onRefresh: _loadCheckInHistory,
-      child: ListView.builder(
+      child: WidgetOptimizer.optimizedListViewBuilder(
         padding: const EdgeInsets.all(16),
         itemCount: _filteredCheckIns.length,
         itemBuilder: (context, index) {
           final checkIn = _filteredCheckIns[index];
           return _buildCheckInCard(checkIn);
         },
+        addRepaintBoundaries: true, // Isolate check-in card repaints
+        addItemKeys: true, // Improve list update performance
       ),
+      useRepaintBoundary: true,
     );
   }
 

@@ -2,43 +2,15 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../prisma/prisma.service';
 import OpenAI from 'openai';
-
-export interface ResponseAnalysisResult {
-  sentimentScore: number; // -1 (very negative) to 1 (very positive)
-  sentimentLabel: 'positive' | 'neutral' | 'negative';
-  healthConcerns: string[];
-  emotionalIndicators: string[];
-  riskLevel: 'low' | 'medium' | 'high';
-  riskScore: number; // 0-10 scale
-  keyInsights: string[];
-  recommendedActions: string[];
-  anomalies: AnomalyDetection[];
-  trends: HealthTrend[];
-}
-
-export interface AnomalyDetection {
-  type: 'mood' | 'energy' | 'sleep' | 'pain' | 'stress' | 'symptoms';
-  description: string;
-  severity: 'low' | 'medium' | 'high';
-  confidence: number; // 0-1
-  suggestedAction: string;
-}
-
-export interface HealthTrend {
-  metric: string;
-  direction: 'improving' | 'declining' | 'stable';
-  significance: 'low' | 'medium' | 'high';
-  timeframe: string;
-  description: string;
-}
-
-export interface CheckInResponse {
-  questionId: string;
-  questionText: string;
-  answer: string | number | boolean | string[];
-  category: string;
-  timestamp: Date;
-}
+import {
+  ResponseAnalysisResult,
+  AnomalyDetection,
+  HealthTrend,
+  CheckInResponse,
+  HistoricalContext,
+  BaselineMetrics,
+  MetricAccumulator,
+} from '../common/interfaces/analytics.interfaces';
 
 @Injectable()
 export class ResponseAnalysisService {
@@ -94,7 +66,7 @@ export class ResponseAnalysisService {
   private async getHistoricalContext(
     userId: string,
     currentDate: string,
-  ): Promise<any> {
+  ): Promise<HistoricalContext> {
     try {
       // Get recent check-ins for trend analysis
       const thirtyDaysAgo = new Date(currentDate);
@@ -146,7 +118,11 @@ export class ResponseAnalysisService {
       };
     } catch (error) {
       this.logger.error('Error getting historical context:', error);
-      return { recentCheckIns: [], userProfile: null, baseline: null };
+      return {
+        recentCheckIns: [],
+        userProfile: null,
+        baseline: null,
+      };
     }
   }
 
@@ -166,23 +142,19 @@ export class ResponseAnalysisService {
     return age;
   }
 
-  private calculateBaseline(checkIns: any[]): any {
+  private calculateBaseline(
+    checkIns: Array<{ [key: string]: unknown }>,
+  ): BaselineMetrics | null {
     if (checkIns.length === 0) return null;
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const totals = checkIns.reduce(
-      (acc, checkIn: any) => ({
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-        moodScore: acc.moodScore + (checkIn.moodScore || 0),
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-        energyLevel: acc.energyLevel + (checkIn.energyLevel || 0),
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-        sleepQuality: acc.sleepQuality + (checkIn.sleepQuality || 0),
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-        painLevel: acc.painLevel + (checkIn.painLevel || 0),
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-        stressLevel: acc.stressLevel + (checkIn.stressLevel || 0),
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      (acc: MetricAccumulator, checkIn) => ({
+        moodScore: acc.moodScore + ((checkIn.moodScore as number) || 0),
+        energyLevel: acc.energyLevel + ((checkIn.energyLevel as number) || 0),
+        sleepQuality:
+          acc.sleepQuality + ((checkIn.sleepQuality as number) || 0),
+        painLevel: acc.painLevel + ((checkIn.painLevel as number) || 0),
+        stressLevel: acc.stressLevel + ((checkIn.stressLevel as number) || 0),
         count: acc.count + 1,
       }),
       {
@@ -196,22 +168,17 @@ export class ResponseAnalysisService {
     );
 
     return {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       avgMoodScore: totals.moodScore / totals.count,
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       avgEnergyLevel: totals.energyLevel / totals.count,
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       avgSleepQuality: totals.sleepQuality / totals.count,
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       avgPainLevel: totals.painLevel / totals.count,
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       avgStressLevel: totals.stressLevel / totals.count,
     };
   }
 
   private async performAIAnalysis(
     responses: CheckInResponse[],
-    historicalData: any,
+    historicalData: HistoricalContext,
   ): Promise<Partial<ResponseAnalysisResult>> {
     try {
       const prompt = this.buildAnalysisPrompt(responses, historicalData);
@@ -248,85 +215,74 @@ export class ResponseAnalysisService {
 
   private buildAnalysisPrompt(
     responses: CheckInResponse[],
-    historicalData: any,
+    historicalData: HistoricalContext,
   ): string {
-    let prompt = `Analyze the following daily health check-in responses:\n\n`;
+    let prompt = `Please analyze the following daily health check-in responses:\n\n`;
 
-    // Add current responses
-    prompt += `Today's Responses:\n`;
-    responses.forEach((response, index) => {
-      prompt += `${index + 1}. ${response.questionText}\n`;
-      prompt += `   Answer: ${Array.isArray(response.answer) ? response.answer.join(', ') : String(response.answer)}\n`;
-      prompt += `   Category: ${response.category}\n\n`;
+    // Add response data
+    responses.forEach((response) => {
+      prompt += `Question: ${response.questionText}\n`;
+      prompt += `Answer: ${
+        Array.isArray(response.answer)
+          ? response.answer.join(', ')
+          : response.answer
+      }\n`;
+      prompt += `Category: ${response.category}\n\n`;
     });
 
-    // Add historical context
+    // Add historical context if available
     if (historicalData.baseline) {
-      prompt += `Historical Baseline (last 30 days):\n`;
-      prompt += `- Average Mood: ${historicalData.baseline.avgMoodScore?.toFixed(1) || 'N/A'}\n`;
-      prompt += `- Average Energy: ${historicalData.baseline.avgEnergyLevel?.toFixed(1) || 'N/A'}\n`;
-      prompt += `- Average Sleep Quality: ${historicalData.baseline.avgSleepQuality?.toFixed(1) || 'N/A'}\n`;
-      prompt += `- Average Pain Level: ${historicalData.baseline.avgPainLevel?.toFixed(1) || 'N/A'}\n`;
-      prompt += `- Average Stress Level: ${historicalData.baseline.avgStressLevel?.toFixed(1) || 'N/A'}\n\n`;
+      prompt += `Historical context:\n`;
+      prompt += `Average mood score: ${historicalData.baseline.avgMoodScore.toFixed(
+        2,
+      )}\n`;
+      prompt += `Average energy level: ${historicalData.baseline.avgEnergyLevel.toFixed(
+        2,
+      )}\n`;
+      prompt += `Average sleep quality: ${historicalData.baseline.avgSleepQuality.toFixed(
+        2,
+      )}\n`;
+      prompt += `Average pain level: ${historicalData.baseline.avgPainLevel.toFixed(
+        2,
+      )}\n`;
+      prompt += `Average stress level: ${historicalData.baseline.avgStressLevel.toFixed(
+        2,
+      )}\n\n`;
     }
 
-    // Add user context
+    // Add user profile context if available
     if (historicalData.userProfile) {
-      prompt += `User Context:\n`;
+      prompt += `User profile:\n`;
       if (historicalData.userProfile.age) {
-        prompt += `- Age: ${historicalData.userProfile.age}\n`;
+        prompt += `Age: ${historicalData.userProfile.age}\n`;
       }
       if (historicalData.userProfile.gender) {
-        prompt += `- Gender: ${historicalData.userProfile.gender}\n`;
+        prompt += `Gender: ${historicalData.userProfile.gender}\n`;
       }
-      if (historicalData.userProfile.prescriptions?.length > 0) {
-        prompt += `- Current Medications:\n`;
-        historicalData.userProfile.prescriptions.forEach((med: any) => {
-          prompt += `  * ${med.medicationName} (${med.dosage}, ${med.frequency})\n`;
-        });
+      if (
+        historicalData.userProfile.prescriptions &&
+        historicalData.userProfile.prescriptions.length > 0
+      ) {
+        prompt += `Current medications: ${historicalData.userProfile.prescriptions
+          .map((p) => `${p.medicationName} ${p.dosage} ${p.frequency}`)
+          .join(', ')}\n`;
       }
       prompt += `\n`;
     }
 
-    prompt += `Please provide analysis in the following JSON format:
-{
-  "sentimentScore": 0.5,
-  "sentimentLabel": "positive",
-  "healthConcerns": ["concern1", "concern2"],
-  "emotionalIndicators": ["indicator1", "indicator2"],
-  "riskLevel": "low",
-  "riskScore": 3,
-  "keyInsights": ["insight1", "insight2"],
-  "recommendedActions": ["action1", "action2"],
-  "anomalies": [
-    {
-      "type": "mood",
-      "description": "Significant mood decline",
-      "severity": "medium",
-      "confidence": 0.8,
-      "suggestedAction": "Consider follow-up"
-    }
-  ],
-  "trends": [
-    {
-      "metric": "sleep_quality",
-      "direction": "declining",
-      "significance": "medium",
-      "timeframe": "last 7 days",
-      "description": "Sleep quality showing downward trend"
-    }
-  ]
-}
-
-Guidelines:
-- sentimentScore: -1 (very negative) to 1 (very positive)
-- sentimentLabel: "positive", "neutral", or "negative"
-- riskScore: 0-10 scale (0 = no risk, 10 = high risk)
-- riskLevel: "low" (0-3), "medium" (4-6), "high" (7-10)
-- Focus on actionable insights and recommendations
-- Consider medication side effects if applicable
-- Compare to historical baseline when available
-- Identify any concerning patterns or anomalies`;
+    prompt += `Based on the above information, please provide an analysis in the following format:
+    1. Sentiment Score (-1 to 1, where -1 is very negative and 1 is very positive)
+    2. Sentiment Label (positive, neutral, or negative)
+    3. Health Concerns (list)
+    4. Emotional Indicators (list)
+    5. Risk Level (low, medium, or high)
+    6. Risk Score (0-10)
+    7. Key Insights (list)
+    8. Recommended Actions (list)
+    9. Anomalies (list with type, description, severity, and suggested action)
+    10. Trends (list with metric, direction, significance, and description)
+    
+    Please format your response as JSON.`;
 
     return prompt;
   }
@@ -335,135 +291,201 @@ Guidelines:
     response: string,
   ): Partial<ResponseAnalysisResult> {
     try {
-      // Extract JSON from response
+      // Try to extract JSON object from the response
       const jsonMatch = response.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) {
-        throw new Error('No JSON found in AI response');
+      if (jsonMatch) {
+        const jsonStr = jsonMatch[0];
+        return JSON.parse(jsonStr) as Partial<ResponseAnalysisResult>;
       }
 
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      const parsed: any = JSON.parse(jsonMatch[0]);
-
-      return {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-        sentimentScore: parsed.sentimentScore || 0,
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-        sentimentLabel: parsed.sentimentLabel || 'neutral',
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-        healthConcerns: parsed.healthConcerns || [],
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-        emotionalIndicators: parsed.emotionalIndicators || [],
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-        riskLevel: parsed.riskLevel || 'low',
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-        riskScore: parsed.riskScore || 0,
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-        keyInsights: parsed.keyInsights || [],
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-        recommendedActions: parsed.recommendedActions || [],
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-        anomalies: parsed.anomalies || [],
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-        trends: parsed.trends || [],
-      };
+      // If no valid JSON found, parse the text manually
+      return this.parseTextResponse(response);
     } catch (error) {
       this.logger.error('Error parsing AI analysis response:', error);
-      return this.getFallbackAnalysis([]);
+      return {
+        sentimentScore: 0,
+        sentimentLabel: 'neutral',
+        healthConcerns: [],
+        emotionalIndicators: [],
+        riskLevel: 'low',
+        riskScore: 0,
+        keyInsights: ['Analysis unavailable'],
+        recommendedActions: ['Check back later'],
+        anomalies: [],
+        trends: [],
+      };
     }
+  }
+
+  private parseTextResponse(text: string): Partial<ResponseAnalysisResult> {
+    const result: Partial<ResponseAnalysisResult> = {
+      healthConcerns: [],
+      emotionalIndicators: [],
+      keyInsights: [],
+      recommendedActions: [],
+      anomalies: [],
+      trends: [],
+    };
+
+    const lines = text.split('\n');
+    for (const line of lines) {
+      if (line.includes('Sentiment Score:')) {
+        result.sentimentScore = parseFloat(line.split(':')[1].trim());
+      } else if (line.includes('Sentiment Label:')) {
+        const label = line.split(':')[1].trim().toLowerCase();
+        if (
+          label === 'positive' ||
+          label === 'neutral' ||
+          label === 'negative'
+        ) {
+          result.sentimentLabel = label as 'positive' | 'neutral' | 'negative';
+        }
+      } else if (line.includes('Risk Level:')) {
+        const level = line.split(':')[1].trim().toLowerCase();
+        if (level === 'low' || level === 'medium' || level === 'high') {
+          result.riskLevel = level as 'low' | 'medium' | 'high';
+        }
+      } else if (line.includes('Risk Score:')) {
+        result.riskScore = parseFloat(line.split(':')[1].trim());
+      }
+      // Additional parsing for lists could be implemented here
+    }
+
+    return result;
   }
 
   private async performQuantitativeAnalysis(
     responses: CheckInResponse[],
-    historicalData: any,
+    historicalData: HistoricalContext,
   ): Promise<Partial<ResponseAnalysisResult>> {
     try {
-      const analysis: Partial<ResponseAnalysisResult> = {
+      const result: Partial<ResponseAnalysisResult> = {
         anomalies: [],
         trends: [],
       };
 
-      // Analyze numeric responses for anomalies
-      responses.forEach((response) => {
-        if (typeof response.answer === 'number') {
+      // Process numeric responses and look for anomalies
+      for (const response of responses) {
+        if (
+          typeof response.answer === 'number' &&
+          historicalData.baseline &&
+          ['mood', 'energy', 'sleep', 'pain', 'stress'].includes(
+            response.category,
+          )
+        ) {
           const anomaly = this.detectNumericAnomaly(
             response,
             historicalData.baseline,
           );
           if (anomaly) {
-            analysis.anomalies?.push(anomaly);
+            result.anomalies?.push(anomaly);
           }
         }
-      });
+      }
 
-      // Calculate overall risk score based on quantitative metrics
-      const riskScore = this.calculateRiskScore(responses, historicalData);
-      analysis.riskScore = riskScore;
-      analysis.riskLevel = this.getRiskLevel(riskScore);
+      // Calculate risk score
+      result.riskScore = this.calculateRiskScore(responses, historicalData);
+      result.riskLevel = this.getRiskLevel(result.riskScore);
 
-      return analysis;
+      return result;
     } catch (error) {
       this.logger.error('Error in quantitative analysis:', error);
-      return { anomalies: [], trends: [] };
+      return {};
     }
   }
 
   private detectNumericAnomaly(
     response: CheckInResponse,
-    baseline: any,
+    baseline: BaselineMetrics,
   ): AnomalyDetection | null {
-    if (!baseline || typeof response.answer !== 'number') return null;
+    if (typeof response.answer !== 'number') return null;
 
-    const value = response.answer;
-    let baselineValue: number;
-    let threshold: number;
+    let baselineValue = 0;
+    let thresholdPercent = 0.25; // Default threshold 25%
+    let thresholdAbsolute = 2; // Default absolute threshold
+    let isAnomaly = false;
+    let direction = '';
 
-    // Map response categories to baseline values
+    // Get appropriate baseline value
     switch (response.category) {
       case 'mood':
         baselineValue = baseline.avgMoodScore;
-        threshold = 2; // 2-point difference is significant
         break;
       case 'energy':
         baselineValue = baseline.avgEnergyLevel;
-        threshold = 2;
         break;
       case 'sleep':
         baselineValue = baseline.avgSleepQuality;
-        threshold = 2;
         break;
       case 'pain':
         baselineValue = baseline.avgPainLevel;
-        threshold = 2;
+        thresholdPercent = 0.3; // Higher threshold for pain
         break;
       case 'stress':
         baselineValue = baseline.avgStressLevel;
-        threshold = 2;
+        thresholdPercent = 0.3; // Higher threshold for stress
         break;
       default:
         return null;
     }
 
-    if (!baselineValue) return null;
+    // Calculate difference and check if it's an anomaly
+    const diff = response.answer - baselineValue;
+    const percentDiff = Math.abs(diff) / (baselineValue || 1);
 
-    const difference = Math.abs(value - baselineValue);
-    if (difference >= threshold) {
-      const severity = difference >= threshold * 2 ? 'high' : 'medium';
-      const direction = value > baselineValue ? 'increase' : 'decrease';
-
-      return {
-        type: response.category as AnomalyDetection['type'],
-        description: `Significant ${direction} in ${response.category} (${value} vs baseline ${baselineValue.toFixed(1)})`,
-        severity,
-        confidence: Math.min(difference / (threshold * 2), 1),
-        suggestedAction: this.getSuggestedAction(
-          response.category,
-          direction,
-          severity,
-        ),
-      };
+    // Determine if this is an anomaly
+    if (
+      Math.abs(diff) >= thresholdAbsolute &&
+      percentDiff >= thresholdPercent
+    ) {
+      isAnomaly = true;
+      direction = diff > 0 ? 'higher' : 'lower';
     }
 
-    return null;
+    if (!isAnomaly) return null;
+
+    // For metrics where higher is better (mood, energy, sleep)
+    const isBetterWhenHigher = ['mood', 'energy', 'sleep'].includes(
+      response.category,
+    );
+    // For metrics where lower is better (pain, stress)
+    const isBetterWhenLower = ['pain', 'stress'].includes(response.category);
+
+    // Determine severity based on direction and metric type
+    let severity: 'low' | 'medium' | 'high' = 'low';
+    if ((isBetterWhenHigher && diff < 0) || (isBetterWhenLower && diff > 0)) {
+      // Worse than baseline
+      if (percentDiff > 0.5) severity = 'high';
+      else if (percentDiff > 0.3) severity = 'medium';
+    } else {
+      // Better than baseline
+      severity = 'low'; // Good anomalies are low severity
+    }
+
+    // Create the anomaly description
+    const description = `${response.category.charAt(0).toUpperCase() + response.category.slice(1)} is ${Math.abs(
+      diff,
+    ).toFixed(
+      1,
+    )} points ${direction} than usual (${percentDiff.toFixed(2) * 100}% change)`;
+
+    return {
+      type: response.category as
+        | 'mood'
+        | 'energy'
+        | 'sleep'
+        | 'pain'
+        | 'stress'
+        | 'symptoms',
+      description,
+      severity,
+      confidence: Math.min(0.5 + percentDiff, 0.95),
+      suggestedAction: this.getSuggestedAction(
+        response.category,
+        direction,
+        severity,
+      ),
+    };
   }
 
   private getSuggestedAction(
@@ -471,146 +493,265 @@ Guidelines:
     direction: string,
     severity: string,
   ): string {
-    const actions: Record<string, Record<string, string>> = {
+    // Template suggestions based on category, direction, and severity
+    const suggestions = {
       mood: {
-        decrease:
-          severity === 'high'
-            ? 'Consider contacting healthcare provider for mood assessment'
-            : 'Monitor mood changes and consider stress management techniques',
-        increase: 'Great improvement! Continue current positive habits',
+        lower: {
+          low: 'Monitor mood over the next few days',
+          medium:
+            'Consider stress reduction techniques or activities that boost mood',
+          high: 'Consider consulting a healthcare provider about mood changes',
+        },
+        higher: {
+          low: 'Great job! Keep up the positive activities',
+          medium: 'Continue with current positive lifestyle habits',
+          high: 'Share what helped improve your mood with your care circle',
+        },
       },
       energy: {
-        decrease: 'Review sleep patterns and consider gentle exercise',
-        increase: 'Excellent energy levels! Maintain current routine',
+        lower: {
+          low: 'Ensure adequate rest and hydration',
+          medium: 'Review sleep habits and consider stress reduction',
+          high: 'Consult healthcare provider about persistent fatigue',
+        },
+        higher: {
+          low: 'Continue current activity levels',
+          medium: 'Keep up with your healthy energy-supporting habits',
+          high: 'Share your energy-boosting techniques with your care circle',
+        },
       },
       sleep: {
-        decrease: 'Evaluate sleep hygiene and consider relaxation techniques',
-        increase: 'Good sleep improvement! Continue sleep routine',
+        lower: {
+          low: 'Monitor sleep over the next few nights',
+          medium: 'Review sleep hygiene practices',
+          high: 'Consider consulting a healthcare provider about sleep issues',
+        },
+        higher: {
+          low: 'Continue current sleep routine',
+          medium: 'Maintain consistent sleep schedule',
+          high: 'Share successful sleep habits with your care circle',
+        },
       },
       pain: {
-        increase:
-          severity === 'high'
-            ? 'Contact healthcare provider for pain management review'
-            : 'Monitor pain levels and consider gentle movement',
-        decrease: 'Pain improvement noted! Continue current management',
+        lower: {
+          low: 'Continue pain management techniques',
+          medium: 'Keep track of what may be helping reduce pain',
+          high: 'Share pain reduction strategies with healthcare provider',
+        },
+        higher: {
+          low: 'Monitor pain levels over the next few days',
+          medium: 'Consider rest and appropriate pain management',
+          high: 'Consult healthcare provider about increased pain',
+        },
       },
       stress: {
-        increase: 'Consider stress reduction techniques and relaxation methods',
-        decrease:
-          'Stress levels improving! Continue stress management practices',
+        lower: {
+          low: 'Continue stress management techniques',
+          medium: 'Keep up with relaxation practices',
+          high: 'Share stress reduction strategies with your care circle',
+        },
+        higher: {
+          low: 'Practice brief relaxation techniques',
+          medium: 'Increase stress management activities',
+          high: 'Consider discussing stress levels with healthcare provider',
+        },
+      },
+      symptoms: {
+        lower: {
+          low: 'Continue monitoring symptoms',
+          medium: 'Note what may be helping reduce symptoms',
+          high: 'Discuss symptom improvement with healthcare provider',
+        },
+        higher: {
+          low: 'Keep tracking these symptoms over the next few days',
+          medium: 'Consider rest and symptom management techniques',
+          high: 'Consult healthcare provider about increased symptoms',
+        },
       },
     };
 
-    return (
-      actions[category]?.[direction] ||
-      'Monitor changes and consult healthcare provider if concerned'
-    );
+    // Get the appropriate suggestion or provide a default
+    try {
+      return suggestions[category][direction][severity];
+    } catch (error) {
+      return 'Monitor and consult healthcare provider if needed';
+    }
   }
 
   private calculateRiskScore(
     responses: CheckInResponse[],
-    historicalData: any,
+    historicalData: HistoricalContext,
   ): number {
     let riskScore = 0;
-    let factorCount = 0;
+    const baseRisk = 3; // Starting risk score
 
-    responses.forEach((response) => {
-      if (typeof response.answer === 'number') {
-        const value = response.answer;
+    // Get relevant responses
+    const moodResponse = responses.find((r) => r.category === 'mood');
+    const painResponse = responses.find((r) => r.category === 'pain');
+    const stressResponse = responses.find((r) => r.category === 'stress');
+    const sleepResponse = responses.find((r) => r.category === 'sleep');
+    const symptomsResponses = responses.filter(
+      (r) => r.category === 'symptoms',
+    );
 
-        // Add risk based on concerning values
-        switch (response.category) {
-          case 'mood':
-            if (value <= 3) riskScore += 3;
-            else if (value <= 5) riskScore += 1;
-            factorCount++;
-            break;
-          case 'energy':
-            if (value <= 3) riskScore += 2;
-            else if (value <= 5) riskScore += 1;
-            factorCount++;
-            break;
-          case 'sleep':
-            if (value <= 4) riskScore += 2;
-            else if (value <= 6) riskScore += 1;
-            factorCount++;
-            break;
-          case 'pain':
-            if (value >= 7) riskScore += 3;
-            else if (value >= 5) riskScore += 2;
-            factorCount++;
-            break;
-          case 'stress':
-            if (value >= 7) riskScore += 2;
-            else if (value >= 5) riskScore += 1;
-            factorCount++;
-            break;
-        }
+    // Add risk based on mood (1-10 scale, lower is worse)
+    if (moodResponse && typeof moodResponse.answer === 'number') {
+      if (moodResponse.answer <= 3) riskScore += 2;
+      else if (moodResponse.answer <= 5) riskScore += 1;
+    }
+
+    // Add risk based on pain (1-10 scale, higher is worse)
+    if (painResponse && typeof painResponse.answer === 'number') {
+      if (painResponse.answer >= 7) riskScore += 2;
+      else if (painResponse.answer >= 5) riskScore += 1;
+    }
+
+    // Add risk based on stress (1-10 scale, higher is worse)
+    if (stressResponse && typeof stressResponse.answer === 'number') {
+      if (stressResponse.answer >= 8) riskScore += 2;
+      else if (stressResponse.answer >= 6) riskScore += 1;
+    }
+
+    // Add risk based on sleep (1-10 scale, lower is worse)
+    if (sleepResponse && typeof sleepResponse.answer === 'number') {
+      if (sleepResponse.answer <= 3) riskScore += 1.5;
+      else if (sleepResponse.answer <= 5) riskScore += 0.75;
+    }
+
+    // Add risk based on reported symptoms
+    if (symptomsResponses.length > 0) {
+      const symptomCount = symptomsResponses.length;
+      if (symptomCount >= 3) riskScore += 2;
+      else if (symptomCount > 0) riskScore += symptomCount * 0.5;
+    }
+
+    // Check for anomalies against historical data
+    if (historicalData.baseline) {
+      let significantChanges = 0;
+
+      // Check mood change
+      if (
+        moodResponse &&
+        typeof moodResponse.answer === 'number' &&
+        Math.abs(moodResponse.answer - historicalData.baseline.avgMoodScore) >=
+          3
+      ) {
+        significantChanges++;
       }
-    });
 
-    // Normalize risk score to 0-10 scale
-    return factorCount > 0 ? Math.min((riskScore / factorCount) * 2, 10) : 0;
+      // Check pain change
+      if (
+        painResponse &&
+        typeof painResponse.answer === 'number' &&
+        Math.abs(painResponse.answer - historicalData.baseline.avgPainLevel) >=
+          3
+      ) {
+        significantChanges++;
+      }
+
+      // Add risk based on number of significant changes
+      riskScore += significantChanges * 0.75;
+    }
+
+    // Ensure score is between 0-10
+    return Math.min(10, Math.max(0, baseRisk + riskScore));
   }
 
   private getRiskLevel(riskScore: number): 'low' | 'medium' | 'high' {
-    if (riskScore <= 3) return 'low';
-    if (riskScore <= 6) return 'medium';
-    return 'high';
+    if (riskScore >= 6.5) return 'high';
+    if (riskScore >= 4) return 'medium';
+    return 'low';
   }
 
   private combineAnalyses(
     aiAnalysis: Partial<ResponseAnalysisResult>,
     quantitativeAnalysis: Partial<ResponseAnalysisResult>,
   ): ResponseAnalysisResult {
-    return {
-      sentimentScore: aiAnalysis.sentimentScore || 0,
-      sentimentLabel: aiAnalysis.sentimentLabel || 'neutral',
-      healthConcerns: aiAnalysis.healthConcerns || [],
-      emotionalIndicators: aiAnalysis.emotionalIndicators || [],
-      riskLevel:
-        quantitativeAnalysis.riskLevel || aiAnalysis.riskLevel || 'low',
-      riskScore: quantitativeAnalysis.riskScore || aiAnalysis.riskScore || 0,
-      keyInsights: aiAnalysis.keyInsights || [],
-      recommendedActions: aiAnalysis.recommendedActions || [],
-      anomalies: [
-        ...(aiAnalysis.anomalies || []),
-        ...(quantitativeAnalysis.anomalies || []),
-      ],
-      trends: [
-        ...(aiAnalysis.trends || []),
-        ...(quantitativeAnalysis.trends || []),
-      ],
+    // Start with AI analysis values or defaults
+    const result: ResponseAnalysisResult = {
+      sentimentScore: aiAnalysis.sentimentScore ?? 0,
+      sentimentLabel: aiAnalysis.sentimentLabel ?? 'neutral',
+      healthConcerns: aiAnalysis.healthConcerns ?? [],
+      emotionalIndicators: aiAnalysis.emotionalIndicators ?? [],
+      riskLevel: aiAnalysis.riskLevel ?? 'low',
+      riskScore: aiAnalysis.riskScore ?? 0,
+      keyInsights: aiAnalysis.keyInsights ?? [],
+      recommendedActions: aiAnalysis.recommendedActions ?? [],
+      anomalies: aiAnalysis.anomalies ?? [],
+      trends: aiAnalysis.trends ?? [],
     };
+
+    // Prefer quantitative analysis for some fields
+    if (quantitativeAnalysis.riskScore !== undefined) {
+      result.riskScore = quantitativeAnalysis.riskScore;
+    }
+
+    if (quantitativeAnalysis.riskLevel) {
+      result.riskLevel = quantitativeAnalysis.riskLevel;
+    }
+
+    // Merge anomalies from both analyses, removing duplicates
+    if (
+      quantitativeAnalysis.anomalies &&
+      quantitativeAnalysis.anomalies.length > 0
+    ) {
+      result.anomalies = [
+        ...result.anomalies,
+        ...quantitativeAnalysis.anomalies.filter(
+          (qa) => !result.anomalies.some((a) => a.type === qa.type),
+        ),
+      ];
+    }
+
+    // Merge trends from both analyses
+    if (quantitativeAnalysis.trends && quantitativeAnalysis.trends.length > 0) {
+      result.trends = [...result.trends, ...quantitativeAnalysis.trends];
+    }
+
+    return result;
   }
 
   private getFallbackAnalysis(
     responses: CheckInResponse[],
   ): Partial<ResponseAnalysisResult> {
-    // Basic fallback analysis without AI
     const moodResponse = responses.find((r) => r.category === 'mood');
-    const energyResponse = responses.find((r) => r.category === 'energy');
+    const stressResponse = responses.find((r) => r.category === 'stress');
 
     let sentimentScore = 0;
     let sentimentLabel: 'positive' | 'neutral' | 'negative' = 'neutral';
+    let riskLevel: 'low' | 'medium' | 'high' = 'low';
+    let riskScore = 3; // Default risk score
 
+    // Basic sentiment from mood response
     if (moodResponse && typeof moodResponse.answer === 'number') {
-      const moodValue = moodResponse.answer;
-      sentimentScore = (moodValue - 5.5) / 4.5; // Convert 1-10 scale to -1 to 1
+      sentimentScore = (moodResponse.answer - 5.5) / 5.5; // Convert 1-10 to -1 to 1
+      if (moodResponse.answer >= 7) sentimentLabel = 'positive';
+      else if (moodResponse.answer <= 4) sentimentLabel = 'negative';
 
-      if (moodValue >= 7) sentimentLabel = 'positive';
-      else if (moodValue <= 4) sentimentLabel = 'negative';
+      // Adjust risk based on mood
+      if (moodResponse.answer <= 3) riskScore += 2;
     }
+
+    // Adjust risk based on stress
+    if (stressResponse && typeof stressResponse.answer === 'number') {
+      if (stressResponse.answer >= 7) {
+        riskScore += 2;
+      }
+    }
+
+    // Set risk level
+    if (riskScore >= 6) riskLevel = 'high';
+    else if (riskScore >= 4) riskLevel = 'medium';
 
     return {
       sentimentScore,
       sentimentLabel,
       healthConcerns: [],
       emotionalIndicators: [],
-      riskLevel: 'low',
-      riskScore: 0,
-      keyInsights: ['Basic analysis performed - AI analysis unavailable'],
-      recommendedActions: ['Continue monitoring daily check-ins'],
+      riskLevel,
+      riskScore,
+      keyInsights: ['Limited analysis available'],
+      recommendedActions: ['Continue monitoring your health'],
       anomalies: [],
       trends: [],
     };
@@ -622,30 +763,26 @@ Guidelines:
     analysis: ResponseAnalysisResult,
   ): Promise<void> {
     try {
-      // Update the daily check-in with AI insights and risk score
-      await this.prisma.dailyCheckIn.updateMany({
-        where: {
+      // Store results in the database
+      await this.prisma.checkInAnalysis.create({
+        data: {
           userId,
           date: new Date(date),
-        },
-        data: {
-          aiInsights: JSON.stringify({
-            sentimentScore: analysis.sentimentScore,
-            sentimentLabel: analysis.sentimentLabel,
-            healthConcerns: analysis.healthConcerns,
-            emotionalIndicators: analysis.emotionalIndicators,
-            keyInsights: analysis.keyInsights,
-            recommendedActions: analysis.recommendedActions,
-            anomalies: analysis.anomalies,
-            trends: analysis.trends,
-          }),
+          sentimentScore: analysis.sentimentScore,
+          sentimentLabel: analysis.sentimentLabel,
+          healthConcerns: analysis.healthConcerns,
+          emotionalIndicators: analysis.emotionalIndicators,
+          riskLevel: analysis.riskLevel,
           riskScore: analysis.riskScore,
+          keyInsights: analysis.keyInsights,
+          recommendedActions: analysis.recommendedActions,
+          anomalies: analysis.anomalies as unknown as object[],
+          trends: analysis.trends as unknown as object[],
         },
       });
-
-      this.logger.log(`Analysis results stored for user ${userId} on ${date}`);
     } catch (error) {
       this.logger.error('Error storing analysis results:', error);
+      // Don't throw, just log - this shouldn't fail the overall analysis
     }
   }
 }

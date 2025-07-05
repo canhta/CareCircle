@@ -3,6 +3,7 @@ import '../screens/health_data_screen.dart';
 import '../screens/profile_screen.dart';
 import '../screens/care_groups_screen.dart';
 import '../screens/daily_check_in_screen.dart';
+import '../widgets/error_boundary.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -10,170 +11,173 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('CareCircle'),
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        foregroundColor: Colors.white,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications),
-            onPressed: () {
-              Navigator.pushNamed(context, '/notifications');
-            },
-            tooltip: 'Notifications',
-          ),
-          IconButton(
-            icon: const Icon(Icons.person),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const ProfileScreen()),
-              );
-            },
-            tooltip: 'Profile',
-          ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Welcome Card
-              Card(
-                elevation: 2,
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
+        appBar: AppBar(
+          title: const Text('CareCircle'),
+          backgroundColor: Theme.of(context).colorScheme.primary,
+          foregroundColor: Colors.white,
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.notifications),
+              onPressed: () {
+                Navigator.pushNamed(context, '/notifications');
+              },
+              tooltip: 'Notifications',
+            ),
+            IconButton(
+              icon: const Icon(Icons.person),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const ProfileScreen()),
+                );
+              },
+              tooltip: 'Profile',
+            ),
+          ],
+        ),
+        body: ErrorBoundary(
+          errorMessage: 'Unable to load home screen content',
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Welcome Card
+                  Card(
+                    elevation: 2,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Icon(
-                            Icons.health_and_safety,
-                            color: Theme.of(context).primaryColor,
-                            size: 32,
-                          ),
-                          const SizedBox(width: 12),
-                          const Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Welcome to CareCircle',
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.health_and_safety,
+                                color: Theme.of(context).primaryColor,
+                                size: 32,
+                              ),
+                              const SizedBox(width: 12),
+                              const Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Welcome to CareCircle',
+                                      style: TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    SizedBox(height: 4),
+                                    Text(
+                                      'Your health journey starts here',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                SizedBox(height: 4),
-                                Text(
-                                  'Your health journey starts here',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.grey,
-                                  ),
-                                ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Features Title
+                  const Text(
+                    'Features',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Features Grid
+                  GridView.count(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 16,
+                    mainAxisSpacing: 16,
+                    childAspectRatio: 1.1,
+                    children: [
+                      _buildFeatureCard(
+                        context,
+                        icon: Icons.health_and_safety,
+                        title: 'Health Data',
+                        subtitle: 'Sync with Apple Health & Google Fit',
+                        color: Colors.blue,
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const HealthDataScreen(),
+                          ),
+                        ),
+                      ),
+                      _buildFeatureCard(
+                        context,
+                        icon: Icons.medication,
+                        title: 'Prescriptions',
+                        subtitle: 'Manage medications',
+                        color: Colors.green,
+                        onTap: () => Navigator.pushNamed(
+                            context, '/prescription-scanner'),
+                      ),
+                      _buildFeatureCard(
+                        context,
+                        icon: Icons.notifications,
+                        title: 'Reminders',
+                        subtitle: 'Smart notifications',
+                        color: Colors.orange,
+                        onTap: () => Navigator.pushNamed(context, '/reminders'),
+                      ),
+                      _buildFeatureCard(
+                        context,
+                        icon: Icons.check_circle_outline,
+                        title: 'Daily Check-ins',
+                        subtitle: 'Track your wellness',
+                        color: Colors.purple,
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const DailyCheckInScreen(),
+                          ),
+                        ),
+                      ),
+                      _buildFeatureCard(
+                        context,
+                        icon: Icons.group,
+                        title: 'Care Circle',
+                        subtitle: 'Family & caregivers',
+                        color: Colors.teal,
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const CareGroupsScreen(),
+                          ),
+                        ),
+                      ),
+                      _buildFeatureCard(
+                        context,
+                        icon: Icons.analytics,
+                        title: 'Insights',
+                        subtitle: 'Health analytics',
+                        color: Colors.indigo,
+                        onTap: () => Navigator.pushNamed(context, '/insights'),
+                      ),
                     ],
                   ),
-                ),
-              ),
-              const SizedBox(height: 24),
-
-              // Features Title
-              const Text(
-                'Features',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 16),
-
-              // Features Grid
-              GridView.count(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                crossAxisCount: 2,
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 16,
-                childAspectRatio: 1.1,
-                children: [
-                  _buildFeatureCard(
-                    context,
-                    icon: Icons.health_and_safety,
-                    title: 'Health Data',
-                    subtitle: 'Sync with Apple Health & Google Fit',
-                    color: Colors.blue,
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const HealthDataScreen(),
-                      ),
-                    ),
-                  ),
-                  _buildFeatureCard(
-                    context,
-                    icon: Icons.medication,
-                    title: 'Prescriptions',
-                    subtitle: 'Manage medications',
-                    color: Colors.green,
-                    onTap: () =>
-                        Navigator.pushNamed(context, '/prescription-scanner'),
-                  ),
-                  _buildFeatureCard(
-                    context,
-                    icon: Icons.notifications,
-                    title: 'Reminders',
-                    subtitle: 'Smart notifications',
-                    color: Colors.orange,
-                    onTap: () => Navigator.pushNamed(context, '/reminders'),
-                  ),
-                  _buildFeatureCard(
-                    context,
-                    icon: Icons.check_circle_outline,
-                    title: 'Daily Check-ins',
-                    subtitle: 'Track your wellness',
-                    color: Colors.purple,
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const DailyCheckInScreen(),
-                      ),
-                    ),
-                  ),
-                  _buildFeatureCard(
-                    context,
-                    icon: Icons.group,
-                    title: 'Care Circle',
-                    subtitle: 'Family & caregivers',
-                    color: Colors.teal,
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const CareGroupsScreen(),
-                      ),
-                    ),
-                  ),
-                  _buildFeatureCard(
-                    context,
-                    icon: Icons.analytics,
-                    title: 'Insights',
-                    subtitle: 'Health analytics',
-                    color: Colors.indigo,
-                    onTap: () => Navigator.pushNamed(context, '/insights'),
-                  ),
+                  const SizedBox(height: 24),
                 ],
               ),
-              const SizedBox(height: 24),
-            ],
+            ),
           ),
-        ),
-      ),
-    );
+        ));
   }
 
   Widget _buildFeatureCard(

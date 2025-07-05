@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import '../features/health/health.dart';
+import '../features/health/data/health_data_export_service.dart';
+import '../features/health/presentation/widgets/health_data_export_dialog.dart';
+import '../config/service_locator.dart';
+import '../common/network/network_exceptions.dart';
 import '../widgets/charts/interactive_health_chart.dart';
 import '../widgets/health_analytics_widget.dart';
 import '../widgets/time_range_selector.dart';
@@ -506,7 +510,7 @@ class _HealthDashboardState extends State<HealthDashboard>
               subtitle: const Text('Download your health data'),
               onTap: () {
                 Navigator.of(context).pop();
-                // TODO: Implement data export
+                _showExportDialog();
               },
             ),
           ],
@@ -622,6 +626,159 @@ class _HealthDashboardState extends State<HealthDashboard>
         return 'Basal Energy Burned';
       case CareCircleHealthDataType.distanceWalkingRunning:
         return 'Distance Walking/Running';
+    }
+  }
+
+  /// Show health data export dialog
+  void _showExportDialog() {
+    if (widget.healthData.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No health data available to export'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    showDialog<void>(
+      context: context,
+      builder: (context) => HealthDataExportDialog(
+        healthData: widget.healthData,
+        onExport: _handleDataExport,
+      ),
+    );
+  }
+
+  /// Handle health data export
+  Future<void> _handleDataExport(HealthDataExportOptions options) async {
+    try {
+      // Show loading indicator
+      showDialog<void>(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const AlertDialog(
+          content: Row(
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(width: 16),
+              Text('Exporting health data...'),
+            ],
+          ),
+        ),
+      );
+
+      // Get export service
+      final exportService = ServiceLocator.get<HealthDataExportService>();
+
+      // Export data
+      final result = await exportService.exportHealthData(
+        widget.healthData,
+        options,
+      );
+
+      // Hide loading indicator
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
+
+      if (result.isSuccess) {
+        final exportResult = result.data!;
+
+        // Show success message and share options
+        if (mounted) {
+          _showExportSuccessDialog(exportResult);
+        }
+      } else {
+        // Show error message
+        if (mounted) {
+          final errorMessage = result.exception is NetworkException
+              ? (result.exception as NetworkException).message
+              : result.exception?.toString() ?? 'Unknown error';
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Export failed: $errorMessage'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      // Hide loading indicator if still showing
+      if (mounted) {
+        Navigator.of(context).pop();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Export failed: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  /// Show export success dialog with sharing options
+  void _showExportSuccessDialog(HealthDataExportResult exportResult) {
+    showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Export Successful'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+                'Successfully exported ${exportResult.recordCount} health records.'),
+            const SizedBox(height: 8),
+            Text('File: ${exportResult.fileName}'),
+            Text('Format: ${exportResult.format.name.toUpperCase()}'),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Close'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              _shareExportedData(exportResult);
+            },
+            child: const Text('Share'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Share exported health data
+  Future<void> _shareExportedData(HealthDataExportResult exportResult) async {
+    try {
+      final exportService = ServiceLocator.get<HealthDataExportService>();
+      final result = await exportService.shareExportedData(exportResult);
+
+      if (result.isFailure && mounted) {
+        final errorMessage = result.exception is NetworkException
+            ? (result.exception as NetworkException).message
+            : result.exception?.toString() ?? 'Unknown error';
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Share failed: $errorMessage'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Share failed: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 }

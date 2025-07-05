@@ -1,6 +1,9 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import '../features/prescription/prescription.dart';
+import '../features/medication/domain/medication_models.dart';
+import '../features/medication/data/medication_service.dart';
+import '../config/service_locator.dart';
 import 'prescription_manual_entry_screen.dart';
 
 /// Screen for displaying OCR results from prescription scanning
@@ -328,15 +331,75 @@ class _PrescriptionOCRResultsScreenState
     );
   }
 
-  void _saveToMedications(PrescriptionOCRResponse ocrData) {
-    // TODO: Implement saving to local medications database or navigate to edit screen
+  void _saveToMedications(PrescriptionOCRResponse ocrData) async {
+    try {
+      // Show loading dialog
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const AlertDialog(
+          content: Row(
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(width: 16),
+              Text('Saving medication...'),
+            ],
+          ),
+        ),
+      );
+
+      // Get medication service from service locator
+      final medicationService = ServiceLocator.get<MedicationService>();
+
+      // Create medication from OCR data
+      final medication = MedicationCreate(
+        name: ocrData.extractedData.drugName ?? 'Unknown Medication',
+        dosage: ocrData.extractedData.dosage,
+        frequency: ocrData.extractedData.frequency,
+        instructions: ocrData.extractedData.instructions,
+        startDate: DateTime.now(),
+        isActive: true,
+        notes:
+            'Created from prescription scan (${(ocrData.confidence * 100).toStringAsFixed(1)}% confidence)',
+      );
+
+      // Save medication
+      final result = await medicationService.addMedication(medication);
+
+      // Close loading dialog
+      if (mounted) Navigator.pop(context);
+
+      if (result.isSuccess) {
+        // Show success message and navigate back
+        _showSuccessSnackBar('Medication saved successfully!');
+
+        // Navigate back to previous screen after a short delay
+        Future.delayed(const Duration(seconds: 1), () {
+          if (mounted) {
+            Navigator.pop(context, true); // Return true to indicate success
+          }
+        });
+      } else {
+        // Show error dialog
+        _showErrorDialog(
+            'Failed to save medication: ${result.exception?.toString() ?? 'Unknown error'}');
+      }
+    } catch (e) {
+      // Close loading dialog if still open
+      if (mounted) Navigator.pop(context);
+
+      // Show error dialog
+      _showErrorDialog('Error saving medication: $e');
+    }
+  }
+
+  /// Shows error dialog
+  void _showErrorDialog(String message) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Save to Medications'),
-        content: const Text(
-          'This feature will be implemented to save the prescription data to your medications list.',
-        ),
+        title: const Text('Error'),
+        content: Text(message),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),

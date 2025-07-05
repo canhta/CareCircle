@@ -5,7 +5,6 @@ import '../utils/analytics_service.dart';
 class UserBehaviorService {
   late final AnalyticsService _analytics;
   late final AppLogger _logger;
-  late final SecureStorageService _storage;
 
   // Session tracking
   DateTime? _sessionStartTime;
@@ -16,21 +15,19 @@ class UserBehaviorService {
   UserBehaviorService({
     required AnalyticsService analytics,
     required AppLogger logger,
-    required SecureStorageService storage,
   }) {
     _analytics = analytics;
     _logger = logger;
-    _storage = storage;
   }
 
   /// Initialize user behavior tracking
   Future<void> initialize() async {
     try {
       _logger.info('Initializing UserBehaviorService...');
-      
+
       // Start session tracking
       await startSession();
-      
+
       _logger.info('UserBehaviorService initialized successfully');
     } catch (e) {
       _logger.error('Failed to initialize UserBehaviorService', error: e);
@@ -42,7 +39,7 @@ class UserBehaviorService {
   Future<void> startSession() async {
     try {
       _sessionStartTime = DateTime.now();
-      
+
       await _analytics.trackEvent('session_start', {
         'timestamp': _sessionStartTime!.toIso8601String(),
         'platform': 'flutter',
@@ -60,7 +57,7 @@ class UserBehaviorService {
       if (_sessionStartTime == null) return;
 
       final sessionDuration = DateTime.now().difference(_sessionStartTime!);
-      
+
       await _analytics.trackEvent('session_end', {
         'session_duration_seconds': sessionDuration.inSeconds,
         'session_duration_minutes': sessionDuration.inMinutes,
@@ -81,7 +78,8 @@ class UserBehaviorService {
   }
 
   /// Track screen view
-  Future<void> trackScreenView(String screenName, {Map<String, dynamic>? properties}) async {
+  Future<void> trackScreenView(String screenName,
+      {Map<String, dynamic>? properties}) async {
     try {
       // End previous screen tracking
       if (_currentScreen != null) {
@@ -90,7 +88,7 @@ class UserBehaviorService {
 
       // Start new screen tracking
       _currentScreen = screenName;
-      
+
       await _analytics.trackScreenView(screenName, properties: {
         'timestamp': DateTime.now().toIso8601String(),
         if (properties != null) ...properties,
@@ -315,7 +313,8 @@ class UserBehaviorService {
     try {
       // Calculate time spent on screen (simplified)
       final timeSpent = 30; // Placeholder - in a real app, track actual time
-      _screenTimeMap[screenName] = (_screenTimeMap[screenName] ?? 0) + timeSpent;
+      _screenTimeMap[screenName] =
+          (_screenTimeMap[screenName] ?? 0) + timeSpent;
 
       await _analytics.trackEvent('screen_time', {
         'screen_name': screenName,

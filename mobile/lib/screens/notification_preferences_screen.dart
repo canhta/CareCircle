@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../features/notification/notification.dart';
 import '../common/common.dart';
+import '../widgets/widget_optimizer.dart';
 
 class NotificationPreferencesScreen extends StatefulWidget {
   const NotificationPreferencesScreen({super.key});
@@ -158,8 +159,9 @@ class _NotificationPreferencesScreenState
       );
     }
 
-    return ListView(
+    return WidgetOptimizer.optimizeListView(
       padding: const EdgeInsets.all(16),
+      addRepaintBoundaries: true,
       children: [
         _buildNotificationTypesSection(),
         const SizedBox(height: 24),

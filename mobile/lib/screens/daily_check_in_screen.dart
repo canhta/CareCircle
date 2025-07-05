@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../features/daily_check_in/daily_check_in.dart';
 import '../common/common.dart';
+import '../widgets/widget_optimizer.dart';
 import 'personalized_questions_screen.dart';
 import 'check_in_history_screen.dart';
 import 'insights_screen.dart';
@@ -342,28 +343,28 @@ class _DailyCheckInScreenState extends State<DailyCheckInScreen> {
           const SizedBox(height: 16),
 
           // Metrics Summary
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Today\'s Metrics',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
+          WidgetOptimizer.optimizedCard(
+            padding: const EdgeInsets.all(16),
+            child: WidgetOptimizer.optimizeColumn(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Today\'s Metrics',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
                   ),
-                  const SizedBox(height: 16),
-                  _buildMetricSummary('Mood', checkIn.moodScore),
-                  _buildMetricSummary('Energy', checkIn.energyLevel),
-                  _buildMetricSummary('Sleep Quality', checkIn.sleepQuality),
-                  _buildMetricSummary('Pain Level', checkIn.painLevel),
-                  _buildMetricSummary('Stress Level', checkIn.stressLevel),
-                ],
-              ),
+                ),
+                const SizedBox(height: 16),
+                _buildMetricSummary('Mood', checkIn.moodScore),
+                _buildMetricSummary('Energy', checkIn.energyLevel),
+                _buildMetricSummary('Sleep Quality', checkIn.sleepQuality),
+                _buildMetricSummary('Pain Level', checkIn.painLevel),
+                _buildMetricSummary('Stress Level', checkIn.stressLevel),
+              ],
+              addRepaintBoundaries: true, // Isolate metric summary repaints
             ),
+            useRepaintBoundary: true,
           ),
 
           const SizedBox(height: 16),

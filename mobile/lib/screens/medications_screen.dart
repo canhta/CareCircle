@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../features/prescription/prescription.dart';
 import '../common/common.dart';
+import '../widgets/error_boundary.dart';
+import '../widgets/widget_optimizer.dart';
 
 class MedicationsScreen extends StatefulWidget {
   const MedicationsScreen({super.key});
@@ -209,21 +211,26 @@ class _MedicationsScreenState extends State<MedicationsScreen> {
       );
     }
 
-    return ListView.builder(
+    return WidgetOptimizer.optimizedListViewBuilder(
       itemCount: _medications.length,
       itemBuilder: (context, index) {
         final medication = _medications[index];
-        return _buildMedicationCard(medication);
+        return ListItemErrorBoundary(
+          index: index,
+          child: _buildMedicationCard(medication),
+        );
       },
+      addRepaintBoundaries: true, // Isolate expensive card repaints
+      addItemKeys: true, // Improve list update performance
     );
   }
 
   Widget _buildMedicationCard(PrescriptionModel medication) {
     final isActive = medication.status == PrescriptionStatus.active;
 
-    return Card(
+    return WidgetOptimizer.optimizedCard(
       margin: const EdgeInsets.all(8),
-      child: ListTile(
+      child: WidgetOptimizer.optimizedListTile(
         leading: CircleAvatar(
           backgroundColor: isActive ? Colors.green : Colors.grey,
           child: Icon(
@@ -239,7 +246,7 @@ class _MedicationsScreenState extends State<MedicationsScreen> {
                 isActive ? TextDecoration.none : TextDecoration.lineThrough,
           ),
         ),
-        subtitle: Column(
+        subtitle: WidgetOptimizer.optimizeColumn(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('Dosage: ${medication.dosage}'),
@@ -247,6 +254,8 @@ class _MedicationsScreenState extends State<MedicationsScreen> {
             if (medication.instructions.isNotEmpty)
               Text('Instructions: ${medication.instructions}'),
           ],
+          addRepaintBoundaries:
+              false, // Simple text widgets don't need boundaries
         ),
         trailing: PopupMenuButton<String>(
           onSelected: (value) {

@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import '../features/prescription/prescription.dart';
+import '../widgets/optimized_image.dart';
 
 /// Screen for manual prescription entry and editing
 class PrescriptionManualEntryScreen extends StatefulWidget {
@@ -416,7 +417,14 @@ class _PrescriptionManualEntryScreenState
               ),
             ),
             Expanded(
-              child: InteractiveViewer(child: Image.file(widget.imageFile!)),
+              child: InteractiveViewer(
+                child: OptimizedImage(
+                  imageFile: widget.imageFile!,
+                  fit: BoxFit.contain,
+                  memCacheWidth: 800,
+                  memCacheHeight: 800,
+                ),
+              ),
             ),
           ],
         ),

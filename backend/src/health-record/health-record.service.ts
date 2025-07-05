@@ -7,6 +7,7 @@ import {
   HealthMetricsQueryDto,
   HealthDataTypeDto,
   DataSourceDto,
+  HealthDataPointDto,
 } from './dto/health-data.dto';
 import {
   HealthDataType,
@@ -14,7 +15,15 @@ import {
   SyncStatus,
   ConsentType,
   Prisma,
+  HealthMetrics,
 } from '@prisma/client';
+import {
+  HealthDataPoint,
+  HealthMetricsUpdate,
+  HealthDataSyncResult,
+  AsyncSyncResponse,
+  QueueStats,
+} from '../common/interfaces/health-data.interfaces';
 
 @Injectable()
 export class HealthRecordService {
@@ -23,7 +32,10 @@ export class HealthRecordService {
     private readonly queueService: HealthDataQueueService,
   ) {}
 
-  async syncHealthData(userId: string, syncData: HealthDataSyncDto) {
+  async syncHealthData(
+    userId: string,
+    syncData: HealthDataSyncDto,
+  ): Promise<HealthDataSyncResult> {
     // Create sync record
     const syncRecord = await this.prisma.healthDataSync.create({
       data: {
@@ -82,7 +94,10 @@ export class HealthRecordService {
     }
   }
 
-  async syncHealthDataAsync(userId: string, syncData: HealthDataSyncDto) {
+  async syncHealthDataAsync(
+    userId: string,
+    syncData: HealthDataSyncDto,
+  ): Promise<AsyncSyncResponse> {
     // Add sync job to queue for asynchronous processing
     await this.queueService.addSyncJob(userId, syncData, {
       priority: 'normal',
@@ -116,9 +131,9 @@ export class HealthRecordService {
 
   private async processHealthDataPoint(
     userId: string,
-    dataPoint: any,
+    dataPoint: HealthDataPointDto,
     syncId: string,
-  ) {
+  ): Promise<void> {
     const date = new Date(dataPoint.timestamp);
     const dateOnly = new Date(
       date.getFullYear(),
@@ -157,7 +172,7 @@ export class HealthRecordService {
         userId,
         dataType: this.mapHealthDataType(dataPoint.type),
         value: dataPoint.value,
-        unit: dataPoint.unit,
+        unit: dataPoint.unit || '',
         recordedAt: new Date(dataPoint.timestamp),
         source: this.mapDataSource(dataPoint.source),
         deviceId: dataPoint.deviceId,
@@ -174,26 +189,10 @@ export class HealthRecordService {
     });
   }
 
-  private mapHealthDataToMetrics(dataPoint: {
-    type: HealthDataTypeDto;
-    value: number;
-    unit?: string;
-    timestamp: Date;
-    source: DataSourceDto;
-    deviceId?: string;
-    metadata?: Record<string, any>;
-  }): Partial<{
-    steps: number;
-    heartRateAvg: number;
-    weight: number;
-    height: number;
-    bloodGlucose: number;
-    bodyTemperature: number;
-    oxygenSaturation: number;
-    caloriesBurned: number;
-    distance: number;
-  }> {
-    const updates: any = {};
+  private mapHealthDataToMetrics(
+    dataPoint: HealthDataPointDto,
+  ): HealthMetricsUpdate {
+    const updates: HealthMetricsUpdate = {};
 
     switch (dataPoint.type) {
       case HealthDataTypeDto.STEPS:
@@ -346,7 +345,10 @@ export class HealthRecordService {
     });
   }
 
-  async getHealthSummary(userId: string, period: 'week' | 'month' | 'year') {
+  async getHealthSummary(
+    userId: string,
+    period: 'week' | 'month' | 'year',
+  ): Promise<Record<string, any>> {
     const now = new Date();
     let startDate: Date;
 
@@ -395,7 +397,7 @@ export class HealthRecordService {
     return summary;
   }
 
-  private calculateAverages(metrics: any[]) {
+  private calculateAverages(metrics: HealthMetrics[]): Record<string, number> {
     if (metrics.length === 0) return {};
 
     const sums: any = {};
@@ -418,7 +420,9 @@ export class HealthRecordService {
     return averages;
   }
 
-  private calculateTrends(metrics: any[]) {
+  private calculateTrends(
+    metrics: HealthMetrics[],
+  ): Record<string, 'up' | 'down' | 'stable'> {
     // Simple trend calculation - compare first half vs second half
     if (metrics.length < 4) return {};
 
@@ -443,7 +447,10 @@ export class HealthRecordService {
     return trends;
   }
 
-  async addManualHealthData(userId: string, healthData: HealthDataSyncDto) {
+  async addManualHealthData(
+    userId: string,
+    healthData: HealthDataSyncDto,
+  ): Promise<HealthDataSyncResult> {
     // Ensure all data points are marked as manual
     const manualData = {
       ...healthData,
@@ -457,7 +464,7 @@ export class HealthRecordService {
     return this.syncHealthData(userId, manualData);
   }
 
-  getQueueStats() {
+  getQueueStats(): QueueStats {
     return this.queueService.getQueueStats();
   }
 
@@ -553,8 +560,8 @@ export class HealthRecordService {
     userId: string,
     action: string,
     dataType: string | null,
-    metadata?: Record<string, any>,
-  ) {
+    metadata?: Record<string, unknown>,
+  ): Promise<void> {
     try {
       await this.prisma.healthDataAccess.create({
         data: {

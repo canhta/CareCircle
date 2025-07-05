@@ -314,4 +314,20 @@ class AnalyticsService {
       _logger.error('Failed to stop trace', error: e);
     }
   }
+
+  /// Track performance metrics
+  Future<void> trackPerformanceMetric(
+    String metricName,
+    double value, {
+    String? unit,
+    Map<String, dynamic>? properties,
+  }) async {
+    await trackEvent('performance_metric', {
+      'metric_name': metricName,
+      'metric_value': value,
+      if (unit != null) 'unit': unit,
+      'timestamp': DateTime.now().toIso8601String(),
+      if (properties != null) ...properties,
+    });
+  }
 }

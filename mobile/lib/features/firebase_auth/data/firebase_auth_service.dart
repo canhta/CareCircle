@@ -522,7 +522,7 @@ class FirebaseAuthService implements FirebaseAuthRepository {
         return Result.failure(Exception('No user is currently signed in'));
       }
 
-      await currentUser.verifyBeforeUpdateEmail(newEmail, forceResending: true);
+      await currentUser.verifyBeforeUpdateEmail(newEmail);
       await _storeUserSession(currentUser);
 
       _logger.info('Email updated successfully');

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'checkin_reminder_setup_screen.dart';
 import '../common/common.dart';
 
 class RemindersScreen extends StatefulWidget {
@@ -119,7 +120,12 @@ class _RemindersScreenState extends State<RemindersScreen> {
               title: 'Check-ins',
               subtitle: 'Daily health updates',
               color: Colors.green,
-              onTap: () => _showComingSoonDialog('Daily Check-in Reminders'),
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const CheckinReminderSetupScreen(),
+                ),
+              ),
             ),
             _buildReminderTypeCard(
               icon: Icons.calendar_today,
@@ -160,7 +166,7 @@ class _RemindersScreenState extends State<RemindersScreen> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
+                  color: color.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(icon, color: color, size: 24),
@@ -252,7 +258,7 @@ class _RemindersScreenState extends State<RemindersScreen> {
             leading: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: (reminder['color'] as Color).withOpacity(0.1),
+                color: (reminder['color'] as Color).withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(
@@ -276,7 +282,8 @@ class _RemindersScreenState extends State<RemindersScreen> {
                 const SizedBox(width: 8),
                 Switch(
                   value: reminder['enabled'] as bool,
-                  onChanged: (value) => _toggleReminder(reminder['title'] as String, value),
+                  onChanged: (value) =>
+                      _toggleReminder(reminder['title'] as String, value),
                 ),
               ],
             ),

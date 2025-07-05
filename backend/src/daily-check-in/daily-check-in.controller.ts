@@ -26,6 +26,14 @@ import {
   AnswerQuestionDto,
   CheckInResponseDto,
 } from './dto/daily-check-in.dto';
+import {
+  RequestWithUser,
+  CheckInResponse,
+  CheckInInsight,
+  WeeklyInsightsSummary,
+  CheckInInsightEntry,
+  NotificationResponseData,
+} from '../common/interfaces';
 
 @ApiTags('Daily Check-ins')
 @ApiBearerAuth()
@@ -45,7 +53,7 @@ export class DailyCheckInController {
     type: CheckInResponseDto,
   })
   async createCheckIn(
-    @Request() req: any,
+    @Request() req: RequestWithUser,
     @Body() createCheckInDto: CreateDailyCheckInDto,
   ): Promise<CheckInResponseDto> {
     return this.dailyCheckInService.createCheckIn(
@@ -62,7 +70,7 @@ export class DailyCheckInController {
     type: CheckInResponseDto,
   })
   async updateCheckIn(
-    @Request() req: any,
+    @Request() req: RequestWithUser,
     @Param('id') checkInId: string,
     @Body() updateCheckInDto: UpdateDailyCheckInDto,
   ): Promise<CheckInResponseDto> {
@@ -81,9 +89,8 @@ export class DailyCheckInController {
     type: CheckInResponseDto,
   })
   async getTodaysCheckIn(
-    @Request() req: any,
+    @Request() req: RequestWithUser,
   ): Promise<CheckInResponseDto | null> {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     return this.dailyCheckInService.getTodaysCheckIn(req.user.id);
   }
 
@@ -95,7 +102,7 @@ export class DailyCheckInController {
     type: CheckInResponseDto,
   })
   async createOrUpdateTodaysCheckIn(
-    @Request() req: any,
+    @Request() req: RequestWithUser,
     @Body() updateData: Partial<CreateDailyCheckInDto>,
   ): Promise<CheckInResponseDto> {
     return this.dailyCheckInService.createOrUpdateTodaysCheckIn(
@@ -112,10 +119,9 @@ export class DailyCheckInController {
     type: CheckInResponseDto,
   })
   async getCheckInByDate(
-    @Request() req: any,
+    @Request() req: RequestWithUser,
     @Param('date') date: string,
   ): Promise<CheckInResponseDto | null> {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     return this.dailyCheckInService.getCheckInByDate(req.user.id, date);
   }
 
@@ -127,10 +133,9 @@ export class DailyCheckInController {
     type: [CheckInResponseDto],
   })
   async getRecentCheckIns(
-    @Request() req: any,
+    @Request() req: RequestWithUser,
     @Query('limit') limit?: number,
   ): Promise<CheckInResponseDto[]> {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     return this.dailyCheckInService.getRecentCheckIns(req.user.id, limit);
   }
 
@@ -142,10 +147,9 @@ export class DailyCheckInController {
     type: CheckInResponseDto,
   })
   async getCheckInById(
-    @Request() req: any,
+    @Request() req: RequestWithUser,
     @Param('id') checkInId: string,
   ): Promise<CheckInResponseDto> {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     return this.dailyCheckInService.getCheckInById(req.user.id, checkInId);
   }
 
@@ -157,7 +161,7 @@ export class DailyCheckInController {
     type: [PersonalizedQuestionDto],
   })
   async generatePersonalizedQuestions(
-    @Request() req: any,
+    @Request() req: RequestWithUser,
     @Body() generateQuestionsDto: GenerateQuestionsDto,
   ): Promise<PersonalizedQuestionDto[]> {
     return this.dailyCheckInService.generatePersonalizedQuestions(
@@ -173,7 +177,7 @@ export class DailyCheckInController {
     description: 'Answer submitted successfully',
   })
   async answerQuestion(
-    @Request() req: any,
+    @Request() req: RequestWithUser,
     @Param('date') date: string,
     @Body() answerDto: AnswerQuestionDto,
   ): Promise<void> {
@@ -191,10 +195,10 @@ export class DailyCheckInController {
     description: 'Insights generated successfully',
   })
   async generateInsights(
-    @Request() req: any,
+    @Request() req: RequestWithUser,
     @Param('date') date: string,
-    @Body() responses: any[], // CheckInResponse array
-  ): Promise<any> {
+    @Body() responses: CheckInResponse[],
+  ): Promise<CheckInInsight[]> {
     return this.dailyCheckInService.generateComprehensiveInsights(
       req.user.id,
       date,
@@ -209,9 +213,9 @@ export class DailyCheckInController {
     description: 'Recent insights retrieved successfully',
   })
   async getRecentInsights(
-    @Request() req: any,
+    @Request() req: RequestWithUser,
     @Query('limit') limit?: number,
-  ): Promise<{ date: string; insights: any[] }[]> {
+  ): Promise<CheckInInsightEntry[]> {
     return this.dailyCheckInService.getRecentInsights(req.user.id, limit);
   }
 
@@ -221,12 +225,9 @@ export class DailyCheckInController {
     status: 200,
     description: 'Weekly insights summary retrieved successfully',
   })
-  async getWeeklyInsightsSummary(@Request() req: any): Promise<{
-    summary: string;
-    keyInsights: any[];
-    trends: string[];
-    recommendations: string[];
-  }> {
+  async getWeeklyInsightsSummary(
+    @Request() req: RequestWithUser,
+  ): Promise<WeeklyInsightsSummary> {
     return this.dailyCheckInService.generateWeeklyInsightsSummary(req.user.id);
   }
 
@@ -237,9 +238,9 @@ export class DailyCheckInController {
     description: 'Stored insights retrieved successfully',
   })
   async getStoredInsights(
-    @Request() req: any,
+    @Request() req: RequestWithUser,
     @Param('checkInId') checkInId: string,
-  ): Promise<any[]> {
+  ): Promise<CheckInInsight[]> {
     return this.dailyCheckInService.getStoredInsights(req.user.id, checkInId);
   }
 
@@ -249,20 +250,22 @@ export class DailyCheckInController {
     status: 200,
     description: 'Engagement notifications processed successfully',
   })
-  async processEngagementNotifications(@Request() req: any): Promise<void> {
+  async processEngagementNotifications(
+    @Request() req: RequestWithUser,
+  ): Promise<void> {
     return this.dailyCheckInService.processEngagementNotifications(req.user.id);
   }
 
-  @Post('notifications/:notificationId/response')
-  @ApiOperation({ summary: 'Handle user response to interactive notification' })
+  @Post('notification/:notificationId/respond')
+  @ApiOperation({ summary: 'Handle response to an interactive notification' })
   @ApiResponse({
     status: 200,
-    description: 'Interactive notification response processed successfully',
+    description: 'Notification response handled successfully',
   })
   async handleNotificationResponse(
-    @Request() req: any,
+    @Request() req: RequestWithUser,
     @Param('notificationId') notificationId: string,
-    @Body() responseData: { actionId: string; data?: any },
+    @Body() responseData: NotificationResponseData,
   ): Promise<void> {
     return this.interactiveNotificationService.handleInteractiveResponse(
       req.user.id,
@@ -273,21 +276,20 @@ export class DailyCheckInController {
   }
 
   @Get('test-notifications/:userId')
-  @ApiOperation({ summary: 'Test interactive notifications for a user' })
+  @ApiOperation({ summary: 'Test notification system' })
   @ApiResponse({
     status: 200,
     description: 'Test notifications sent successfully',
   })
-  async testNotifications(@Param('userId') userId: string): Promise<any> {
-    // Test with sample insights
+  async testNotifications(@Param('userId') userId: string): Promise<void> {
     const testInsights = [
       {
         id: 'test-1',
         type: 'concern' as const,
-        severity: 'high' as const,
         title: 'Declining Mood Pattern',
         description:
           'Your mood scores have been declining over the past few days.',
+        severity: 'high' as const,
         confidence: 0.85,
         supportingData: [
           'Average mood: 3.2/10',
@@ -305,6 +307,6 @@ export class DailyCheckInController {
     );
     await this.dailyCheckInService.processEngagementNotifications(userId);
 
-    return { message: 'Test notifications sent successfully' };
+    return;
   }
 }

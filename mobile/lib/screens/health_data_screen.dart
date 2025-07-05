@@ -451,74 +451,87 @@ class _HealthDataScreenState extends State<HealthDataScreen> {
       groupedData.putIfAbsent(point.type, () => []).add(point);
     }
 
-    return ListView(
+    final groupedDataEntries = groupedData.entries.toList();
+
+    return ListView.builder(
       padding: const EdgeInsets.all(16),
-      children: [
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Recent Health Data (Last 7 Days)',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Last synced: ${DateTime.now().toString().split('.')[0]}',
-                  style: const TextStyle(color: Colors.grey),
-                ),
-              ],
+      itemCount: groupedDataEntries.length + 3, // 3 fixed items + dynamic items
+      itemBuilder: (context, index) {
+        if (index == 0) {
+          return Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Recent Health Data (Last 7 Days)',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Last synced: ${DateTime.now().toString().split('.')[0]}',
+                    style: const TextStyle(color: Colors.grey),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ),
-        const SizedBox(height: 16),
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    const Icon(Icons.dashboard, color: Colors.blue),
-                    const SizedBox(width: 8),
-                    const Text(
-                      'Health Dashboard',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+          );
+        } else if (index == 1) {
+          return const SizedBox(height: 16);
+        } else if (index == 2) {
+          return Column(
+            children: [
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(Icons.dashboard, color: Colors.blue),
+                          const SizedBox(width: 8),
+                          const Text(
+                            'Health Dashboard',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  'View interactive charts and trends of your health data with detailed insights.',
-                  style: TextStyle(color: Colors.grey),
-                ),
-                const SizedBox(height: 16),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton.icon(
-                    onPressed: _showDashboard,
-                    icon: const Icon(Icons.trending_up),
-                    label: const Text('View Dashboard'),
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                    ),
+                      const SizedBox(height: 8),
+                      const Text(
+                        'View interactive charts and trends of your health data with detailed insights.',
+                        style: TextStyle(color: Colors.grey),
+                      ),
+                      const SizedBox(height: 16),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton.icon(
+                          onPressed: _showDashboard,
+                          icon: const Icon(Icons.trending_up),
+                          label: const Text('View Dashboard'),
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ],
-            ),
-          ),
-        ),
-        const SizedBox(height: 16),
-        ...groupedData.entries.map(
-          (entry) => _buildDataTypeCard(entry.key, entry.value),
-        ),
-      ],
+              ),
+              const SizedBox(height: 16),
+            ],
+          );
+        } else {
+          // Dynamic data type cards
+          final entryIndex = index - 3;
+          final entry = groupedDataEntries[entryIndex];
+          return _buildDataTypeCard(entry.key, entry.value);
+        }
+      },
     );
   }
 

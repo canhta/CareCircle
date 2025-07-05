@@ -24,19 +24,19 @@ export interface IPRestrictionConfig {
 /**
  * Decorator to restrict access based on IP address
  */
-export const RestrictIP = (config: IPRestrictionConfig) => 
+export const RestrictIP = (config: IPRestrictionConfig) =>
   SetMetadata(IP_RESTRICTION_KEY, config);
 
 /**
  * Convenience decorators for common IP restriction patterns
  */
-export const AdminIPsOnly = () => 
+export const AdminIPsOnly = () =>
   RestrictIP({
     mode: 'whitelist',
     allowedCIDRs: process.env.ADMIN_IP_RANGES?.split(',') || ['127.0.0.1/32'],
   });
 
-export const BlockSuspiciousIPs = () => 
+export const BlockSuspiciousIPs = () =>
   RestrictIP({
     mode: 'blacklist',
     blockedCIDRs: process.env.BLOCKED_IP_RANGES?.split(',') || [],
@@ -115,13 +115,18 @@ export class IPRestrictionGuard implements CanActivate {
     }
 
     // Fallback to connection remote address
-    return request.connection?.remoteAddress || 
-           request.socket?.remoteAddress || 
-           request.ip || 
-           'unknown';
+    return (
+      request.connection?.remoteAddress ||
+      request.socket?.remoteAddress ||
+      request.ip ||
+      'unknown'
+    );
   }
 
-  private checkIPAccess(clientIP: string, config: IPRestrictionConfig): boolean {
+  private checkIPAccess(
+    clientIP: string,
+    config: IPRestrictionConfig,
+  ): boolean {
     if (config.mode === 'whitelist') {
       return this.isIPAllowed(clientIP, config);
     } else {
@@ -137,7 +142,9 @@ export class IPRestrictionGuard implements CanActivate {
 
     // Check CIDR ranges
     if (config.allowedCIDRs) {
-      return config.allowedCIDRs.some(cidr => this.isIPInCIDR(clientIP, cidr));
+      return config.allowedCIDRs.some((cidr) =>
+        this.isIPInCIDR(clientIP, cidr),
+      );
     }
 
     return false;
@@ -151,7 +158,9 @@ export class IPRestrictionGuard implements CanActivate {
 
     // Check CIDR ranges
     if (config.blockedCIDRs) {
-      return config.blockedCIDRs.some(cidr => this.isIPInCIDR(clientIP, cidr));
+      return config.blockedCIDRs.some((cidr) =>
+        this.isIPInCIDR(clientIP, cidr),
+      );
     }
 
     return false;
@@ -187,7 +196,7 @@ export class IPRestrictionGuard implements CanActivate {
     // Simplified IPv6 CIDR check - in production, use a proper IPv6 library
     const ipParts = ip.split(':');
     const networkParts = network.split(':');
-    
+
     const bitsToCheck = Math.min(prefix, 128);
     const fullGroups = Math.floor(bitsToCheck / 16);
     const remainingBits = bitsToCheck % 16;
@@ -212,7 +221,11 @@ export class IPRestrictionGuard implements CanActivate {
   }
 
   private ipv4ToNumber(ip: string): number {
-    return ip.split('.').reduce((acc, octet) => (acc << 8) + parseInt(octet, 10), 0) >>> 0;
+    return (
+      ip
+        .split('.')
+        .reduce((acc, octet) => (acc << 8) + parseInt(octet, 10), 0) >>> 0
+    );
   }
 
   private isValidIP(ip: string): boolean {
@@ -223,7 +236,7 @@ export class IPRestrictionGuard implements CanActivate {
     const ipv4Regex = /^(\d{1,3}\.){3}\d{1,3}$/;
     if (!ipv4Regex.test(ip)) return false;
 
-    return ip.split('.').every(octet => {
+    return ip.split('.').every((octet) => {
       const num = parseInt(octet, 10);
       return num >= 0 && num <= 255;
     });

@@ -1,4 +1,5 @@
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:flutter/foundation.dart';
 import '../common/common.dart';
 import '../utils/analytics_service.dart';
 
@@ -21,10 +22,10 @@ class ErrorTrackingService {
   Future<void> initialize() async {
     try {
       _logger.info('Initializing ErrorTrackingService...');
-      
+
       // Enable Crashlytics collection
       await _crashlytics.setCrashlyticsCollectionEnabled(true);
-      
+
       _logger.info('ErrorTrackingService initialized successfully');
     } catch (e) {
       _logger.error('Failed to initialize ErrorTrackingService', error: e);
@@ -120,8 +121,10 @@ class ErrorTrackingService {
       _logger.error('Recording Flutter error', error: errorDetails.exception);
 
       // Add Flutter-specific context
-      await _crashlytics.setCustomKey('flutter_error_library', errorDetails.library ?? 'unknown');
-      await _crashlytics.setCustomKey('flutter_error_context', errorDetails.context?.toString() ?? 'unknown');
+      await _crashlytics.setCustomKey(
+          'flutter_error_library', errorDetails.library ?? 'unknown');
+      await _crashlytics.setCustomKey('flutter_error_context',
+          errorDetails.context?.toString() ?? 'unknown');
 
       // Add app-specific context
       await _setAppContext();
@@ -161,11 +164,11 @@ class ErrorTrackingService {
   }) async {
     try {
       await _crashlytics.setUserIdentifier(userId);
-      
+
       if (email != null) {
         await _crashlytics.setCustomKey('user_email', email);
       }
-      
+
       if (name != null) {
         await _crashlytics.setCustomKey('user_name', name);
       }
@@ -182,7 +185,7 @@ class ErrorTrackingService {
       await _crashlytics.setUserIdentifier('');
       await _crashlytics.setCustomKey('user_email', '');
       await _crashlytics.setCustomKey('user_name', '');
-      
+
       _logger.info('User info cleared from crash reports');
     } catch (e) {
       _logger.error('Failed to clear user info', error: e);
@@ -309,7 +312,8 @@ class ErrorTrackingService {
     try {
       await _crashlytics.setCustomKey('app_version', '1.0.0');
       await _crashlytics.setCustomKey('platform', 'flutter');
-      await _crashlytics.setCustomKey('timestamp', DateTime.now().toIso8601String());
+      await _crashlytics.setCustomKey(
+          'timestamp', DateTime.now().toIso8601String());
     } catch (e) {
       _logger.error('Failed to set app context', error: e);
     }
