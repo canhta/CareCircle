@@ -40,26 +40,27 @@ class _InsightsScreenState extends State<InsightsScreen>
       _isLoading = true;
     });
 
-    try {
-      final futures = await Future.wait([
-        _service.getWeeklyInsightsSummary(),
-        _service.getRecentInsights(),
-      ]);
+    final weeklyResult = await _service.getWeeklyInsights();
+    final recentResult = await _service.getRecentCheckIns(limit: 10);
 
-      if (mounted) {
-        setState(() {
-          _weeklySummary = futures[0] as WeeklyInsightsSummary;
-          _recentInsights = futures[1] as List<DailyCheckInHistory>;
-          _isLoading = false;
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-        _showErrorSnackBar('Failed to load insights: ${e.toString()}');
-      }
+    if (mounted) {
+      setState(() {
+        weeklyResult.fold(
+          (summary) => _weeklySummary = summary,
+          (error) =>
+              _showErrorSnackBar('Failed to load weekly insights: $error'),
+        );
+
+        recentResult.fold(
+          (checkIns) => _recentInsights = checkIns
+              .map((checkIn) => DailyCheckInHistory.fromDailyCheckIn(checkIn))
+              .toList(),
+          (error) =>
+              _showErrorSnackBar('Failed to load recent insights: $error'),
+        );
+
+        _isLoading = false;
+      });
     }
   }
 
@@ -160,7 +161,7 @@ class _InsightsScreenState extends State<InsightsScreen>
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      _weeklySummary!.summary,
+                      _weeklySummary!.summary ?? 'No summary available',
                       style: const TextStyle(fontSize: 16),
                     ),
                   ],
@@ -422,7 +423,7 @@ class _InsightsScreenState extends State<InsightsScreen>
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
-                      insight.severity.toUpperCase(),
+                      (insight.severity?.toString().toUpperCase()) ?? 'UNKNOWN',
                       style: TextStyle(
                         color: severityColor,
                         fontSize: 11,
@@ -603,9 +604,9 @@ class _InsightsScreenState extends State<InsightsScreen>
             const SizedBox(height: 4),
             Wrap(
               spacing: 4,
-              children: insight.relatedMetrics!
+              children: insight.relatedMetrics!.entries
                   .map(
-                    (metric) => Container(
+                    (entry) => Container(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
@@ -613,7 +614,7 @@ class _InsightsScreenState extends State<InsightsScreen>
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
-                        metric,
+                        '${entry.key}: ${entry.value}',
                         style: const TextStyle(fontSize: 11),
                       ),
                     ),

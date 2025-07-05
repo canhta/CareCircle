@@ -410,6 +410,10 @@ class CheckInInsight {
   final String description;
   final String? recommendation;
   final double? severity;
+  final double? confidence;
+  final String? timeframe;
+  final Map<String, dynamic>? supportingData;
+  final Map<String, dynamic>? relatedMetrics;
   final Map<String, dynamic>? metadata;
   final DateTime createdAt;
 
@@ -421,6 +425,10 @@ class CheckInInsight {
     required this.description,
     this.recommendation,
     this.severity,
+    this.confidence,
+    this.timeframe,
+    this.supportingData,
+    this.relatedMetrics,
     this.metadata,
     required this.createdAt,
   });
@@ -435,6 +443,10 @@ class CheckInInsight {
       description: json['description'],
       recommendation: json['recommendation'],
       severity: json['severity']?.toDouble(),
+      confidence: json['confidence']?.toDouble(),
+      timeframe: json['timeframe'],
+      supportingData: json['supportingData'],
+      relatedMetrics: json['relatedMetrics'],
       metadata: json['metadata'],
       createdAt: DateTime.parse(json['createdAt']),
     );
@@ -450,6 +462,10 @@ class CheckInInsight {
       'description': description,
       'recommendation': recommendation,
       'severity': severity,
+      'confidence': confidence,
+      'timeframe': timeframe,
+      'supportingData': supportingData,
+      'relatedMetrics': relatedMetrics,
       'metadata': metadata,
       'createdAt': createdAt.toIso8601String(),
     };
@@ -464,6 +480,10 @@ class CheckInInsight {
     String? description,
     String? recommendation,
     double? severity,
+    double? confidence,
+    String? timeframe,
+    Map<String, dynamic>? supportingData,
+    Map<String, dynamic>? relatedMetrics,
     Map<String, dynamic>? metadata,
     DateTime? createdAt,
   }) {
@@ -475,6 +495,10 @@ class CheckInInsight {
       description: description ?? this.description,
       recommendation: recommendation ?? this.recommendation,
       severity: severity ?? this.severity,
+      confidence: confidence ?? this.confidence,
+      timeframe: timeframe ?? this.timeframe,
+      supportingData: supportingData ?? this.supportingData,
+      relatedMetrics: relatedMetrics ?? this.relatedMetrics,
       metadata: metadata ?? this.metadata,
       createdAt: createdAt ?? this.createdAt,
     );
@@ -505,6 +529,8 @@ class WeeklyInsightsSummary {
   final List<String> trends;
   final List<String> achievements;
   final List<String> recommendations;
+  final String? summary;
+  final List<CheckInInsight> keyInsights;
   final Map<String, dynamic>? metadata;
   final DateTime createdAt;
 
@@ -517,6 +543,8 @@ class WeeklyInsightsSummary {
     required this.trends,
     required this.achievements,
     required this.recommendations,
+    this.summary,
+    this.keyInsights = const [],
     this.metadata,
     required this.createdAt,
   });
@@ -532,6 +560,11 @@ class WeeklyInsightsSummary {
       trends: List<String>.from(json['trends'] ?? []),
       achievements: List<String>.from(json['achievements'] ?? []),
       recommendations: List<String>.from(json['recommendations'] ?? []),
+      summary: json['summary'],
+      keyInsights: (json['keyInsights'] as List<dynamic>?)
+              ?.map((e) => CheckInInsight.fromJson(e))
+              .toList() ??
+          [],
       metadata: json['metadata'],
       createdAt: DateTime.parse(json['createdAt']),
     );
@@ -548,6 +581,8 @@ class WeeklyInsightsSummary {
       'trends': trends,
       'achievements': achievements,
       'recommendations': recommendations,
+      'summary': summary,
+      'keyInsights': keyInsights.map((e) => e.toJson()).toList(),
       'metadata': metadata,
       'createdAt': createdAt.toIso8601String(),
     };
@@ -563,6 +598,8 @@ class WeeklyInsightsSummary {
     List<String>? trends,
     List<String>? achievements,
     List<String>? recommendations,
+    String? summary,
+    List<CheckInInsight>? keyInsights,
     Map<String, dynamic>? metadata,
     DateTime? createdAt,
   }) {
@@ -575,6 +612,8 @@ class WeeklyInsightsSummary {
       trends: trends ?? this.trends,
       achievements: achievements ?? this.achievements,
       recommendations: recommendations ?? this.recommendations,
+      summary: summary ?? this.summary,
+      keyInsights: keyInsights ?? this.keyInsights,
       metadata: metadata ?? this.metadata,
       createdAt: createdAt ?? this.createdAt,
     );
@@ -593,6 +632,125 @@ class WeeklyInsightsSummary {
 
   @override
   int get hashCode => id.hashCode;
+}
+
+/// Daily check-in history for insights
+class DailyCheckInHistory {
+  final String date;
+  final double? healthScore;
+  final int? moodScore;
+  final int? energyLevel;
+  final int? sleepQuality;
+  final int? painLevel;
+  final int? stressLevel;
+  final List<String> symptoms;
+  final List<CheckInInsight> insights;
+  final String? notes;
+
+  const DailyCheckInHistory({
+    required this.date,
+    this.healthScore,
+    this.moodScore,
+    this.energyLevel,
+    this.sleepQuality,
+    this.painLevel,
+    this.stressLevel,
+    this.symptoms = const [],
+    this.insights = const [],
+    this.notes,
+  });
+
+  /// Create from DailyCheckIn
+  factory DailyCheckInHistory.fromDailyCheckIn(DailyCheckIn checkIn) {
+    return DailyCheckInHistory(
+      date: checkIn.date.toIso8601String(),
+      healthScore: checkIn.riskScore,
+      moodScore: checkIn.moodScore,
+      energyLevel: checkIn.energyLevel,
+      sleepQuality: checkIn.sleepQuality,
+      painLevel: checkIn.painLevel,
+      stressLevel: checkIn.stressLevel,
+      symptoms: checkIn.symptoms,
+      insights: [], // Would be populated from separate API call
+      notes: checkIn.notes,
+    );
+  }
+
+  /// Create from JSON
+  factory DailyCheckInHistory.fromJson(Map<String, dynamic> json) {
+    return DailyCheckInHistory(
+      date: json['date'],
+      healthScore: json['healthScore']?.toDouble(),
+      moodScore: json['moodScore'],
+      energyLevel: json['energyLevel'],
+      sleepQuality: json['sleepQuality'],
+      painLevel: json['painLevel'],
+      stressLevel: json['stressLevel'],
+      symptoms: List<String>.from(json['symptoms'] ?? []),
+      insights: (json['insights'] as List<dynamic>?)
+              ?.map((e) => CheckInInsight.fromJson(e))
+              .toList() ??
+          [],
+      notes: json['notes'],
+    );
+  }
+
+  /// Convert to JSON
+  Map<String, dynamic> toJson() {
+    return {
+      'date': date,
+      'healthScore': healthScore,
+      'moodScore': moodScore,
+      'energyLevel': energyLevel,
+      'sleepQuality': sleepQuality,
+      'painLevel': painLevel,
+      'stressLevel': stressLevel,
+      'symptoms': symptoms,
+      'insights': insights.map((e) => e.toJson()).toList(),
+      'notes': notes,
+    };
+  }
+
+  /// Copy with new values
+  DailyCheckInHistory copyWith({
+    String? date,
+    double? healthScore,
+    int? moodScore,
+    int? energyLevel,
+    int? sleepQuality,
+    int? painLevel,
+    int? stressLevel,
+    List<String>? symptoms,
+    List<CheckInInsight>? insights,
+    String? notes,
+  }) {
+    return DailyCheckInHistory(
+      date: date ?? this.date,
+      healthScore: healthScore ?? this.healthScore,
+      moodScore: moodScore ?? this.moodScore,
+      energyLevel: energyLevel ?? this.energyLevel,
+      sleepQuality: sleepQuality ?? this.sleepQuality,
+      painLevel: painLevel ?? this.painLevel,
+      stressLevel: stressLevel ?? this.stressLevel,
+      symptoms: symptoms ?? this.symptoms,
+      insights: insights ?? this.insights,
+      notes: notes ?? this.notes,
+    );
+  }
+
+  @override
+  String toString() {
+    return 'DailyCheckInHistory(date: $date, healthScore: $healthScore)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is DailyCheckInHistory && other.date == date;
+  }
+
+  @override
+  int get hashCode => date.hashCode;
 }
 
 /// Daily check-in request parameters

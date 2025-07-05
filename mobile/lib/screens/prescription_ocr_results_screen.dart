@@ -1,12 +1,12 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import '../services/prescription_api_service.dart';
+import '../features/prescription/prescription.dart';
 import 'prescription_manual_entry_screen.dart';
 
 /// Screen for displaying OCR results from prescription scanning
 class PrescriptionOCRResultsScreen extends StatefulWidget {
   final File imageFile;
-  final PrescriptionOCRResult ocrResult;
+  final PrescriptionOCRResponse ocrResult;
 
   const PrescriptionOCRResultsScreen({
     super.key,
@@ -25,7 +25,7 @@ class _PrescriptionOCRResultsScreenState
 
   @override
   Widget build(BuildContext context) {
-    final ocrData = widget.ocrResult.data!;
+    final ocrData = widget.ocrResult;
 
     return Scaffold(
       appBar: AppBar(

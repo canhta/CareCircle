@@ -180,7 +180,8 @@ class _CareGroupMembersScreenState extends State<CareGroupMembersScreen> {
   }
 
   Widget _buildMembersHeader() {
-    final activeMembers = _members.length; // All members are active in the new model
+    final activeMembers =
+        _members.length; // All members are active in the new model
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -296,7 +297,8 @@ class _CareGroupMembersScreenState extends State<CareGroupMembersScreen> {
                 width: 12,
                 height: 12,
                 decoration: BoxDecoration(
-                  color: Colors.green, // All members are active in the new model
+                  color:
+                      Colors.green, // All members are active in the new model
                   shape: BoxShape.circle,
                   border: Border.all(color: Colors.white, width: 2),
                 ),
@@ -463,7 +465,8 @@ class _CareGroupMembersScreenState extends State<CareGroupMembersScreen> {
             _buildDetailRow('Joined', _formatDate(member.joinedAt)),
             _buildDetailRow('Status', 'Active'),
             const SizedBox(height: 16),
-            _buildDetailRow('Joined', '${member.joinedAt.day}/${member.joinedAt.month}/${member.joinedAt.year}'),
+            _buildDetailRow('Joined',
+                '${member.joinedAt.day}/${member.joinedAt.month}/${member.joinedAt.year}'),
           ],
         ),
         actions: [

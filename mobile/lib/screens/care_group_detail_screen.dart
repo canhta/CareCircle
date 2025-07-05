@@ -71,13 +71,11 @@ class _CareGroupDetailScreenState extends State<CareGroupDetailScreen> {
   }
 
   bool _canManageGroup() {
-    return _currentUserMember?.role == CareRole.owner ||
-        _currentUserMember?.role == CareRole.admin;
+    return _currentUserMember?.role == CareGroupRole.admin;
   }
 
   bool _canInviteMembers() {
-    return _currentUserMember?.role == CareRole.owner ||
-        _currentUserMember?.role == CareRole.admin;
+    return _currentUserMember?.role == CareGroupRole.admin;
   }
 
   @override
@@ -107,7 +105,7 @@ class _CareGroupDetailScreenState extends State<CareGroupDetailScreen> {
                     contentPadding: EdgeInsets.zero,
                   ),
                 ),
-                if (_currentUserMember?.role == CareRole.owner)
+                if (_currentUserMember?.role == CareGroupRole.admin)
                   const PopupMenuItem(
                     value: 'delete',
                     child: ListTile(
@@ -182,7 +180,7 @@ class _CareGroupDetailScreenState extends State<CareGroupDetailScreen> {
                         style: Theme.of(context).textTheme.headlineSmall,
                       ),
                       Text(
-                        _careGroup.description!,
+                        _careGroup.description,
                         style: Theme.of(context).textTheme.bodyMedium,
                       ),
                     ],
@@ -200,7 +198,7 @@ class _CareGroupDetailScreenState extends State<CareGroupDetailScreen> {
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Text(
-                      _currentUserMember!.role.displayName,
+                      _getRoleDisplayName(_currentUserMember!.role),
                       style: TextStyle(
                         color: _getRoleColor(_currentUserMember!.role),
                         fontWeight: FontWeight.w600,
@@ -214,7 +212,7 @@ class _CareGroupDetailScreenState extends State<CareGroupDetailScreen> {
               children: [
                 _buildInfoChip(
                   icon: Icons.people_outline,
-                  label: '${_careGroup.members.length} members',
+                  label: '${_members.length} members',
                 ),
                 const SizedBox(width: 16),
                 _buildInfoChip(
@@ -271,7 +269,7 @@ class _CareGroupDetailScreenState extends State<CareGroupDetailScreen> {
             child: _buildQuickActionCard(
               icon: Icons.people_outline,
               title: 'Members',
-              subtitle: '${_careGroup.members.length} members',
+              subtitle: '${_members.length} members',
               onTap: () => _navigateToMembers(),
             ),
           ),
@@ -357,7 +355,7 @@ class _CareGroupDetailScreenState extends State<CareGroupDetailScreen> {
   }
 
   Widget _buildMembersPreview() {
-    final visibleMembers = _careGroup.members.take(3).toList();
+    final visibleMembers = _members.take(3).toList();
 
     return Card(
       margin: const EdgeInsets.all(16),
@@ -383,10 +381,10 @@ class _CareGroupDetailScreenState extends State<CareGroupDetailScreen> {
             ),
             const SizedBox(height: 16),
             ...visibleMembers.map((member) => _buildMemberListItem(member)),
-            if (_careGroup.members.length > 3)
+            if (_members.length > 3)
               TextButton(
                 onPressed: () => _navigateToMembers(),
-                child: Text('View All ${_careGroup.members.length} Members'),
+                child: Text('View All ${_members.length} Members'),
               ),
           ],
         ),
@@ -398,16 +396,20 @@ class _CareGroupDetailScreenState extends State<CareGroupDetailScreen> {
     return ListTile(
       leading: CircleAvatar(
         child: Text(
-          member.user?.name?.substring(0, 1).toUpperCase() ?? 'U',
+          member.fullName.isNotEmpty
+              ? member.fullName.substring(0, 1).toUpperCase()
+              : 'U',
         ),
       ),
-      title: Text(member.user?.name ?? 'Unknown User'),
-      subtitle: Text(member.role.displayName),
+      title:
+          Text(member.fullName.isNotEmpty ? member.fullName : 'Unknown User'),
+      subtitle: Text(_getRoleDisplayName(member.role)),
       trailing: Container(
         width: 8,
         height: 8,
         decoration: BoxDecoration(
-          color: member.isActive ? Colors.green : Colors.grey,
+          color: Colors
+              .green, // Always show as active since we don't have isActive property
           shape: BoxShape.circle,
         ),
       ),
@@ -456,16 +458,25 @@ class _CareGroupDetailScreenState extends State<CareGroupDetailScreen> {
     );
   }
 
-  Color _getRoleColor(CareRole role) {
+  Color _getRoleColor(CareGroupRole role) {
     switch (role) {
-      case CareRole.owner:
-        return Colors.purple;
-      case CareRole.admin:
+      case CareGroupRole.admin:
         return Colors.blue;
-      case CareRole.caregiver:
+      case CareGroupRole.member:
         return Colors.green;
-      case CareRole.member:
+      case CareGroupRole.viewer:
         return Colors.orange;
+    }
+  }
+
+  String _getRoleDisplayName(CareGroupRole role) {
+    switch (role) {
+      case CareGroupRole.admin:
+        return 'Admin';
+      case CareGroupRole.member:
+        return 'Member';
+      case CareGroupRole.viewer:
+        return 'Viewer';
     }
   }
 
@@ -509,9 +520,9 @@ class _CareGroupDetailScreenState extends State<CareGroupDetailScreen> {
 
   void _shareGroup() async {
     try {
-      final deepLink = await _careGroupService.generateDeepLink(_careGroup.id);
+      // TODO: Implement deep link generation
       final shareText =
-          'Join my care group "${_careGroup.name}" on CareCircle: ${deepLink.url}';
+          'Join my care group "${_careGroup.name}" on CareCircle!';
 
       await Clipboard.setData(ClipboardData(text: shareText));
 

@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import '../../../common/common.dart';
 import '../domain/daily_check_in_models.dart';
 import '../domain/daily_check_in_repository.dart';
@@ -26,7 +27,7 @@ class DailyCheckInService extends BaseRepository
 
       return Result.success(checkIn);
     } catch (e) {
-      logger.error('Error creating daily check-in', e);
+      logger.error('Error creating daily check-in', error: e);
       return Result.failure(
         NetworkException('Failed to create check-in: $e',
             type: NetworkExceptionType.unknown),
@@ -52,7 +53,7 @@ class DailyCheckInService extends BaseRepository
 
       return Result.success(checkIn);
     } catch (e) {
-      logger.error('Error updating daily check-in', e);
+      logger.error('Error updating daily check-in', error: e);
       return Result.failure(
         NetworkException('Failed to update check-in: $e',
             type: NetworkExceptionType.unknown),
@@ -77,7 +78,7 @@ class DailyCheckInService extends BaseRepository
         return const Result.success(null);
       }
     } catch (e) {
-      logger.error('Error getting today\'s check-in', e);
+      logger.error('Error getting today\'s check-in', error: e);
       return Result.failure(
         NetworkException('Failed to get today\'s check-in: $e',
             type: NetworkExceptionType.unknown),
@@ -117,7 +118,7 @@ class DailyCheckInService extends BaseRepository
       logger.info('Successfully retrieved ${checkIns.length} check-ins');
       return Result.success(checkIns);
     } catch (e) {
-      logger.error('Error getting user check-ins', e);
+      logger.error('Error getting user check-ins', error: e);
       return Result.failure(
         NetworkException('Failed to get check-ins: $e',
             type: NetworkExceptionType.unknown),
@@ -143,7 +144,7 @@ class DailyCheckInService extends BaseRepository
 
       return Result.success(checkIn);
     } catch (e) {
-      logger.error('Error submitting question answers', e);
+      logger.error('Error submitting question answers', error: e);
       return Result.failure(
         NetworkException('Failed to submit answers: $e',
             type: NetworkExceptionType.unknown),
@@ -168,7 +169,7 @@ class DailyCheckInService extends BaseRepository
           'Successfully generated ${questions.length} personalized questions');
       return Result.success(questions);
     } catch (e) {
-      logger.error('Error generating personalized questions', e);
+      logger.error('Error generating personalized questions', error: e);
       return Result.failure(
         NetworkException('Failed to generate questions: $e',
             type: NetworkExceptionType.unknown),
@@ -189,7 +190,7 @@ class DailyCheckInService extends BaseRepository
 
       return Result.success(insight);
     } catch (e) {
-      logger.error('Error generating insights', e);
+      logger.error('Error generating insights', error: e);
       return Result.failure(
         NetworkException('Failed to generate insights: $e',
             type: NetworkExceptionType.unknown),
@@ -210,7 +211,7 @@ class DailyCheckInService extends BaseRepository
 
       return Result.success(summary);
     } catch (e) {
-      logger.error('Error getting weekly insights', e);
+      logger.error('Error getting weekly insights', error: e);
       return Result.failure(
         NetworkException('Failed to get weekly insights: $e',
             type: NetworkExceptionType.unknown),
@@ -246,7 +247,7 @@ class DailyCheckInService extends BaseRepository
       logger.info('Successfully retrieved ${insights.length} daily insights');
       return Result.success(insights);
     } catch (e) {
-      logger.error('Error getting daily insights', e);
+      logger.error('Error getting daily insights', error: e);
       return Result.failure(
         NetworkException('Failed to get daily insights: $e',
             type: NetworkExceptionType.unknown),
@@ -270,7 +271,7 @@ class DailyCheckInService extends BaseRepository
       logger.info('Successfully handled interactive notification');
       return const Result.success(null);
     } catch (e) {
-      logger.error('Error handling interactive notification', e);
+      logger.error('Error handling interactive notification', error: e);
       return Result.failure(
         NetworkException('Failed to handle notification: $e',
             type: NetworkExceptionType.unknown),
@@ -291,7 +292,7 @@ class DailyCheckInService extends BaseRepository
 
       return Result.success(checkIn);
     } catch (e) {
-      logger.error('Error getting check-in by ID', e);
+      logger.error('Error getting check-in by ID', error: e);
       return Result.failure(
         NetworkException('Failed to get check-in: $e',
             type: NetworkExceptionType.unknown),
@@ -309,7 +310,7 @@ class DailyCheckInService extends BaseRepository
       logger.info('Successfully deleted check-in: $checkInId');
       return const Result.success(null);
     } catch (e) {
-      logger.error('Error deleting check-in', e);
+      logger.error('Error deleting check-in', error: e);
       return Result.failure(
         NetworkException('Failed to delete check-in: $e',
             type: NetworkExceptionType.unknown),
@@ -341,7 +342,7 @@ class DailyCheckInService extends BaseRepository
       logger.info('Successfully retrieved check-in statistics');
       return Result.success(response.data);
     } catch (e) {
-      logger.error('Error getting check-in statistics', e);
+      logger.error('Error getting check-in statistics', error: e);
       return Result.failure(
         NetworkException('Failed to get check-in statistics: $e',
             type: NetworkExceptionType.unknown),
@@ -419,5 +420,23 @@ class DailyCheckInService extends BaseRepository
       startDate: DateTime.now().subtract(Duration(days: 30)),
     );
     return getUserCheckIns(request);
+  }
+
+  /// Get severity color for insight display
+  Color getSeverityColor(double? severity) {
+    if (severity == null) return Colors.grey;
+
+    if (severity <= 0.3) return Colors.green;
+    if (severity <= 0.6) return Colors.orange;
+    return Colors.red;
+  }
+
+  /// Get severity icon for insight display
+  IconData getSeverityIcon(double? severity) {
+    if (severity == null) return Icons.info;
+
+    if (severity <= 0.3) return Icons.check_circle;
+    if (severity <= 0.6) return Icons.warning;
+    return Icons.error;
   }
 }
