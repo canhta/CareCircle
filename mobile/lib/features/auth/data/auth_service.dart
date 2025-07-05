@@ -7,14 +7,12 @@ import '../domain/auth_models.dart';
 /// Enhanced authentication service using common modules
 class AuthService extends BaseRepository {
   final SecureStorageService _secureStorage;
-  final GoogleSignIn _googleSignIn;
 
   AuthService({
     required super.apiClient,
     required super.logger,
     required SecureStorageService secureStorage,
-  })  : _secureStorage = secureStorage,
-        _googleSignIn = GoogleSignIn();
+  }) : _secureStorage = secureStorage;
 
   /// Login with email and password
   Future<Result<AuthResponse>> login({
@@ -80,12 +78,15 @@ class AuthService extends BaseRepository {
   /// Login with Google
   Future<Result<AuthResponse>> loginWithGoogle() async {
     try {
-      final googleUser = await _googleSignIn.signIn();
-      if (googleUser == null) {
-        return Result.failure(Exception('Google sign-in cancelled'));
-      }
+      // Initialize Google Sign In if not already done
+      await GoogleSignIn.instance.initialize();
 
-      final googleAuth = await googleUser.authentication;
+      // Trigger the authentication flow
+      final GoogleSignInAccount googleUser =
+          await GoogleSignIn.instance.authenticate();
+
+      // Obtain the auth details from the request
+      final GoogleSignInAuthentication googleAuth = googleUser.authentication;
       final idToken = googleAuth.idToken;
 
       if (idToken == null) {
@@ -190,7 +191,7 @@ class AuthService extends BaseRepository {
       await _clearAuthData();
 
       // Sign out from Google
-      await _googleSignIn.signOut();
+      await GoogleSignIn.instance.disconnect();
 
       return Result.success(null);
     } catch (e) {

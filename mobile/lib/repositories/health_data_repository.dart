@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import '../services/health_service.dart';
+import '../features/health/health.dart';
 
 /// Repository for managing health data synchronization with backend
 class HealthDataRepository {

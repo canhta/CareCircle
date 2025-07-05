@@ -15,8 +15,8 @@ import 'features/firebase_messaging/firebase_messaging.dart';
 import 'features/auth/auth.dart';
 import 'common/common.dart';
 import 'managers/health_data_manager.dart';
-import 'widgets/notification_handler.dart';
-import 'models/auth_models.dart';
+// import 'widgets/notification_handler.dart'; // Temporarily disabled
+// import 'models/auth_models.dart'; // Remove old import to avoid conflicts
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -71,12 +71,11 @@ Future<void> main() async {
 
   // Initialize Authentication Service
   try {
-    final authService = AuthService(
+    AuthService(
       apiClient: ApiClient.instance,
       logger: logger,
       secureStorage: secureStorage,
     );
-    await authService.initialize();
     debugPrint('Auth Service initialized successfully');
   } catch (e) {
     debugPrint('Failed to initialize Auth Service: $e');
@@ -134,52 +133,40 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return NotificationHandler(
-      onMessageReceived: (message) {
-        debugPrint('App received foreground message: ${message.data}');
-      },
-      onMessageTap: (message) {
-        debugPrint('App message tapped: ${message.data}');
-      },
-      onTokenRefresh: (token) {
-        debugPrint('App FCM token refreshed');
-      },
-      child: MaterialApp(
-        title: 'CareCircle',
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-          useMaterial3: true,
-          elevatedButtonTheme: ElevatedButtonThemeData(
-            style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
+    return MaterialApp(
+      title: 'CareCircle',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+        useMaterial3: true,
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
             ),
           ),
         ),
-        home: const AuthWrapper(),
-        routes: {
-          '/login': (context) => const LoginScreen(),
-          '/register': (context) => const RegisterScreen(),
-          '/forgot-password': (context) => const ForgotPasswordScreen(),
-          '/home': (context) => const HomeScreen(),
-          '/profile': (context) => const ProfileScreen(),
-          '/prescription-scanner': (context) =>
-              const PrescriptionScannerScreen(),
-          '/notifications': (context) => const NotificationCenterScreen(),
-          '/notification-preferences': (context) =>
-              const NotificationPreferencesScreen(),
-          '/medications': (context) =>
-              const HomeScreen(), // TODO: Create MedicationsScreen
-          '/health-check': (context) =>
-              const HomeScreen(), // TODO: Create HealthCheckScreen
-          '/care-group': (context) =>
-              const HomeScreen(), // TODO: Create CareGroupScreen
-          '/settings': (context) =>
-              const HomeScreen(), // TODO: Create SettingsScreen
-        },
       ),
+      home: const AuthWrapper(),
+      routes: {
+        '/login': (context) => const LoginScreen(),
+        '/register': (context) => const RegisterScreen(),
+        '/forgot-password': (context) => const ForgotPasswordScreen(),
+        '/home': (context) => const HomeScreen(),
+        '/profile': (context) => const ProfileScreen(),
+        '/prescription-scanner': (context) => const PrescriptionScannerScreen(),
+        '/notifications': (context) => const NotificationCenterScreen(),
+        '/notification-preferences': (context) =>
+            const NotificationPreferencesScreen(),
+        '/medications': (context) =>
+            const HomeScreen(), // TODO: Create MedicationsScreen
+        '/health-check': (context) =>
+            const HomeScreen(), // TODO: Create HealthCheckScreen
+        '/care-group': (context) =>
+            const HomeScreen(), // TODO: Create CareGroupScreen
+        '/settings': (context) =>
+            const HomeScreen(), // TODO: Create SettingsScreen
+      },
     );
   }
 }

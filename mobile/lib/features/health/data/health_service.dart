@@ -28,8 +28,10 @@ class HealthService extends BaseRepository implements HealthRepository {
       if (!AppConfig.enableHealthKit) {
         logger.info('HealthKit is disabled in configuration');
         return const Result.failure(
-          NetworkException('HealthKit is disabled in configuration',
-              type: NetworkExceptionType.unknown),
+          NetworkException(
+            'HealthKit is disabled in configuration',
+            type: NetworkExceptionType.unknown,
+          ),
         );
       }
 
@@ -38,10 +40,12 @@ class HealthService extends BaseRepository implements HealthRepository {
       logger.info('Health service initialized successfully');
       return const Result.success(null);
     } catch (e) {
-      logger.error('Failed to initialize health service', e);
+      logger.error('Failed to initialize health service', error: e);
       return Result.failure(
-        NetworkException('Failed to initialize health service: $e',
-            type: NetworkExceptionType.unknown),
+        NetworkException(
+          'Failed to initialize health service: $e',
+          type: NetworkExceptionType.unknown,
+        ),
       );
     }
   }
@@ -101,10 +105,12 @@ class HealthService extends BaseRepository implements HealthRepository {
 
       return Result.success(permissions);
     } catch (e) {
-      logger.error('Error requesting health permissions', e);
+      logger.error('Error requesting health permissions', error: e);
       return Result.failure(
-        NetworkException('Error requesting health permissions: $e',
-            type: NetworkExceptionType.unknown),
+        NetworkException(
+          'Error requesting health permissions: $e',
+          type: NetworkExceptionType.unknown,
+        ),
       );
     }
   }
@@ -140,10 +146,12 @@ class HealthService extends BaseRepository implements HealthRepository {
 
       return Result.success(permissions);
     } catch (e) {
-      logger.error('Error checking health permissions', e);
+      logger.error('Error checking health permissions', error: e);
       return Result.failure(
-        NetworkException('Error checking health permissions: $e',
-            type: NetworkExceptionType.unknown),
+        NetworkException(
+          'Error checking health permissions: $e',
+          type: NetworkExceptionType.unknown,
+        ),
       );
     }
   }
@@ -181,7 +189,7 @@ class HealthService extends BaseRepository implements HealthRepository {
               CareCircleHealthData.fromHealthDataPoint(dataPoint);
           result.add(careCircleData);
         } catch (e) {
-          logger.warning('Skipping unsupported data point', e);
+          logger.warning('Skipping unsupported data point', error: e);
           // Continue processing other data points
         }
       }
@@ -194,10 +202,12 @@ class HealthService extends BaseRepository implements HealthRepository {
       logger.info('Successfully retrieved ${result.length} health data points');
       return Result.success(result);
     } catch (e) {
-      logger.error('Error getting health data', e);
+      logger.error('Error getting health data', error: e);
       return Result.failure(
-        NetworkException('Error getting health data: $e',
-            type: NetworkExceptionType.unknown),
+        NetworkException(
+          'Error getting health data: $e',
+          type: NetworkExceptionType.unknown,
+        ),
       );
     }
   }
@@ -225,10 +235,12 @@ class HealthService extends BaseRepository implements HealthRepository {
         return const Result.success(0);
       }
     } catch (e) {
-      logger.error('Error getting total steps', e);
+      logger.error('Error getting total steps', error: e);
       return Result.failure(
-        NetworkException('Error getting total steps: $e',
-            type: NetworkExceptionType.unknown),
+        NetworkException(
+          'Error getting total steps: $e',
+          type: NetworkExceptionType.unknown,
+        ),
       );
     }
   }
@@ -260,10 +272,12 @@ class HealthService extends BaseRepository implements HealthRepository {
 
       return Result.success(success);
     } catch (e) {
-      logger.error('Error writing health data', e);
+      logger.error('Error writing health data', error: e);
       return Result.failure(
-        NetworkException('Error writing health data: $e',
-            type: NetworkExceptionType.unknown),
+        NetworkException(
+          'Error writing health data: $e',
+          type: NetworkExceptionType.unknown,
+        ),
       );
     }
   }
@@ -296,10 +310,12 @@ class HealthService extends BaseRepository implements HealthRepository {
 
       return Result.success(success);
     } catch (e) {
-      logger.error('Error writing blood pressure data', e);
+      logger.error('Error writing blood pressure data', error: e);
       return Result.failure(
-        NetworkException('Error writing blood pressure data: $e',
-            type: NetworkExceptionType.unknown),
+        NetworkException(
+          'Error writing blood pressure data: $e',
+          type: NetworkExceptionType.unknown,
+        ),
       );
     }
   }
@@ -324,10 +340,12 @@ class HealthService extends BaseRepository implements HealthRepository {
 
       return Result.success(syncStatus);
     } catch (e) {
-      logger.error('Error syncing health data to backend', e);
+      logger.error('Error syncing health data to backend', error: e);
       return Result.failure(
-        NetworkException('Error syncing health data: $e',
-            type: NetworkExceptionType.unknown),
+        NetworkException(
+          'Error syncing health data: $e',
+          type: NetworkExceptionType.unknown,
+        ),
       );
     }
   }
@@ -342,10 +360,12 @@ class HealthService extends BaseRepository implements HealthRepository {
 
       return Result.success(syncStatus);
     } catch (e) {
-      logger.error('Error getting health sync status', e);
+      logger.error('Error getting health sync status', error: e);
       return Result.failure(
-        NetworkException('Error getting sync status: $e',
-            type: NetworkExceptionType.unknown),
+        NetworkException(
+          'Error getting sync status: $e',
+          type: NetworkExceptionType.unknown,
+        ),
       );
     }
   }
@@ -400,10 +420,12 @@ class HealthService extends BaseRepository implements HealthRepository {
           'Complete health sync finished successfully with ${healthData.length} data points');
       return Result.success(syncStatus);
     } catch (e) {
-      logger.error('Error during complete health sync', e);
+      logger.error('Error during complete health sync', error: e);
       return Result.failure(
-        NetworkException('Error during complete health sync: $e',
-            type: NetworkExceptionType.unknown),
+        NetworkException(
+          'Error during complete health sync: $e',
+          type: NetworkExceptionType.unknown,
+        ),
       );
     }
   }
@@ -418,10 +440,12 @@ class HealthService extends BaseRepository implements HealthRepository {
       }
       return const Result.success(null);
     } catch (e) {
-      logger.error('Error getting last sync time', e);
+      logger.error('Error getting last sync time', error: e);
       return Result.failure(
-        NetworkException('Error getting last sync time: $e',
-            type: NetworkExceptionType.unknown),
+        NetworkException(
+          'Error getting last sync time: $e',
+          type: NetworkExceptionType.unknown,
+        ),
       );
     }
   }
@@ -434,10 +458,12 @@ class HealthService extends BaseRepository implements HealthRepository {
       logger.info('Updated last sync time to $timestamp');
       return const Result.success(null);
     } catch (e) {
-      logger.error('Error setting last sync time', e);
+      logger.error('Error setting last sync time', error: e);
       return Result.failure(
-        NetworkException('Error setting last sync time: $e',
-            type: NetworkExceptionType.unknown),
+        NetworkException(
+          'Error setting last sync time: $e',
+          type: NetworkExceptionType.unknown,
+        ),
       );
     }
   }
@@ -462,10 +488,12 @@ class HealthService extends BaseRepository implements HealthRepository {
           'Retrieved ${healthDataList.length} health data points from backend');
       return Result.success(healthDataList);
     } catch (e) {
-      logger.error('Error getting health data from backend', e);
+      logger.error('Error getting health data from backend', error: e);
       return Result.failure(
-        NetworkException('Error getting health data from backend: $e',
-            type: NetworkExceptionType.unknown),
+        NetworkException(
+          'Error getting health data from backend: $e',
+          type: NetworkExceptionType.unknown,
+        ),
       );
     }
   }
@@ -486,10 +514,12 @@ class HealthService extends BaseRepository implements HealthRepository {
       logger.info('Successfully deleted health data records from backend');
       return const Result.success(null);
     } catch (e) {
-      logger.error('Error deleting health data from backend', e);
+      logger.error('Error deleting health data from backend', error: e);
       return Result.failure(
-        NetworkException('Error deleting health data from backend: $e',
-            type: NetworkExceptionType.unknown),
+        NetworkException(
+          'Error deleting health data from backend: $e',
+          type: NetworkExceptionType.unknown,
+        ),
       );
     }
   }

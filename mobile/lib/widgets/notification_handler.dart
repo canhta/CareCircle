@@ -1,6 +1,7 @@
-import 'package:flutter/material.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
-import '../services/firebase_messaging_service.dart';
+// Temporarily disabled until Firebase messaging service is fully migrated
+// TODO: Re-enable after completing Firebase messaging service migration
+
+/*
 
 /// Widget that handles Firebase messaging integration with improved
 /// error handling, analytics, and user experience
@@ -649,3 +650,5 @@ extension NotificationHandlerExtension on Widget {
     );
   }
 }
+
+*/

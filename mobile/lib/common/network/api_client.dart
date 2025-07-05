@@ -62,8 +62,8 @@ class ApiClient {
 
   /// Check network connectivity
   Future<bool> _isConnected() async {
-    final connectivityResult = await _connectivity.checkConnectivity();
-    return connectivityResult != ConnectivityResult.none;
+    final connectivityResults = await _connectivity.checkConnectivity();
+    return !connectivityResults.contains(ConnectivityResult.none);
   }
 
   /// Generic GET request

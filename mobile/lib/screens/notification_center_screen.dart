@@ -78,12 +78,26 @@ class _NotificationCenterScreenState extends State<NotificationCenterScreen>
 
       setState(() {
         if (refresh || _currentPage == 1) {
-          _allNotifications = allResponse.notifications;
+          allResponse.fold(
+            (data) => _allNotifications = data.notifications,
+            (error) => _error = error.toString(),
+          );
         } else {
-          _allNotifications.addAll(allResponse.notifications);
+          allResponse.fold(
+            (data) => _allNotifications.addAll(data.notifications),
+            (error) => _error = error.toString(),
+          );
         }
-        _unreadNotifications = unreadResponse.notifications;
-        _hasMore = allResponse.hasNext;
+
+        unreadResponse.fold(
+          (data) => _unreadNotifications = data.notifications,
+          (error) => _error = error.toString(),
+        );
+
+        _hasMore = allResponse.fold(
+          (data) => data.hasNext,
+          (error) => false,
+        );
         _isLoading = false;
       });
     } catch (e) {
@@ -110,8 +124,16 @@ class _NotificationCenterScreenState extends State<NotificationCenterScreen>
       );
 
       setState(() {
-        _allNotifications.addAll(response.notifications);
-        _hasMore = response.hasNext;
+        response.fold(
+          (data) {
+            _allNotifications.addAll(data.notifications);
+            _hasMore = data.hasNext;
+          },
+          (error) {
+            _currentPage--; // Revert page increment
+            _error = error.toString();
+          },
+        );
         _isLoadingMore = false;
       });
     } catch (e) {

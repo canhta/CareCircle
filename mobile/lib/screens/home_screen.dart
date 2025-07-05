@@ -3,7 +3,6 @@ import '../screens/health_data_screen.dart';
 import '../screens/profile_screen.dart';
 import '../screens/care_groups_screen.dart';
 import '../screens/daily_check_in_screen.dart';
-import '../utils/notification_test_utils.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -86,12 +85,6 @@ class HomeScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 24),
-
-              // Debug notification test widget (only in debug mode)
-              if (const bool.fromEnvironment('dart.vm.product') == false)
-                const NotificationTestWidget(),
-
-              const SizedBox(height: 16),
 
               // Features Title
               const Text(

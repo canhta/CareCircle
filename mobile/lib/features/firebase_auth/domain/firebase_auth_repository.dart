@@ -1,5 +1,5 @@
 import '../../../common/common.dart';
-import '../models/firebase_auth_models.dart';
+import 'firebase_auth_models.dart';
 
 /// Repository interface for Firebase authentication operations
 abstract class FirebaseAuthRepository {

@@ -12,10 +12,9 @@ abstract class BaseRepository {
   final AppLogger logger;
 
   BaseRepository({
-    required ApiClient apiClient,
-    required AppLogger logger,
-  })  : apiClient = apiClient,
-        logger = logger;
+    required this.apiClient,
+    required this.logger,
+  });
 
   /// Make a GET request
   Future<Result<T>> get<T>(

@@ -1,5 +1,5 @@
 import '../../../common/common.dart';
-import '../models/firebase_api_models.dart';
+import 'firebase_api_models.dart';
 
 /// Repository interface for Firebase API operations
 abstract class FirebaseApiRepository {

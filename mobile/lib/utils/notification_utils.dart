@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../models/notification_models.dart';
+import '../features/notification/domain/notification_models.dart';
 
 class NotificationUtils {
   /// Get the display name for a notification type

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../services/health_service.dart';
+import '../features/health/health.dart';
 import 'time_range_selector.dart';
 
 class HealthAnalyticsWidget extends StatefulWidget {

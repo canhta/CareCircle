@@ -38,15 +38,15 @@ class _PersonalizedQuestionsScreenState
     final result = await _service.generatePersonalizedQuestions();
 
     result.fold(
-      (questions) => {
+      (questions) {
         if (mounted) {
           setState(() {
             _questions = questions;
             _isLoading = false;
-          })
+          });
         }
       },
-      (error) => {
+      (error) {
         if (mounted) {
           setState(() {
             _isLoading = false;

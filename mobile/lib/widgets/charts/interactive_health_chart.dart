@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import '../../services/health_service.dart';
+import '../../features/health/health.dart';
 import '../time_range_selector.dart';
 
 class InteractiveHealthChart extends StatefulWidget {

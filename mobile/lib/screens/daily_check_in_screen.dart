@@ -73,13 +73,26 @@ class _DailyCheckInScreenState extends State<DailyCheckInScreen> {
     });
 
     try {
-      final checkIn = await _service.getTodayCheckIn();
+      final result = await _service.getTodayCheckIn();
       if (mounted) {
-        setState(() {
-          _todaysCheckIn = checkIn;
-          _populateFormFromCheckIn(checkIn);
-          _isLoading = false;
-        });
+        result.fold(
+          (checkIn) {
+            setState(() {
+              _todaysCheckIn = checkIn;
+              if (checkIn != null) {
+                _populateFormFromCheckIn(checkIn);
+              }
+              _isLoading = false;
+            });
+          },
+          (error) {
+            setState(() {
+              _isLoading = false;
+            });
+            _showErrorSnackBar(
+                'Failed to load today\'s check-in: ${error.toString()}');
+          },
+        );
       }
     } catch (e) {
       if (mounted) {
@@ -123,16 +136,26 @@ class _DailyCheckInScreenState extends State<DailyCheckInScreen> {
         completed: true,
       );
 
-      final savedCheckIn = await _service.createOrUpdateTodaysCheckIn(request);
+      final result = await _service.createOrUpdateTodaysCheckIn(request);
 
       if (mounted) {
-        setState(() {
-          _todaysCheckIn = savedCheckIn;
-          _isEditing = false;
-          _isLoading = false;
-        });
+        result.fold(
+          (savedCheckIn) {
+            setState(() {
+              _todaysCheckIn = savedCheckIn;
+              _isEditing = false;
+              _isLoading = false;
+            });
 
-        _showSuccessSnackBar('Check-in saved successfully!');
+            _showSuccessSnackBar('Check-in saved successfully!');
+          },
+          (error) {
+            setState(() {
+              _isLoading = false;
+            });
+            _showErrorSnackBar('Failed to save check-in: ${error.toString()}');
+          },
+        );
       }
     } catch (e) {
       if (mounted) {

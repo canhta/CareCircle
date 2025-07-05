@@ -1,5 +1,5 @@
 import '../../../common/common.dart';
-import '../models/firebase_messaging_models.dart';
+import 'firebase_messaging_models.dart';
 
 /// Repository interface for Firebase Messaging
 abstract class FirebaseMessagingRepository {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import '../../services/health_service.dart';
+import '../../features/health/health.dart';
 
 class HealthBarChart extends StatefulWidget {
   final List<CareCircleHealthData> data;

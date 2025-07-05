@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../services/health_service.dart';
+import '../features/health/health.dart';
 
 class HealthInsights extends StatelessWidget {
   final List<CareCircleHealthData> healthData;

@@ -2,10 +2,33 @@ import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/foundation.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import '../services/health_service.dart';
-import '../repositories/health_data_repository.dart';
-import '../services/background_sync_service.dart';
+import '../features/health/health.dart';
+import '../common/common.dart';
 import '../config/app_config.dart';
+
+/// Simple sync result class
+class SyncResult {
+  final bool isSuccess;
+  final String? message;
+  final int? recordCount;
+
+  const SyncResult({
+    required this.isSuccess,
+    this.message,
+    this.recordCount,
+  });
+
+  static SyncResult success(int recordCount) => SyncResult(
+        isSuccess: true,
+        recordCount: recordCount,
+        message: 'Sync completed successfully',
+      );
+
+  static SyncResult failure(String message) => SyncResult(
+        isSuccess: false,
+        message: message,
+      );
+}
 
 /// Central manager for health data operations
 class HealthDataManager {
@@ -13,17 +36,12 @@ class HealthDataManager {
   factory HealthDataManager() => _instance;
   HealthDataManager._internal();
 
-  final HealthService _healthService = HealthService();
-  final HealthDataRepository _repository = HealthDataRepository();
-  final BackgroundSyncService _backgroundSyncService = BackgroundSyncService();
-
-  Timer? _syncTimer;
+  HealthService? _healthService;
   bool _isInitialized = false;
+  Timer? _syncTimer;
 
   static const String _lastSyncKey = 'health_last_sync';
   static const String _autoSyncEnabledKey = 'health_auto_sync_enabled';
-  static const String _backgroundSyncEnabledKey =
-      'health_background_sync_enabled';
 
   /// Initialize the health data manager
   Future<void> initialize({String? authToken}) async {
@@ -40,28 +58,21 @@ class HealthDataManager {
         return;
       }
 
-      await _healthService.initialize();
+      // Initialize HealthService with required dependencies
+      _healthService = HealthService(
+        apiClient: ApiClient.instance,
+        logger: AppLogger('HealthDataManager'),
+        secureStorage: SecureStorageService(),
+      );
 
-      if (authToken != null) {
-        _repository.setAuthToken(authToken);
-      }
-
+      await _healthService!.initialize();
       _isInitialized = true;
       debugPrint('HealthDataManager: Successfully initialized');
-
-      // Initialize background sync service
-      await _backgroundSyncService.initialize();
 
       // Start automatic sync if enabled
       final autoSyncEnabled = await isAutoSyncEnabled();
       if (autoSyncEnabled) {
         startAutoSync();
-      }
-
-      // Start background sync if enabled
-      final backgroundSyncEnabled = await isBackgroundSyncEnabled();
-      if (backgroundSyncEnabled) {
-        await setBackgroundSyncEnabled(true);
       }
     } catch (e) {
       debugPrint('HealthDataManager: Failed to initialize - $e');
@@ -70,11 +81,11 @@ class HealthDataManager {
   }
 
   /// Check if the manager is initialized and available
-  bool get isAvailable => _isInitialized && _healthService.isAvailable;
+  bool get isAvailable => _isInitialized && _healthService?.isAvailable == true;
 
   /// Request permissions for health data access
   Future<bool> requestPermissions() async {
-    if (!_isInitialized) {
+    if (!_isInitialized || _healthService == null) {
       throw Exception('HealthDataManager not initialized');
     }
 
@@ -92,28 +103,16 @@ class HealthDataManager {
       CareCircleHealthDataType.bloodGlucose,
     ];
 
-    final permissionsGranted = await _healthService.requestPermissions(
-      requiredTypes,
+    final result = await _healthService!.requestPermissions(requiredTypes);
+    return result.fold(
+      (permissions) => permissions.hasAllPermissions(requiredTypes),
+      (error) => false,
     );
-
-    if (permissionsGranted) {
-      // Update consent records
-      await _repository.updateHealthConsent(
-        consentType: 'DATA_COLLECTION',
-        granted: true,
-        dataCategories: requiredTypes.map((type) => type.name).toList(),
-        purpose: 'Health monitoring and family care coordination',
-        consentGranted: true,
-        consentVersion: '1.0',
-      );
-    }
-
-    return permissionsGranted;
   }
 
   /// Check if permissions are granted
   Future<bool> hasPermissions() async {
-    if (!_isInitialized) return false;
+    if (!_isInitialized || _healthService == null) return false;
 
     const requiredTypes = [
       CareCircleHealthDataType.steps,
@@ -122,12 +121,16 @@ class HealthDataManager {
       CareCircleHealthDataType.sleepAsleep,
     ];
 
-    return await _healthService.hasPermissions(requiredTypes);
+    final result = await _healthService!.checkPermissions(requiredTypes);
+    return result.fold(
+      (permissions) => permissions.hasAllPermissions(requiredTypes),
+      (error) => false,
+    );
   }
 
   /// Perform manual sync of health data
   Future<SyncResult> syncHealthData() async {
-    if (!_isInitialized) {
+    if (!_isInitialized || _healthService == null) {
       return SyncResult.failure('Manager not initialized');
     }
 
@@ -137,14 +140,6 @@ class HealthDataManager {
           await getLastSyncTime() ?? now.subtract(const Duration(days: 30));
 
       debugPrint('HealthDataManager: Starting sync from $lastSync to $now');
-
-      // Update sync status to in progress
-      await _repository.updateSyncStatus(
-        status: 'IN_PROGRESS',
-        recordCount: 0,
-        source: 'MOBILE_APP',
-        recordsCount: 0,
-      );
 
       // Define the health data types to sync
       const typesToSync = [
@@ -158,72 +153,157 @@ class HealthDataManager {
       ];
 
       // Get health data from device
-      final healthData = await _healthService.getHealthData(
+      final request = HealthDataRequest(
         types: typesToSync,
         startDate: lastSync,
         endDate: now,
       );
 
-      debugPrint(
-        'HealthDataManager: Retrieved ${healthData.length} health data points',
+      final result = await _healthService!.getHealthData(request);
+      return result.fold(
+        (healthData) {
+          debugPrint(
+              'HealthDataManager: Retrieved ${healthData.length} health data points');
+          setLastSyncTime(now);
+          return SyncResult.success(healthData.length);
+        },
+        (error) {
+          debugPrint('HealthDataManager: Sync error - $error');
+          return SyncResult.failure('Sync failed: ${error.toString()}');
+        },
       );
-
-      // Sync to backend
-      final syncTime = DateTime.now();
-      final startDate = lastSync;
-
-      await _repository.syncHealthData(
-        healthData,
-        'MOBILE_APP',
-        startDate,
-        syncTime,
-      );
-
-      await setLastSyncTime(syncTime);
-
-      return SyncResult.success(healthData.length);
     } catch (e) {
       debugPrint('HealthDataManager: Sync error - $e');
-
-      // Update sync status to failed
-      await _repository.updateSyncStatus(
-        status: 'FAILED',
-        recordCount: 0,
-        source: 'MOBILE_APP',
-        recordsCount: 0,
-        errorMessage: e.toString(),
-      );
-
-      return SyncResult.failure(e.toString());
+      return SyncResult.failure('Sync failed: $e');
     }
   }
 
-  /// Get health data from local device
-  Future<List<CareCircleHealthData>> getLocalHealthData({
+  /// Get health data for a specific date range
+  Future<List<CareCircleHealthData>?> getLocalHealthData({
     required List<CareCircleHealthDataType> types,
     required DateTime startDate,
     required DateTime endDate,
   }) async {
-    if (!_isInitialized) {
-      throw Exception('Manager not initialized');
-    }
+    if (!_isInitialized || _healthService == null) return null;
 
-    return await _healthService.getHealthData(
+    final request = HealthDataRequest(
       types: types,
       startDate: startDate,
       endDate: endDate,
     );
+
+    final result = await _healthService!.getHealthData(request);
+    return result.fold(
+      (data) => data,
+      (error) => null,
+    );
   }
 
-  /// Get health metrics from backend
-  Future<List<Map<String, dynamic>>?> getHealthMetrics({
+  /// Get health metrics for display
+  Future<Map<String, dynamic>?> getHealthMetrics({
     required DateTime startDate,
     required DateTime endDate,
   }) async {
-    return await _repository.getHealthMetrics(
+    if (!_isInitialized || _healthService == null) return null;
+
+    const types = [
+      CareCircleHealthDataType.steps,
+      CareCircleHealthDataType.heartRate,
+      CareCircleHealthDataType.weight,
+      CareCircleHealthDataType.sleepAsleep,
+    ];
+
+    final data = await getLocalHealthData(
+      types: types,
       startDate: startDate,
       endDate: endDate,
     );
+
+    if (data == null) return null;
+
+    // Calculate basic metrics
+    final metrics = <String, dynamic>{};
+
+    // Steps
+    final stepsData =
+        data.where((d) => d.type == CareCircleHealthDataType.steps).toList();
+    if (stepsData.isNotEmpty) {
+      metrics['totalSteps'] =
+          stepsData.fold<double>(0, (sum, d) => sum + d.value);
+      metrics['averageSteps'] = metrics['totalSteps'] / stepsData.length;
+    }
+
+    // Heart rate
+    final hrData = data
+        .where((d) => d.type == CareCircleHealthDataType.heartRate)
+        .toList();
+    if (hrData.isNotEmpty) {
+      metrics['averageHeartRate'] =
+          hrData.fold<double>(0, (sum, d) => sum + d.value) / hrData.length;
+    }
+
+    return metrics;
+  }
+
+  /// Write health data to device
+  Future<bool> writeHealthData({
+    required CareCircleHealthDataType type,
+    required double value,
+    required String unit,
+    DateTime? timestamp,
+  }) async {
+    if (!_isInitialized || _healthService == null) return false;
+
+    final data = CareCircleHealthData(
+      type: type,
+      value: value,
+      unit: unit,
+      timestamp: timestamp ?? DateTime.now(),
+    );
+
+    final result = await _healthService!.writeHealthData(data);
+    return result.fold(
+      (success) => success,
+      (error) => false,
+    );
+  }
+
+  /// Write blood pressure data
+  Future<bool> writeBloodPressure({
+    required double systolic,
+    required double diastolic,
+    DateTime? timestamp,
+  }) async {
+    if (!_isInitialized || _healthService == null) return false;
+
+    final result = await _healthService!.writeBloodPressure(
+      systolic: systolic,
+      diastolic: diastolic,
+      timestamp: timestamp ?? DateTime.now(),
+    );
+
+    return result.fold(
+      (success) => success,
+      (error) => false,
+    );
+  }
+
+  /// Get total steps for today
+  Future<int?> getTotalSteps() async {
+    if (!_isInitialized || _healthService == null) return null;
+
+    final today = DateTime.now();
+    final startOfDay = DateTime(today.year, today.month, today.day);
+
+    final data = await getLocalHealthData(
+      types: [CareCircleHealthDataType.steps],
+      startDate: startOfDay,
+      endDate: today,
+    );
+
+    if (data == null || data.isEmpty) return null;
+
+    return data.fold<double>(0, (sum, d) => sum + d.value).toInt();
   }
 
   /// Start automatic background sync
@@ -234,7 +314,7 @@ class HealthDataManager {
       try {
         final result = await syncHealthData();
         debugPrint(
-          'HealthDataManager: Auto sync ${result.success ? 'completed' : 'failed'}: ${result.message}',
+          'HealthDataManager: Auto sync ${result.isSuccess ? 'completed' : 'failed'}: ${result.message}',
         );
       } catch (e) {
         debugPrint('HealthDataManager: Auto sync error - $e');
@@ -286,83 +366,6 @@ class HealthDataManager {
     await prefs.setInt(_lastSyncKey, timestamp.millisecondsSinceEpoch);
   }
 
-  /// Get sync history from backend
-  Future<List<Map<String, dynamic>>?> getSyncHistory() async {
-    return await _repository.getSyncHistory();
-  }
-
-  /// Write health data to device
-  Future<bool> writeHealthData({
-    required CareCircleHealthDataType type,
-    required double value,
-    required String unit,
-    DateTime? timestamp,
-  }) async {
-    if (!_isInitialized) {
-      throw Exception('Manager not initialized');
-    }
-
-    return await _healthService.writeHealthData(
-      type: type,
-      value: value,
-      unit: unit,
-      timestamp: timestamp ?? DateTime.now(),
-    );
-  }
-
-  /// Write blood pressure data
-  Future<bool> writeBloodPressure({
-    required double systolic,
-    required double diastolic,
-    DateTime? timestamp,
-  }) async {
-    if (!_isInitialized) {
-      throw Exception('Manager not initialized');
-    }
-
-    return await _healthService.writeBloodPressure(
-      systolic: systolic,
-      diastolic: diastolic,
-      timestamp: timestamp ?? DateTime.now(),
-    );
-  }
-
-  /// Get total steps for a date range
-  Future<int?> getTotalSteps({
-    required DateTime startDate,
-    required DateTime endDate,
-  }) async {
-    if (!_isInitialized) return null;
-
-    return await _healthService.getTotalSteps(
-      startDate: startDate,
-      endDate: endDate,
-    );
-  }
-
-  /// Update family sharing consent
-  Future<bool> updateFamilySharingConsent({
-    required bool shareWithFamily,
-    String? careGroupId,
-  }) async {
-    return await _repository.updateHealthConsent(
-      consentType: 'FAMILY_SHARING',
-      granted: shareWithFamily,
-      dataCategories: ['health_metrics', 'activity_data'],
-      purpose: 'Family care coordination and monitoring',
-      consentGranted: shareWithFamily,
-      consentVersion: '1.0',
-      careGroupId: careGroupId,
-      shareWithFamily: shareWithFamily,
-    );
-  }
-
-  /// Dispose resources
-  void dispose() {
-    stopAutoSync();
-    _isInitialized = false;
-  }
-
   /// Check if network is available
   Future<bool> _isNetworkAvailable() async {
     try {
@@ -392,53 +395,9 @@ class HealthDataManager {
     return await syncHealthData();
   }
 
-  /// Enable/disable background sync
-  Future<void> setBackgroundSyncEnabled(bool enabled) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_backgroundSyncEnabledKey, enabled);
-
-    if (enabled) {
-      await _backgroundSyncService.initialize();
-      await _backgroundSyncService.registerPeriodicSync(
-        frequency: const Duration(hours: 6),
-        requiresNetworkConnectivity: true,
-      );
-      debugPrint('HealthDataManager: Background sync enabled');
-    } else {
-      await _backgroundSyncService.cancelAllSyncTasks();
-      debugPrint('HealthDataManager: Background sync disabled');
-    }
-  }
-
-  /// Check if background sync is enabled
-  Future<bool> isBackgroundSyncEnabled() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool(_backgroundSyncEnabledKey) ??
-        true; // Default to enabled
-  }
-
-  /// Get last background sync time
-  Future<DateTime?> getLastBackgroundSyncTime() async {
-    return await BackgroundSyncService.getLastBackgroundSyncTime();
-  }
-}
-
-/// Result of a sync operation
-class SyncResult {
-  final bool success;
-  final String message;
-  final int? recordsCount;
-
-  SyncResult.success(this.recordsCount)
-      : success = true,
-        message = 'Sync completed successfully. $recordsCount records synced.';
-
-  SyncResult.failure(this.message)
-      : success = false,
-        recordsCount = null;
-
-  @override
-  String toString() {
-    return 'SyncResult(success: $success, message: $message, recordsCount: $recordsCount)';
+  /// Dispose resources
+  void dispose() {
+    stopAutoSync();
+    _isInitialized = false;
   }
 }

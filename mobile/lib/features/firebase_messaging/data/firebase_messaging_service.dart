@@ -9,8 +9,8 @@ import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '../../../common/common.dart';
-import '../models/firebase_messaging_models.dart';
-import '../repositories/firebase_messaging_repository.dart';
+import '../domain/firebase_messaging_models.dart';
+import '../domain/firebase_messaging_repository.dart';
 
 /// Firebase Messaging service implementation
 class FirebaseMessagingService implements FirebaseMessagingRepository {

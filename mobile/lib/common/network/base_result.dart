@@ -126,7 +126,7 @@ final class Failure<T> extends Result<T> {
   String toString() => 'Failure($exception)';
 }
 
-/// Extension methods for Future<Result<T>>
+/// Extension methods for Future Result
 extension FutureResultExtensions<T> on Future<Result<T>> {
   /// Transform future result
   Future<Result<R>> mapAsync<R>(Future<R> Function(T) transform) async {

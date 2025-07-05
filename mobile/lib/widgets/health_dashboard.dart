@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../services/health_service.dart';
+import '../features/health/health.dart';
 import 'charts/health_line_chart.dart';
 import 'charts/health_bar_chart.dart';
 import 'charts/health_pie_chart.dart';

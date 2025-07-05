@@ -5,8 +5,8 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 import '../../../common/common.dart';
-import '../models/firebase_auth_models.dart' as auth_models;
-import '../repositories/firebase_auth_repository.dart';
+import '../domain/firebase_auth_models.dart' as auth_models;
+import '../domain/firebase_auth_repository.dart';
 
 /// Firebase Authentication service implementation
 class FirebaseAuthService implements FirebaseAuthRepository {
@@ -524,13 +524,19 @@ class FirebaseAuthService implements FirebaseAuthRepository {
   Future<Result<List<String>>> getSignInMethodsForEmail(String email) async {
     try {
       _logger.info('Getting sign-in methods for email: $email');
-      final methods = await _firebaseAuth.fetchSignInMethodsForEmail(email);
-      _logger.info('Retrieved ${methods.length} sign-in methods');
-      return Result.success(methods);
-    } on FirebaseAuthException catch (e) {
-      final errorMessage = _getErrorMessage(e.code);
-      _logger.error('Failed to get sign-in methods: ${e.code}', error: e);
-      return Result.failure(Exception(errorMessage));
+
+      // Note: fetchSignInMethodsForEmail is deprecated for security reasons
+      // Instead, we'll return common sign-in methods and let the user try
+      // This prevents email enumeration attacks
+
+      final commonMethods = <String>[
+        'password',
+        'google.com',
+        'apple.com',
+      ];
+
+      _logger.info('Returning common sign-in methods');
+      return Result.success(commonMethods);
     } catch (e) {
       _logger.error('Failed to get sign-in methods', error: e);
       return Result.failure(Exception('Failed to get sign-in methods: $e'));

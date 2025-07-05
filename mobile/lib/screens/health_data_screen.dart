@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import '../managers/health_data_manager.dart';
 import '../features/health/health.dart';
-import '../common/common.dart';
+// TODO: Re-enable when HealthService is used
+// import '../common/common.dart';
 import '../config/app_config.dart';
 import 'privacy_settings_screen.dart';
 import 'health_dashboard.dart';
@@ -15,7 +16,8 @@ class HealthDataScreen extends StatefulWidget {
 
 class _HealthDataScreenState extends State<HealthDataScreen> {
   final HealthDataManager _healthDataManager = HealthDataManager();
-  late final HealthService _healthService;
+  // TODO: Migrate to use HealthService for API calls
+  // late final HealthService _healthService;
   bool _isLoading = false;
   List<CareCircleHealthData> _recentData = [];
   bool _permissionsGranted = false;
@@ -24,11 +26,12 @@ class _HealthDataScreenState extends State<HealthDataScreen> {
   @override
   void initState() {
     super.initState();
-    _healthService = HealthService(
-      apiClient: ApiClient.instance,
-      logger: AppLogger('HealthDataScreen'),
-      secureStorage: SecureStorageService(),
-    );
+    // TODO: Initialize HealthService when screen is fully migrated
+    // _healthService = HealthService(
+    //   apiClient: ApiClient.instance,
+    //   logger: AppLogger('HealthDataScreen'),
+    //   secureStorage: SecureStorageService(),
+    // );
     _checkPermissionsAndLoadData();
   }
 
@@ -86,10 +89,11 @@ class _HealthDataScreenState extends State<HealthDataScreen> {
       final types = CareCircleHealthDataType.values;
 
       _recentData = await _healthDataManager.getLocalHealthData(
-        types: types,
-        startDate: startTime,
-        endDate: now,
-      );
+            types: types,
+            startDate: startTime,
+            endDate: now,
+          ) ??
+          [];
 
       setState(() {});
     } catch (e) {
@@ -167,7 +171,7 @@ class _HealthDataScreenState extends State<HealthDataScreen> {
       await _loadRecentHealthData();
 
       if (mounted) {
-        if (result.success) {
+        if (result.isSuccess) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Health data synced successfully!'),
