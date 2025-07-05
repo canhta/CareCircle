@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../managers/health_data_manager.dart';
-import '../services/health_service.dart';
+import '../features/health/health.dart';
+import '../common/common.dart';
 import '../config/app_config.dart';
 import 'privacy_settings_screen.dart';
 import 'health_dashboard.dart';
@@ -14,6 +15,7 @@ class HealthDataScreen extends StatefulWidget {
 
 class _HealthDataScreenState extends State<HealthDataScreen> {
   final HealthDataManager _healthDataManager = HealthDataManager();
+  late final HealthService _healthService;
   bool _isLoading = false;
   List<CareCircleHealthData> _recentData = [];
   bool _permissionsGranted = false;
@@ -22,6 +24,11 @@ class _HealthDataScreenState extends State<HealthDataScreen> {
   @override
   void initState() {
     super.initState();
+    _healthService = HealthService(
+      apiClient: ApiClient.instance,
+      logger: AppLogger('HealthDataScreen'),
+      secureStorage: SecureStorageService(),
+    );
     _checkPermissionsAndLoadData();
   }
 

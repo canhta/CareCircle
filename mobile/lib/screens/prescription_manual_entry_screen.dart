@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import '../services/prescription_api_service.dart';
+import '../features/prescription/prescription.dart';
 
 /// Screen for manual prescription entry and editing
 class PrescriptionManualEntryScreen extends StatefulWidget {

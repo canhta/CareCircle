@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import '../services/prescription_scanner_service.dart';
-import '../services/prescription_api_service.dart';
+import '../features/prescription/prescription.dart';
+import '../common/common.dart';
 import 'prescription_ocr_results_screen.dart';
 import 'prescription_manual_entry_screen.dart';
 
@@ -15,9 +15,7 @@ class PrescriptionScannerScreen extends StatefulWidget {
 }
 
 class _PrescriptionScannerScreenState extends State<PrescriptionScannerScreen> {
-  final PrescriptionScannerService _scannerService =
-      PrescriptionScannerService();
-  final PrescriptionAPIService _apiService = PrescriptionAPIService();
+  late final PrescriptionService _prescriptionService;
   List<File> _prescriptionImages = [];
   bool _isLoading = false;
   String _totalSize = '0 B';
@@ -26,6 +24,10 @@ class _PrescriptionScannerScreenState extends State<PrescriptionScannerScreen> {
   @override
   void initState() {
     super.initState();
+    _prescriptionService = PrescriptionService(
+      apiClient: ApiClient.instance,
+      logger: AppLogger('PrescriptionScannerScreen'),
+    );
     _loadPrescriptionImages();
   }
 

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../models/daily_check_in_models.dart';
-import '../services/daily_check_in_service.dart';
+import '../features/daily_check_in/daily_check_in.dart';
+import '../common/common.dart';
 import 'personalized_questions_screen.dart';
 import 'check_in_history_screen.dart';
 import 'insights_screen.dart';
@@ -13,7 +13,7 @@ class DailyCheckInScreen extends StatefulWidget {
 }
 
 class _DailyCheckInScreenState extends State<DailyCheckInScreen> {
-  final DailyCheckInService _service = DailyCheckInService();
+  late final DailyCheckInService _service;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   // Form controllers
@@ -51,6 +51,10 @@ class _DailyCheckInScreenState extends State<DailyCheckInScreen> {
   @override
   void initState() {
     super.initState();
+    _service = DailyCheckInService(
+      apiClient: ApiClient.instance,
+      logger: AppLogger('DailyCheckInScreen'),
+    );
     _loadTodaysCheckIn();
   }
 
@@ -73,9 +77,7 @@ class _DailyCheckInScreenState extends State<DailyCheckInScreen> {
       if (mounted) {
         setState(() {
           _todaysCheckIn = checkIn;
-          if (checkIn != null) {
-            _populateFormFromCheckIn(checkIn);
-          }
+          _populateFormFromCheckIn(checkIn);
           _isLoading = false;
         });
       }

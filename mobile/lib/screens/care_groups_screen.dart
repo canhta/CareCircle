@@ -3,8 +3,8 @@
 
 import 'package:flutter/material.dart';
 import 'dart:developer';
-import '../models/care_group_models.dart';
-import '../services/care_group_service.dart';
+import '../features/care_group/care_group.dart';
+import '../common/common.dart';
 import 'care_group_detail_screen.dart';
 import 'create_care_group_screen.dart';
 
@@ -16,7 +16,7 @@ class CareGroupsScreen extends StatefulWidget {
 }
 
 class _CareGroupsScreenState extends State<CareGroupsScreen> {
-  final CareGroupService _careGroupService = CareGroupService();
+  late final CareGroupService _careGroupService;
   List<CareGroup> _careGroups = [];
   bool _isLoading = true;
   String? _error;
@@ -24,28 +24,36 @@ class _CareGroupsScreenState extends State<CareGroupsScreen> {
   @override
   void initState() {
     super.initState();
+    _careGroupService = CareGroupService(
+      apiClient: ApiClient.instance,
+      logger: AppLogger('CareGroupsScreen'),
+    );
     _loadCareGroups();
   }
 
   Future<void> _loadCareGroups() async {
-    try {
-      setState(() {
-        _isLoading = true;
-        _error = null;
-      });
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
 
-      final careGroups = await _careGroupService.getCareGroups();
-      setState(() {
-        _careGroups = careGroups;
-        _isLoading = false;
-      });
-    } catch (e) {
-      log('Error loading care groups: $e');
-      setState(() {
-        _error = 'Failed to load care groups. Please try again.';
-        _isLoading = false;
-      });
-    }
+    final result = await _careGroupService.getCareGroups();
+
+    result.fold(
+      (careGroups) => {
+        setState(() {
+          _careGroups = careGroups;
+          _isLoading = false;
+        })
+      },
+      (error) => {
+        log('Error loading care groups: $error'),
+        setState(() {
+          _error = 'Failed to load care groups. Please try again.';
+          _isLoading = false;
+        })
+      },
+    );
   }
 
   @override
@@ -186,9 +194,9 @@ class _CareGroupsScreenState extends State<CareGroupsScreen> {
                           careGroup.name,
                           style: Theme.of(context).textTheme.titleLarge,
                         ),
-                        if (careGroup.description != null)
+                        if (careGroup.description.isNotEmpty)
                           Text(
-                            careGroup.description!,
+                            careGroup.description,
                             style: Theme.of(context).textTheme.bodyMedium,
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
@@ -207,7 +215,7 @@ class _CareGroupsScreenState extends State<CareGroupsScreen> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
-                        myMember.role.displayName,
+                        _getRoleDisplayName(myMember.role),
                         style: TextStyle(
                           color: roleColor,
                           fontSize: 12,
@@ -227,7 +235,7 @@ class _CareGroupsScreenState extends State<CareGroupsScreen> {
                   ),
                   const SizedBox(width: 4),
                   Text(
-                    '${careGroup.members.length} members',
+                    '${careGroup.memberCount} members',
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                   const Spacer(),
@@ -245,23 +253,33 @@ class _CareGroupsScreenState extends State<CareGroupsScreen> {
   }
 
   CareGroupMember? _getCurrentUserMember(CareGroup careGroup) {
-    // Note: This should be replaced with actual user ID from auth service
-    // For now, we'll assume the first member is the current user
-    return careGroup.members.isNotEmpty ? careGroup.members.first : null;
+    // Note: Since the CareGroup model doesn't contain members list,
+    // we'll just return null for now. In a real implementation,
+    // this would need to fetch the current user's membership from the service
+    return null;
   }
 
-  Color _getRoleColor(CareRole? role) {
+  Color _getRoleColor(CareGroupRole? role) {
     switch (role) {
-      case CareRole.owner:
-        return Colors.purple;
-      case CareRole.admin:
+      case CareGroupRole.admin:
+        return Colors.red;
+      case CareGroupRole.member:
         return Colors.blue;
-      case CareRole.caregiver:
-        return Colors.green;
-      case CareRole.member:
-        return Colors.orange;
+      case CareGroupRole.viewer:
+        return Colors.grey;
       default:
         return Colors.grey;
+    }
+  }
+
+  String _getRoleDisplayName(CareGroupRole role) {
+    switch (role) {
+      case CareGroupRole.admin:
+        return 'Admin';
+      case CareGroupRole.member:
+        return 'Member';
+      case CareGroupRole.viewer:
+        return 'Viewer';
     }
   }
 

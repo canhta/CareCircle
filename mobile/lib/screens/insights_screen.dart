@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../models/daily_check_in_models.dart';
-import '../services/daily_check_in_service.dart';
+import '../features/daily_check_in/daily_check_in.dart';
+import '../common/common.dart';
 
 class InsightsScreen extends StatefulWidget {
   const InsightsScreen({super.key});
@@ -11,7 +11,7 @@ class InsightsScreen extends StatefulWidget {
 
 class _InsightsScreenState extends State<InsightsScreen>
     with TickerProviderStateMixin {
-  final DailyCheckInService _service = DailyCheckInService();
+  late final DailyCheckInService _service;
   late TabController _tabController;
 
   bool _isLoading = false;
@@ -21,6 +21,10 @@ class _InsightsScreenState extends State<InsightsScreen>
   @override
   void initState() {
     super.initState();
+    _service = DailyCheckInService(
+      apiClient: ApiClient.instance,
+      logger: AppLogger('InsightsScreen'),
+    );
     _tabController = TabController(length: 2, vsync: this);
     _loadInsightsData();
   }

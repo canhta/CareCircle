@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:dio/dio.dart';
-import '../models/notification_models.dart';
-import '../services/notification_service.dart';
-import '../services/auth_service.dart';
+import '../features/notification/notification.dart';
+import '../common/common.dart';
 import '../widgets/notification_card.dart';
 
 class NotificationCenterScreen extends StatefulWidget {
@@ -32,8 +30,8 @@ class _NotificationCenterScreenState extends State<NotificationCenterScreen>
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
     _notificationService = NotificationService(
-      Dio(),
-      AuthService(),
+      apiClient: ApiClient.instance,
+      logger: AppLogger('NotificationCenterScreen'),
     );
     _loadNotifications();
     _setupScrollListener();

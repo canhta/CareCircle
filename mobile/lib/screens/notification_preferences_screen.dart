@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:dio/dio.dart';
-import '../models/notification_models.dart';
-import '../services/notification_service.dart';
-import '../services/auth_service.dart';
+import '../features/notification/notification.dart';
+import '../common/common.dart';
 
 class NotificationPreferencesScreen extends StatefulWidget {
   const NotificationPreferencesScreen({super.key});
@@ -24,8 +22,8 @@ class _NotificationPreferencesScreenState
   void initState() {
     super.initState();
     _notificationService = NotificationService(
-      Dio(),
-      AuthService(),
+      apiClient: ApiClient.instance,
+      logger: AppLogger('NotificationPreferencesScreen'),
     );
     _loadPreferences();
   }
@@ -36,16 +34,16 @@ class _NotificationPreferencesScreenState
       _error = null;
     });
 
-    try {
-      final preferences =
-          await _notificationService.getNotificationPreferences();
+    final result = await _notificationService.getNotificationPreferences();
+
+    if (result.isSuccess) {
       setState(() {
-        _preferences = preferences;
+        _preferences = result.data;
         _isLoading = false;
       });
-    } catch (e) {
+    } else {
       setState(() {
-        _error = e.toString();
+        _error = result.exception?.toString() ?? 'Failed to load preferences';
         _isLoading = false;
       });
     }

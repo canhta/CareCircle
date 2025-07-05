@@ -3,8 +3,8 @@
 
 import 'package:flutter/material.dart';
 import 'dart:developer';
-import '../models/care_group_models.dart';
-import '../services/care_group_service.dart';
+import '../features/care_group/care_group.dart';
+import '../common/common.dart';
 
 class CreateCareGroupScreen extends StatefulWidget {
   const CreateCareGroupScreen({super.key});
@@ -17,8 +17,17 @@ class _CreateCareGroupScreenState extends State<CreateCareGroupScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _descriptionController = TextEditingController();
-  final CareGroupService _careGroupService = CareGroupService();
+  late final CareGroupService _careGroupService;
   bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _careGroupService = CareGroupService(
+      apiClient: ApiClient.instance,
+      logger: AppLogger('CreateCareGroupScreen'),
+    );
+  }
 
   @override
   void dispose() {
@@ -40,20 +49,31 @@ class _CreateCareGroupScreenState extends State<CreateCareGroupScreen> {
       final request = CreateCareGroupRequest(
         name: _nameController.text.trim(),
         description: _descriptionController.text.trim().isEmpty
-            ? null
+            ? ''
             : _descriptionController.text.trim(),
       );
 
-      await _careGroupService.createCareGroup(request);
+      final result = await _careGroupService.createCareGroup(request);
 
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Care group created successfully!'),
-            backgroundColor: Colors.green,
-          ),
-        );
-        Navigator.pop(context, true);
+      if (result.isSuccess) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Care group created successfully!'),
+              backgroundColor: Colors.green,
+            ),
+          );
+          Navigator.pop(context, result.data);
+        }
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to create care group: ${result.exception}'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
       }
     } catch (e) {
       log('Error creating care group: $e');

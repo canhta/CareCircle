@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:form_validator/form_validator.dart';
 
-import '../models/auth_models.dart';
-import '../services/auth_service.dart';
+import '../features/auth/auth.dart';
+import '../common/common.dart';
 import 'login_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -16,7 +16,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _phoneController = TextEditingController();
-  final _authService = AuthService();
+  late final AuthService _authService;
 
   bool _isLoading = false;
   bool _isEditing = false;
@@ -34,6 +34,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void initState() {
     super.initState();
+    _authService = AuthService(
+      apiClient: ApiClient.instance,
+      logger: AppLogger('ProfileScreen'),
+      secureStorage: SecureStorageService(),
+    );
     _loadUserData();
   }
 
@@ -336,20 +341,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Row(
               children: [
                 Icon(
-                  _currentUser?.emailVerified == true
+                  _currentUser?.isEmailVerified == true
                       ? Icons.verified
                       : Icons.warning,
-                  color: _currentUser?.emailVerified == true
+                  color: _currentUser?.isEmailVerified == true
                       ? Colors.green
                       : Colors.orange,
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  _currentUser?.emailVerified == true
+                  _currentUser?.isEmailVerified == true
                       ? 'Email Verified'
                       : 'Email Not Verified',
                   style: TextStyle(
-                    color: _currentUser?.emailVerified == true
+                    color: _currentUser?.isEmailVerified == true
                         ? Colors.green
                         : Colors.orange,
                     fontWeight: FontWeight.w500,
@@ -375,7 +380,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (user != null && mounted) {
       setState(() {
         _currentUser = user;
-        _nameController.text = user.name ?? '';
+        _nameController.text = user.name;
         _phoneController.text = user.phoneNumber ?? '';
         _selectedDate = user.dateOfBirth;
         _selectedGender = user.gender;
@@ -403,23 +408,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     setState(() => _isLoading = true);
 
-    try {
-      final request = UpdateProfileRequest(
-        name: _nameController.text.trim().isNotEmpty
-            ? _nameController.text.trim()
-            : null,
-        dateOfBirth: _selectedDate,
-        gender: _selectedGender,
-        phoneNumber: _phoneController.text.trim().isNotEmpty
-            ? _phoneController.text.trim()
-            : null,
-      );
+    final request = UpdateProfileRequest(
+      name: _nameController.text.trim().isNotEmpty
+          ? _nameController.text.trim()
+          : null,
+      dateOfBirth: _selectedDate,
+      gender: _selectedGender,
+      phoneNumber: _phoneController.text.trim().isNotEmpty
+          ? _phoneController.text.trim()
+          : null,
+    );
 
-      final result = await _authService.updateProfile(request);
+    final result = await _authService.updateProfile(request);
 
+    if (result.isSuccess) {
       if (mounted) {
         setState(() {
-          _currentUser = result.success ? result.user : null;
+          _currentUser = result.data;
           _isEditing = false;
         });
 
@@ -430,14 +435,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         );
       }
-    } catch (e) {
+    } else {
       if (mounted) {
-        _showErrorDialog(e.toString());
+        final errorMessage = result.exception is NetworkException
+            ? (result.exception as NetworkException).message
+            : result.exception?.toString() ?? 'Profile update failed';
+        _showErrorDialog(errorMessage);
       }
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
+    }
+
+    if (mounted) {
+      setState(() => _isLoading = false);
     }
   }
 

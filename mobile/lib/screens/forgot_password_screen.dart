@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:form_validator/form_validator.dart';
 
-import '../models/auth_models.dart';
-import '../services/auth_service.dart';
+import '../features/auth/auth.dart';
+import '../common/common.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -14,10 +14,20 @@ class ForgotPasswordScreen extends StatefulWidget {
 class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
-  final _authService = AuthService();
+  late final AuthService _authService;
 
   bool _isLoading = false;
   bool _emailSent = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _authService = AuthService(
+      apiClient: ApiClient.instance,
+      logger: AppLogger('ForgotPasswordScreen'),
+      secureStorage: SecureStorageService(),
+    );
+  }
 
   @override
   void dispose() {
@@ -197,24 +207,26 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
     setState(() => _isLoading = true);
 
-    try {
-      final request = PasswordResetRequest(email: _emailController.text.trim());
+    final result =
+        await _authService.forgotPassword(_emailController.text.trim());
 
-      await _authService.requestPasswordReset(request);
-
+    if (result.isSuccess) {
       if (mounted) {
         setState(() {
           _emailSent = true;
         });
       }
-    } catch (e) {
+    } else {
       if (mounted) {
-        _showErrorDialog(e.toString());
+        final errorMessage = result.exception is NetworkException
+            ? (result.exception as NetworkException).message
+            : result.exception?.toString() ?? 'Password reset failed';
+        _showErrorDialog(errorMessage);
       }
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
+    }
+
+    if (mounted) {
+      setState(() => _isLoading = false);
     }
   }
 

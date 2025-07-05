@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:form_validator/form_validator.dart';
 
-import '../models/auth_models.dart';
-import '../services/auth_service.dart';
+import '../features/auth/auth.dart';
+import '../common/common.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -17,11 +17,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   final _nameController = TextEditingController();
-  final _authService = AuthService();
+  late final AuthService _authService;
 
   bool _isLoading = false;
   bool _isPasswordVisible = false;
   bool _isConfirmPasswordVisible = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _authService = AuthService(
+      apiClient: ApiClient.instance,
+      logger: AppLogger('RegisterScreen'),
+      secureStorage: SecureStorageService(),
+    );
+  }
 
   @override
   void dispose() {
@@ -256,29 +266,33 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     setState(() => _isLoading = true);
 
-    try {
-      final request = RegisterRequest(
-        email: _emailController.text.trim(),
-        password: _passwordController.text,
-        name: _nameController.text.trim().isNotEmpty
-            ? _nameController.text.trim()
-            : null,
-      );
+    final nameParts = _nameController.text.trim().split(' ');
+    final firstName = nameParts.isNotEmpty ? nameParts[0] : '';
+    final lastName = nameParts.length > 1 ? nameParts.sublist(1).join(' ') : '';
 
-      await _authService.register(request);
+    final result = await _authService.register(
+      email: _emailController.text.trim(),
+      password: _passwordController.text,
+      firstName: firstName,
+      lastName: lastName,
+    );
 
+    if (result.isSuccess) {
       if (mounted) {
         // Navigate to main app
         Navigator.pushReplacementNamed(context, '/home');
       }
-    } catch (e) {
+    } else {
       if (mounted) {
-        _showErrorDialog(e.toString());
+        final errorMessage = result.exception is NetworkException
+            ? (result.exception as NetworkException).message
+            : result.exception?.toString() ?? 'Registration failed';
+        _showErrorDialog(errorMessage);
       }
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
+    }
+
+    if (mounted) {
+      setState(() => _isLoading = false);
     }
   }
 

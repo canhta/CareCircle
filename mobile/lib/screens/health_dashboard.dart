@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../services/health_service.dart';
+import '../features/health/health.dart';
 import '../widgets/charts/interactive_health_chart.dart';
 import '../widgets/health_analytics_widget.dart';
 import '../widgets/time_range_selector.dart';

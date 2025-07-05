@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:form_validator/form_validator.dart';
 
-import '../models/auth_models.dart';
-import '../services/auth_service.dart';
+import '../features/auth/auth.dart';
+import '../common/common.dart';
 import 'register_screen.dart';
 import 'forgot_password_screen.dart';
 
@@ -17,10 +17,20 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _authService = AuthService();
+  late final AuthService _authService;
 
   bool _isLoading = false;
   bool _isPasswordVisible = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _authService = AuthService(
+      apiClient: ApiClient.instance,
+      logger: AppLogger('LoginScreen'),
+      secureStorage: SecureStorageService(),
+    );
+  }
 
   @override
   void dispose() {
@@ -282,68 +292,75 @@ class _LoginScreenState extends State<LoginScreen> {
 
     setState(() => _isLoading = true);
 
-    try {
-      final request = LoginRequest(
-        email: _emailController.text.trim(),
-        password: _passwordController.text,
-      );
+    final result = await _authService.login(
+      email: _emailController.text.trim(),
+      password: _passwordController.text,
+    );
 
-      await _authService.login(request);
-
+    if (result.isSuccess) {
       if (mounted) {
         // Navigate to main app
         Navigator.pushReplacementNamed(context, '/home');
       }
-    } catch (e) {
+    } else {
       if (mounted) {
-        _showErrorDialog(e.toString());
+        final errorMessage = result.exception is NetworkException
+            ? (result.exception as NetworkException).message
+            : result.exception?.toString() ?? 'Login failed';
+        _showErrorDialog(errorMessage);
       }
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
+    }
+
+    if (mounted) {
+      setState(() => _isLoading = false);
     }
   }
 
   Future<void> _handleGoogleSignIn() async {
     setState(() => _isLoading = true);
 
-    try {
-      await _authService.signInWithGoogle();
+    final result = await _authService.loginWithGoogle();
 
+    if (result.isSuccess) {
       if (mounted) {
         // Navigate to main app
         Navigator.pushReplacementNamed(context, '/home');
       }
-    } catch (e) {
+    } else {
       if (mounted) {
-        _showErrorDialog(e.toString());
+        final errorMessage = result.exception is NetworkException
+            ? (result.exception as NetworkException).message
+            : result.exception?.toString() ?? 'Google sign-in failed';
+        _showErrorDialog(errorMessage);
       }
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
+    }
+
+    if (mounted) {
+      setState(() => _isLoading = false);
     }
   }
 
   Future<void> _handleAppleSignIn() async {
     setState(() => _isLoading = true);
 
-    try {
-      await _authService.signInWithApple();
+    final result = await _authService.loginWithApple();
 
+    if (result.isSuccess) {
       if (mounted) {
         // Navigate to main app
         Navigator.pushReplacementNamed(context, '/home');
       }
-    } catch (e) {
+    } else {
       if (mounted) {
-        _showErrorDialog(e.toString());
+        final errorMessage = result.exception is NetworkException
+            ? (result.exception as NetworkException).message
+            : result.exception?.toString() ?? 'Apple sign-in failed';
+        _showErrorDialog(errorMessage);
       }
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
+    }
+
+    if (mounted) {
+      setState(() => _isLoading = false);
     }
   }
 

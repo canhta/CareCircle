@@ -9,10 +9,30 @@ class AppConfig {
   static const String appName = 'CareCircle';
   static const String version = '1.0.0';
 
-  // API Configuration
-  static const String apiBaseUrl = 'https://api.carecircle.com';
+  // API Configuration - Environment-specific URLs
+  static const String apiBaseUrl = String.fromEnvironment(
+    'API_BASE_URL',
+    defaultValue:
+        kDebugMode ? 'http://10.0.2.2:3000' : 'https://api.carecircle.com',
+  );
   static const int apiTimeout = 30000;
   static const bool debugMode = kDebugMode;
+
+  // Environment configuration
+  static const String environment = String.fromEnvironment(
+    'ENVIRONMENT',
+    defaultValue: kDebugMode ? 'development' : 'production',
+  );
+
+  // API Endpoints
+  static const String authEndpoint = '/auth';
+  static const String usersEndpoint = '/users';
+  static const String dailyCheckInsEndpoint = '/daily-check-ins';
+  static const String healthRecordsEndpoint = '/health-records';
+  static const String careGroupsEndpoint = '/care-groups';
+  static const String prescriptionsEndpoint = '/prescriptions';
+  static const String notificationsEndpoint = '/notifications';
+  static const String subscriptionsEndpoint = '/subscriptions';
 
   // Storage Configuration
   static late SharedPreferences _prefs;
@@ -51,6 +71,8 @@ class AppConfig {
       _connectivity = Connectivity();
 
       _logger.i('AppConfig initialized successfully');
+      _logger.i('Environment: $environment');
+      _logger.i('API Base URL: $apiBaseUrl');
     } catch (e) {
       // Initialize a fallback logger for error reporting
       _logger = Logger(

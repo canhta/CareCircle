@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../models/daily_check_in_models.dart';
-import '../services/daily_check_in_service.dart';
+import '../features/daily_check_in/daily_check_in.dart';
+import '../common/common.dart';
 
 class CheckInHistoryScreen extends StatefulWidget {
   const CheckInHistoryScreen({super.key});
@@ -10,7 +10,7 @@ class CheckInHistoryScreen extends StatefulWidget {
 }
 
 class _CheckInHistoryScreenState extends State<CheckInHistoryScreen> {
-  final DailyCheckInService _service = DailyCheckInService();
+  late final DailyCheckInService _service;
 
   bool _isLoading = false;
   List<DailyCheckIn> _checkIns = [];
@@ -19,6 +19,10 @@ class _CheckInHistoryScreenState extends State<CheckInHistoryScreen> {
   @override
   void initState() {
     super.initState();
+    _service = DailyCheckInService(
+      apiClient: ApiClient.instance,
+      logger: AppLogger('CheckInHistoryScreen'),
+    );
     _loadCheckInHistory();
   }
 
@@ -27,21 +31,22 @@ class _CheckInHistoryScreenState extends State<CheckInHistoryScreen> {
       _isLoading = true;
     });
 
-    try {
-      final checkIns = await _service.getRecentCheckIns(limit: 30);
+    final result = await _service.getRecentCheckIns(limit: 30);
 
+    if (result.isSuccess) {
       if (mounted) {
         setState(() {
-          _checkIns = checkIns;
+          _checkIns = result.data ?? [];
           _isLoading = false;
         });
       }
-    } catch (e) {
+    } else {
       if (mounted) {
         setState(() {
           _isLoading = false;
         });
-        _showErrorSnackBar('Failed to load check-in history: ${e.toString()}');
+        _showErrorSnackBar(
+            'Failed to load check-in history: ${result.exception}');
       }
     }
   }

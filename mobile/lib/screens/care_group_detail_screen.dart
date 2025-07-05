@@ -4,8 +4,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:developer';
-import '../models/care_group_models.dart';
-import '../services/care_group_service.dart';
+import '../features/care_group/care_group.dart';
+import '../common/common.dart';
 import 'care_group_dashboard_screen.dart';
 import 'care_group_members_screen.dart';
 import 'invite_member_screen.dart';
@@ -23,23 +23,50 @@ class CareGroupDetailScreen extends StatefulWidget {
 }
 
 class _CareGroupDetailScreenState extends State<CareGroupDetailScreen> {
-  final CareGroupService _careGroupService = CareGroupService();
+  late final CareGroupService _careGroupService;
   late CareGroup _careGroup;
   CareGroupMember? _currentUserMember;
+  List<CareGroupMember> _members = [];
   bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
+    _careGroupService = CareGroupService(
+      apiClient: ApiClient.instance,
+      logger: AppLogger('CareGroupDetailScreen'),
+    );
     _careGroup = widget.careGroup;
-    _getCurrentUserMember();
+    _loadMembers();
+  }
+
+  Future<void> _loadMembers() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    final result = await _careGroupService.getCareGroupMembers(_careGroup.id);
+
+    if (result.isSuccess) {
+      setState(() {
+        _members = result.data ?? [];
+        _getCurrentUserMember();
+      });
+    } else {
+      // Log error - we can create a local logger or handle silently
+      debugPrint('Failed to load members: ${result.exception}');
+    }
+
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   void _getCurrentUserMember() {
     // Note: This should be replaced with actual user ID from auth service
     // For now, we'll assume the first member is the current user
-    if (_careGroup.members.isNotEmpty) {
-      _currentUserMember = _careGroup.members.first;
+    if (_members.isNotEmpty) {
+      _currentUserMember = _members.first;
     }
   }
 
@@ -154,11 +181,10 @@ class _CareGroupDetailScreenState extends State<CareGroupDetailScreen> {
                         _careGroup.name,
                         style: Theme.of(context).textTheme.headlineSmall,
                       ),
-                      if (_careGroup.description != null)
-                        Text(
-                          _careGroup.description!,
-                          style: Theme.of(context).textTheme.bodyMedium,
-                        ),
+                      Text(
+                        _careGroup.description!,
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
                     ],
                   ),
                 ),

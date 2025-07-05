@@ -3,8 +3,9 @@
 
 import 'package:flutter/material.dart';
 import 'dart:developer';
-import '../models/care_group_models.dart';
-import '../services/care_group_service.dart';
+import '../features/care_group/domain/care_group_models.dart';
+import '../features/care_group/data/care_group_service.dart';
+import '../common/common.dart';
 import 'invite_member_screen.dart';
 
 class CareGroupMembersScreen extends StatefulWidget {
@@ -20,7 +21,7 @@ class CareGroupMembersScreen extends StatefulWidget {
 }
 
 class _CareGroupMembersScreenState extends State<CareGroupMembersScreen> {
-  final CareGroupService _careGroupService = CareGroupService();
+  late final CareGroupService _careGroupService;
   List<CareGroupMember> _members = [];
   CareGroupMember? _currentUserMember;
   bool _isLoading = true;
@@ -29,31 +30,33 @@ class _CareGroupMembersScreenState extends State<CareGroupMembersScreen> {
   @override
   void initState() {
     super.initState();
+    _careGroupService = CareGroupService(
+      apiClient: ApiClient.instance,
+      logger: AppLogger('CareGroupMembersScreen'),
+    );
     _loadMembers();
   }
 
   Future<void> _loadMembers() async {
-    try {
-      setState(() {
-        _isLoading = true;
-        _error = null;
-      });
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
 
-      final members =
-          await _careGroupService.getCareGroupMembers(widget.careGroup.id);
+    final result =
+        await _careGroupService.getCareGroupMembers(widget.careGroup.id);
 
-      setState(() {
+    result.fold(
+      (members) => setState(() {
         _members = members;
         _currentUserMember = _getCurrentUserMember();
         _isLoading = false;
-      });
-    } catch (e) {
-      log('Error loading members: $e');
-      setState(() {
-        _error = 'Failed to load members';
+      }),
+      (error) => setState(() {
+        _error = error.toString();
         _isLoading = false;
-      });
-    }
+      }),
+    );
   }
 
   CareGroupMember? _getCurrentUserMember() {
@@ -63,13 +66,11 @@ class _CareGroupMembersScreenState extends State<CareGroupMembersScreen> {
   }
 
   bool _canManageMembers() {
-    return _currentUserMember?.role == CareRole.owner ||
-        _currentUserMember?.role == CareRole.admin;
+    return _currentUserMember?.role == CareGroupRole.admin;
   }
 
   bool _canInviteMembers() {
-    return _currentUserMember?.role == CareRole.owner ||
-        _currentUserMember?.role == CareRole.admin;
+    return _currentUserMember?.role == CareGroupRole.admin;
   }
 
   @override
@@ -179,7 +180,7 @@ class _CareGroupMembersScreenState extends State<CareGroupMembersScreen> {
   }
 
   Widget _buildMembersHeader() {
-    final activeMembers = _members.where((m) => m.isActive).length;
+    final activeMembers = _members.length; // All members are active in the new model
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -213,17 +214,16 @@ class _CareGroupMembersScreenState extends State<CareGroupMembersScreen> {
 
   Widget _buildMembersList() {
     // Group members by role
-    final groupedMembers = <CareRole, List<CareGroupMember>>{};
+    final groupedMembers = <CareGroupRole, List<CareGroupMember>>{};
     for (final member in _members) {
       groupedMembers.putIfAbsent(member.role, () => []).add(member);
     }
 
     // Sort roles by hierarchy
     final sortedRoles = [
-      CareRole.owner,
-      CareRole.admin,
-      CareRole.caregiver,
-      CareRole.member
+      CareGroupRole.admin,
+      CareGroupRole.member,
+      CareGroupRole.viewer
     ].where((role) => groupedMembers.containsKey(role)).toList();
 
     return ListView.builder(
@@ -237,7 +237,7 @@ class _CareGroupMembersScreenState extends State<CareGroupMembersScreen> {
     );
   }
 
-  Widget _buildRoleSection(CareRole role, List<CareGroupMember> members) {
+  Widget _buildRoleSection(CareGroupRole role, List<CareGroupMember> members) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -255,7 +255,7 @@ class _CareGroupMembersScreenState extends State<CareGroupMembersScreen> {
               ),
               const SizedBox(width: 8),
               Text(
-                '${role.displayName}s (${members.length})',
+                '${_getRoleDisplayName(role)}s (${members.length})',
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       color: _getRoleColor(role),
                       fontWeight: FontWeight.w600,
@@ -282,7 +282,7 @@ class _CareGroupMembersScreenState extends State<CareGroupMembersScreen> {
               backgroundColor:
                   _getRoleColor(member.role).withValues(alpha: 0.1),
               child: Text(
-                member.user?.name?.substring(0, 1).toUpperCase() ?? 'U',
+                _getMemberInitials(member),
                 style: TextStyle(
                   color: _getRoleColor(member.role),
                   fontWeight: FontWeight.bold,
@@ -296,7 +296,7 @@ class _CareGroupMembersScreenState extends State<CareGroupMembersScreen> {
                 width: 12,
                 height: 12,
                 decoration: BoxDecoration(
-                  color: member.isActive ? Colors.green : Colors.grey,
+                  color: Colors.green, // All members are active in the new model
                   shape: BoxShape.circle,
                   border: Border.all(color: Colors.white, width: 2),
                 ),
@@ -308,7 +308,7 @@ class _CareGroupMembersScreenState extends State<CareGroupMembersScreen> {
           children: [
             Expanded(
               child: Text(
-                member.user?.name ?? 'Unknown User',
+                member.fullName,
                 style: Theme.of(context).textTheme.titleMedium,
               ),
             ),
@@ -336,32 +336,12 @@ class _CareGroupMembersScreenState extends State<CareGroupMembersScreen> {
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(member.user?.email ?? 'No email'),
+            Text(member.email),
             const SizedBox(height: 4),
-            Row(
-              children: [
-                _buildPermissionChip(
-                  'Health Data',
-                  member.canViewHealth,
-                  Icons.health_and_safety,
-                ),
-                const SizedBox(width: 8),
-                _buildPermissionChip(
-                  'Alerts',
-                  member.canReceiveAlerts,
-                  Icons.notifications,
-                ),
-              ],
+            Text(
+              'Joined ${member.joinedAt.day}/${member.joinedAt.month}/${member.joinedAt.year}',
+              style: Theme.of(context).textTheme.bodySmall,
             ),
-            if (member.canManageSettings)
-              Padding(
-                padding: const EdgeInsets.only(top: 4),
-                child: _buildPermissionChip(
-                  'Manage Settings',
-                  true,
-                  Icons.settings,
-                ),
-              ),
           ],
         ),
         trailing: _canManageMembers() && !isCurrentUser
@@ -394,47 +374,14 @@ class _CareGroupMembersScreenState extends State<CareGroupMembersScreen> {
     );
   }
 
-  Widget _buildPermissionChip(String label, bool enabled, IconData icon) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-      decoration: BoxDecoration(
-        color: enabled
-            ? Colors.green.withValues(alpha: 0.1)
-            : Colors.grey.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            icon,
-            size: 12,
-            color: enabled ? Colors.green : Colors.grey,
-          ),
-          const SizedBox(width: 2),
-          Text(
-            label,
-            style: TextStyle(
-              color: enabled ? Colors.green : Colors.grey,
-              fontSize: 10,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Color _getRoleColor(CareRole role) {
+  Color _getRoleColor(CareGroupRole role) {
     switch (role) {
-      case CareRole.owner:
-        return Colors.purple;
-      case CareRole.admin:
+      case CareGroupRole.admin:
         return Colors.blue;
-      case CareRole.caregiver:
-        return Colors.green;
-      case CareRole.member:
+      case CareGroupRole.member:
         return Colors.orange;
+      case CareGroupRole.viewer:
+        return Colors.green;
     }
   }
 
@@ -463,7 +410,7 @@ class _CareGroupMembersScreenState extends State<CareGroupMembersScreen> {
       builder: (context) => AlertDialog(
         title: const Text('Remove Member'),
         content: Text(
-          'Are you sure you want to remove ${member.user?.name ?? 'this member'} from the group?',
+          'Are you sure you want to remove ${member.fullName} from the group?',
         ),
         actions: [
           TextButton(
@@ -506,24 +453,17 @@ class _CareGroupMembersScreenState extends State<CareGroupMembersScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(member.user?.name ?? 'Member Details'),
+        title: Text(member.fullName),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildDetailRow('Email', member.user?.email ?? 'Unknown'),
-            _buildDetailRow('Role', member.role.displayName),
+            _buildDetailRow('Email', member.email),
+            _buildDetailRow('Role', _getRoleDisplayName(member.role)),
             _buildDetailRow('Joined', _formatDate(member.joinedAt)),
-            _buildDetailRow('Status', member.isActive ? 'Active' : 'Inactive'),
+            _buildDetailRow('Status', 'Active'),
             const SizedBox(height: 16),
-            const Text(
-              'Permissions:',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            _buildPermissionRow('View Health Data', member.canViewHealth),
-            _buildPermissionRow('Receive Alerts', member.canReceiveAlerts),
-            _buildPermissionRow('Manage Settings', member.canManageSettings),
+            _buildDetailRow('Joined', '${member.joinedAt.day}/${member.joinedAt.month}/${member.joinedAt.year}'),
           ],
         ),
         actions: [
@@ -550,23 +490,6 @@ class _CareGroupMembersScreenState extends State<CareGroupMembersScreen> {
             ),
           ),
           Expanded(child: Text(value)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPermissionRow(String label, bool enabled) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2),
-      child: Row(
-        children: [
-          Icon(
-            enabled ? Icons.check_circle : Icons.cancel,
-            size: 16,
-            color: enabled ? Colors.green : Colors.red,
-          ),
-          const SizedBox(width: 8),
-          Text(label),
         ],
       ),
     );
@@ -600,5 +523,23 @@ class _CareGroupMembersScreenState extends State<CareGroupMembersScreen> {
     if (result == true) {
       _loadMembers();
     }
+  }
+
+  // Helper functions for working with CareGroupMember model
+  String _getRoleDisplayName(CareGroupRole role) {
+    switch (role) {
+      case CareGroupRole.admin:
+        return 'Admin';
+      case CareGroupRole.member:
+        return 'Member';
+      case CareGroupRole.viewer:
+        return 'Viewer';
+    }
+  }
+
+  String _getMemberInitials(CareGroupMember member) {
+    final first = member.firstName.isNotEmpty ? member.firstName[0] : '';
+    final last = member.lastName.isNotEmpty ? member.lastName[0] : '';
+    return '$first$last'.toUpperCase();
   }
 }

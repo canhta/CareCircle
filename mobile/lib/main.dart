@@ -10,10 +10,10 @@ import 'screens/profile_screen.dart';
 import 'screens/prescription_scanner_screen.dart';
 import 'screens/notification_center_screen.dart';
 import 'screens/notification_preferences_screen.dart';
-import 'services/background_sync_service.dart';
-import 'services/firebase_messaging_service.dart';
-import 'services/auth_service.dart';
-import 'services/logging_service.dart';
+import 'features/background_sync/background_sync.dart';
+import 'features/firebase_messaging/firebase_messaging.dart';
+import 'features/auth/auth.dart';
+import 'common/common.dart';
 import 'managers/health_data_manager.dart';
 import 'widgets/notification_handler.dart';
 import 'models/auth_models.dart';
@@ -22,7 +22,8 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Initialize logging service
-  LoggingService().initialize(isDevelopment: true);
+  final logger = AppLogger();
+  logger.initialize(isDevelopment: true);
 
   // Load environment variables
   await dotenv.load(fileName: ".env");
@@ -46,6 +47,23 @@ Future<void> main() async {
     // Continue with app startup even if AppConfig fails
   }
 
+  // Initialize secure storage
+  final secureStorage = SecureStorageService();
+  secureStorage.initialize();
+
+  // Initialize API Client
+  try {
+    final apiClient = ApiClient.instance;
+    await apiClient.initialize(
+      secureStorage: secureStorage,
+      logger: logger,
+    );
+    debugPrint('API Client initialized successfully');
+  } catch (e) {
+    debugPrint('Failed to initialize API Client: $e');
+    // Continue with app startup even if API Client fails
+  }
+
   // Validate configuration
   if (!AppConfig.validateConfig()) {
     debugPrint('Configuration validation failed. Please check your .env file.');
@@ -53,7 +71,11 @@ Future<void> main() async {
 
   // Initialize Authentication Service
   try {
-    final authService = AuthService();
+    final authService = AuthService(
+      apiClient: ApiClient.instance,
+      logger: logger,
+      secureStorage: secureStorage,
+    );
     await authService.initialize();
     debugPrint('Auth Service initialized successfully');
   } catch (e) {
@@ -62,7 +84,10 @@ Future<void> main() async {
 
   // Initialize Firebase Messaging Service
   try {
-    final messagingService = FirebaseMessagingService();
+    final messagingService = FirebaseMessagingService(
+      logger: logger,
+      secureStorage: secureStorage,
+    );
     await messagingService.initialize();
     debugPrint('Firebase Messaging Service initialized successfully');
   } catch (e) {
@@ -71,11 +96,18 @@ Future<void> main() async {
 
   // Initialize background sync service
   try {
-    final backgroundSyncService = BackgroundSyncService();
+    final backgroundSyncService = BackgroundSyncService(
+      apiClient: ApiClient.instance,
+      logger: logger,
+      secureStorage: secureStorage,
+    );
     await backgroundSyncService.initialize();
+
+    // Register periodic sync with new API
     await backgroundSyncService.registerPeriodicSync(
-      frequency: const Duration(hours: 6),
-      requiresNetworkConnectivity: true,
+      configuration: const SyncConfiguration(
+        frequency: Duration(hours: 6),
+      ),
     );
     debugPrint('Background sync service initialized successfully');
   } catch (e) {
@@ -160,14 +192,37 @@ class AuthWrapper extends StatefulWidget {
 }
 
 class _AuthWrapperState extends State<AuthWrapper> {
-  final AuthService _authService = AuthService();
+  late final AuthService _authService;
   User? _currentUser;
   bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _checkAuthState();
+    _initializeAuthService();
+  }
+
+  Future<void> _initializeAuthService() async {
+    try {
+      final logger = AppLogger();
+      final secureStorage = SecureStorageService();
+
+      _authService = AuthService(
+        apiClient: ApiClient.instance,
+        logger: logger,
+        secureStorage: secureStorage,
+      );
+
+      await _checkAuthState();
+    } catch (e) {
+      debugPrint('Error initializing auth service: $e');
+      if (mounted) {
+        setState(() {
+          _currentUser = null;
+          _isLoading = false;
+        });
+      }
+    }
   }
 
   Future<void> _checkAuthState() async {

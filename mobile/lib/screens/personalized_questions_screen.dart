@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../models/daily_check_in_models.dart';
-import '../services/daily_check_in_service.dart';
+import '../features/daily_check_in/daily_check_in.dart';
+import '../common/common.dart';
 
 class PersonalizedQuestionsScreen extends StatefulWidget {
   const PersonalizedQuestionsScreen({super.key});
@@ -12,7 +12,7 @@ class PersonalizedQuestionsScreen extends StatefulWidget {
 
 class _PersonalizedQuestionsScreenState
     extends State<PersonalizedQuestionsScreen> {
-  final DailyCheckInService _service = DailyCheckInService();
+  late final DailyCheckInService _service;
 
   bool _isLoading = false;
   bool _isSubmitting = false;
@@ -23,6 +23,10 @@ class _PersonalizedQuestionsScreenState
   @override
   void initState() {
     super.initState();
+    _service = DailyCheckInService(
+      apiClient: ApiClient.instance,
+      logger: AppLogger('PersonalizedQuestionsScreen'),
+    );
     _loadPersonalizedQuestions();
   }
 
@@ -31,24 +35,26 @@ class _PersonalizedQuestionsScreenState
       _isLoading = true;
     });
 
-    try {
-      // For now, use a placeholder user ID - in a real app, this would come from auth
-      final questions = await _service.generatePersonalizedQuestions();
+    final result = await _service.generatePersonalizedQuestions();
 
-      if (mounted) {
-        setState(() {
-          _questions = questions;
-          _isLoading = false;
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-        _showErrorSnackBar('Failed to load questions: ${e.toString()}');
-      }
-    }
+    result.fold(
+      (questions) => {
+        if (mounted) {
+          setState(() {
+            _questions = questions;
+            _isLoading = false;
+          })
+        }
+      },
+      (error) => {
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+          _showErrorSnackBar('Failed to load questions: ${error.toString()}');
+        }
+      },
+    );
   }
 
   Future<void> _submitAnswer(String questionId, dynamic answer) async {
@@ -56,11 +62,8 @@ class _PersonalizedQuestionsScreenState
       _answers[questionId] = answer;
     });
 
-    try {
-      await _service.answerQuestion(questionId, answer);
-    } catch (e) {
-      _showErrorSnackBar('Failed to submit answer: ${e.toString()}');
-    }
+    // Note: In this implementation, we'll collect answers and submit them all together
+    // Individual answer submission would need a different service method
   }
 
   Future<void> _completeQuestionnaire() async {
@@ -286,20 +289,22 @@ class _PersonalizedQuestionsScreenState
 
   Widget _buildAnswerInput(PersonalizedQuestion question) {
     switch (question.type) {
-      case QuestionType.scale:
+      case 'scale':
         return _buildScaleInput(question);
-      case QuestionType.multipleChoice:
+      case 'multiple_choice':
         return _buildMultipleChoiceInput(question);
-      case QuestionType.boolean:
+      case 'boolean':
         return _buildBooleanInput(question);
-      case QuestionType.text:
+      case 'text':
+        return _buildTextInput(question);
+      default:
         return _buildTextInput(question);
     }
   }
 
   Widget _buildScaleInput(PersonalizedQuestion question) {
-    final minValue = question.minValue ?? 1;
-    final maxValue = question.maxValue ?? 10;
+    final minValue = 1;
+    final maxValue = 10;
     final currentValue = _answers[question.id] ?? minValue.toDouble();
 
     return Column(

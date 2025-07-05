@@ -4,8 +4,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:developer';
-import '../models/care_group_models.dart';
-import '../services/care_group_service.dart';
+import '../features/care_group/domain/care_group_models.dart';
+import '../features/care_group/data/care_group_service.dart';
+import '../common/common.dart';
 
 class InviteMemberScreen extends StatefulWidget {
   final CareGroup careGroup;
@@ -23,13 +24,22 @@ class _InviteMemberScreenState extends State<InviteMemberScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _messageController = TextEditingController();
-  final CareGroupService _careGroupService = CareGroupService();
+  late final CareGroupService _careGroupService;
 
-  CareRole _selectedRole = CareRole.member;
+  CareGroupRole _selectedRole = CareGroupRole.member;
   bool _canViewHealth = false;
   bool _canReceiveAlerts = true;
   bool _canManageSettings = false;
   bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _careGroupService = CareGroupService(
+      apiClient: ApiClient.instance,
+      logger: AppLogger('InviteMemberScreen'),
+    );
+  }
 
   @override
   void dispose() {
@@ -165,27 +175,27 @@ class _InviteMemberScreenState extends State<InviteMemberScreen> {
           style: Theme.of(context).textTheme.bodyMedium,
         ),
         const SizedBox(height: 16),
-        ...CareRole.values.where((role) => role != CareRole.owner).map(
-              (role) => _buildRoleOption(role),
-            ),
+        ...CareGroupRole.values.map(
+          (role) => _buildRoleOption(role),
+        ),
       ],
     );
   }
 
-  Widget _buildRoleOption(CareRole role) {
+  Widget _buildRoleOption(CareGroupRole role) {
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 4),
-      child: RadioListTile<CareRole>(
+      child: RadioListTile<CareGroupRole>(
         value: role,
         groupValue: _selectedRole,
-        onChanged: (CareRole? value) {
+        onChanged: (CareGroupRole? value) {
           setState(() {
             _selectedRole = value!;
             _updatePermissionsForRole(value);
           });
         },
-        title: Text(role.displayName),
-        subtitle: Text(role.description),
+        title: Text(_getRoleDisplayName(role)),
+        subtitle: Text(_getRoleDescription(role)),
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       ),
     );
@@ -237,14 +247,14 @@ class _InviteMemberScreenState extends State<InviteMemberScreen> {
                 subtitle: 'Can modify group settings and member permissions',
                 icon: Icons.settings,
                 value: _canManageSettings,
-                onChanged: _selectedRole == CareRole.admin
+                onChanged: _selectedRole == CareGroupRole.admin
                     ? (value) {
                         setState(() {
                           _canManageSettings = value;
                         });
                       }
                     : null,
-                enabled: _selectedRole == CareRole.admin,
+                enabled: _selectedRole == CareGroupRole.admin,
               ),
             ],
           ),
@@ -353,25 +363,45 @@ class _InviteMemberScreenState extends State<InviteMemberScreen> {
     );
   }
 
-  void _updatePermissionsForRole(CareRole role) {
+  // Helper functions for role display
+  String _getRoleDisplayName(CareGroupRole role) {
     switch (role) {
-      case CareRole.admin:
+      case CareGroupRole.admin:
+        return 'Admin';
+      case CareGroupRole.member:
+        return 'Member';
+      case CareGroupRole.viewer:
+        return 'Viewer';
+    }
+  }
+
+  String _getRoleDescription(CareGroupRole role) {
+    switch (role) {
+      case CareGroupRole.admin:
+        return 'Full access to manage the group and its members';
+      case CareGroupRole.member:
+        return 'Can view and interact with group content';
+      case CareGroupRole.viewer:
+        return 'Can only view group content';
+    }
+  }
+
+  void _updatePermissionsForRole(CareGroupRole role) {
+    switch (role) {
+      case CareGroupRole.admin:
         _canViewHealth = true;
         _canReceiveAlerts = true;
         _canManageSettings = true;
         break;
-      case CareRole.caregiver:
-        _canViewHealth = true;
-        _canReceiveAlerts = true;
-        _canManageSettings = false;
-        break;
-      case CareRole.member:
+      case CareGroupRole.member:
         _canViewHealth = false;
         _canReceiveAlerts = true;
         _canManageSettings = false;
         break;
-      case CareRole.owner:
-        // Should not reach here as OWNER is filtered out
+      case CareGroupRole.viewer:
+        _canViewHealth = false;
+        _canReceiveAlerts = false;
+        _canManageSettings = false;
         break;
     }
   }
@@ -386,29 +416,32 @@ class _InviteMemberScreenState extends State<InviteMemberScreen> {
     });
 
     try {
-      final request = InviteCareGroupMemberRequest(
+      final request = SendInvitationRequest(
         email: _emailController.text.trim(),
-        role: _selectedRole,
-        canViewHealth: _canViewHealth,
-        canReceiveAlerts: _canReceiveAlerts,
-        canManageSettings: _canManageSettings,
-        message: _messageController.text.trim().isEmpty
-            ? null
-            : _messageController.text.trim(),
       );
 
-      await _careGroupService.inviteMember(
+      final result = await _careGroupService.sendInvitation(
         widget.careGroup.id,
         request,
       );
 
-      // Generate deep link for sharing
-      final deepLink =
-          await _careGroupService.generateDeepLink(widget.careGroup.id);
-
-      if (mounted) {
-        _showInvitationSentDialog(deepLink);
-      }
+      result.fold(
+        (invitation) {
+          if (mounted) {
+            _showInvitationSentDialog();
+          }
+        },
+        (error) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Failed to send invitation: ${error.toString()}'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        },
+      );
     } catch (e) {
       log('Error sending invitation: $e');
       if (mounted) {
@@ -428,7 +461,7 @@ class _InviteMemberScreenState extends State<InviteMemberScreen> {
     }
   }
 
-  void _showInvitationSentDialog(DeepLinkInfo deepLink) {
+  void _showInvitationSentDialog() {
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -449,61 +482,20 @@ class _InviteMemberScreenState extends State<InviteMemberScreen> {
             ),
             const SizedBox(height: 16),
             const Text(
-              'They can also join using this link:',
-              style: TextStyle(fontWeight: FontWeight.w500),
-            ),
-            const SizedBox(height: 8),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.grey.shade100,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      deepLink.url,
-                      style: const TextStyle(
-                        fontFamily: 'monospace',
-                        fontSize: 12,
-                      ),
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.copy),
-                    onPressed: () {
-                      Clipboard.setData(ClipboardData(text: deepLink.url));
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                            content: Text('Link copied to clipboard')),
-                      );
-                    },
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'This link expires on ${_formatExpirationDate(deepLink.expiresAt)}.',
-              style: Theme.of(context).textTheme.bodySmall,
+              'They will receive an email with instructions to join the group.',
             ),
           ],
         ),
         actions: [
           TextButton(
             onPressed: () {
-              Navigator.pop(context); // Close dialog
-              Navigator.pop(context, true); // Return to previous screen
+              Navigator.of(context).pop(); // Close dialog
+              Navigator.of(context).pop(true); // Go back to previous screen
             },
             child: const Text('Done'),
           ),
         ],
       ),
     );
-  }
-
-  String _formatExpirationDate(DateTime expirationDate) {
-    return '${expirationDate.day}/${expirationDate.month}/${expirationDate.year}';
   }
 }

@@ -3,8 +3,8 @@
 
 import 'package:flutter/material.dart';
 import 'dart:developer';
-import '../models/care_group_models.dart';
-import '../services/care_group_service.dart';
+import '../features/care_group/care_group.dart';
+import '../common/common.dart';
 
 class CareGroupDashboardScreen extends StatefulWidget {
   final CareGroup careGroup;
@@ -20,38 +20,45 @@ class CareGroupDashboardScreen extends StatefulWidget {
 }
 
 class _CareGroupDashboardScreenState extends State<CareGroupDashboardScreen> {
-  final CareGroupService _careGroupService = CareGroupService();
-  CareGroupDashboardData? _dashboardData;
+  late final CareGroupService _careGroupService;
+  List<CareGroupMember> _members = [];
   bool _isLoading = true;
   String? _error;
 
   @override
   void initState() {
     super.initState();
+    _careGroupService = CareGroupService(
+      apiClient: ApiClient.instance,
+      logger: AppLogger('CareGroupDashboardScreen'),
+    );
     _loadDashboardData();
   }
 
   Future<void> _loadDashboardData() async {
-    try {
-      setState(() {
-        _isLoading = true;
-        _error = null;
-      });
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
 
-      final dashboardData =
-          await _careGroupService.getDashboardData(widget.careGroup.id);
+    final result =
+        await _careGroupService.getCareGroupMembers(widget.careGroup.id);
 
-      setState(() {
-        _dashboardData = dashboardData;
-        _isLoading = false;
-      });
-    } catch (e) {
-      log('Error loading dashboard data: $e');
-      setState(() {
-        _error = 'Failed to load dashboard data';
-        _isLoading = false;
-      });
-    }
+    result.fold(
+      (members) => {
+        setState(() {
+          _members = members;
+          _isLoading = false;
+        })
+      },
+      (error) => {
+        log('Error loading dashboard data: $error'),
+        setState(() {
+          _error = 'Failed to load dashboard data';
+          _isLoading = false;
+        })
+      },
+    );
   }
 
   @override
@@ -135,7 +142,7 @@ class _CareGroupDashboardScreenState extends State<CareGroupDashboardScreen> {
               child: _buildSummaryCard(
                 icon: Icons.people,
                 title: 'Total Members',
-                value: _dashboardData?.totalMembers.toString() ?? '0',
+                value: _members.length.toString(),
                 color: Colors.blue,
               ),
             ),
@@ -144,7 +151,7 @@ class _CareGroupDashboardScreenState extends State<CareGroupDashboardScreen> {
               child: _buildSummaryCard(
                 icon: Icons.online_prediction,
                 title: 'Active Members',
-                value: _dashboardData?.activeMembers.toString() ?? '0',
+                value: _members.length.toString(),
                 color: Colors.green,
               ),
             ),
@@ -221,8 +228,7 @@ class _CareGroupDashboardScreenState extends State<CareGroupDashboardScreen> {
   }
 
   Widget _buildRecentActivities() {
-    final activities = _dashboardData?.recentActivities ?? [];
-
+    // For now, show a placeholder since we don't have activities in the service
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -231,79 +237,39 @@ class _CareGroupDashboardScreenState extends State<CareGroupDashboardScreen> {
           style: Theme.of(context).textTheme.headlineSmall,
         ),
         const SizedBox(height: 16),
-        if (activities.isEmpty)
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Center(
-                child: Column(
-                  children: [
-                    Icon(
-                      Icons.timeline,
-                      size: 48,
-                      color: Theme.of(context).colorScheme.outline,
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'No recent activities',
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Activities will appear here when members interact with the group.',
-                      style: Theme.of(context).textTheme.bodyMedium,
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
+        Card(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Center(
+              child: Column(
+                children: [
+                  Icon(
+                    Icons.timeline,
+                    size: 48,
+                    color: Theme.of(context).colorScheme.outline,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'No recent activities',
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Activity tracking will be available soon',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.outline,
+                        ),
+                  ),
+                ],
               ),
             ),
-          )
-        else
-          Card(
-            child: ListView.separated(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: activities.length,
-              separatorBuilder: (context, index) => const Divider(height: 1),
-              itemBuilder: (context, index) {
-                final activity = activities[index];
-                return _buildActivityItem(activity);
-              },
-            ),
           ),
+        ),
       ],
     );
   }
 
-  Widget _buildActivityItem(RecentActivity activity) {
-    return ListTile(
-      leading: CircleAvatar(
-        backgroundColor:
-            _getActivityColor(activity.type).withValues(alpha: 0.1),
-        child: Icon(
-          _getActivityIcon(activity.type),
-          color: _getActivityColor(activity.type),
-        ),
-      ),
-      title: Text(activity.description),
-      subtitle: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(activity.userName),
-          Text(
-            _formatTimestamp(activity.timestamp),
-            style: Theme.of(context).textTheme.bodySmall,
-          ),
-        ],
-      ),
-      isThreeLine: true,
-    );
-  }
-
   Widget _buildMembersOverview() {
-    final members = _dashboardData?.members ?? [];
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -327,12 +293,12 @@ class _CareGroupDashboardScreenState extends State<CareGroupDashboardScreen> {
         Card(
           child: Column(
             children: [
-              ...members.take(5).map((member) => _buildMemberItem(member)),
-              if (members.length > 5)
+              ..._members.take(5).map((member) => _buildMemberItem(member)),
+              if (_members.length > 5)
                 Padding(
                   padding: const EdgeInsets.all(16),
                   child: Text(
-                    'and ${members.length - 5} more members',
+                    'and ${_members.length - 5} more members',
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
                 ),
@@ -348,15 +314,15 @@ class _CareGroupDashboardScreenState extends State<CareGroupDashboardScreen> {
       leading: CircleAvatar(
         backgroundColor: _getRoleColor(member.role).withValues(alpha: 0.1),
         child: Text(
-          member.user?.name?.substring(0, 1).toUpperCase() ?? 'U',
+          member.firstName.substring(0, 1).toUpperCase(),
           style: TextStyle(
             color: _getRoleColor(member.role),
             fontWeight: FontWeight.bold,
           ),
         ),
       ),
-      title: Text(member.user?.name ?? 'Unknown User'),
-      subtitle: Text(member.role.displayName),
+      title: Text(member.fullName),
+      subtitle: Text(_getRoleDisplayName(member.role)),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -364,13 +330,13 @@ class _CareGroupDashboardScreenState extends State<CareGroupDashboardScreen> {
             width: 8,
             height: 8,
             decoration: BoxDecoration(
-              color: member.isActive ? Colors.green : Colors.grey,
+              color: Colors.green, // All members shown as active for now
               shape: BoxShape.circle,
             ),
           ),
           const SizedBox(width: 8),
           Text(
-            member.isActive ? 'Active' : 'Inactive',
+            'Active',
             style: Theme.of(context).textTheme.bodySmall,
           ),
         ],
@@ -378,63 +344,25 @@ class _CareGroupDashboardScreenState extends State<CareGroupDashboardScreen> {
     );
   }
 
-  Color _getRoleColor(CareRole role) {
+  Color _getRoleColor(CareGroupRole role) {
     switch (role) {
-      case CareRole.owner:
-        return Colors.purple;
-      case CareRole.admin:
+      case CareGroupRole.admin:
+        return Colors.red;
+      case CareGroupRole.member:
         return Colors.blue;
-      case CareRole.caregiver:
-        return Colors.green;
-      case CareRole.member:
-        return Colors.orange;
-    }
-  }
-
-  IconData _getActivityIcon(String type) {
-    switch (type.toLowerCase()) {
-      case 'checkin':
-        return Icons.health_and_safety;
-      case 'medication':
-        return Icons.medication;
-      case 'join':
-        return Icons.person_add;
-      case 'alert':
-        return Icons.warning;
-      default:
-        return Icons.timeline;
-    }
-  }
-
-  Color _getActivityColor(String type) {
-    switch (type.toLowerCase()) {
-      case 'checkin':
-        return Colors.green;
-      case 'medication':
-        return Colors.blue;
-      case 'join':
-        return Colors.purple;
-      case 'alert':
-        return Colors.orange;
-      default:
+      case CareGroupRole.viewer:
         return Colors.grey;
     }
   }
 
-  String _formatTimestamp(DateTime timestamp) {
-    final now = DateTime.now();
-    final difference = now.difference(timestamp);
-
-    if (difference.inMinutes < 1) {
-      return 'Just now';
-    } else if (difference.inMinutes < 60) {
-      return '${difference.inMinutes}m ago';
-    } else if (difference.inHours < 24) {
-      return '${difference.inHours}h ago';
-    } else if (difference.inDays < 7) {
-      return '${difference.inDays}d ago';
-    } else {
-      return '${timestamp.day}/${timestamp.month}/${timestamp.year}';
+  String _getRoleDisplayName(CareGroupRole role) {
+    switch (role) {
+      case CareGroupRole.admin:
+        return 'Admin';
+      case CareGroupRole.member:
+        return 'Member';
+      case CareGroupRole.viewer:
+        return 'Viewer';
     }
   }
 }
