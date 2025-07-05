@@ -68,4 +68,22 @@ abstract class HealthRepository {
   Future<Result<void>> deleteHealthDataFromBackend(
     List<String> healthDataIds,
   );
+
+  /// Get consent settings from backend
+  Future<Result<Map<String, dynamic>>> getConsentSettings();
+
+  /// Update consent settings in backend
+  Future<Result<void>> updateConsentSettings(Map<String, bool> settings);
+
+  /// Get consent history from backend
+  Future<Result<List<Map<String, dynamic>>>> getConsentHistory();
+
+  /// Get access log from backend
+  Future<Result<List<Map<String, dynamic>>>> getAccessLog();
+
+  /// Request data export from backend
+  Future<Result<void>> requestDataExport();
+
+  /// Request account deletion from backend
+  Future<Result<void>> requestAccountDeletion();
 }

@@ -25,15 +25,29 @@ class NotificationHandler extends StatefulWidget {
 
 class _NotificationHandlerState extends State<NotificationHandler> {
   late final AppLogger _logger;
-  late final NotificationManager _notificationManager;
+  NotificationManager? _notificationManager;
+  bool _isInitialized = false;
 
   @override
   void initState() {
     super.initState();
     _logger = ServiceLocator.get<AppLogger>();
-    _notificationManager = ServiceLocator.get<NotificationManager>();
-    _setupNotificationListeners();
-    _processOfflineMessages();
+    _initializeNotificationManager();
+  }
+
+  Future<void> _initializeNotificationManager() async {
+    try {
+      _logger.info('Getting NotificationManager from ServiceLocator');
+      _notificationManager =
+          await ServiceLocator.getAsync<NotificationManager>();
+      _setupNotificationListeners();
+      _processOfflineMessages();
+      setState(() {
+        _isInitialized = true;
+      });
+    } catch (e) {
+      _logger.error('Failed to get NotificationManager', error: e);
+    }
   }
 
   /// Set up notification action listeners
@@ -49,8 +63,14 @@ class _NotificationHandlerState extends State<NotificationHandler> {
 
   /// Process any stored offline messages
   Future<void> _processOfflineMessages() async {
+    if (_notificationManager == null) {
+      _logger.error(
+          'NotificationManager is null, cannot process offline messages');
+      return;
+    }
+
     try {
-      final messageResult = await _notificationManager.getStoredMessages();
+      final messageResult = await _notificationManager!.getStoredMessages();
       if (messageResult.isSuccess && messageResult.data != null) {
         final messages = messageResult.data!;
 
@@ -59,11 +79,11 @@ class _NotificationHandlerState extends State<NotificationHandler> {
 
           for (final message in messages) {
             // Process each message
-            await _notificationManager.processMessage(message);
+            await _notificationManager!.processMessage(message);
           }
 
           // Clear processed messages
-          await _notificationManager.clearStoredMessages();
+          await _notificationManager!.clearStoredMessages();
         }
       }
     } catch (e) {
@@ -75,7 +95,9 @@ class _NotificationHandlerState extends State<NotificationHandler> {
   @pragma('vm:entry-point')
   static Future<void> _onNotificationAction(
       ReceivedAction receivedAction) async {
+    // Get a static logger instance
     final logger = ServiceLocator.get<AppLogger>();
+
     logger.info('Notification action received: ${receivedAction.actionType}');
 
     // Get the payload data
@@ -697,7 +719,13 @@ class _NotificationHandlerState extends State<NotificationHandler> {
 
   @override
   Widget build(BuildContext context) {
-    return widget.child;
+    return _isInitialized
+        ? widget.child
+        : const SizedBox(
+            child: Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
   }
 
   @override

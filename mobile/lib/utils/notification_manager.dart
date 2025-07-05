@@ -1,9 +1,13 @@
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'dart:convert';
 
 import '../common/common.dart';
+import '../config/service_locator.dart';
 import '../features/firebase_messaging/firebase_messaging.dart';
+import '../features/medication/data/medication_service.dart';
+import '../utils/analytics_service.dart';
 
 /// Centralized notification management service
 /// Handles both local notifications and Firebase messaging
@@ -36,6 +40,9 @@ class NotificationManager {
 
       // Set up Firebase messaging handlers
       await _setupFirebaseMessageHandlers();
+
+      // Process any offline actions
+      await processOfflineActions();
 
       _isInitialized = true;
       _logger.info('NotificationManager initialized successfully');
@@ -505,25 +512,75 @@ class NotificationManager {
     try {
       _logger.info('Processing message: ${message.messageId}');
 
-      // Convert to RemoteMessage for existing processing
-      // This is a temporary solution until the entire system uses NotificationMessage
-      final data = message.data ?? {};
-      final notification = message.title != null || message.body != null
-          ? RemoteNotification(title: message.title, body: message.body)
-          : null;
+      // Show notification if title or body exists
+      if (message.title != null || message.body != null) {
+        await _showNotificationFromMessage(message);
+      }
 
-      final remoteMessage = RemoteMessage(
-        messageId: message.messageId,
-        data: data,
-        notification: notification,
-        sentTime: message.sentTime,
-      );
+      // Handle different message types based on data
+      if (message.data != null && message.data!.isNotEmpty) {
+        await _processMessageDataFromNotificationMessage(message);
+      }
 
-      // Use existing processing logic
-      await _showNotification(remoteMessage);
-      await _processMessageData(remoteMessage);
+      _logger.info('Message processed successfully');
     } catch (e) {
-      _logger.error('Failed to process message', error: e);
+      _logger.error('Error processing message', error: e);
+    }
+  }
+
+  /// Show notification from NotificationMessage
+  Future<void> _showNotificationFromMessage(NotificationMessage message) async {
+    final messageType = message.data?['type'] ?? 'default';
+    String channelKey = _getChannelKeyForMessageType(messageType);
+
+    await AwesomeNotifications().createNotification(
+      content: NotificationContent(
+        id: message.hashCode,
+        channelKey: channelKey,
+        title: message.title ?? 'CareCircle',
+        body: message.body ?? 'New notification',
+        payload: message.data
+                ?.map((key, value) => MapEntry(key, value.toString())) ??
+            {},
+        notificationLayout: NotificationLayout.Default,
+        actionType: ActionType.Default,
+      ),
+    );
+  }
+
+  /// Process message data based on type from NotificationMessage
+  Future<void> _processMessageDataFromNotificationMessage(
+      NotificationMessage message) async {
+    final messageType = message.data?['type'];
+
+    // Convert NotificationMessage to RemoteMessage for compatibility with existing handlers
+    final remoteMessage = RemoteMessage(
+      messageId: message.messageId,
+      data: message.data ?? {},
+      notification: (message.title != null || message.body != null)
+          ? RemoteNotification(
+              title: message.title,
+              body: message.body,
+            )
+          : null,
+      sentTime: message.sentTime,
+    );
+
+    switch (messageType) {
+      case 'medication_reminder':
+        await _processMedicationReminder(remoteMessage);
+        break;
+      case 'emergency_alert':
+        await _processEmergencyAlert(remoteMessage);
+        break;
+      case 'check_in_reminder':
+        await _processCheckInReminder(remoteMessage);
+        break;
+      case 'care_group_update':
+        await _processCareGroupUpdate(remoteMessage);
+        break;
+      default:
+        _logger.warning('Unknown message type: $messageType');
     }
   }
 
@@ -655,6 +712,196 @@ class NotificationManager {
       _logger.info('Check-in reminder scheduled successfully');
     } catch (e) {
       _logger.error('Failed to schedule check-in reminder', error: e);
+    }
+  }
+
+  /// Process offline actions stored in secure storage
+  Future<void> processOfflineActions() async {
+    _logger.info('Processing offline actions');
+
+    try {
+      // Get SecureStorageService instance
+      final secureStorage = ServiceLocator.get<SecureStorageService>();
+
+      // Get stored offline actions
+      final actionsJson = await secureStorage.readString('offline_actions');
+      if (actionsJson == null || actionsJson.isEmpty) {
+        _logger.info('No offline actions found');
+        return;
+      }
+
+      // Parse stored actions
+      final List<dynamic> actionsList = jsonDecode(actionsJson);
+      _logger.info('Found ${actionsList.length} offline actions');
+
+      if (actionsList.isEmpty) {
+        return;
+      }
+
+      // Process each action
+      for (final action in actionsList) {
+        final actionType = action['action_type'];
+        final data = action['data'];
+        final timestamp = action['timestamp'];
+
+        _logger.info('Processing offline action: $actionType from $timestamp');
+
+        // Process different action types
+        switch (actionType) {
+          case 'medication_taken':
+            await _processMedicationTakenOffline(data);
+            break;
+          case 'medication_skipped':
+            await _processMedicationSkippedOffline(data);
+            break;
+          case 'medication_snoozed':
+            await _processMedicationSnoozedOffline(data);
+            break;
+          default:
+            _logger.warning('Unknown offline action type: $actionType');
+        }
+      }
+
+      // Clear processed actions
+      await secureStorage.delete('offline_actions');
+      _logger.info('Offline actions processed and cleared');
+    } catch (e) {
+      _logger.error('Error processing offline actions', error: e);
+    }
+  }
+
+  /// Process medication taken action from offline storage
+  Future<void> _processMedicationTakenOffline(Map<String, dynamic> data) async {
+    final medicationId = data['medication_id'];
+    final takenAtStr = data['taken_at'];
+
+    _logger.info('Processing offline medication taken: $medicationId');
+
+    try {
+      // Get medication service
+      final medicationService = ServiceLocator.get<MedicationService>();
+
+      // Convert timestamp string to DateTime
+      final takenAt = DateTime.parse(takenAtStr);
+
+      // Mark medication as taken via API
+      final result = await medicationService.markMedicationTaken(
+        medicationId: medicationId,
+        takenAt: takenAt,
+      );
+
+      if (result.isSuccess) {
+        _logger.info(
+            'Successfully processed offline medication taken: $medicationId');
+
+        // Track analytics
+        final analyticsService = ServiceLocator.get<AnalyticsService>();
+        await analyticsService.trackMedicationEvent(
+          'medication_taken_offline',
+          medicationId,
+          additionalProperties: {
+            'source': 'offline_processing',
+            'original_time': takenAtStr,
+            'processed_time': DateTime.now().toIso8601String(),
+          },
+        );
+      } else {
+        _logger.error('Failed to process offline medication taken',
+            error: result.exception?.toString());
+      }
+    } catch (e) {
+      _logger.error('Error processing offline medication taken', error: e);
+    }
+  }
+
+  /// Process medication skipped action from offline storage
+  Future<void> _processMedicationSkippedOffline(
+      Map<String, dynamic> data) async {
+    final medicationId = data['medication_id'];
+    final skippedAtStr = data['skipped_at'];
+
+    _logger.info('Processing offline medication skipped: $medicationId');
+
+    try {
+      // Get medication service
+      final medicationService = ServiceLocator.get<MedicationService>();
+
+      // Convert timestamp string to DateTime
+      final skippedAt = DateTime.parse(skippedAtStr);
+
+      // Mark medication as skipped via API
+      final result = await medicationService.skipMedicationDose(
+        medicationId: medicationId,
+        skippedAt: skippedAt,
+        reason: 'skipped_from_notification_offline',
+      );
+
+      if (result.isSuccess) {
+        _logger.info(
+            'Successfully processed offline medication skipped: $medicationId');
+
+        // Track analytics
+        final analyticsService = ServiceLocator.get<AnalyticsService>();
+        await analyticsService.trackMedicationEvent(
+          'medication_skipped_offline',
+          medicationId,
+          additionalProperties: {
+            'source': 'offline_processing',
+            'original_time': skippedAtStr,
+            'processed_time': DateTime.now().toIso8601String(),
+          },
+        );
+      } else {
+        _logger.error('Failed to process offline medication skipped',
+            error: result.exception?.toString());
+      }
+    } catch (e) {
+      _logger.error('Error processing offline medication skipped', error: e);
+    }
+  }
+
+  /// Process medication snoozed action from offline storage
+  Future<void> _processMedicationSnoozedOffline(
+      Map<String, dynamic> data) async {
+    final medicationId = data['medication_id'];
+    final snoozedAtStr = data['snoozed_at'];
+    final snoozeDuration = data['snooze_duration'] ?? 15;
+
+    _logger.info('Processing offline medication snoozed: $medicationId');
+
+    try {
+      // Schedule a new reminder notification
+      final snoozedAt = DateTime.parse(snoozedAtStr);
+      final newReminderTime = snoozedAt.add(Duration(minutes: snoozeDuration));
+
+      // Only schedule if the new time is in the future
+      if (newReminderTime.isAfter(DateTime.now())) {
+        await scheduleMedicationReminder(
+          medicationId: medicationId,
+          scheduledTime: newReminderTime,
+          isSnoozed: true,
+        );
+
+        _logger.info(
+            'Successfully processed offline medication snoozed: $medicationId');
+
+        // Track analytics
+        final analyticsService = ServiceLocator.get<AnalyticsService>();
+        await analyticsService.trackMedicationEvent(
+          'medication_snoozed_offline',
+          medicationId,
+          additionalProperties: {
+            'source': 'offline_processing',
+            'original_time': snoozedAtStr,
+            'new_reminder_time': newReminderTime.toIso8601String(),
+            'processed_time': DateTime.now().toIso8601String(),
+          },
+        );
+      } else {
+        _logger.info('Skipping offline snooze as new time is in the past');
+      }
+    } catch (e) {
+      _logger.error('Error processing offline medication snoozed', error: e);
     }
   }
 }

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 import '../features/health/health.dart';
 import '../common/common.dart';
+import '../utils/markdown_loader.dart';
 
 class PrivacySettingsScreen extends StatefulWidget {
   const PrivacySettingsScreen({super.key});
@@ -101,88 +103,26 @@ class _PrivacySettingsScreenState extends State<PrivacySettingsScreen> {
   Future<void> _loadConsentHistory() async {
     try {
       final result = await _healthService.getConsentHistory();
-
       if (result.isSuccess && result.data != null) {
-        _consentHistory = result.data!;
-      } else {
-        _logger.warning('Failed to load consent history');
-        // Use fallback data
-        _consentHistory = [
-          {
-            'type': 'DATA_PROCESSING',
-            'granted': false,
-            'timestamp': DateTime.now().subtract(Duration(days: 1)),
-            'version': '1.0',
-          },
-          {
-            'type': 'ANALYTICS',
-            'granted': false,
-            'timestamp': DateTime.now().subtract(Duration(days: 7)),
-            'version': '1.0',
-          },
-        ];
+        setState(() {
+          _consentHistory = result.data!;
+        });
       }
-
-      _logger.info('Consent history loaded: ${_consentHistory.length} entries');
     } catch (e) {
       _logger.error('Failed to load consent history', error: e);
-      // Use fallback data
-      _consentHistory = [
-        {
-          'type': 'DATA_PROCESSING',
-          'granted': false,
-          'timestamp': DateTime.now().subtract(Duration(days: 1)),
-          'version': '1.0',
-        },
-        {
-          'type': 'ANALYTICS',
-          'granted': false,
-          'timestamp': DateTime.now().subtract(Duration(days: 7)),
-          'version': '1.0',
-        },
-      ];
     }
   }
 
   Future<void> _loadAccessLog() async {
     try {
       final result = await _healthService.getAccessLog();
-
       if (result.isSuccess && result.data != null) {
-        _accessLog = result.data!;
-      } else {
-        _logger.warning('Failed to load access log');
-        // Use fallback data
-        _accessLog = [
-          {
-            'action': 'Data Export Request',
-            'timestamp': DateTime.now().subtract(Duration(hours: 2)),
-            'details': 'Full health data export requested',
-          },
-          {
-            'action': 'Profile Access',
-            'timestamp': DateTime.now().subtract(Duration(days: 1)),
-            'details': 'Profile information accessed by care team',
-          },
-        ];
+        setState(() {
+          _accessLog = result.data!;
+        });
       }
-
-      _logger.info('Access log loaded: ${_accessLog.length} entries');
     } catch (e) {
       _logger.error('Failed to load access log', error: e);
-      // Use fallback data
-      _accessLog = [
-        {
-          'action': 'Data Export Request',
-          'timestamp': DateTime.now().subtract(Duration(hours: 2)),
-          'details': 'Full health data export requested',
-        },
-        {
-          'action': 'Profile Access',
-          'timestamp': DateTime.now().subtract(Duration(days: 1)),
-          'details': 'Profile information accessed by care team',
-        },
-      ];
     }
   }
 
@@ -272,6 +212,269 @@ class _PrivacySettingsScreenState extends State<PrivacySettingsScreen> {
       default:
         return consentType;
     }
+  }
+
+  Future<void> _requestDataExport() async {
+    setState(() => _isLoading = true);
+
+    try {
+      final result = await _healthService.requestDataExport();
+
+      if (result.isSuccess) {
+        _showSuccessSnackBar(
+          'Data export request submitted. You will receive an email with your data within 72 hours.',
+        );
+        _logger.info('Data export requested successfully');
+      } else {
+        throw Exception('API call failed');
+      }
+    } catch (e) {
+      _logger.error('Failed to request data export', error: e);
+      _showErrorSnackBar('Failed to request data export: $e');
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _requestDataDeletion() async {
+    try {
+      await showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Confirm Account Deletion'),
+          content: const Text(
+            'Are you sure you want to request account deletion? This action cannot be undone and will permanently delete all your data after a processing period.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('CANCEL'),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.of(context).pop();
+                await _performDataDeletion();
+              },
+              child: const Text('DELETE MY ACCOUNT',
+                  style: TextStyle(color: Colors.red)),
+            ),
+          ],
+        ),
+      );
+    } catch (e) {
+      _logger.error('Error showing deletion dialog', error: e);
+    }
+  }
+
+  Future<void> _performDataDeletion() async {
+    setState(() => _isLoading = true);
+
+    try {
+      final result = await _healthService.requestAccountDeletion();
+
+      if (result.isSuccess) {
+        _showSuccessSnackBar(
+          'Account deletion request submitted. Your account and data will be deleted within 30 days.',
+        );
+        _logger.info('Account deletion requested successfully');
+
+        // Wait a moment before navigating back to let user see the message
+        await Future.delayed(const Duration(seconds: 3));
+        if (mounted) {
+          Navigator.of(context).popUntil((route) => route.isFirst);
+        }
+      } else {
+        throw Exception('API call failed');
+      }
+    } catch (e) {
+      _logger.error('Failed to request account deletion', error: e);
+      _showErrorSnackBar('Failed to request account deletion: $e');
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
+
+  void _showPrivacyPolicy() async {
+    try {
+      final policyContent = await MarkdownLoader.getPrivacyPolicy();
+      if (mounted) {
+        showDialog(
+          context: context,
+          builder: (context) => Dialog(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Privacy Policy',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () => Navigator.of(context).pop(),
+                      ),
+                    ],
+                  ),
+                  const Divider(),
+                  Expanded(
+                    child: Markdown(
+                      data: policyContent,
+                      styleSheet: MarkdownStyleSheet(
+                        h1: const TextStyle(fontSize: 24),
+                        h2: const TextStyle(fontSize: 20),
+                        h3: const TextStyle(fontSize: 18),
+                        p: const TextStyle(fontSize: 16),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      _logger.error('Failed to load privacy policy', error: e);
+      _showErrorSnackBar('Failed to load privacy policy: $e');
+    }
+  }
+
+  void _showTermsOfService() async {
+    try {
+      final termsContent = await MarkdownLoader.getTermsOfService();
+      if (mounted) {
+        showDialog(
+          context: context,
+          builder: (context) => Dialog(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Terms of Service',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () => Navigator.of(context).pop(),
+                      ),
+                    ],
+                  ),
+                  const Divider(),
+                  Expanded(
+                    child: Markdown(
+                      data: termsContent,
+                      styleSheet: MarkdownStyleSheet(
+                        h1: const TextStyle(fontSize: 24),
+                        h2: const TextStyle(fontSize: 20),
+                        h3: const TextStyle(fontSize: 18),
+                        p: const TextStyle(fontSize: 16),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      _logger.error('Failed to load terms of service', error: e);
+      _showErrorSnackBar('Failed to load terms of service: $e');
+    }
+  }
+
+  void _showConsentHistory() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Consent History'),
+        content: SizedBox(
+          width: double.maxFinite,
+          height: 300,
+          child: _consentHistory.isEmpty
+              ? const Center(child: Text('No consent history available'))
+              : ListView.builder(
+                  itemCount: _consentHistory.length,
+                  itemBuilder: (context, index) {
+                    final consent = _consentHistory[index];
+                    final timestamp = consent['timestamp'] is DateTime
+                        ? consent['timestamp']
+                        : DateTime.parse(consent['timestamp'].toString());
+                    return ListTile(
+                      title: Text(
+                        _getConsentDisplayName(consent['type'].toString()),
+                      ),
+                      subtitle: Text(
+                        '${consent['granted'] ? 'Granted' : 'Revoked'} on ${_formatDate(timestamp)}',
+                      ),
+                      trailing: Icon(
+                        consent['granted'] ? Icons.check_circle : Icons.cancel,
+                        color: consent['granted'] ? Colors.green : Colors.red,
+                      ),
+                    );
+                  },
+                ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _formatDate(DateTime dateTime) {
+    return '${dateTime.day}/${dateTime.month}/${dateTime.year} ${dateTime.hour}:${dateTime.minute.toString().padLeft(2, '0')}';
+  }
+
+  void _showAccessLog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Data Access Log'),
+        content: SizedBox(
+          width: double.maxFinite,
+          height: 300,
+          child: _accessLog.isEmpty
+              ? const Center(child: Text('No access log entries available'))
+              : ListView.builder(
+                  itemCount: _accessLog.length,
+                  itemBuilder: (context, index) {
+                    final access = _accessLog[index];
+                    return ListTile(
+                      title: Text(access['action'] ?? 'Unknown'),
+                      subtitle: Text(
+                        '${access['accessor']} - ${access['timestamp']}',
+                      ),
+                      trailing:
+                          const Icon(Icons.visibility, color: Colors.blue),
+                    );
+                  },
+                ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -430,32 +633,26 @@ class _PrivacySettingsScreenState extends State<PrivacySettingsScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              'Data Control Actions',
+              'Data Controls',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             ListTile(
               leading: const Icon(Icons.download, color: Colors.blue),
-              title: const Text('Export My Data'),
-              subtitle: const Text(
-                'Download all your health data in JSON format',
-              ),
-              trailing: const Icon(Icons.arrow_forward_ios),
-              onTap: _exportData,
+              title: const Text('Export Your Data'),
+              subtitle: const Text('Download a copy of all your data'),
+              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+              onTap: _requestDataExport,
             ),
+            const Divider(),
             ListTile(
               leading: const Icon(Icons.delete_forever, color: Colors.red),
-              title: const Text('Delete All Data'),
-              subtitle: const Text('Permanently delete all your health data'),
-              trailing: const Icon(Icons.arrow_forward_ios),
-              onTap: _showDeleteDataConfirmation,
-            ),
-            ListTile(
-              leading: const Icon(Icons.block, color: Colors.orange),
-              title: const Text('Revoke All Permissions'),
-              subtitle: const Text('Remove all data access permissions'),
-              trailing: const Icon(Icons.arrow_forward_ios),
-              onTap: _revokeAllPermissions,
+              title: const Text('Delete Your Account'),
+              subtitle: const Text(
+                'Request permanent deletion of your account and all associated data',
+              ),
+              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+              onTap: _requestDataDeletion,
             ),
           ],
         ),
@@ -471,22 +668,23 @@ class _PrivacySettingsScreenState extends State<PrivacySettingsScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              'Transparency & Audit',
+              'Transparency',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             ListTile(
               leading: const Icon(Icons.history, color: Colors.blue),
               title: const Text('Consent History'),
-              subtitle: Text('${_consentHistory.length} consent records'),
-              trailing: const Icon(Icons.arrow_forward_ios),
+              subtitle: const Text('View your consent change history'),
+              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
               onTap: _showConsentHistory,
             ),
+            const Divider(),
             ListTile(
               leading: const Icon(Icons.visibility, color: Colors.blue),
               title: const Text('Data Access Log'),
-              subtitle: Text('${_accessLog.length} access events'),
-              trailing: const Icon(Icons.arrow_forward_ios),
+              subtitle: const Text('See who has accessed your data'),
+              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
               onTap: _showAccessLog,
             ),
           ],
@@ -503,240 +701,28 @@ class _PrivacySettingsScreenState extends State<PrivacySettingsScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              'Legal & Compliance',
+              'Legal Documents',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             ListTile(
               leading: const Icon(Icons.policy, color: Colors.blue),
               title: const Text('Privacy Policy'),
-              subtitle: const Text('Read our privacy policy'),
-              trailing: const Icon(Icons.arrow_forward_ios),
+              subtitle: const Text('View our privacy policy'),
+              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
               onTap: _showPrivacyPolicy,
             ),
+            const Divider(),
             ListTile(
               leading: const Icon(Icons.gavel, color: Colors.blue),
               title: const Text('Terms of Service'),
-              subtitle: const Text('Read our terms of service'),
-              trailing: const Icon(Icons.arrow_forward_ios),
+              subtitle: const Text('View our terms of service'),
+              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
               onTap: _showTermsOfService,
             ),
-            const Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Text(
-                'CareCircle complies with Vietnam\'s Decree 13/2023/ND-CP on Personal Data Protection. '
-                'Your data is processed with your explicit consent and you have the right to access, '
-                'correct, or delete your personal data at any time.',
-                style: TextStyle(fontSize: 12, color: Colors.grey),
-                textAlign: TextAlign.center,
-              ),
-            ),
           ],
         ),
       ),
-    );
-  }
-
-  void _exportData() async {
-    // TODO: Implement data export with health service
-    setState(() => _isLoading = true);
-
-    // Simulate API call
-    await Future.delayed(Duration(seconds: 1));
-
-    setState(() => _isLoading = false);
-
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Data export requested. You will receive an email with download link.',
-          ),
-          backgroundColor: Colors.green,
-        ),
-      );
-    }
-  }
-
-  void _showDeleteDataConfirmation() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete All Data'),
-        content: const Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'This action will permanently delete:',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 8),
-            Text('• All your health records'),
-            Text('• All consent settings'),
-            Text('• All care group memberships'),
-            Text('• Your user profile'),
-            SizedBox(height: 16),
-            Text(
-              'This action cannot be undone. Are you sure?',
-              style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              Navigator.of(context).pop();
-              await _deleteAllData();
-            },
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text(
-              'Delete All Data',
-              style: TextStyle(color: Colors.white),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Future<void> _deleteAllData() async {
-    // TODO: Implement data deletion with health service
-    setState(() => _isLoading = true);
-
-    // Simulate API call
-    await Future.delayed(Duration(seconds: 1));
-
-    setState(() => _isLoading = false);
-
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Data deletion requested. Your account will be deleted within 30 days.',
-          ),
-          backgroundColor: Colors.green,
-        ),
-      );
-      // Navigate back to login screen
-      Navigator.of(
-        context,
-      ).pushNamedAndRemoveUntil('/login', (route) => false);
-    }
-  }
-
-  Future<void> _revokeAllPermissions() async {
-    try {
-      setState(() => _isLoading = true);
-
-      // Revoke all consents
-      // TODO: Implement with health service
-      // For now, just update local state
-      setState(() {
-        _dataProcessingConsent = false;
-        _healthDataSharingConsent = false;
-        _familySharingConsent = false;
-        _analyticsConsent = false;
-        _marketingConsent = false;
-      });
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('All permissions revoked successfully'),
-            backgroundColor: Colors.green,
-          ),
-        );
-      }
-    } finally {
-      setState(() => _isLoading = false);
-    }
-  }
-
-  void _showConsentHistory() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Consent History'),
-        content: SizedBox(
-          width: double.maxFinite,
-          height: 300,
-          child: ListView.builder(
-            itemCount: _consentHistory.length,
-            itemBuilder: (context, index) {
-              final consent = _consentHistory[index];
-              return ListTile(
-                title: Text(
-                  _getConsentDisplayName(consent['consentType'] ?? ''),
-                ),
-                subtitle: Text(
-                  '${consent['consentGranted'] ? 'Granted' : 'Revoked'} on ${consent['consentDate']}',
-                ),
-                trailing: Icon(
-                  consent['consentGranted'] ? Icons.check_circle : Icons.cancel,
-                  color: consent['consentGranted'] ? Colors.green : Colors.red,
-                ),
-              );
-            },
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Close'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showAccessLog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Data Access Log'),
-        content: SizedBox(
-          width: double.maxFinite,
-          height: 300,
-          child: ListView.builder(
-            itemCount: _accessLog.length,
-            itemBuilder: (context, index) {
-              final access = _accessLog[index];
-              return ListTile(
-                title: Text(access['action'] ?? 'Unknown'),
-                subtitle: Text(
-                  '${access['accessor']} - ${access['timestamp']}',
-                ),
-                trailing: Icon(Icons.visibility, color: Colors.blue),
-              );
-            },
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Close'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showPrivacyPolicy() {
-    // TODO: Implement privacy policy display
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Privacy Policy - Coming Soon')),
-    );
-  }
-
-  void _showTermsOfService() {
-    // TODO: Implement terms of service display
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Terms of Service - Coming Soon')),
     );
   }
 

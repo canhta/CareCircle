@@ -525,6 +525,7 @@ class HealthService extends BaseRepository implements HealthRepository {
   }
 
   // Privacy and consent management methods
+  @override
   Future<Result<Map<String, dynamic>>> getConsentSettings() async {
     try {
       logger.info('Fetching consent settings');
@@ -545,6 +546,7 @@ class HealthService extends BaseRepository implements HealthRepository {
     }
   }
 
+  @override
   Future<Result<void>> updateConsentSettings(Map<String, bool> settings) async {
     try {
       logger.info('Updating consent settings', data: settings);
@@ -567,6 +569,7 @@ class HealthService extends BaseRepository implements HealthRepository {
     }
   }
 
+  @override
   Future<Result<List<Map<String, dynamic>>>> getConsentHistory() async {
     try {
       logger.info('Fetching consent history');
@@ -588,6 +591,7 @@ class HealthService extends BaseRepository implements HealthRepository {
     }
   }
 
+  @override
   Future<Result<List<Map<String, dynamic>>>> getAccessLog() async {
     try {
       logger.info('Fetching access log');
@@ -609,6 +613,7 @@ class HealthService extends BaseRepository implements HealthRepository {
     }
   }
 
+  @override
   Future<Result<void>> requestDataExport() async {
     try {
       logger.info('Requesting data export');
@@ -628,6 +633,7 @@ class HealthService extends BaseRepository implements HealthRepository {
     }
   }
 
+  @override
   Future<Result<void>> requestAccountDeletion() async {
     try {
       logger.info('Requesting account deletion');
