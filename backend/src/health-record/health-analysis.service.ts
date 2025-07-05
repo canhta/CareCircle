@@ -2,107 +2,14 @@ import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { HealthDataQueueService } from './health-data-queue.service';
 import { DataQuality } from '@prisma/client';
-
-export interface HealthInsight {
-  type: 'warning' | 'improvement' | 'goal_achieved' | 'recommendation';
-  title: string;
-  description: string;
-  severity: 'low' | 'medium' | 'high';
-  confidence: number; // 0-100
-  actionable: boolean;
-  recommendations?: string[];
-  trend?: {
-    direction: 'up' | 'down' | 'stable';
-    percentage: number;
-    period: string;
-  };
-}
-
-export interface HealthTrend {
-  metric: string;
-  currentValue: number;
-  previousValue: number;
-  change: number;
-  changePercentage: number;
-  direction: 'up' | 'down' | 'stable';
-  period: 'daily' | 'weekly' | 'monthly';
-  confidence: number;
-}
-
-export interface HealthGoal {
-  type: string;
-  title: string;
-  current: number;
-  target: number;
-  timeframe: string;
-  priority: string;
-}
-
-export interface AggregatedHealthData {
-  userId: string;
-  period: 'day' | 'week' | 'month' | 'year';
-  startDate: Date;
-  endDate: Date;
-  metrics: {
-    steps: {
-      total: number;
-      average: number;
-      min: number;
-      max: number;
-      daysWithData: number;
-    };
-    heartRate: {
-      average: number;
-      resting: number;
-      max: number;
-      variability: number;
-    };
-    sleep: {
-      averageDuration: number; // minutes
-      averageQuality: number; // 1-10
-      deepSleepPercentage: number;
-      remSleepPercentage: number;
-    };
-    activity: {
-      activeMinutes: number;
-      caloriesBurned: number;
-      distance: number;
-    };
-    vitals: {
-      weight?: number;
-      bloodPressure?: {
-        systolic: number;
-        diastolic: number;
-      };
-      bloodGlucose?: number;
-      bodyTemperature?: number;
-    };
-  };
-  insights: HealthInsight[];
-  trends: HealthTrend[];
-  goals: HealthGoal[];
-  dataQuality: DataQuality;
-}
-
-interface HealthMetricRow {
-  steps: number | null;
-  heartRateAvg: number | null;
-  heartRateResting: number | null;
-  heartRateMax: number | null;
-  sleepDuration: number | null;
-  activeMinutes: number | null;
-  caloriesBurned: number | null;
-  distance: number | null;
-  weight: number | null;
-  bloodPressureSys: number | null;
-  bloodPressureDia: number | null;
-  bloodGlucose: number | null;
-  bodyTemperature: number | null;
-  sleepScore: number | null;
-  deepSleepDuration: number | null;
-  remSleepDuration: number | null;
-  date: Date;
-}
+import {
+  AggregatedHealthData,
+  HealthGoal,
+  HealthInsight,
+  HealthMetricRow,
+  HealthRecordData,
+  HealthTrend,
+} from '../common/interfaces/health-record.interfaces';
 
 @Injectable()
 export class HealthAnalysisService {
@@ -201,7 +108,7 @@ export class HealthAnalysisService {
     userId: string,
     startDate: Date,
     endDate: Date,
-  ): Promise<any[]> {
+  ): Promise<HealthRecordData[]> {
     return this.prisma.healthRecord.findMany({
       where: {
         userId,
@@ -249,11 +156,11 @@ export class HealthAnalysisService {
           : 0,
       min:
         validStepsData.length > 0
-          ? Math.min(...validStepsData.map((m) => m.steps!))
+          ? Math.min(...validStepsData.map((m) => m.steps || 0))
           : 0,
       max:
         validStepsData.length > 0
-          ? Math.max(...validStepsData.map((m) => m.steps!))
+          ? Math.max(...validStepsData.map((m) => m.steps || 0))
           : 0,
       daysWithData: validStepsData.length,
     };
@@ -268,18 +175,18 @@ export class HealthAnalysisService {
             ) / validHeartRateData.length
           : 0,
       resting:
-        validHeartRateData.length > 0
-          ? validHeartRateData.reduce(
-              (sum, m) => sum + (m.heartRateResting || m.heartRateAvg || 0),
-              0,
-            ) / validHeartRateData.length
+        validHeartRateData.filter((m) => m.heartRateResting !== null).length > 0
+          ? validHeartRateData
+              .filter((m) => m.heartRateResting !== null)
+              .reduce((sum, m) => sum + (m.heartRateResting || 0), 0) /
+            validHeartRateData.filter((m) => m.heartRateResting !== null).length
           : 0,
       max:
-        validHeartRateData.length > 0
+        validHeartRateData.filter((m) => m.heartRateMax !== null).length > 0
           ? Math.max(
-              ...validHeartRateData.map(
-                (m) => m.heartRateMax || m.heartRateAvg || 0,
-              ),
+              ...validHeartRateData
+                .filter((m) => m.heartRateMax !== null)
+                .map((m) => m.heartRateMax || 0),
             )
           : 0,
       variability: this.calculateHeartRateVariability(validHeartRateData),
@@ -293,10 +200,11 @@ export class HealthAnalysisService {
             validSleepData.length
           : 0,
       averageQuality:
-        validSleepData.length > 0
-          ? validSleepData.reduce((sum, m) => sum + (m.sleepScore || 0), 0) /
-            validSleepData.length /
-            10
+        validSleepData.filter((m) => m.sleepScore !== null).length > 0
+          ? validSleepData
+              .filter((m) => m.sleepScore !== null)
+              .reduce((sum, m) => sum + (m.sleepScore || 0), 0) /
+            validSleepData.filter((m) => m.sleepScore !== null).length
           : 0,
       deepSleepPercentage: this.calculateSleepPhasePercentage(
         validSleepData,
@@ -310,18 +218,24 @@ export class HealthAnalysisService {
 
     // Activity metrics
     const activityMetrics = {
-      activeMinutes: validActivityData.reduce(
-        (sum, m) => sum + (m.activeMinutes || 0),
-        0,
-      ),
-      caloriesBurned: validActivityData.reduce(
-        (sum, m) => sum + (m.caloriesBurned || 0),
-        0,
-      ),
-      distance: validActivityData.reduce(
-        (sum, m) => sum + (m.distance || 0),
-        0,
-      ),
+      activeMinutes:
+        validActivityData.filter((m) => m.activeMinutes !== null).length > 0
+          ? validActivityData
+              .filter((m) => m.activeMinutes !== null)
+              .reduce((sum, m) => sum + (m.activeMinutes || 0), 0)
+          : 0,
+      caloriesBurned:
+        validActivityData.filter((m) => m.caloriesBurned !== null).length > 0
+          ? validActivityData
+              .filter((m) => m.caloriesBurned !== null)
+              .reduce((sum, m) => sum + (m.caloriesBurned || 0), 0)
+          : 0,
+      distance:
+        validActivityData.filter((m) => m.distance !== null).length > 0
+          ? validActivityData
+              .filter((m) => m.distance !== null)
+              .reduce((sum, m) => sum + (m.distance || 0), 0)
+          : 0,
     };
 
     // Vitals metrics
@@ -751,7 +665,7 @@ export class HealthAnalysisService {
    */
   private assessDataQuality(
     healthMetrics: HealthMetricRow[],
-    healthRecords: any[],
+    healthRecords: HealthRecordData[],
   ): DataQuality {
     if (healthMetrics.length === 0 && healthRecords.length === 0) {
       return DataQuality.POOR;

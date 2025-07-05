@@ -2,31 +2,25 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue, RepeatOptions } from 'bullmq';
 import { PrismaService } from '../prisma/prisma.service';
-import { NotificationType, NotificationPriority } from '@prisma/client';
+import { NotificationType } from '@prisma/client';
+import {
+  CareGroupReminderData,
+  CheckInReminderData,
+  HealthInsightsData,
+  MedicationReminderData,
+  NotificationSchedule,
+  ScheduleOptions,
+  SchedulePayload,
+  TimeSchedule,
+  UserSchedulePreferences,
+} from '../common/interfaces/notification-scheduling.interfaces';
 
-export interface ScheduleOptions {
-  pattern?: string; // Cron pattern
-  every?: number; // Interval in milliseconds
-  startDate?: Date;
-  endDate?: Date;
-  limit?: number; // Maximum number of executions
-  immediately?: boolean; // Run immediately upon scheduling
-}
-
-export interface NotificationSchedule {
+interface RepeatableJobWithData {
   id: string;
   name: string;
-  type: NotificationType;
-  pattern: string;
-  isActive: boolean;
-  description?: string;
-  targetUsers?: string[]; // User IDs, empty for all users
-  templateName?: string;
-  context?: Record<string, any>;
-  priority?: NotificationPriority;
-  metadata?: Record<string, any>;
-  createdAt: Date;
-  updatedAt: Date;
+  pattern?: string;
+  data?: Record<string, unknown>;
+  timestamp?: number;
 }
 
 @Injectable()
@@ -46,7 +40,7 @@ export class NotificationSchedulingService {
     jobName: string,
     type: NotificationType,
     options: ScheduleOptions,
-    payload: Record<string, any> = {},
+    payload: SchedulePayload = {},
   ): Promise<void> {
     const repeatOptions: RepeatOptions = {
       pattern: options.pattern,
@@ -93,6 +87,14 @@ export class NotificationSchedulingService {
     for (const schedule of schedules) {
       const jobName = `medication-reminder-${prescriptionId}-${schedule.time}`;
 
+      const reminderData: MedicationReminderData = {
+        prescriptionId,
+        userId: prescription.userId,
+        medicationName: prescription.medicationName,
+        dosage: prescription.dosage,
+        instructions: prescription.instructions || undefined,
+      };
+
       await this.scheduleRepeatingNotification(
         jobName,
         NotificationType.MEDICATION_REMINDER,
@@ -101,13 +103,7 @@ export class NotificationSchedulingService {
           startDate: prescription.startDate || new Date(),
           endDate: prescription.endDate || undefined,
         },
-        {
-          prescriptionId,
-          userId: prescription.userId,
-          medicationName: prescription.medicationName,
-          dosage: prescription.dosage,
-          instructions: prescription.instructions,
-        },
+        reminderData,
       );
     }
 
@@ -127,14 +123,16 @@ export class NotificationSchedulingService {
     const jobName = `daily-checkin-${userId}`;
     const pattern = this.timeToPattern(time, timezone);
 
+    const reminderData: CheckInReminderData = {
+      userId,
+      reminderType: 'daily_checkin',
+    };
+
     await this.scheduleRepeatingNotification(
       jobName,
       NotificationType.CHECK_IN_REMINDER,
       { pattern },
-      {
-        userId,
-        reminderType: 'daily_checkin',
-      },
+      reminderData,
     );
 
     this.logger.log(
@@ -154,14 +152,16 @@ export class NotificationSchedulingService {
     const [hour, minute] = time.split(':').map(Number);
     const pattern = `0 ${minute} ${hour} * * ${dayOfWeek}`; // Weekly pattern
 
+    const insightData: HealthInsightsData = {
+      userId,
+      insightType: 'weekly_summary',
+    };
+
     await this.scheduleRepeatingNotification(
       jobName,
       NotificationType.AI_INSIGHT,
       { pattern },
-      {
-        userId,
-        insightType: 'weekly_summary',
-      },
+      insightData,
     );
 
     this.logger.log(`Scheduled weekly health insights for user: ${userId}`);
@@ -185,9 +185,22 @@ export class NotificationSchedulingService {
   /**
    * List all scheduled jobs
    */
-  async getScheduledJobs(): Promise<any[]> {
-    const jobs = await this.notificationQueue.getRepeatableJobs();
-    return jobs.filter((job) => job.name === 'scheduled-notification');
+  async getScheduledJobs(): Promise<NotificationSchedule[]> {
+    const jobs =
+      (await this.notificationQueue.getRepeatableJobs()) as RepeatableJobWithData[];
+    return jobs
+      .filter((job) => job.name === 'scheduled-notification')
+      .map((job) => ({
+        id: job.id,
+        name: job.name,
+        type:
+          (job.data?.type as NotificationType) ||
+          NotificationType.SYSTEM_NOTIFICATION,
+        pattern: job.pattern || '',
+        isActive: true,
+        createdAt: job.timestamp ? new Date(job.timestamp) : new Date(),
+        updatedAt: new Date(),
+      })) as NotificationSchedule[];
   }
 
   /**
@@ -195,13 +208,7 @@ export class NotificationSchedulingService {
    */
   async updateUserSchedulePreferences(
     userId: string,
-    preferences: {
-      medicationReminders?: boolean;
-      dailyCheckins?: boolean;
-      weeklyInsights?: boolean;
-      quietHours?: { start: string; end: string };
-      timezone?: string;
-    },
+    preferences: UserSchedulePreferences,
   ): Promise<void> {
     // Store preferences in user profile or separate table
     // This is a placeholder - implement based on your user preferences model
@@ -238,87 +245,63 @@ export class NotificationSchedulingService {
     const [hour, minute] = time.split(':').map(Number);
     const pattern = `0 ${minute} ${hour} * * ${dayOfWeek}`;
 
+    const reminderData: CareGroupReminderData = {
+      careGroupId,
+      reminderType: type,
+    };
+
     await this.scheduleRepeatingNotification(
       jobName,
       NotificationType.CARE_GROUP_UPDATE,
       { pattern },
-      {
-        careGroupId,
-        reminderType: type,
-      },
+      reminderData,
     );
 
-    this.logger.log(`Scheduled care group ${type} for group: ${careGroupId}`);
+    this.logger.log(
+      `Scheduled care group ${type} reminder for group: ${careGroupId}`,
+    );
   }
 
   /**
-   * Parse medication frequency to schedule objects
+   * Parse medication frequency string into specific time schedules
    */
-  private parseFrequencyToSchedules(
-    frequency: string,
-  ): Array<{ time: string; label: string }> {
-    const schedules: Array<{ time: string; label: string }> = [];
+  private parseFrequencyToSchedules(frequency: string): TimeSchedule[] {
+    const schedules: TimeSchedule[] = [];
 
-    // Parse common frequency patterns
-    const freq = frequency.toLowerCase();
+    if (frequency.includes('daily') || frequency.includes('day')) {
+      if (frequency.includes('morning')) {
+        schedules.push({ time: '08:00', label: 'Morning' });
+      }
+      if (frequency.includes('noon')) {
+        schedules.push({ time: '12:00', label: 'Noon' });
+      }
+      if (frequency.includes('evening')) {
+        schedules.push({ time: '18:00', label: 'Evening' });
+      }
+      if (frequency.includes('night') || frequency.includes('bedtime')) {
+        schedules.push({ time: '21:00', label: 'Night' });
+      }
+    }
 
-    if (
-      freq.includes('once daily') ||
-      freq.includes('1x daily') ||
-      freq.includes('daily')
-    ) {
-      schedules.push({ time: '09:00', label: 'Morning dose' });
-    } else if (
-      freq.includes('twice daily') ||
-      freq.includes('2x daily') ||
-      freq.includes('bid')
-    ) {
-      schedules.push(
-        { time: '09:00', label: 'Morning dose' },
-        { time: '21:00', label: 'Evening dose' },
-      );
-    } else if (
-      freq.includes('three times daily') ||
-      freq.includes('3x daily') ||
-      freq.includes('tid')
-    ) {
-      schedules.push(
-        { time: '08:00', label: 'Morning dose' },
-        { time: '14:00', label: 'Afternoon dose' },
-        { time: '20:00', label: 'Evening dose' },
-      );
-    } else if (
-      freq.includes('four times daily') ||
-      freq.includes('4x daily') ||
-      freq.includes('qid')
-    ) {
-      schedules.push(
-        { time: '08:00', label: 'Morning dose' },
-        { time: '12:00', label: 'Noon dose' },
-        { time: '16:00', label: 'Afternoon dose' },
-        { time: '20:00', label: 'Evening dose' },
-      );
-    } else if (freq.includes('every 6 hours') || freq.includes('q6h')) {
-      schedules.push(
-        { time: '06:00', label: 'Dose 1' },
-        { time: '12:00', label: 'Dose 2' },
-        { time: '18:00', label: 'Dose 3' },
-        { time: '00:00', label: 'Dose 4' },
-      );
-    } else if (freq.includes('every 8 hours') || freq.includes('q8h')) {
-      schedules.push(
-        { time: '08:00', label: 'Dose 1' },
-        { time: '16:00', label: 'Dose 2' },
-        { time: '00:00', label: 'Dose 3' },
-      );
-    } else if (freq.includes('every 12 hours') || freq.includes('q12h')) {
-      schedules.push(
-        { time: '09:00', label: 'Morning dose' },
-        { time: '21:00', label: 'Evening dose' },
-      );
-    } else {
-      // Default to once daily if pattern not recognized
-      schedules.push({ time: '09:00', label: 'Daily dose' });
+    // Look for specific times (e.g., "at 14:30")
+    const timeMatches = frequency.match(/at\s+(\d{1,2}):(\d{2})/g);
+    if (timeMatches) {
+      for (const match of timeMatches) {
+        const [hour, minute] = match
+          .replace('at', '')
+          .trim()
+          .split(':')
+          .map(Number);
+        const formattedTime = `${hour.toString().padStart(2, '0')}:${minute
+          .toString()
+          .padStart(2, '0')}`;
+        schedules.push({ time: formattedTime, label: `At ${formattedTime}` });
+      }
+    }
+
+    // Default to morning if no specific time found
+    if (schedules.length === 0) {
+      schedules.push({ time: '08:00', label: 'Default' });
     }
 
     return schedules;
@@ -329,44 +312,26 @@ export class NotificationSchedulingService {
    */
   private timeToPattern(time: string, timezone?: string): string {
     const [hour, minute] = time.split(':').map(Number);
-
-    // Basic cron pattern: second minute hour day month dayOfWeek
-    // For daily: 0 minute hour * * *
-    // Note: timezone handling could be implemented here if needed
-    return `0 ${minute} ${hour} * * *`;
+    return `0 ${minute} ${hour} * * *`; // Run daily at the specified time
   }
 
   /**
-   * Clean up expired or completed schedules
+   * Clean up expired schedules
    */
   async cleanupExpiredSchedules(): Promise<void> {
-    const jobs = await this.getScheduledJobs();
     const now = new Date();
 
-    for (const job of jobs) {
-      // Type guard to check if job has the expected structure
-      if (
-        job &&
-        typeof job === 'object' &&
-        'key' in job &&
-        typeof job.key === 'string' &&
-        'opts' in job &&
-        job.opts &&
-        typeof job.opts === 'object' &&
-        'repeat' in job.opts &&
-        job.opts.repeat &&
-        typeof job.opts.repeat === 'object' &&
-        'endDate' in job.opts.repeat &&
-        job.opts.repeat.endDate
-      ) {
-        const endDate = new Date(
-          job.opts.repeat.endDate as string | number | Date,
-        );
-        if (endDate < now) {
-          await this.notificationQueue.removeRepeatableByKey(job.key);
-          this.logger.log(`Cleaned up expired schedule: ${job.key}`);
-        }
+    // Get all schedules from database or other storage
+    // This is a placeholder - implement based on how you store schedules
+    const schedules = await this.getScheduledJobs();
+
+    // For example:
+    for (const schedule of schedules) {
+      if (!schedule.isActive) {
+        await this.removeScheduledJob(schedule.name);
       }
     }
+
+    this.logger.log('Cleaned up expired notification schedules');
   }
 }

@@ -38,7 +38,7 @@ export class WebhookPaymentDto {
 
   @IsObject()
   @IsOptional()
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export class WebhookSubscriptionDto {
@@ -63,7 +63,7 @@ export class WebhookSubscriptionDto {
 
   @IsObject()
   @IsOptional()
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export class WebhookDataDto {
@@ -206,13 +206,13 @@ export class AppleWebhookDto {
   password?: string;
 
   @IsObject()
-  unified_receipt: any;
+  unified_receipt: Record<string, unknown>;
 
   @IsObject()
   @IsOptional()
-  auto_renew_status?: any;
+  auto_renew_status?: Record<string, unknown>;
 
   @IsObject()
   @IsOptional()
-  environment?: any;
+  environment?: Record<string, unknown>;
 }

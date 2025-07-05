@@ -1,17 +1,10 @@
 import { Injectable } from '@nestjs/common';
-
-export interface TemplateContext {
-  [key: string]: any;
-}
-
-export interface TemplateMetadata {
-  placeholders: {
-    key: string;
-    type: 'string' | 'number' | 'date' | 'boolean';
-    required: boolean;
-    description?: string;
-  }[];
-}
+import {
+  TemplateContext,
+  TemplateMetadata,
+  TemplateValidationResult,
+  UserContextData,
+} from '../common/interfaces/template-rendering.interfaces';
 
 @Injectable()
 export class TemplateRenderingService {
@@ -38,7 +31,7 @@ export class TemplateRenderingService {
     template: string,
     context: TemplateContext,
     metadata?: TemplateMetadata,
-  ): { valid: boolean; errors: string[] } {
+  ): TemplateValidationResult {
     const errors: string[] = [];
     const placeholders = this.extractPlaceholders(template);
 
@@ -89,13 +82,17 @@ export class TemplateRenderingService {
   /**
    * Get nested value from context using dot notation
    */
-  private getValue(context: TemplateContext, key: string): any {
+  private getValue(context: TemplateContext, key: string): unknown {
     const keys = key.split('.');
-    let value = context;
+    let value: unknown = context;
 
     for (const k of keys) {
-      if (value && typeof value === 'object' && k in value) {
-        value = value[k];
+      if (
+        value !== null &&
+        typeof value === 'object' &&
+        k in (value as Record<string, unknown>)
+      ) {
+        value = (value as Record<string, unknown>)[k];
       } else {
         return undefined;
       }
@@ -107,7 +104,7 @@ export class TemplateRenderingService {
   /**
    * Format value for display
    */
-  private formatValue(value: any): string {
+  private formatValue(value: unknown): string {
     if (value === undefined || value === null) {
       return '';
     }
@@ -124,20 +121,32 @@ export class TemplateRenderingService {
       return value.toString();
     }
 
+    // Handle objects by converting them to JSON strings
+    if (typeof value === 'object') {
+      try {
+        return JSON.stringify(value);
+      } catch (e) {
+        return '[Object]';
+      }
+    }
+
     return String(value);
   }
 
   /**
    * Validate value type
    */
-  private validateType(value: any, expectedType: string): boolean {
+  private validateType(value: unknown, expectedType: string): boolean {
     switch (expectedType) {
       case 'string':
         return typeof value === 'string';
       case 'number':
         return typeof value === 'number' && !isNaN(value);
       case 'date':
-        return value instanceof Date || !isNaN(Date.parse(value));
+        return (
+          value instanceof Date ||
+          (typeof value === 'string' && !isNaN(Date.parse(value)))
+        );
       case 'boolean':
         return typeof value === 'boolean';
       default:
@@ -149,14 +158,15 @@ export class TemplateRenderingService {
    * Create a personalized context for a user
    */
   createUserContext(
-    user: any,
+    user: UserContextData,
     additionalData: TemplateContext = {},
   ): TemplateContext {
-    const baseContext = {
+    const baseContext: TemplateContext = {
       userName: user.name || user.email?.split('@')[0] || 'User',
       userEmail: user.email,
-      userFirstName: user.name?.split(' ')[0] || 'User',
-      userLastName: user.name?.split(' ').slice(1).join(' ') || '',
+      userFirstName: user.firstName || user.name?.split(' ')[0] || 'User',
+      userLastName:
+        user.lastName || user.name?.split(' ').slice(1).join(' ') || '',
       currentDate: new Date().toLocaleDateString(),
       currentTime: new Date().toLocaleTimeString(),
       currentDateTime: new Date().toLocaleString(),

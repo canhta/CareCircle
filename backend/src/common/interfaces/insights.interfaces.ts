@@ -34,4 +34,4 @@ export interface UserHealthContext {
   gender?: string;
   prescriptions: PrescriptionData[];
   careGroupContext: CareGroupContextData[];
-} 
+}

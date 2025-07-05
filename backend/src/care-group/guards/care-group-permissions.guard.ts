@@ -12,6 +12,10 @@ import {
   CARE_GROUP_PERMISSIONS_KEY,
   CareGroupPermission,
 } from '../decorators/permissions.decorator';
+import {
+  CareGroupMembership,
+  RequestWithCareGroup,
+} from '../../common/interfaces/care-group.interfaces';
 
 @Injectable()
 export class CareGroupPermissionsGuard implements CanActivate {
@@ -29,13 +33,9 @@ export class CareGroupPermissionsGuard implements CanActivate {
       return true;
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const request = context.switchToHttp().getRequest();
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    const user = request.user as { sub: string; email: string };
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    const request = context.switchToHttp().getRequest<RequestWithCareGroup>();
+    const user = request.user;
     const careGroupId = (request.params?.careGroupId ||
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       request.body?.careGroupId) as string;
 
     if (!careGroupId) {
@@ -62,7 +62,7 @@ export class CareGroupPermissionsGuard implements CanActivate {
 
     // Check permissions based on role and explicit permissions
     const hasPermissions = this.checkPermissions(
-      membership,
+      membership as CareGroupMembership,
       requiredPermissions,
     );
 
@@ -73,14 +73,13 @@ export class CareGroupPermissionsGuard implements CanActivate {
     }
 
     // Attach membership to request for use in controllers
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    request.careGroupMembership = membership;
+    request.careGroupMembership = membership as CareGroupMembership;
 
     return true;
   }
 
   private checkPermissions(
-    membership: any,
+    membership: CareGroupMembership,
     requiredPermissions: CareGroupPermission[],
   ): boolean {
     for (const permission of requiredPermissions) {
@@ -92,11 +91,10 @@ export class CareGroupPermissionsGuard implements CanActivate {
   }
 
   private hasPermission(
-    membership: any,
+    membership: CareGroupMembership,
     permission: CareGroupPermission,
   ): boolean {
     // Owners and admins have all permissions
-
     if (
       membership.role === CareRole.OWNER ||
       membership.role === CareRole.ADMIN
@@ -107,21 +105,14 @@ export class CareGroupPermissionsGuard implements CanActivate {
     // Check specific permissions
     switch (permission) {
       case 'viewHealth':
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return
         return membership.canViewHealth;
       case 'receiveAlerts':
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return
         return membership.canReceiveAlerts;
       case 'manageSettings':
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return
         return membership.canManageSettings;
       case 'manageMembers':
         // Only owners and admins can manage members
-
-        return (
-          membership.role === CareRole.OWNER ||
-          membership.role === CareRole.ADMIN
-        );
+        return false; // Already checked above, owners and admins return true
       case 'viewMembers':
         // All members can view other members
         return true;

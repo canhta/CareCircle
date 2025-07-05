@@ -62,7 +62,7 @@ export class HealthDataPointDto {
 
   @ApiProperty({ required: false })
   @IsOptional()
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export class HealthDataSyncDto {

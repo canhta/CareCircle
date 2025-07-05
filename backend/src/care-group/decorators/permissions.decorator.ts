@@ -1,5 +1,6 @@
 import { SetMetadata } from '@nestjs/common';
 import { CareRole } from '@prisma/client';
+import { CareGroupMethodDecorator } from '../../common/interfaces/care-group.interfaces';
 
 // Role-based permission decorator
 export const CARE_GROUP_ROLES_KEY = 'careGroupRoles';
@@ -33,12 +34,11 @@ export const CareGroupAccess = (
   resource?: CareGroupResource,
 ) => {
   return (
-    target: any,
+    target: object,
     propertyName: string,
     descriptor: PropertyDescriptor,
   ) => {
     if (roles.length > 0) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       CareGroupRoles(...roles)(target, propertyName, descriptor);
     }
     if (permissions.length > 0) {
@@ -49,7 +49,6 @@ export const CareGroupAccess = (
       );
     }
     if (resource) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       CareGroupResource(resource)(target, propertyName, descriptor);
     }
   };

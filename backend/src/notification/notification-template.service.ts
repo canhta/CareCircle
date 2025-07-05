@@ -6,44 +6,21 @@ import {
   NotificationChannel,
   NotificationPriority,
 } from '@prisma/client';
+import { TemplateRenderingService } from './template-rendering.service';
 import {
-  TemplateRenderingService,
+  CareGroupContextData,
+  CreateTemplateDto,
+  HealthAlertContextData,
+  MedicationContextData,
+  RenderedTemplate,
+  UpdateTemplateDto,
+  UserTemplatePreferences,
+} from '../common/interfaces/notification-template.interfaces';
+import {
   TemplateContext,
   TemplateMetadata,
-} from './template-rendering.service';
-
-export interface CreateTemplateDto {
-  name: string;
-  description?: string;
-  type: NotificationType;
-  titleTemplate: string;
-  messageTemplate: string;
-  placeholders: TemplateMetadata['placeholders'];
-  channels?: NotificationChannel[];
-  defaultPriority?: NotificationPriority;
-  language?: string;
-}
-
-export interface UpdateTemplateDto {
-  name?: string;
-  description?: string;
-  titleTemplate?: string;
-  messageTemplate?: string;
-  placeholders?: TemplateMetadata['placeholders'];
-  channels?: NotificationChannel[];
-  defaultPriority?: NotificationPriority;
-  isActive?: boolean;
-  language?: string;
-}
-
-export interface RenderedTemplate {
-  title: string;
-  message: string;
-  channels: NotificationChannel[];
-  priority: NotificationPriority;
-  templateId: string;
-  templateName: string;
-}
+  UserContextData,
+} from '../common/interfaces/template-rendering.interfaces';
 
 @Injectable()
 export class NotificationTemplateService {
@@ -164,7 +141,7 @@ export class NotificationTemplateService {
 
     // Validate context
     const metadata: TemplateMetadata = {
-      placeholders: template.placeholders as any,
+      placeholders: template.placeholders as TemplateMetadata['placeholders'],
     };
 
     const validation = this.templateRenderer.validateContext(
@@ -217,10 +194,7 @@ export class NotificationTemplateService {
    */
   async getBestTemplate(
     type: NotificationType,
-    userPreferences?: {
-      language?: string;
-      channels?: NotificationChannel[];
-    },
+    userPreferences?: UserTemplatePreferences,
   ): Promise<NotificationTemplate | null> {
     const templates = await this.getTemplatesByType(type);
 
@@ -246,73 +220,78 @@ export class NotificationTemplateService {
    * Create personalized context for medication reminders
    */
   createMedicationContext(
-    user: any,
-    prescription: any,
+    user: UserContextData,
+    prescription: MedicationContextData,
     additionalData: TemplateContext = {},
   ): TemplateContext {
-    const baseContext = this.templateRenderer.createUserContext(
+    // Start with basic user context
+    const context = this.templateRenderer.createUserContext(
       user,
       additionalData,
     );
 
-    return {
-      ...baseContext,
+    // Add medication data
+    const medicationContext: TemplateContext = {
       medicationName: prescription.medicationName,
       dosage: prescription.dosage,
-      instructions: prescription.instructions,
-      frequency: prescription.frequency,
-      nextDose: prescription.nextDose
-        ? new Date(prescription.nextDose).toLocaleTimeString()
-        : '',
-      prescriptionId: prescription.id,
-      doctorName: prescription.doctorName || 'Your doctor',
-      ...additionalData,
+      schedule: prescription.schedule,
+      instructions: prescription.instructions || '',
+      remainingDays: prescription.remainingDays || 0,
     };
+
+    return { ...context, ...medicationContext };
   }
 
   /**
    * Create personalized context for care group notifications
    */
   createCareGroupContext(
-    user: any,
-    careGroup: any,
+    user: UserContextData,
+    careGroup: CareGroupContextData,
     additionalData: TemplateContext = {},
   ): TemplateContext {
-    const baseContext = this.templateRenderer.createUserContext(
+    // Start with basic user context
+    const context = this.templateRenderer.createUserContext(
       user,
       additionalData,
     );
 
-    return {
-      ...baseContext,
-      careGroupName: careGroup.name,
-      careGroupId: careGroup.id,
-      memberCount: careGroup.memberCount || 0,
-      inviterName: careGroup.inviterName || 'Someone',
-      ...additionalData,
+    // Add care group data
+    const careGroupContext: TemplateContext = {
+      careGroupName: careGroup.careGroupName,
+      careGroupId: careGroup.careGroupId,
+      memberCount: careGroup.memberCount,
+      role: careGroup.role,
     };
+
+    return { ...context, ...careGroupContext };
   }
 
   /**
    * Create personalized context for health alerts
    */
   createHealthAlertContext(
-    user: any,
-    alert: any,
+    user: UserContextData,
+    alert: HealthAlertContextData,
     additionalData: TemplateContext = {},
   ): TemplateContext {
-    const baseContext = this.templateRenderer.createUserContext(
+    // Start with basic user context
+    const context = this.templateRenderer.createUserContext(
       user,
       additionalData,
     );
 
-    return {
-      ...baseContext,
-      alertType: alert.type,
-      alertMessage: alert.message,
-      severity: alert.severity,
-      actionRequired: alert.actionRequired ? 'Yes' : 'No',
-      ...additionalData,
+    // Add health alert data
+    const alertContext: TemplateContext = {
+      alertType: alert.alertType,
+      alertSeverity: alert.alertSeverity,
+      metricName: alert.metricName,
+      metricValue: alert.metricValue,
+      metricUnit: alert.metricUnit || '',
+      thresholdValue: alert.thresholdValue || 0,
+      recommendation: alert.recommendation || '',
     };
+
+    return { ...context, ...alertContext };
   }
 }

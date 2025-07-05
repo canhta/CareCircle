@@ -19,7 +19,7 @@ export interface AlertAction {
   id: string;
   label: string;
   type: 'contact' | 'escalate' | 'acknowledge' | 'custom';
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export interface AlertCriteria {
@@ -41,8 +41,8 @@ export class CaregiverAlertService {
   async generateCaregiverAlerts(
     userId: string,
     healthScore: number,
-    insights: Record<string, any>,
-    checkInData: Record<string, any>,
+    insights: Record<string, unknown>,
+    checkInData: Record<string, unknown>,
   ): Promise<CaregiverAlert[]> {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
@@ -256,71 +256,92 @@ export class CaregiverAlertService {
       },
     });
 
-    let missedCount = 0;
-    for (let i = 0; i < 3; i++) {
-      const targetDate = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
-      const hasCheckIn = checkIns.some((checkIn) => {
-        const checkInDate = new Date(checkIn.createdAt);
-        return checkInDate.toDateString() === targetDate.toDateString();
-      });
-
-      if (!hasCheckIn) {
-        missedCount++;
-      } else {
-        break; // Stop counting if we find a check-in
-      }
+    if (checkIns.length === 0) {
+      return 3; // No check-ins found in the last 3 days
     }
 
-    return missedCount;
+    // Count days since last check-in
+    const lastCheckIn = checkIns[0];
+    const lastCheckInDate = lastCheckIn.createdAt;
+    const daysSinceLastCheckIn = Math.floor(
+      (now.getTime() - lastCheckInDate.getTime()) / (24 * 60 * 60 * 1000),
+    );
+
+    return daysSinceLastCheckIn;
   }
 
-  private detectCriticalSymptoms(checkInData: Record<string, any>): string[] {
-    const criticalSymptoms = [
+  private detectCriticalSymptoms(
+    checkInData: Record<string, unknown>,
+  ): string[] {
+    const criticalSymptoms: string[] = [];
+
+    // Extract symptoms array
+    const symptoms = Array.isArray(checkInData.symptoms)
+      ? checkInData.symptoms
+      : [];
+
+    // Critical symptom keywords
+    const criticalKeywords = [
       'chest pain',
+      'severe pain',
       'difficulty breathing',
-      'severe headache',
-      'confusion',
-      'loss of consciousness',
-      'severe bleeding',
-      'severe abdominal pain',
-      'high fever',
-      'severe allergic reaction',
+      'shortness of breath',
+      'fainting',
+      'unconscious',
+      'seizure',
+      'unresponsive',
     ];
 
-    const reportedSymptoms = (checkInData.symptoms as string[]) || [];
-    const detected: string[] = [];
-
-    for (const symptom of reportedSymptoms) {
+    // Check for critical symptoms
+    for (const symptom of symptoms) {
       if (typeof symptom === 'string') {
-        const symptomText = symptom.toLowerCase();
-        for (const critical of criticalSymptoms) {
-          if (symptomText.includes(critical)) {
-            detected.push(critical);
+        for (const keyword of criticalKeywords) {
+          if (symptom.toLowerCase().includes(keyword)) {
+            criticalSymptoms.push(symptom);
+            break;
           }
         }
       }
     }
 
-    return detected;
+    // Check for high pain levels
+    const painLevel =
+      typeof checkInData.painLevel === 'number' ? checkInData.painLevel : 0;
+    if (painLevel >= 8) {
+      criticalSymptoms.push(`High pain level (${painLevel}/10)`);
+    }
+
+    return criticalSymptoms;
   }
 
-  private detectMedicationConcerns(insights: Record<string, any>): string[] {
+  private detectMedicationConcerns(
+    insights: Record<string, unknown>,
+  ): string[] {
     const concerns: string[] = [];
 
-    if (insights.medicationAdherence && insights.medicationAdherence < 70) {
+    // Check for medication adherence issues in insights
+    if (
+      typeof insights.medicationAdherence === 'number' &&
+      insights.medicationAdherence < 0.7
+    ) {
       concerns.push('Low medication adherence');
     }
 
     if (
-      insights.sideEffects &&
-      Array.isArray(insights.sideEffects) &&
-      insights.sideEffects.length > 0
+      Array.isArray(insights.missedMedications) &&
+      insights.missedMedications.length > 0
     ) {
-      concerns.push('Reported side effects');
+      concerns.push(
+        `Missed medications: ${insights.missedMedications.length} in past week`,
+      );
     }
 
-    if (insights.missedDoses && insights.missedDoses > 2) {
-      concerns.push('Multiple missed doses');
+    if (Array.isArray(insights.medicationWarnings)) {
+      for (const warning of insights.medicationWarnings) {
+        if (typeof warning === 'string') {
+          concerns.push(warning);
+        }
+      }
     }
 
     return concerns;
@@ -330,28 +351,22 @@ export class CaregiverAlertService {
     alerts: CaregiverAlert[],
   ): Promise<void> {
     for (const alert of alerts) {
-      try {
-        for (const caregiverId of alert.caregiverIds) {
-          await this.notificationService.sendNotification({
-            userId: caregiverId,
-            title: alert.title,
-            message: alert.message,
-            type: 'HEALTH_ALERT',
-            channels: ['IN_APP', 'PUSH'],
-            priority: alert.priority > 7 ? 'HIGH' : 'NORMAL',
-            templateData: {
-              alertId: alert.id,
-              userId: alert.userId,
-              priority: alert.priority,
-              actions: alert.actions,
-            },
-          });
-        }
-      } catch (error) {
-        this.logger.error(
-          `Failed to send alert notification: ${alert.id}`,
-          error,
-        );
+      for (const caregiverId of alert.caregiverIds) {
+        await this.notificationService.sendNotification({
+          userId: caregiverId,
+          title: alert.title,
+          message: alert.message,
+          type: 'HEALTH_ALERT',
+          priority: alert.type === 'urgent' ? 'HIGH' : 'NORMAL',
+          channels: ['PUSH', 'EMAIL'],
+          templateData: {
+            alertId: alert.id,
+            alertType: alert.type,
+            patientId: alert.userId,
+            actions: alert.actions,
+            triggerType: 'care_alert',
+          },
+        });
       }
     }
   }

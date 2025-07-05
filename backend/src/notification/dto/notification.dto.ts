@@ -59,7 +59,7 @@ export class SendNotificationDto {
   @ApiPropertyOptional({ description: 'Template data for personalization' })
   @IsOptional()
   @IsObject()
-  templateData?: Record<string, any>;
+  templateData?: Record<string, unknown>;
 }
 
 export class ScheduleNotificationDto extends SendNotificationDto {

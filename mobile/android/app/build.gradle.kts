@@ -35,8 +35,33 @@ android {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig = signingConfigs.getByName("debug")
+            
+            // Disable R8 for release builds to avoid class issues
+            isMinifyEnabled = false
+            isShrinkResources = false
+            
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
     }
+
+    configurations.all {
+        resolutionStrategy {
+            // Force use of a specific version for all dependencies
+            force("com.google.android.play:core:1.10.3")
+            // Exclude conflicting dependencies
+            exclude(group = "com.google.android.play", module = "core-common")
+        }
+    }
+}
+
+dependencies {
+    implementation("com.google.j2objc:j2objc-annotations:2.8")
+    implementation("com.google.android.play:core:1.10.3")
+    // Remove the core-ktx dependency as it's causing conflicts
+    // implementation("com.google.android.play:core-ktx:1.8.1")
 }
 
 flutter {
