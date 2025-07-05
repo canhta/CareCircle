@@ -30,7 +30,7 @@ const config: AppConfig = {
     timeout: 30000,
   },
   auth: {
-    nextAuthUrl: process.env.NEXTAUTH_URL || 'http://localhost:3001',
+    nextAuthUrl: process.env.NEXTAUTH_URL || 'http://localhost:3030',
   },
   monitoring: {
     sentryDsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
