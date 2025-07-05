@@ -1,654 +1,341 @@
-// Temporarily disabled until Firebase messaging service is fully migrated
-// TODO: Re-enable after completing Firebase messaging service migration
+import 'package:flutter/material.dart';
+import 'package:awesome_notifications/awesome_notifications.dart';
+import '../common/common.dart';
+import '../config/service_locator.dart';
+import '../utils/notification_manager.dart';
+import '../utils/navigation_service.dart';
+import '../utils/analytics_service.dart';
 
-/*
-
-/// Widget that handles Firebase messaging integration with improved
-/// error handling, analytics, and user experience
+/// Widget that handles notification interactions and actions
+/// Provides a centralized way to handle notification taps, actions, and lifecycle
 class NotificationHandler extends StatefulWidget {
   final Widget child;
-  final Function(RemoteMessage)? onMessageReceived;
-  final Function(RemoteMessage)? onMessageTap;
-  final Function(String)? onTokenRefresh;
-  final Function(String)? onError;
-  final bool enableAnalytics;
-  final bool enableOfflineSupport;
 
   const NotificationHandler({
     super.key,
     required this.child,
-    this.onMessageReceived,
-    this.onMessageTap,
-    this.onTokenRefresh,
-    this.onError,
-    this.enableAnalytics = true,
-    this.enableOfflineSupport = true,
   });
 
   @override
   State<NotificationHandler> createState() => _NotificationHandlerState();
 }
 
-class _NotificationHandlerState extends State<NotificationHandler>
-    with WidgetsBindingObserver {
-  final FirebaseMessagingService _messagingService = FirebaseMessagingService();
-
-  bool _isInitialized = false;
-  String? _lastError;
-  final Map<String, int> _messageStats = {};
+class _NotificationHandlerState extends State<NotificationHandler> {
+  late final AppLogger _logger;
+  late final NotificationManager _notificationManager;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
-    _setupNotificationHandlers();
+    _logger = ServiceLocator.get<AppLogger>();
+    _notificationManager = ServiceLocator.get<NotificationManager>();
+    _setupNotificationListeners();
   }
 
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    _messagingService.dispose();
-    super.dispose();
+  /// Set up notification action listeners
+  void _setupNotificationListeners() {
+    // Listen for notification taps
+    AwesomeNotifications().setListeners(
+      onActionReceivedMethod: _onNotificationAction,
+      onNotificationCreatedMethod: _onNotificationCreated,
+      onNotificationDisplayedMethod: _onNotificationDisplayed,
+      onDismissActionReceivedMethod: _onNotificationDismissed,
+    );
   }
 
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    super.didChangeAppLifecycleState(state);
+  /// Handle notification actions (tap, button press, etc.)
+  @pragma('vm:entry-point')
+  static Future<void> _onNotificationAction(
+      ReceivedAction receivedAction) async {
+    final logger = ServiceLocator.get<AppLogger>();
+    logger.info('Notification action received: ${receivedAction.actionType}');
 
-    switch (state) {
-      case AppLifecycleState.resumed:
-        _handleAppResumed();
-        break;
-      case AppLifecycleState.paused:
-        _handleAppPaused();
-        break;
-      case AppLifecycleState.detached:
-        _handleAppDetached();
-        break;
-      default:
-        break;
-    }
-  }
-
-  Future<void> _setupNotificationHandlers() async {
-    try {
-      // Set up enhanced handlers
-      _messagingService.setForegroundMessageHandler((RemoteMessage message) {
-        _handleForegroundMessage(message);
-        widget.onMessageReceived?.call(message);
-      });
-
-      _messagingService.setMessageTapHandler((RemoteMessage message) {
-        _handleMessageTap(message);
-        widget.onMessageTap?.call(message);
-      });
-
-      _messagingService.setTokenRefreshHandler((String token) {
-        _handleTokenRefresh(token);
-        widget.onTokenRefresh?.call(token);
-      });
-
-      _messagingService.setErrorHandler((String error) {
-        _handleError(error);
-        widget.onError?.call(error);
-      });
-
-      // Initialize the service
-      await _messagingService.initialize();
-
-      // Get initial token
-      await _getInitialToken();
-
-      setState(() {
-        _isInitialized = true;
-      });
-
-      debugPrint('Enhanced notification handler initialized successfully');
-    } catch (e) {
-      _handleError('Failed to initialize notification handler: $e');
-    }
-  }
-
-  Future<void> _getInitialToken() async {
-    try {
-      final token = await _messagingService.getToken();
-      if (token != null) {
-        debugPrint('Initial FCM token received');
-        _handleTokenRefresh(token);
-      }
-    } catch (e) {
-      _handleError('Error getting initial token: $e');
-    }
-  }
-
-  void _handleForegroundMessage(RemoteMessage message) {
-    _updateMessageStats(message);
-
-    // Handle different types of messages with enhanced logic
-    final messageType = message.data['type'] ?? 'general';
+    // Get the payload data
+    final payload = receivedAction.payload ?? {};
+    final messageType = payload['type'] ?? 'unknown';
 
     switch (messageType) {
       case 'medication_reminder':
-        _handleMedicationReminder(message);
+        await _handleMedicationReminderAction(receivedAction);
         break;
-      case 'health_check':
-        _handleHealthCheck(message);
+      case 'emergency_alert':
+        await _handleEmergencyAlertAction(receivedAction);
         break;
-      case 'care_group_update':
-        _handleCareGroupUpdate(message);
-        break;
-      case 'system_alert':
-        _handleSystemAlert(message);
-        break;
-      case 'emergency':
-        _handleEmergencyAlert(message);
-        break;
-      default:
-        _handleGenericMessage(message);
-    }
-
-    if (widget.enableAnalytics) {
-      _trackMessageReceived(message);
-    }
-  }
-
-  void _handleMessageTap(RemoteMessage message) {
-    // Navigate based on message type with enhanced routing
-    final messageType = message.data['type'] ?? 'general';
-    final context = this.context;
-
-    if (widget.enableAnalytics) {
-      _trackMessageTapped(message);
-    }
-
-    switch (messageType) {
-      case 'medication_reminder':
-        _navigateToMedications(context, message.data);
-        break;
-      case 'health_check':
-        _navigateToHealthCheck(context, message.data);
+      case 'check_in_reminder':
+        await _handleCheckInReminderAction(receivedAction);
         break;
       case 'care_group_update':
-        _navigateToCareGroup(context, message.data);
-        break;
-      case 'system_alert':
-        _navigateToSettings(context, message.data);
-        break;
-      case 'emergency':
-        _handleEmergencyNavigation(context, message.data);
+        await _handleCareGroupUpdateAction(receivedAction);
         break;
       default:
-        _navigateToHome(context);
+        logger.warning('Unknown notification action type: $messageType');
     }
   }
 
-  void _handleTokenRefresh(String token) {
-    debugPrint('Enhanced token refresh handled');
+  /// Handle medication reminder actions
+  static Future<void> _handleMedicationReminderAction(
+      ReceivedAction action) async {
+    final logger = ServiceLocator.get<AppLogger>();
+    final medicationId = action.payload?['medication_id'];
 
-    if (widget.enableAnalytics) {
-      _trackTokenRefresh();
+    logger.info('Handling medication reminder action for: $medicationId');
+
+    switch (action.buttonKeyPressed) {
+      case 'TAKE_MEDICATION':
+        await _markMedicationTaken(medicationId);
+        break;
+      case 'SNOOZE':
+        await _snoozeMedicationReminder(medicationId);
+        break;
+      case 'SKIP':
+        await _skipMedicationReminder(medicationId);
+        break;
+      default:
+        // Just tapped the notification - navigate to medications screen
+        logger.info('Navigate to medications screen');
+        final navigationService = ServiceLocator.get<NavigationService>();
+        await navigationService.navigateFromNotification(
+            'medication_reminder', action.payload ?? {});
     }
   }
 
-  void _handleError(String error) {
-    setState(() {
-      _lastError = error;
-    });
+  /// Handle emergency alert actions
+  static Future<void> _handleEmergencyAlertAction(ReceivedAction action) async {
+    final logger = ServiceLocator.get<AppLogger>();
+    final alertType = action.payload?['alert_type'];
 
-    debugPrint('Enhanced notification handler error: $error');
+    logger.info('Handling emergency alert action: $alertType');
 
-    if (widget.enableAnalytics) {
-      _trackError(error);
+    switch (action.buttonKeyPressed) {
+      case 'CALL_EMERGENCY':
+        await _callEmergencyServices();
+        break;
+      case 'NOTIFY_CONTACTS':
+        await _notifyEmergencyContacts();
+        break;
+      case 'DISMISS':
+        await _dismissEmergencyAlert();
+        break;
+      default:
+        // Navigate to emergency screen
+        logger.info('Navigate to emergency screen');
+        final navigationService = ServiceLocator.get<NavigationService>();
+        await navigationService.navigateFromNotification(
+            'emergency_alert', action.payload ?? {});
     }
   }
 
-  // App lifecycle handlers
-  void _handleAppResumed() async {
-    debugPrint('App resumed - checking for pending notifications');
+  /// Handle check-in reminder actions
+  static Future<void> _handleCheckInReminderAction(
+      ReceivedAction action) async {
+    final logger = ServiceLocator.get<AppLogger>();
+    final checkInType = action.payload?['check_in_type'];
 
-    if (widget.enableOfflineSupport) {
-      await _processPendingMessages();
+    logger.info('Handling check-in reminder action: $checkInType');
+
+    switch (action.buttonKeyPressed) {
+      case 'COMPLETE_CHECKIN':
+        await _completeCheckIn(checkInType);
+        break;
+      case 'REMIND_LATER':
+        await _remindCheckInLater(checkInType);
+        break;
+      default:
+        // Navigate to health check screen
+        logger.info('Navigate to health check screen');
+        final navigationService = ServiceLocator.get<NavigationService>();
+        await navigationService.navigateFromNotification(
+            'check_in_reminder', action.payload ?? {});
     }
   }
 
-  void _handleAppPaused() {
-    debugPrint('App paused - saving notification state');
-  }
+  /// Handle care group update actions
+  static Future<void> _handleCareGroupUpdateAction(
+      ReceivedAction action) async {
+    final logger = ServiceLocator.get<AppLogger>();
+    final groupId = action.payload?['group_id'];
 
-  void _handleAppDetached() {
-    debugPrint('App detached - cleaning up notification resources');
-  }
+    logger.info('Handling care group update action for: $groupId');
 
-  // Message type handlers
-  void _handleMedicationReminder(RemoteMessage message) {
-    if (mounted) {
-      _showMedicationReminderDialog(message);
+    switch (action.buttonKeyPressed) {
+      case 'VIEW_UPDATE':
+        await _viewCareGroupUpdate(groupId);
+        break;
+      case 'REPLY':
+        await _replyCareGroupUpdate(groupId);
+        break;
+      default:
+        // Navigate to care group screen
+        logger.info('Navigate to care group screen');
+        final navigationService = ServiceLocator.get<NavigationService>();
+        await navigationService.navigateFromNotification(
+            'care_group_update', action.payload ?? {});
     }
   }
 
-  void _handleHealthCheck(RemoteMessage message) {
-    debugPrint('Health check reminder received');
-    if (mounted) {
-      _showHealthCheckDialog(message);
-    }
-  }
+  /// Called when notification is created
+  @pragma('vm:entry-point')
+  static Future<void> _onNotificationCreated(
+      ReceivedNotification notification) async {
+    final logger = ServiceLocator.get<AppLogger>();
+    logger.info('Notification created: ${notification.id}');
 
-  void _handleCareGroupUpdate(RemoteMessage message) {
-    debugPrint('Care group update received');
-    if (mounted) {
-      _showCareGroupSnackBar(message);
-    }
-  }
-
-  void _handleSystemAlert(RemoteMessage message) {
-    debugPrint('System alert received');
-    if (mounted) {
-      _showSystemAlertDialog(message);
-    }
-  }
-
-  void _handleEmergencyAlert(RemoteMessage message) {
-    debugPrint('Emergency alert received');
-    if (mounted) {
-      _showEmergencyDialog(message);
-    }
-  }
-
-  void _handleGenericMessage(RemoteMessage message) {
-    debugPrint('Generic message received: ${message.data}');
-    if (mounted) {
-      _showGenericSnackBar(message);
-    }
-  }
-
-  // Enhanced dialogs and UI
-  void _showMedicationReminderDialog(RemoteMessage message) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          icon: const Icon(Icons.medication, color: Colors.blue, size: 48),
-          title: Text(message.notification?.title ?? 'Medication Reminder'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                message.notification?.body ?? 'Time to take your medication',
-                style: Theme.of(context).textTheme.bodyLarge,
-              ),
-              if (message.data['medication_name'] != null) ...[
-                const SizedBox(height: 16),
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.blue.shade50,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Medication: ${message.data['medication_name']}',
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      if (message.data['dosage'] != null)
-                        Text('Dosage: ${message.data['dosage']}'),
-                      if (message.data['instructions'] != null)
-                        Text('Instructions: ${message.data['instructions']}'),
-                    ],
-                  ),
-                ),
-              ],
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                _markMedicationAsTaken(message.data);
-              },
-              child: const Text('Mark as Taken'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                _snoozeMedicationReminder(message.data);
-              },
-              child: const Text('Snooze 15min'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Dismiss'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _showHealthCheckDialog(RemoteMessage message) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          icon: const Icon(Icons.health_and_safety,
-              color: Colors.green, size: 48),
-          title: Text(message.notification?.title ?? 'Health Check Reminder'),
-          content: Text(
-            message.notification?.body ?? 'Time for your daily health check',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                _navigateToHealthCheck(context, message.data);
-              },
-              child: const Text('Start Check'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Later'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _showEmergencyDialog(RemoteMessage message) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          backgroundColor: Colors.red.shade50,
-          icon: const Icon(Icons.emergency, color: Colors.red, size: 48),
-          title: Text(
-            message.notification?.title ?? 'Emergency Alert',
-            style: const TextStyle(color: Colors.red),
-          ),
-          content: Text(
-            message.notification?.body ?? 'This is an emergency notification',
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
-          actions: [
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-              onPressed: () {
-                Navigator.of(context).pop();
-                _handleEmergencyAction(message.data);
-              },
-              child: const Text('Take Action',
-                  style: TextStyle(color: Colors.white)),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Acknowledge'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _showSystemAlertDialog(RemoteMessage message) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          icon: const Icon(Icons.info, color: Colors.orange, size: 48),
-          title: Text(message.notification?.title ?? 'System Alert'),
-          content: Text(
-            message.notification?.body ?? 'System notification',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                _navigateToSettings(context, message.data);
-              },
-              child: const Text('View Details'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('OK'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _showCareGroupSnackBar(RemoteMessage message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            const Icon(Icons.group, color: Colors.white),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(message.notification?.body ?? 'Care group update'),
-            ),
-          ],
-        ),
-        action: SnackBarAction(
-          label: 'View',
-          onPressed: () => _navigateToCareGroup(context, message.data),
-        ),
-        backgroundColor: Colors.orange,
-        duration: const Duration(seconds: 5),
-      ),
-    );
-  }
-
-  void _showGenericSnackBar(RemoteMessage message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message.notification?.body ?? 'New notification'),
-        action: SnackBarAction(
-          label: 'View',
-          onPressed: () => _navigateToHome(context),
-        ),
-        duration: const Duration(seconds: 3),
-      ),
-    );
-  }
-
-  // Navigation methods
-  void _navigateToMedications(BuildContext context, Map<String, dynamic> data) {
-    Navigator.pushNamed(context, '/medications', arguments: data);
-  }
-
-  void _navigateToHealthCheck(BuildContext context, Map<String, dynamic> data) {
-    Navigator.pushNamed(context, '/health-check', arguments: data);
-  }
-
-  void _navigateToCareGroup(BuildContext context, Map<String, dynamic> data) {
-    final careGroupId = data['care_group_id'];
-    Navigator.pushNamed(context, '/care-group', arguments: careGroupId);
-  }
-
-  void _navigateToSettings(BuildContext context, Map<String, dynamic> data) {
-    Navigator.pushNamed(context, '/settings', arguments: data);
-  }
-
-  void _navigateToHome(BuildContext context) {
-    Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
-  }
-
-  void _handleEmergencyNavigation(
-      BuildContext context, Map<String, dynamic> data) {
-    // Handle emergency-specific navigation
-    Navigator.pushNamed(context, '/emergency', arguments: data);
-  }
-
-  // Action handlers
-  Future<void> _markMedicationAsTaken(Map<String, dynamic> data) async {
-    try {
-      // TODO: Implement medication taken logic with API call
-      debugPrint('Medication marked as taken: $data');
-
-      if (widget.enableAnalytics) {
-        _trackMedicationTaken(data);
-      }
-    } catch (e) {
-      _handleError('Failed to mark medication as taken: $e');
-    }
-  }
-
-  Future<void> _snoozeMedicationReminder(Map<String, dynamic> data) async {
-    try {
-      // TODO: Implement snooze logic with local scheduling
-      debugPrint('Medication reminder snoozed: $data');
-
-      if (widget.enableAnalytics) {
-        _trackMedicationSnoozed(data);
-      }
-    } catch (e) {
-      _handleError('Failed to snooze reminder: $e');
-    }
-  }
-
-  Future<void> _handleEmergencyAction(Map<String, dynamic> data) async {
-    try {
-      // TODO: Implement emergency action logic
-      debugPrint('Emergency action taken: $data');
-
-      if (widget.enableAnalytics) {
-        _trackEmergencyAction(data);
-      }
-    } catch (e) {
-      _handleError('Failed to handle emergency action: $e');
-    }
-  }
-
-  // Analytics and tracking
-  void _updateMessageStats(RemoteMessage message) {
-    final messageType = message.data['type'] ?? 'general';
-    setState(() {
-      _messageStats[messageType] = (_messageStats[messageType] ?? 0) + 1;
+    // Track analytics
+    await _trackNotificationEvent('notification_created', {
+      'notification_id': notification.id.toString(),
+      'channel_key': notification.channelKey ?? 'unknown',
+      'title': notification.title ?? 'no_title',
     });
   }
 
-  void _trackMessageReceived(RemoteMessage message) {
-    // TODO: Implement analytics tracking
-    debugPrint('Analytics: Message received - ${message.data['type']}');
+  /// Called when notification is displayed
+  @pragma('vm:entry-point')
+  static Future<void> _onNotificationDisplayed(
+      ReceivedNotification notification) async {
+    final logger = ServiceLocator.get<AppLogger>();
+    logger.info('Notification displayed: ${notification.id}');
+
+    // Track analytics
+    await _trackNotificationEvent('notification_displayed', {
+      'notification_id': notification.id.toString(),
+      'channel_key': notification.channelKey ?? 'unknown',
+    });
   }
 
-  void _trackMessageTapped(RemoteMessage message) {
-    // TODO: Implement analytics tracking
-    debugPrint('Analytics: Message tapped - ${message.data['type']}');
+  /// Called when notification is dismissed
+  @pragma('vm:entry-point')
+  static Future<void> _onNotificationDismissed(ReceivedAction action) async {
+    final logger = ServiceLocator.get<AppLogger>();
+    logger.info('Notification dismissed: ${action.id}');
+
+    // Track analytics
+    await _trackNotificationEvent('notification_dismissed', {
+      'notification_id': action.id.toString(),
+      'channel_key': action.channelKey ?? 'unknown',
+    });
   }
 
-  void _trackTokenRefresh() {
-    // TODO: Implement analytics tracking
-    debugPrint('Analytics: Token refreshed');
+  // Medication reminder actions
+  static Future<void> _markMedicationTaken(String? medicationId) async {
+    final logger = ServiceLocator.get<AppLogger>();
+    final analyticsService = ServiceLocator.get<AnalyticsService>();
+
+    logger.info('Marking medication taken: $medicationId');
+
+    // Track analytics
+    await analyticsService.trackMedicationEvent(
+        'medication_taken', medicationId ?? 'unknown');
+
+    // TODO: Implement API call to mark medication as taken
+    // TODO: Update local state
   }
 
-  void _trackError(String error) {
-    // TODO: Implement error tracking
-    debugPrint('Analytics: Error tracked - $error');
+  static Future<void> _snoozeMedicationReminder(String? medicationId) async {
+    final logger = ServiceLocator.get<AppLogger>();
+    final analyticsService = ServiceLocator.get<AnalyticsService>();
+
+    logger.info('Snoozing medication reminder: $medicationId');
+
+    // Track analytics
+    await analyticsService.trackMedicationEvent(
+        'medication_snoozed', medicationId ?? 'unknown');
+
+    // TODO: Implement snooze logic with local scheduling
   }
 
-  void _trackMedicationTaken(Map<String, dynamic> data) {
-    // TODO: Implement analytics tracking
-    debugPrint('Analytics: Medication taken - $data');
+  static Future<void> _skipMedicationReminder(String? medicationId) async {
+    final logger = ServiceLocator.get<AppLogger>();
+    final analyticsService = ServiceLocator.get<AnalyticsService>();
+
+    logger.info('Skipping medication reminder: $medicationId');
+
+    // Track analytics
+    await analyticsService.trackMedicationEvent(
+        'medication_skipped', medicationId ?? 'unknown');
+
+    // TODO: Implement skip logic
+    // TODO: Track analytics
   }
 
-  void _trackMedicationSnoozed(Map<String, dynamic> data) {
-    // TODO: Implement analytics tracking
-    debugPrint('Analytics: Medication snoozed - $data');
+  // Emergency alert actions
+  static Future<void> _callEmergencyServices() async {
+    final logger = ServiceLocator.get<AppLogger>();
+    logger.info('Calling emergency services');
+
+    // TODO: Implement emergency call logic
+    // TODO: Track analytics
   }
 
-  void _trackEmergencyAction(Map<String, dynamic> data) {
-    // TODO: Implement analytics tracking
-    debugPrint('Analytics: Emergency action - $data');
+  static Future<void> _notifyEmergencyContacts() async {
+    final logger = ServiceLocator.get<AppLogger>();
+    logger.info('Notifying emergency contacts');
+
+    // TODO: Implement emergency contact notification
+    // TODO: Track analytics
   }
 
-  // Offline support
-  Future<void> _processPendingMessages() async {
-    if (!widget.enableOfflineSupport) return;
+  static Future<void> _dismissEmergencyAlert() async {
+    final logger = ServiceLocator.get<AppLogger>();
+    logger.info('Dismissing emergency alert');
 
-    try {
-      // TODO: Process stored offline messages
-      debugPrint('Processing pending offline messages');
-    } catch (e) {
-      _handleError('Failed to process pending messages: $e');
-    }
+    // TODO: Implement emergency alert dismissal
+    // TODO: Track analytics
   }
 
-  // Status widget
-  Widget _buildStatusIndicator() {
-    if (!_isInitialized) {
-      return const SizedBox(
-        width: 16,
-        height: 16,
-        child: CircularProgressIndicator(strokeWidth: 2),
-      );
-    }
+  // Check-in reminder actions
+  static Future<void> _completeCheckIn(String? checkInType) async {
+    final logger = ServiceLocator.get<AppLogger>();
+    logger.info('Completing check-in: $checkInType');
 
-    if (_lastError != null) {
-      return const Icon(Icons.error, color: Colors.red, size: 16);
-    }
+    // TODO: Implement check-in completion
+    // TODO: Track analytics
+  }
 
-    return const Icon(Icons.notifications_active,
-        color: Colors.green, size: 16);
+  static Future<void> _remindCheckInLater(String? checkInType) async {
+    final logger = ServiceLocator.get<AppLogger>();
+    logger.info('Reminding check-in later: $checkInType');
+
+    // TODO: Implement check-in reminder scheduling
+    // TODO: Track analytics
+  }
+
+  // Care group update actions
+  static Future<void> _viewCareGroupUpdate(String? groupId) async {
+    final logger = ServiceLocator.get<AppLogger>();
+    logger.info('Viewing care group update: $groupId');
+
+    // TODO: Implement care group update viewing
+    // TODO: Track analytics
+  }
+
+  static Future<void> _replyCareGroupUpdate(String? groupId) async {
+    final logger = ServiceLocator.get<AppLogger>();
+    logger.info('Replying to care group update: $groupId');
+
+    // TODO: Implement care group update reply
+    // TODO: Track analytics
+  }
+
+  // Analytics tracking
+  static Future<void> _trackNotificationEvent(
+      String eventName, Map<String, dynamic> properties) async {
+    final logger = ServiceLocator.get<AppLogger>();
+    final analyticsService = ServiceLocator.get<AnalyticsService>();
+
+    logger.info('Analytics event: $eventName with properties: $properties');
+
+    // Track with analytics service
+    await analyticsService.trackNotificationEvent(eventName, properties);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      alignment: Alignment.topCenter, // Use non-directional alignment
-      children: [
-        widget.child,
-        // Debug status indicator (only in debug mode)
-        if (MediaQuery.of(context).size.width > 0) // Always false in release
-          Positioned(
-            top: MediaQuery.of(context).padding.top + 10,
-            right: 10,
-            child: Container(
-              padding: const EdgeInsets.all(4),
-              decoration: BoxDecoration(
-                color: Colors.black54,
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: _buildStatusIndicator(),
-            ),
-          ),
-      ],
-    );
+    return widget.child;
+  }
+
+  @override
+  void dispose() {
+    // Clean up notification listeners if needed
+    super.dispose();
   }
 }
-
-/// Extension to add enhanced notification handling to any widget
-extension NotificationHandlerExtension on Widget {
-  Widget withNotificationHandler({
-    Function(RemoteMessage)? onMessageReceived,
-    Function(RemoteMessage)? onMessageTap,
-    Function(String)? onTokenRefresh,
-    Function(String)? onError,
-    bool enableAnalytics = true,
-    bool enableOfflineSupport = true,
-  }) {
-    return NotificationHandler(
-      onMessageReceived: onMessageReceived,
-      onMessageTap: onMessageTap,
-      onTokenRefresh: onTokenRefresh,
-      onError: onError,
-      enableAnalytics: enableAnalytics,
-      enableOfflineSupport: enableOfflineSupport,
-      child: this,
-    );
-  }
-}
-
-*/

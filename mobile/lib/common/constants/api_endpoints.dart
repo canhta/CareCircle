@@ -131,6 +131,13 @@ class ApiEndpoints {
   static const String uploadImage = '/files/upload/image';
   static const String uploadDocument = '/files/upload/document';
 
+  // Privacy and consent endpoints
+  static const String consentSettings = '/privacy/consent-settings';
+  static const String consentHistory = '/privacy/consent-history';
+  static const String accessLog = '/privacy/access-log';
+  static const String dataExport = '/privacy/data-export';
+  static const String accountDeletion = '/privacy/account-deletion';
+
   // Utility methods
 
   /// Build full URL with base URL

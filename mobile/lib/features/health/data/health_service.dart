@@ -523,4 +523,127 @@ class HealthService extends BaseRepository implements HealthRepository {
       );
     }
   }
+
+  // Privacy and consent management methods
+  Future<Result<Map<String, dynamic>>> getConsentSettings() async {
+    try {
+      logger.info('Fetching consent settings');
+
+      final response = await apiClient.get(ApiEndpoints.consentSettings);
+      final settings = response.data['data'] as Map<String, dynamic>;
+
+      logger.info('Successfully fetched consent settings');
+      return Result.success(settings);
+    } catch (e) {
+      logger.error('Error fetching consent settings', error: e);
+      return Result.failure(
+        NetworkException(
+          'Error fetching consent settings: $e',
+          type: NetworkExceptionType.unknown,
+        ),
+      );
+    }
+  }
+
+  Future<Result<void>> updateConsentSettings(Map<String, bool> settings) async {
+    try {
+      logger.info('Updating consent settings', data: settings);
+
+      await apiClient.put(
+        ApiEndpoints.consentSettings,
+        data: settings,
+      );
+
+      logger.info('Successfully updated consent settings');
+      return const Result.success(null);
+    } catch (e) {
+      logger.error('Error updating consent settings', error: e);
+      return Result.failure(
+        NetworkException(
+          'Error updating consent settings: $e',
+          type: NetworkExceptionType.unknown,
+        ),
+      );
+    }
+  }
+
+  Future<Result<List<Map<String, dynamic>>>> getConsentHistory() async {
+    try {
+      logger.info('Fetching consent history');
+
+      final response = await apiClient.get(ApiEndpoints.consentHistory);
+      final history = List<Map<String, dynamic>>.from(response.data['data']);
+
+      logger.info(
+          'Successfully fetched consent history: ${history.length} entries');
+      return Result.success(history);
+    } catch (e) {
+      logger.error('Error fetching consent history', error: e);
+      return Result.failure(
+        NetworkException(
+          'Error fetching consent history: $e',
+          type: NetworkExceptionType.unknown,
+        ),
+      );
+    }
+  }
+
+  Future<Result<List<Map<String, dynamic>>>> getAccessLog() async {
+    try {
+      logger.info('Fetching access log');
+
+      final response = await apiClient.get(ApiEndpoints.accessLog);
+      final accessLog = List<Map<String, dynamic>>.from(response.data['data']);
+
+      logger
+          .info('Successfully fetched access log: ${accessLog.length} entries');
+      return Result.success(accessLog);
+    } catch (e) {
+      logger.error('Error fetching access log', error: e);
+      return Result.failure(
+        NetworkException(
+          'Error fetching access log: $e',
+          type: NetworkExceptionType.unknown,
+        ),
+      );
+    }
+  }
+
+  Future<Result<void>> requestDataExport() async {
+    try {
+      logger.info('Requesting data export');
+
+      await apiClient.post(ApiEndpoints.dataExport);
+
+      logger.info('Successfully requested data export');
+      return const Result.success(null);
+    } catch (e) {
+      logger.error('Error requesting data export', error: e);
+      return Result.failure(
+        NetworkException(
+          'Error requesting data export: $e',
+          type: NetworkExceptionType.unknown,
+        ),
+      );
+    }
+  }
+
+  Future<Result<void>> requestAccountDeletion() async {
+    try {
+      logger.info('Requesting account deletion');
+
+      await apiClient.post(ApiEndpoints.accountDeletion);
+
+      logger.info('Successfully requested account deletion');
+      return const Result.success(null);
+    } catch (e) {
+      logger.error('Error requesting account deletion', error: e);
+      return Result.failure(
+        NetworkException(
+          'Error requesting account deletion: $e',
+          type: NetworkExceptionType.unknown,
+        ),
+      );
+    }
+  }
 }
