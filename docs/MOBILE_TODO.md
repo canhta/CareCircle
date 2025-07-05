@@ -9,8 +9,13 @@
 - [ ] Update all service implementations to use centralized ApiClient
 - [ ] Add robust error handling and retry logic
 - [ ] Test connectivity across all environments
+- [ ] Implement JWT token management for backend authentication
+- [ ] Create correlation ID system for request tracking across platforms
+- [ ] Add detailed request/response logging with PHI protection
+- [ ] Implement API versioning support in client code
+- [ ] Create automatic token refresh mechanism
 
-### Architecture Refactoring to Riverpod
+### Architecture Refactoring to Riverpod with DDD
 
 - [ ] Convert BLoC pattern to Riverpod for declarative state management
 - [ ] Create shared provider scope with overrides for testing
@@ -21,6 +26,13 @@
 - [ ] Update all screens to use Consumer or ConsumerWidget pattern
 - [ ] Separate ephemeral state from app state following Flutter guidelines
 - [ ] Implement unidirectional data flow (state down, events up)
+- [ ] Structure project around domain bounded contexts
+- [ ] Create domain entities with behavior and validation
+- [ ] Implement value objects for immutable concepts
+- [ ] Develop repository interfaces in domain layer
+- [ ] Create repository implementations in infrastructure layer
+- [ ] Implement use cases for business logic
+- [ ] Separate presentation models from domain models
 
 ### Health Platform Integration Updates
 
@@ -85,6 +97,10 @@
 - [ ] Add conflict resolution strategy for offline modifications
 - [ ] Implement background sync scheduling with WorkManager
 - [ ] Add visual indicators for offline mode
+- [ ] Create offline-first repository pattern for all data access
+- [ ] Implement entity versioning for conflict detection
+- [ ] Add selective sync capability for large datasets
+- [ ] Create bandwidth-sensitive sync options
 
 ### Subscription & Payments
 
@@ -96,6 +112,8 @@
 - [ ] Create premium feature gating system
 - [ ] Add subscription benefits explainer
 - [ ] Build restoration and receipt validation logic
+- [ ] Integrate with backend subscription validation endpoints
+- [ ] Implement secure payment receipt verification flow
 
 ### Privacy & Security Enhancements
 
@@ -144,16 +162,41 @@
 - [ ] Implement personalized notification scheduling
 - [ ] Create health journey timelines for progress visualization
 
-## Testing & Deployment
+### System Integration & Documentation
 
-- [ ] Create comprehensive unit test suite with Mockito and Riverpod
-- [ ] Implement widget tests for critical UI components
-- [ ] Set up integration tests for core user flows
-- [ ] Create automated UI tests with Flutter Driver
-- [ ] Implement performance benchmarking tests
-- [ ] Set up CI/CD pipeline with GitHub Actions
-- [ ] Configure Firebase App Distribution for beta testing
-- [ ] Create phased rollout plan for app store deployment
+- [ ] Create API client usage documentation
+- [ ] Update repository implementations to match backend endpoints
+- [ ] Implement standardized data models matching backend DTOs
+- [ ] Add integration tests for backend API communication
+- [ ] Create retry policies specific to endpoint types
+- [ ] Document offline-to-online data flow
+- [ ] Implement event-driven architecture for cross-feature communication
+- [ ] Set up health data sharing flows with backend
+- [ ] Create technical documentation for new developers
+- [ ] Document domain model and bounded contexts
+- [ ] Create diagrams of domain relationships
+- [ ] Document ubiquitous language for development team
+
+### DDD-Specific Implementation
+
+- [ ] Implement aggregate root pattern for complex entities
+- [ ] Create domain events for cross-context communication
+- [ ] Develop anti-corruption layer for external services
+- [ ] Implement specification pattern for complex queries
+- [ ] Create domain services for operations spanning multiple entities
+- [ ] Add invariant checks in domain entities
+- [ ] Implement factory patterns for complex object creation
+- [ ] Create shared kernel for cross-context domain concepts
+
+## Manual Testing Approach
+
+- [ ] Create comprehensive test scenarios document
+- [ ] Develop manual test checklists for critical features
+- [ ] Set up testing environment with sample data
+- [ ] Document reproducible test flows for common user journeys
+- [ ] Create visual verification guidelines for UI components
+- [ ] Implement feature flags for gradual rollout and testing
+- [ ] Set up beta testing program with user feedback collection
 
 ## Completed Tasks
 

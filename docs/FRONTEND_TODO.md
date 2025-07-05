@@ -31,6 +31,10 @@
 - [ ] Implement JWT token handling
 - [ ] Add session management
 - [ ] Create custom 401/403 error pages
+- [ ] Integrate with backend authentication endpoints
+- [ ] Implement secure token storage
+- [ ] Add refresh token mechanism
+- [ ] Create role-based UI components
 
 ### Phase 1.3: Core Layout
 
@@ -41,6 +45,20 @@
 - [ ] Implement breadcrumb navigation
 - [ ] Create loading states and skeletons
 - [ ] Add toast notification system
+
+### Phase 1.4: Domain-Driven Design Implementation
+
+- [ ] Define bounded contexts aligned with backend domains
+- [ ] Create domain models for core business concepts
+- [ ] Implement value objects for immutable concepts
+- [ ] Develop repository interfaces for data access
+- [ ] Create application services for business operations
+- [ ] Implement frontend domain services for complex logic
+- [ ] Structure components around domain concepts
+- [ ] Establish ubiquitous language in component naming
+- [ ] Create shared kernel for cross-context domain models
+- [ ] Implement view models separate from domain models
+- [ ] Document domain model relationships
 
 ## Medium Priority Tasks
 
@@ -73,6 +91,20 @@
 - [ ] Implement manual override controls
 - [ ] Set up API key management
 - [ ] Create usage quota management
+- [ ] Integrate with backend AI metrics endpoints
+- [ ] Implement real-time AI usage monitoring
+- [ ] Create cost allocation visualizations by feature
+- [ ] Add predictive cost analysis
+
+### Phase 2.4: Domain Modeling Refinements
+
+- [ ] Implement aggregate patterns for complex UI state
+- [ ] Create domain events for cross-component communication
+- [ ] Develop view-specific projections of domain data
+- [ ] Implement command pattern for user actions
+- [ ] Create specifications for complex filtering and querying
+- [ ] Add invariant validations in domain models
+- [ ] Implement factory patterns for complex object creation
 
 ## Lower Priority Tasks
 
@@ -96,15 +128,29 @@
 - [ ] Set up Vercel Analytics for monitoring
 - [ ] Optimize bundle size
 
-### Phase 3.3: Testing and Documentation
+### Phase 3.3: Manual Testing Strategy
 
-- [ ] Set up Jest/Vitest for unit testing
-- [ ] Implement React Testing Library for component tests
-- [ ] Add Playwright for end-to-end testing
-- [ ] Create Storybook for component documentation
-- [ ] Write API documentation
-- [ ] Add user guides
-- [ ] Create admin documentation
+- [ ] Create comprehensive testing scenarios document
+- [ ] Develop manual test procedures for critical features
+- [ ] Set up testing environment with sample data
+- [ ] Document user flows for common administrative tasks
+- [ ] Create visual verification guidelines for UI components
+- [ ] Implement feature flags for gradual rollout
+- [ ] Set up internal testing program
+
+### Phase 3.4: Backend Integration
+
+- [ ] Create API client library for consistent backend access
+- [ ] Implement error handling with friendly user messages
+- [ ] Add request/response interceptors for logging
+- [ ] Create API response caching strategy
+- [ ] Implement retry mechanisms for transient errors
+- [ ] Add real-time data synchronization with backend
+- [ ] Create WebSocket integration for live updates
+- [ ] Document API integration patterns for developers
+- [ ] Set up health monitoring for backend services
+- [ ] Create admin-specific API documentation
+- [ ] Implement feature flags synchronized with backend
 
 ## Advanced Features
 
@@ -148,8 +194,9 @@
 
 ## Next Steps (Immediate Focus)
 
-1. Configure Tailwind CSS v4 and Shadcn UI components
-2. Set up authentication with Clerk or NextAuth.js
-3. Create base dashboard layout and navigation
-4. Implement protected routes with middleware
-5. Build initial user management interfaces
+1. Set up Tailwind CSS and Shadcn UI components
+2. Implement authentication flow with backend integration
+3. Create dashboard layout with navigation
+4. Define domain models for core business concepts
+5. Establish bounded contexts aligned with backend
+6. Structure components around domain concepts
