@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import '../screens/health_data_screen.dart';
-import '../screens/profile_screen.dart';
-import '../screens/care_groups_screen.dart';
-import '../screens/daily_check_in_screen.dart';
+import '../config/router_config.dart';
 import '../widgets/error_boundary.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -18,20 +15,12 @@ class HomeScreen extends StatelessWidget {
           actions: [
             IconButton(
               icon: const Icon(Icons.notifications),
-              onPressed: () {
-                Navigator.pushNamed(context, '/notifications');
-              },
+              onPressed: () => context.goToNotifications(),
               tooltip: 'Notifications',
             ),
             IconButton(
               icon: const Icon(Icons.person),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const ProfileScreen()),
-                );
-              },
+              onPressed: () => context.goToProfile(),
               tooltip: 'Profile',
             ),
           ],
@@ -112,12 +101,7 @@ class HomeScreen extends StatelessWidget {
                         title: 'Health Data',
                         subtitle: 'Sync with Apple Health & Google Fit',
                         color: Colors.blue,
-                        onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const HealthDataScreen(),
-                          ),
-                        ),
+                        onTap: () => context.goToHealthData(),
                       ),
                       _buildFeatureCard(
                         context,
@@ -142,12 +126,7 @@ class HomeScreen extends StatelessWidget {
                         title: 'Daily Check-ins',
                         subtitle: 'Track your wellness',
                         color: Colors.purple,
-                        onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const DailyCheckInScreen(),
-                          ),
-                        ),
+                        onTap: () => context.goToHealthCheck(),
                       ),
                       _buildFeatureCard(
                         context,
@@ -155,12 +134,7 @@ class HomeScreen extends StatelessWidget {
                         title: 'Care Circle',
                         subtitle: 'Family & caregivers',
                         color: Colors.teal,
-                        onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const CareGroupsScreen(),
-                          ),
-                        ),
+                        onTap: () => context.goToCareGroup(),
                       ),
                       _buildFeatureCard(
                         context,

@@ -14,6 +14,12 @@ import {
   RefreshTokenPayload,
   PasswordResetTokenPayload,
 } from './interfaces/token-payloads.interface';
+import {
+  AuthenticatedUser,
+  GoogleAuthData,
+  AppleAuthData,
+  UserConsentData,
+} from '../common/interfaces/user.interfaces';
 
 export interface LoginResponse {
   access_token: string;
@@ -123,13 +129,7 @@ export class AuthService {
     };
   }
 
-  async googleLogin(googleUser: {
-    email: string;
-    firstName: string;
-    lastName: string;
-    picture?: string;
-    googleId: string;
-  }): Promise<User> {
+  async googleLogin(googleUser: GoogleAuthData): Promise<User> {
     const { email, firstName, lastName, picture, googleId } = googleUser;
 
     let user = await this.userService.findUserByEmail(email);
@@ -158,12 +158,7 @@ export class AuthService {
     return user;
   }
 
-  async appleLogin(appleUser: {
-    email: string;
-    firstName?: string;
-    lastName?: string;
-    appleId: string;
-  }): Promise<User> {
+  async appleLogin(appleUser: AppleAuthData): Promise<User> {
     const { email, firstName, lastName, appleId } = appleUser;
 
     let user = await this.userService.findUserByEmail(email);
@@ -277,13 +272,7 @@ export class AuthService {
 
   async updateUserConsent(
     userId: string,
-    consentData: {
-      dataProcessingConsent?: boolean;
-      marketingConsent?: boolean;
-      analyticsConsent?: boolean;
-      healthDataSharingConsent?: boolean;
-      consentVersion?: string;
-    },
+    consentData: UserConsentData,
   ): Promise<{ message: string }> {
     await this.userService.updateUser(userId, {
       ...consentData,
@@ -293,14 +282,7 @@ export class AuthService {
     return { message: 'Consent preferences updated successfully' };
   }
 
-  async getUserConsent(userId: string): Promise<{
-    dataProcessingConsent: boolean;
-    marketingConsent: boolean;
-    analyticsConsent: boolean;
-    healthDataSharingConsent: boolean;
-    consentVersion?: string;
-    consentDate?: Date;
-  }> {
+  async getUserConsent(userId: string): Promise<UserConsentData> {
     const user = await this.userService.findUserById(userId);
     if (!user) {
       throw new UnauthorizedException('User not found');

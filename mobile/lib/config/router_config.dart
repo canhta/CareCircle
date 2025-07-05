@@ -11,6 +11,17 @@ import '../screens/health_dashboard.dart';
 import '../screens/health_data_screen.dart';
 import '../screens/privacy_settings_screen.dart';
 import '../screens/forgot_password_screen.dart';
+import '../screens/prescription_scanner_screen.dart';
+import '../screens/notification_center_screen.dart';
+import '../screens/notification_preferences_screen.dart';
+import '../screens/medications_screen.dart';
+import '../screens/health_check_screen.dart';
+import '../screens/care_groups_screen.dart';
+import '../screens/settings_screen.dart';
+import '../screens/help_center_screen.dart';
+import '../screens/contact_support_screen.dart';
+import '../screens/reminders_screen.dart';
+import '../screens/insights_screen.dart';
 
 // Router configuration provider
 final routerProvider = Provider<GoRouter>((ref) {
@@ -64,6 +75,61 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: '/settings',
             name: 'settings',
             builder: (context, state) => const PrivacySettingsScreen(),
+          ),
+          GoRoute(
+            path: '/prescription-scanner',
+            name: 'prescription-scanner',
+            builder: (context, state) => const PrescriptionScannerScreen(),
+          ),
+          GoRoute(
+            path: '/notifications',
+            name: 'notifications',
+            builder: (context, state) => const NotificationCenterScreen(),
+          ),
+          GoRoute(
+            path: '/notification-preferences',
+            name: 'notification-preferences',
+            builder: (context, state) => const NotificationPreferencesScreen(),
+          ),
+          GoRoute(
+            path: '/medications',
+            name: 'medications',
+            builder: (context, state) => const MedicationsScreen(),
+          ),
+          GoRoute(
+            path: '/health-check',
+            name: 'health-check',
+            builder: (context, state) => const HealthCheckScreen(),
+          ),
+          GoRoute(
+            path: '/care-group',
+            name: 'care-group',
+            builder: (context, state) => const CareGroupsScreen(),
+          ),
+          GoRoute(
+            path: '/app-settings',
+            name: 'app-settings',
+            builder: (context, state) => const SettingsScreen(),
+          ),
+          GoRoute(
+            path: '/help-center',
+            name: 'help-center',
+            builder: (context, state) => const HelpCenterScreen(),
+          ),
+          GoRoute(
+            path: '/contact-support',
+            name: 'contact-support',
+            builder: (context, state) => const ContactSupportScreen(),
+          ),
+          GoRoute(
+            path: '/reminders',
+            name: 'reminders',
+            builder: (context, state) => const RemindersScreen(),
+          ),
+          GoRoute(
+            path: '/insights',
+            name: 'insights',
+            builder: (context, state) => const InsightsScreen(),
           ),
         ],
       ),
@@ -239,6 +305,39 @@ extension GoRouterExtensions on BuildContext {
 
   /// Navigate to forgot password screen
   void goToForgotPassword() => go('/forgot-password');
+
+  /// Navigate to prescription scanner screen
+  void goToPrescriptionScanner() => go('/prescription-scanner');
+
+  /// Navigate to notifications screen
+  void goToNotifications() => go('/notifications');
+
+  /// Navigate to notification preferences screen
+  void goToNotificationPreferences() => go('/notification-preferences');
+
+  /// Navigate to medications screen
+  void goToMedications() => go('/medications');
+
+  /// Navigate to health check screen
+  void goToHealthCheck() => go('/health-check');
+
+  /// Navigate to care group screen
+  void goToCareGroup() => go('/care-group');
+
+  /// Navigate to app settings screen
+  void goToAppSettings() => go('/app-settings');
+
+  /// Navigate to help center screen
+  void goToHelpCenter() => go('/help-center');
+
+  /// Navigate to contact support screen
+  void goToContactSupport() => go('/contact-support');
+
+  /// Navigate to reminders screen
+  void goToReminders() => go('/reminders');
+
+  /// Navigate to insights screen
+  void goToInsights() => go('/insights');
 }
 
 // Route names for type safety
@@ -251,4 +350,15 @@ abstract class AppRoutes {
   static const String healthData = '/health-data';
   static const String profile = '/profile';
   static const String settings = '/settings';
+  static const String prescriptionScanner = '/prescription-scanner';
+  static const String notifications = '/notifications';
+  static const String notificationPreferences = '/notification-preferences';
+  static const String medications = '/medications';
+  static const String healthCheck = '/health-check';
+  static const String careGroup = '/care-group';
+  static const String appSettings = '/app-settings';
+  static const String helpCenter = '/help-center';
+  static const String contactSupport = '/contact-support';
+  static const String reminders = '/reminders';
+  static const String insights = '/insights';
 }

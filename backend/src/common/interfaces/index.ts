@@ -8,6 +8,8 @@ export * from './health-data.interfaces';
 export * from './analytics.interfaces';
 export * from './ai.interfaces';
 export * from './notification-tracking.interfaces';
+export * from './user.interfaces';
+export * from './notification-behavior.interfaces';
 
 /**
  * Default page size for pagination

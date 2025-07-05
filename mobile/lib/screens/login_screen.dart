@@ -1,36 +1,91 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:form_validator/form_validator.dart';
+import 'package:go_router/go_router.dart';
 
 import '../features/auth/auth.dart';
 import '../common/common.dart';
-import 'register_screen.dart';
-import 'forgot_password_screen.dart';
+import '../providers/service_providers.dart';
+import '../widgets/error_handling/async_value_widgets.dart';
+import '../config/router_config.dart';
 
-class LoginScreen extends StatefulWidget {
+// Login state provider
+final loginStateProvider =
+    StateNotifierProvider<LoginNotifier, LoginState>((ref) {
+  return LoginNotifier(ref.read(authServiceProvider));
+});
+
+class LoginState {
+  final bool isLoading;
+  final String? errorMessage;
+  final bool isPasswordVisible;
+
+  const LoginState({
+    this.isLoading = false,
+    this.errorMessage,
+    this.isPasswordVisible = false,
+  });
+
+  LoginState copyWith({
+    bool? isLoading,
+    String? errorMessage,
+    bool? isPasswordVisible,
+  }) {
+    return LoginState(
+      isLoading: isLoading ?? this.isLoading,
+      errorMessage: errorMessage,
+      isPasswordVisible: isPasswordVisible ?? this.isPasswordVisible,
+    );
+  }
+}
+
+class LoginNotifier extends StateNotifier<LoginState> {
+  final AuthService _authService;
+
+  LoginNotifier(this._authService) : super(const LoginState());
+
+  void togglePasswordVisibility() {
+    state = state.copyWith(isPasswordVisible: !state.isPasswordVisible);
+  }
+
+  void clearError() {
+    state = state.copyWith(errorMessage: null);
+  }
+
+  Future<bool> login(String email, String password) async {
+    state = state.copyWith(isLoading: true, errorMessage: null);
+
+    try {
+      final result = await _authService.login(email: email, password: password);
+
+      if (result.isSuccess) {
+        state = state.copyWith(isLoading: false);
+        return true;
+      } else {
+        final errorMessage = result.exception is NetworkException
+            ? (result.exception as NetworkException).message
+            : result.exception?.toString() ?? 'Login failed';
+        state = state.copyWith(isLoading: false, errorMessage: errorMessage);
+        return false;
+      }
+    } catch (e) {
+      state = state.copyWith(isLoading: false, errorMessage: e.toString());
+      return false;
+    }
+  }
+}
+
+class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  ConsumerState<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  late final AuthService _authService;
-
-  bool _isLoading = false;
-  bool _isPasswordVisible = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _authService = AuthService(
-      apiClient: ApiClient.instance,
-      logger: AppLogger('LoginScreen'),
-      secureStorage: SecureStorageService(),
-    );
-  }
 
   @override
   void dispose() {
@@ -41,6 +96,16 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final loginState = ref.watch(loginStateProvider);
+
+    // Show error snackbar when there's an error
+    ref.listen(loginStateProvider, (previous, next) {
+      if (next.errorMessage != null &&
+          previous?.errorMessage != next.errorMessage) {
+        showErrorSnackBar(context, Exception(next.errorMessage!));
+      }
+    });
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -108,7 +173,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 // Password Field
                 TextFormField(
                   controller: _passwordController,
-                  obscureText: !_isPasswordVisible,
+                  obscureText: !ref.watch(loginStateProvider).isPasswordVisible,
                   textInputAction: TextInputAction.done,
                   validator: ValidationBuilder()
                       .minLength(6, 'Password must be at least 6 characters')
@@ -120,14 +185,14 @@ class _LoginScreenState extends State<LoginScreen> {
                     prefixIcon: const Icon(Icons.lock_outline),
                     suffixIcon: IconButton(
                       icon: Icon(
-                        _isPasswordVisible
+                        ref.watch(loginStateProvider).isPasswordVisible
                             ? Icons.visibility_off
                             : Icons.visibility,
                       ),
                       onPressed: () {
-                        setState(() {
-                          _isPasswordVisible = !_isPasswordVisible;
-                        });
+                        ref
+                            .read(loginStateProvider.notifier)
+                            .togglePasswordVisibility();
                       },
                     ),
                     border: OutlineInputBorder(
@@ -145,12 +210,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 Align(
                   alignment: Alignment.centerRight,
                   child: TextButton(
-                    onPressed: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const ForgotPasswordScreen(),
-                      ),
-                    ),
+                    onPressed: () => context.goToForgotPassword(),
                     child: const Text('Forgot Password?'),
                   ),
                 ),
@@ -159,14 +219,16 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 // Login Button
                 ElevatedButton(
-                  onPressed: _isLoading ? null : _handleLogin,
+                  onPressed: ref.watch(loginStateProvider).isLoading
+                      ? null
+                      : _handleLogin,
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: _isLoading
+                  child: ref.watch(loginStateProvider).isLoading
                       ? const SizedBox(
                           height: 20,
                           width: 20,
@@ -208,7 +270,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 // Google Sign In Button
                 OutlinedButton.icon(
-                  onPressed: _isLoading ? null : _handleGoogleSignIn,
+                  onPressed: ref.watch(loginStateProvider).isLoading
+                      ? null
+                      : _handleGoogleSignIn,
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
@@ -236,7 +300,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 // Apple Sign In Button (iOS only)
                 if (Theme.of(context).platform == TargetPlatform.iOS)
                   OutlinedButton.icon(
-                    onPressed: _isLoading ? null : _handleAppleSignIn,
+                    onPressed: ref.watch(loginStateProvider).isLoading
+                        ? null
+                        : _handleAppleSignIn,
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
@@ -266,12 +332,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       style: TextStyle(color: Colors.grey[600]),
                     ),
                     TextButton(
-                      onPressed: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const RegisterScreen(),
-                        ),
-                      ),
+                      onPressed: () => context.goToRegister(),
                       child: const Text(
                         'Sign Up',
                         style: TextStyle(fontWeight: FontWeight.w600),
@@ -290,92 +351,33 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _handleLogin() async {
     if (!_formKey.currentState!.validate()) return;
 
-    setState(() => _isLoading = true);
+    final success = await ref.read(loginStateProvider.notifier).login(
+          _emailController.text.trim(),
+          _passwordController.text,
+        );
 
-    final result = await _authService.login(
-      email: _emailController.text.trim(),
-      password: _passwordController.text,
-    );
-
-    if (result.isSuccess) {
-      if (mounted) {
-        // Navigate to main app
-        Navigator.pushReplacementNamed(context, '/home');
-      }
-    } else {
-      if (mounted) {
-        final errorMessage = result.exception is NetworkException
-            ? (result.exception as NetworkException).message
-            : result.exception?.toString() ?? 'Login failed';
-        _showErrorDialog(errorMessage);
-      }
-    }
-
-    if (mounted) {
-      setState(() => _isLoading = false);
+    if (success && mounted) {
+      // Navigate to main app
+      context.goToHome();
     }
   }
 
   Future<void> _handleGoogleSignIn() async {
-    setState(() => _isLoading = true);
-
-    final result = await _authService.loginWithGoogle();
-
-    if (result.isSuccess) {
-      if (mounted) {
-        // Navigate to main app
-        Navigator.pushReplacementNamed(context, '/home');
-      }
-    } else {
-      if (mounted) {
-        final errorMessage = result.exception is NetworkException
-            ? (result.exception as NetworkException).message
-            : result.exception?.toString() ?? 'Google sign-in failed';
-        _showErrorDialog(errorMessage);
-      }
-    }
-
-    if (mounted) {
-      setState(() => _isLoading = false);
-    }
+    // For now, show a placeholder message
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Google Sign In will be available in a future update'),
+        backgroundColor: Colors.orange,
+      ),
+    );
   }
 
   Future<void> _handleAppleSignIn() async {
-    setState(() => _isLoading = true);
-
-    final result = await _authService.loginWithApple();
-
-    if (result.isSuccess) {
-      if (mounted) {
-        // Navigate to main app
-        Navigator.pushReplacementNamed(context, '/home');
-      }
-    } else {
-      if (mounted) {
-        final errorMessage = result.exception is NetworkException
-            ? (result.exception as NetworkException).message
-            : result.exception?.toString() ?? 'Apple sign-in failed';
-        _showErrorDialog(errorMessage);
-      }
-    }
-
-    if (mounted) {
-      setState(() => _isLoading = false);
-    }
-  }
-
-  void _showErrorDialog(String message) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Error'),
-        content: Text(message),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
-          ),
-        ],
+    // For now, show a placeholder message
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Apple Sign In will be available in a future update'),
+        backgroundColor: Colors.orange,
       ),
     );
   }

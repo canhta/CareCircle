@@ -1,9 +1,14 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import {
+  HealthDataSyncJobData,
+  QueueHealthDataPoint,
+  HealthDataProcessingOptions,
+} from '../common/interfaces/health-data.interfaces';
 
 export interface HealthDataSyncJob {
   userId: string;
-  syncData: unknown;
+  syncData: HealthDataSyncJobData;
   priority?: 'low' | 'normal' | 'high';
   retryCount?: number;
 }
@@ -11,7 +16,7 @@ export interface HealthDataSyncJob {
 export interface HealthDataProcessingJob {
   userId: string;
   dataType: string;
-  dataPoints: unknown[];
+  dataPoints: QueueHealthDataPoint[];
   processingType: 'aggregate' | 'analyze' | 'insight';
 }
 
@@ -34,11 +39,8 @@ export class HealthDataQueueService {
    */
   async addSyncJob(
     userId: string,
-    syncData: unknown,
-    options: {
-      priority?: 'low' | 'normal' | 'high';
-      retryAttempts?: number;
-    } = {},
+    syncData: HealthDataSyncJobData,
+    options: HealthDataProcessingOptions = {},
   ): Promise<void> {
     const jobData: HealthDataSyncJob = {
       userId,
@@ -70,11 +72,9 @@ export class HealthDataQueueService {
   async addProcessingJob(
     userId: string,
     dataType: string,
-    dataPoints: unknown[],
+    dataPoints: QueueHealthDataPoint[],
     processingType: 'aggregate' | 'analyze' | 'insight',
-    options: {
-      priority?: 'low' | 'normal' | 'high';
-    } = {},
+    options: HealthDataProcessingOptions = {},
   ): Promise<void> {
     const jobData: HealthDataProcessingJob = {
       userId,

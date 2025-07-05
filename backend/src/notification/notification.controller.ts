@@ -28,6 +28,12 @@ import {
   NotificationPreferencesDto,
 } from './dto/notification.dto';
 import { User } from '@prisma/client';
+import {
+  NotificationContextData,
+  NotificationTemplateContext,
+  NotificationTrackingData,
+  NotificationTrackingMetadata,
+} from '../common/interfaces/notification-tracking.interfaces';
 
 @ApiTags('notifications')
 @ApiBearerAuth()
@@ -217,7 +223,7 @@ export class NotificationController {
     @Param('id') templateId: string,
     @CurrentUser() user: User,
   ) {
-    const sampleContext = {
+    const sampleContext: NotificationTemplateContext = {
       userName: user.firstName,
       medicationName: 'Sample Medication',
       dosage: '10mg',
@@ -241,12 +247,7 @@ export class NotificationController {
   @ApiResponse({ status: 201, description: 'Templated notification sent' })
   async sendTemplatedNotification(
     @CurrentUser() user: User,
-    @Body()
-    dto: {
-      templateName: string;
-      context: Record<string, any>;
-      scheduledFor?: Date;
-    },
+    @Body() dto: NotificationContextData,
   ) {
     const notification =
       await this.notificationService.sendTemplatedNotification(
@@ -365,11 +366,11 @@ export class NotificationController {
   })
   async trackNotificationOpened(
     @Param('id') notificationId: string,
-    @Body() trackingData: { channel: string; metadata?: any },
+    @Body() trackingData: NotificationTrackingData,
   ) {
     await this.auditLoggingService.logNotificationOpened(
       notificationId,
-      trackingData.channel as any,
+      trackingData.channel,
       trackingData.metadata,
     );
     return {
@@ -386,11 +387,11 @@ export class NotificationController {
   })
   async trackNotificationClicked(
     @Param('id') notificationId: string,
-    @Body() trackingData: { channel: string; metadata?: any },
+    @Body() trackingData: NotificationTrackingData,
   ) {
     await this.auditLoggingService.logNotificationClicked(
       notificationId,
-      trackingData.channel as any,
+      trackingData.channel,
       trackingData.metadata,
     );
     return {

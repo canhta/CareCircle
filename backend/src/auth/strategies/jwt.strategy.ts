@@ -3,6 +3,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { ConfigService } from '@nestjs/config';
 import { UserService } from '../../user/user.service';
+import { AuthenticatedUser } from '../../common/interfaces/user.interfaces';
 
 export interface JwtPayload {
   sub: string;
@@ -29,7 +30,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(payload: JwtPayload) {
+  async validate(payload: JwtPayload): Promise<AuthenticatedUser> {
     const user = await this.userService.findUserById(payload.sub);
     if (!user || !user.isActive) {
       throw new UnauthorizedException('User not found or inactive');
@@ -38,6 +39,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     // Remove password from the returned user object
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, ...result } = user;
-    return result;
+    return result as AuthenticatedUser;
   }
 }

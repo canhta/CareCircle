@@ -1,35 +1,15 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 
 // Configuration and Service Locator
 import 'config/service_locator.dart';
+import 'config/router_config.dart';
 import 'utils/notification_manager.dart';
-import 'utils/navigation_service.dart';
-
-// Screens
-import 'screens/home_screen.dart';
-import 'screens/login_screen.dart';
-import 'screens/register_screen.dart';
-import 'screens/forgot_password_screen.dart';
-import 'screens/profile_screen.dart';
-import 'screens/prescription_scanner_screen.dart';
-import 'screens/notification_center_screen.dart';
-import 'screens/notification_preferences_screen.dart';
-import 'screens/medications_screen.dart';
-import 'screens/health_check_screen.dart';
-import 'screens/care_group_main_screen.dart';
-import 'screens/settings_screen.dart';
-import 'screens/help_center_screen.dart';
-import 'screens/contact_support_screen.dart';
-import 'screens/reminders_screen.dart';
-import 'screens/insights_screen.dart';
 
 // Features and widgets
-import 'features/auth/auth.dart';
-import 'widgets/notification_handler.dart';
-import 'widgets/error_boundary.dart';
 
 /// Background message handler - must be top-level function
 @pragma('vm:entry-point')
@@ -71,18 +51,19 @@ Future<void> main() async {
     // Continue with app startup even if some services fail
   }
 
-  runApp(const MainApp());
+  runApp(const ProviderScope(child: MainApp()));
 }
 
-class MainApp extends StatelessWidget {
+class MainApp extends ConsumerWidget {
   const MainApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
+  Widget build(BuildContext context, WidgetRef ref) {
+    final router = ref.watch(routerProvider);
+
+    return MaterialApp.router(
       title: 'CareCircle',
-      // Use navigation service's navigator key for global navigation
-      navigatorKey: NavigationService.navigatorKey,
+      routerConfig: router,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
@@ -95,86 +76,6 @@ class MainApp extends StatelessWidget {
           ),
         ),
       ),
-      // Wrap the entire app with NotificationHandler and ErrorBoundary
-      home: const ErrorBoundary(
-        errorMessage: 'Unable to load CareCircle app',
-        child: NotificationHandler(
-          child: AuthWrapper(),
-        ),
-      ),
-      routes: {
-        '/login': (context) => const LoginScreen(),
-        '/register': (context) => const RegisterScreen(),
-        '/forgot-password': (context) => const ForgotPasswordScreen(),
-        '/home': (context) => const HomeScreen(),
-        '/profile': (context) => const ProfileScreen(),
-        '/prescription-scanner': (context) => const PrescriptionScannerScreen(),
-        '/notifications': (context) => const NotificationCenterScreen(),
-        '/notification-preferences': (context) =>
-            const NotificationPreferencesScreen(),
-        '/medications': (context) => const MedicationsScreen(),
-        '/health-check': (context) => const HealthCheckScreen(),
-        '/care-group': (context) => const CareGroupScreen(),
-        '/settings': (context) => const SettingsScreen(),
-        '/help-center': (context) => const HelpCenterScreen(),
-        '/contact-support': (context) => const ContactSupportScreen(),
-        '/reminders': (context) => const RemindersScreen(),
-        '/insights': (context) => const InsightsScreen(),
-      },
     );
-  }
-}
-
-class AuthWrapper extends StatefulWidget {
-  const AuthWrapper({super.key});
-
-  @override
-  State<AuthWrapper> createState() => _AuthWrapperState();
-}
-
-class _AuthWrapperState extends State<AuthWrapper> {
-  User? _currentUser;
-  bool _isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _checkAuthState();
-  }
-
-  Future<void> _checkAuthState() async {
-    try {
-      // Get auth service from service locator
-      final authService = ServiceLocator.get<AuthService>();
-      final user = await authService.getCurrentUser();
-
-      if (mounted) {
-        setState(() {
-          _currentUser = user;
-          _isLoading = false;
-        });
-      }
-    } catch (e) {
-      debugPrint('Error checking auth state: $e');
-      if (mounted) {
-        setState(() {
-          _currentUser = null;
-          _isLoading = false;
-        });
-      }
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (_isLoading) {
-      return const Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
-    }
-
-    return _currentUser != null ? const HomeScreen() : const LoginScreen();
   }
 }

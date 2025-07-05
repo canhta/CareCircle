@@ -193,3 +193,67 @@ export interface HealthDataAccessLogEntry {
   accessedBy: string | null;
   metadata?: Record<string, unknown>;
 }
+
+/**
+ * Health data sync job data
+ */
+export interface HealthDataSyncJobData {
+  /** Source of the health data */
+  source: string;
+
+  /** Start date for the sync window */
+  startDate: Date;
+
+  /** End date for the sync window */
+  endDate: Date;
+
+  /** Specific data types to sync */
+  dataTypes?: string[];
+
+  /** Options for sync behavior */
+  options?: {
+    /** Force re-sync of existing data */
+    forceResync?: boolean;
+    /** Skip validation */
+    skipValidation?: boolean;
+    /** Maximum records to sync */
+    maxRecords?: number;
+  };
+}
+
+/**
+ * Queue health data point structure
+ */
+export interface QueueHealthDataPoint {
+  /** Type of health data */
+  dataType: string;
+
+  /** Numeric value */
+  value: number;
+
+  /** Unit of measurement */
+  unit?: string;
+
+  /** When this data point was recorded */
+  timestamp: Date;
+
+  /** Source of this data point */
+  source: string;
+
+  /** Device that recorded this data */
+  deviceId?: string;
+
+  /** Any additional metadata */
+  metadata?: Record<string, unknown>;
+}
+
+/**
+ * Health data processing options
+ */
+export interface HealthDataProcessingOptions {
+  /** Priority level */
+  priority?: 'low' | 'normal' | 'high';
+
+  /** Maximum number of retry attempts */
+  retryAttempts?: number;
+}

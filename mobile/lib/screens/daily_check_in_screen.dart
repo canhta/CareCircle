@@ -1,39 +1,178 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../features/daily_check_in/daily_check_in.dart';
 import '../common/common.dart';
 import '../widgets/widget_optimizer.dart';
+import '../providers/service_providers.dart';
+import '../widgets/error_handling/async_value_widgets.dart';
 import 'personalized_questions_screen.dart';
 import 'check_in_history_screen.dart';
 import 'insights_screen.dart';
 
-class DailyCheckInScreen extends StatefulWidget {
+// Daily check-in form state provider
+final dailyCheckInFormProvider =
+    StateNotifierProvider<DailyCheckInFormNotifier, DailyCheckInFormState>(
+        (ref) {
+  return DailyCheckInFormNotifier(ref.read(dailyCheckInServiceProvider));
+});
+
+class DailyCheckInFormState {
+  final double moodScore;
+  final double energyLevel;
+  final double sleepQuality;
+  final double painLevel;
+  final double stressLevel;
+  final List<String> symptoms;
+  final String notes;
+  final bool isLoading;
+  final bool isEditing;
+  final String? errorMessage;
+
+  const DailyCheckInFormState({
+    this.moodScore = 5,
+    this.energyLevel = 5,
+    this.sleepQuality = 5,
+    this.painLevel = 0,
+    this.stressLevel = 5,
+    this.symptoms = const [],
+    this.notes = '',
+    this.isLoading = false,
+    this.isEditing = false,
+    this.errorMessage,
+  });
+
+  DailyCheckInFormState copyWith({
+    double? moodScore,
+    double? energyLevel,
+    double? sleepQuality,
+    double? painLevel,
+    double? stressLevel,
+    List<String>? symptoms,
+    String? notes,
+    bool? isLoading,
+    bool? isEditing,
+    String? errorMessage,
+  }) {
+    return DailyCheckInFormState(
+      moodScore: moodScore ?? this.moodScore,
+      energyLevel: energyLevel ?? this.energyLevel,
+      sleepQuality: sleepQuality ?? this.sleepQuality,
+      painLevel: painLevel ?? this.painLevel,
+      stressLevel: stressLevel ?? this.stressLevel,
+      symptoms: symptoms ?? this.symptoms,
+      notes: notes ?? this.notes,
+      isLoading: isLoading ?? this.isLoading,
+      isEditing: isEditing ?? this.isEditing,
+      errorMessage: errorMessage,
+    );
+  }
+}
+
+class DailyCheckInFormNotifier extends StateNotifier<DailyCheckInFormState> {
+  final DailyCheckInService _service;
+
+  DailyCheckInFormNotifier(this._service)
+      : super(const DailyCheckInFormState());
+
+  void updateMoodScore(double score) {
+    state = state.copyWith(moodScore: score);
+  }
+
+  void updateEnergyLevel(double level) {
+    state = state.copyWith(energyLevel: level);
+  }
+
+  void updateSleepQuality(double quality) {
+    state = state.copyWith(sleepQuality: quality);
+  }
+
+  void updatePainLevel(double level) {
+    state = state.copyWith(painLevel: level);
+  }
+
+  void updateStressLevel(double level) {
+    state = state.copyWith(stressLevel: level);
+  }
+
+  void updateSymptoms(List<String> symptoms) {
+    state = state.copyWith(symptoms: symptoms);
+  }
+
+  void updateNotes(String notes) {
+    state = state.copyWith(notes: notes);
+  }
+
+  void toggleEditing() {
+    state = state.copyWith(isEditing: !state.isEditing);
+  }
+
+  void loadExistingCheckIn(DailyCheckIn checkIn) {
+    state = state.copyWith(
+      moodScore: (checkIn.moodScore ?? 5).toDouble(),
+      energyLevel: (checkIn.energyLevel ?? 5).toDouble(),
+      sleepQuality: (checkIn.sleepQuality ?? 5).toDouble(),
+      painLevel: (checkIn.painLevel ?? 0).toDouble(),
+      stressLevel: (checkIn.stressLevel ?? 5).toDouble(),
+      symptoms: checkIn.symptoms ?? [],
+      notes: checkIn.notes ?? '',
+      isEditing: false,
+    );
+  }
+
+  Future<bool> saveCheckIn() async {
+    state = state.copyWith(isLoading: true, errorMessage: null);
+
+    try {
+      final request = CreateDailyCheckInRequest(
+        date: _service.formatDateForApi(DateTime.now()),
+        moodScore: state.moodScore.round(),
+        energyLevel: state.energyLevel.round(),
+        sleepQuality: state.sleepQuality.round(),
+        painLevel: state.painLevel.round(),
+        stressLevel: state.stressLevel.round(),
+        symptoms: state.symptoms,
+        notes: state.notes.isNotEmpty ? state.notes : null,
+        completed: true,
+      );
+
+      final result = await _service.createOrUpdateTodaysCheckIn(request);
+
+      return result.fold(
+        (savedCheckIn) {
+          state = state.copyWith(isLoading: false, isEditing: false);
+          return true;
+        },
+        (error) {
+          state = state.copyWith(
+            isLoading: false,
+            errorMessage: 'Failed to save check-in: ${error.toString()}',
+          );
+          return false;
+        },
+      );
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: 'Failed to save check-in: ${e.toString()}',
+      );
+      return false;
+    }
+  }
+}
+
+class DailyCheckInScreen extends ConsumerStatefulWidget {
   const DailyCheckInScreen({super.key});
 
   @override
-  State<DailyCheckInScreen> createState() => _DailyCheckInScreenState();
+  ConsumerState<DailyCheckInScreen> createState() => _DailyCheckInScreenState();
 }
 
-class _DailyCheckInScreenState extends State<DailyCheckInScreen> {
-  late final DailyCheckInService _service;
+class _DailyCheckInScreenState extends ConsumerState<DailyCheckInScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   // Form controllers
   final TextEditingController _notesController = TextEditingController();
   final TextEditingController _symptomsController = TextEditingController();
-
-  // Form state
-  double _moodScore = 5;
-  double _energyLevel = 5;
-  double _sleepQuality = 5;
-  double _painLevel = 0;
-  double _stressLevel = 5;
-  List<String> _symptoms = [];
-  String _notes = '';
-
-  // UI state
-  bool _isLoading = false;
-  DailyCheckIn? _todaysCheckIn;
-  bool _isEditing = false;
 
   // Common symptoms for quick selection
   final List<String> _commonSymptoms = [
@@ -52,11 +191,10 @@ class _DailyCheckInScreenState extends State<DailyCheckInScreen> {
   @override
   void initState() {
     super.initState();
-    _service = DailyCheckInService(
-      apiClient: ApiClient.instance,
-      logger: AppLogger('DailyCheckInScreen'),
-    );
-    _loadTodaysCheckIn();
+    // Load today's check-in when the screen initializes
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadTodaysCheckIn();
+    });
   }
 
   @override
@@ -66,55 +204,15 @@ class _DailyCheckInScreenState extends State<DailyCheckInScreen> {
     super.dispose();
   }
 
-  Future<void> _loadTodaysCheckIn() async {
-    if (!mounted) return;
-
-    setState(() {
-      _isLoading = true;
-    });
-
-    try {
-      final result = await _service.getTodayCheckIn();
-      if (mounted) {
-        result.fold(
-          (checkIn) {
-            setState(() {
-              _todaysCheckIn = checkIn;
-              if (checkIn != null) {
-                _populateFormFromCheckIn(checkIn);
-              }
-              _isLoading = false;
-            });
-          },
-          (error) {
-            setState(() {
-              _isLoading = false;
-            });
-            _showErrorSnackBar(
-                'Failed to load today\'s check-in: ${error.toString()}');
-          },
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-        _showErrorSnackBar('Failed to load today\'s check-in: ${e.toString()}');
-      }
-    }
+  void _loadTodaysCheckIn() {
+    // Refresh the today's check-in provider
+    ref.refresh(todayCheckInProvider);
   }
 
   void _populateFormFromCheckIn(DailyCheckIn checkIn) {
-    _moodScore = checkIn.moodScore?.toDouble() ?? 5;
-    _energyLevel = checkIn.energyLevel?.toDouble() ?? 5;
-    _sleepQuality = checkIn.sleepQuality?.toDouble() ?? 5;
-    _painLevel = checkIn.painLevel?.toDouble() ?? 0;
-    _stressLevel = checkIn.stressLevel?.toDouble() ?? 5;
-    _symptoms = List<String>.from(checkIn.symptoms);
-    _notes = checkIn.notes ?? '';
-    _notesController.text = _notes;
-    _symptomsController.text = _symptoms.join(', ');
+    ref.read(dailyCheckInFormProvider.notifier).loadExistingCheckIn(checkIn);
+    _notesController.text = checkIn.notes ?? '';
+    _symptomsController.text = (checkIn.symptoms ?? []).join(', ');
   }
 
   Future<void> _saveCheckIn() async {

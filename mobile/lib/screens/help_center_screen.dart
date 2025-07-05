@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'video_tutorials_screen.dart';
+import 'user_guide_screen.dart';
+import 'report_issue_screen.dart';
 import '../widgets/widget_optimizer.dart';
 
 class HelpCenterScreen extends StatefulWidget {
@@ -347,22 +350,6 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
       context,
       MaterialPageRoute(
         builder: (context) => const ReportIssueScreen(),
-      ),
-    );
-  }
-
-  void _showComingSoonDialog(String feature) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(feature),
-        content: Text('$feature will be available in a future update.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
-          ),
-        ],
       ),
     );
   }

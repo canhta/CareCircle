@@ -3,6 +3,13 @@ import { PrismaService } from '../prisma/prisma.service';
 import { NotificationBehaviorService } from './notification-behavior.service';
 import { OpenAIService } from '../ai/openai.service';
 import { ConfigService } from '@nestjs/config';
+import { Prisma, UserNotificationBehavior } from '@prisma/client';
+import {
+  BehaviorNotificationContextData,
+  BehaviorSummaryData,
+  BehaviorVectorResult,
+  BehaviorVectorParameters,
+} from '../common/interfaces/notification-behavior.interfaces';
 
 export interface UserBehaviorData {
   userId: string;
@@ -14,7 +21,7 @@ export interface UserBehaviorData {
   timeOfDay: number; // hour of day (0-23)
   dayOfWeek: number; // 0 = Sunday, 6 = Saturday
   notificationType: string;
-  contextData?: Record<string, any>;
+  contextData?: Prisma.JsonValue;
 }
 
 export interface UserEngagementPattern {
@@ -56,7 +63,7 @@ export class UserBehaviorAnalyticsService {
           timeOfDay: behaviorData.timeOfDay,
           dayOfWeek: behaviorData.dayOfWeek,
           notificationType: behaviorData.notificationType,
-          contextData: behaviorData.contextData,
+          contextData: behaviorData.contextData as Prisma.InputJsonValue,
         },
       });
 
@@ -75,7 +82,7 @@ export class UserBehaviorAnalyticsService {
             timeOfDay: behaviorData.timeOfDay,
             dayOfWeek: behaviorData.dayOfWeek,
             notificationType: behaviorData.notificationType,
-            contextData: behaviorData.contextData,
+            contextData: behaviorData.contextData as Record<string, unknown>,
           },
         });
       }
@@ -266,30 +273,44 @@ Focus on identifying optimal timing, notification preferences, and engagement tr
   /**
    * Prepare behavior summary for OpenAI analysis
    */
-  private prepareBehaviorSummary(behaviors: any[]): string {
-    const summary = {
+  private prepareBehaviorSummary(
+    behaviors: UserNotificationBehavior[],
+  ): string {
+    const summary: BehaviorSummaryData = {
       total_notifications: behaviors.length,
-      actions: behaviors.reduce((acc, b) => {
-        acc[b.action] = (acc[b.action] || 0) + 1;
-        return acc;
-      }, {}),
-      notification_types: behaviors.reduce((acc, b) => {
-        acc[b.notificationType] = (acc[b.notificationType] || 0) + 1;
-        return acc;
-      }, {}),
-      time_distribution: behaviors.reduce((acc, b) => {
-        const hour = b.timeOfDay;
-        acc[hour] = (acc[hour] || 0) + 1;
-        return acc;
-      }, {}),
-      day_distribution: behaviors.reduce((acc, b) => {
-        const day = b.dayOfWeek;
-        acc[day] = (acc[day] || 0) + 1;
-        return acc;
-      }, {}),
+      actions: behaviors.reduce(
+        (acc, b) => {
+          acc[b.action] = (acc[b.action] || 0) + 1;
+          return acc;
+        },
+        {} as Record<string, number>,
+      ),
+      notification_types: behaviors.reduce(
+        (acc, b) => {
+          acc[b.notificationType] = (acc[b.notificationType] || 0) + 1;
+          return acc;
+        },
+        {} as Record<string, number>,
+      ),
+      time_distribution: behaviors.reduce(
+        (acc, b) => {
+          const hour = b.timeOfDay;
+          acc[hour] = (acc[hour] || 0) + 1;
+          return acc;
+        },
+        {} as Record<string, number>,
+      ),
+      day_distribution: behaviors.reduce(
+        (acc, b) => {
+          const day = b.dayOfWeek;
+          acc[day] = (acc[day] || 0) + 1;
+          return acc;
+        },
+        {} as Record<string, number>,
+      ),
       response_times: behaviors
         .filter((b) => b.timeToAction)
-        .map((b) => b.timeToAction),
+        .map((b) => b.timeToAction as number),
     };
 
     return JSON.stringify(summary, null, 2);
@@ -353,17 +374,23 @@ Focus on identifying optimal timing, notification preferences, and engagement tr
   /**
    * Create a behavior vector for storing in Milvus
    */
-  private createBehaviorVector(behaviorData: UserBehaviorData): any {
+  private createBehaviorVector(
+    behaviorData: UserBehaviorData,
+  ): BehaviorVectorResult | null {
     try {
       // Create a behavior vector using the notification behavior service
-      const vector = this.notificationBehaviorService.createBehaviorVector({
+      const vectorParams: BehaviorVectorParameters = {
         timeOfDay: behaviorData.timeOfDay,
         dayOfWeek: behaviorData.dayOfWeek,
         action: behaviorData.action,
         notificationType: behaviorData.notificationType,
         timeToAction: behaviorData.timeToAction,
         deviceType: behaviorData.deviceType,
-      });
+        contextData: behaviorData.contextData as Record<string, unknown>,
+      };
+
+      const vector =
+        this.notificationBehaviorService.createBehaviorVector(vectorParams);
 
       return {
         id: `${behaviorData.userId}_${Date.now()}`,
@@ -376,7 +403,7 @@ Focus on identifying optimal timing, notification preferences, and engagement tr
           timeOfDay: behaviorData.timeOfDay,
           dayOfWeek: behaviorData.dayOfWeek,
           responseTime: behaviorData.timeToAction,
-          deviceType: behaviorData.deviceType,
+          deviceType: behaviorData.deviceType || undefined,
         },
       };
     } catch (error) {

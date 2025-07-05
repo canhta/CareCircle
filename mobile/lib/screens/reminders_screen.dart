@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'checkin_reminder_setup_screen.dart';
+import 'appointment_reminder_setup_screen.dart';
+import 'exercise_reminder_setup_screen.dart';
+import 'reminder_management_screen.dart';
 import '../common/common.dart';
 
 class RemindersScreen extends StatefulWidget {
@@ -132,14 +135,24 @@ class _RemindersScreenState extends State<RemindersScreen> {
               title: 'Appointments',
               subtitle: 'Doctor visits',
               color: Colors.orange,
-              onTap: () => _showComingSoonDialog('Appointment Reminders'),
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const AppointmentReminderSetupScreen(),
+                ),
+              ),
             ),
             _buildReminderTypeCard(
               icon: Icons.fitness_center,
               title: 'Exercise',
               subtitle: 'Stay active',
               color: Colors.purple,
-              onTap: () => _showComingSoonDialog('Exercise Reminders'),
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ExerciseReminderSetupScreen(),
+                ),
+              ),
             ),
           ],
         ),
@@ -211,7 +224,12 @@ class _RemindersScreenState extends State<RemindersScreen> {
               ),
             ),
             TextButton(
-              onPressed: () => _showComingSoonDialog('Reminder Management'),
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ReminderManagementScreen(),
+                ),
+              ),
               child: const Text('Manage All'),
             ),
           ],
@@ -353,7 +371,7 @@ class _RemindersScreenState extends State<RemindersScreen> {
           TextButton(
             onPressed: () {
               Navigator.pop(context);
-              _showComingSoonDialog('Reminder Editing');
+              _showEditReminderDialog(reminder);
             },
             child: const Text('Edit'),
           ),
@@ -362,16 +380,38 @@ class _RemindersScreenState extends State<RemindersScreen> {
     );
   }
 
-  void _showComingSoonDialog(String feature) {
+  void _showEditReminderDialog(Map<String, dynamic> reminder) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(feature),
-        content: Text('$feature will be available in a future update.'),
+        title: Text('Edit ${reminder['title']}'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text('Reminder: ${reminder['subtitle']}'),
+            const SizedBox(height: 16),
+            const Text(
+              'Advanced reminder editing is available in the Reminder Management screen.',
+              style: TextStyle(fontSize: 14),
+            ),
+          ],
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ReminderManagementScreen(),
+                ),
+              );
+            },
+            child: const Text('Go to Management'),
           ),
         ],
       ),
