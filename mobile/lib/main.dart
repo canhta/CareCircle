@@ -1,5 +1,7 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 
 // Configuration and Service Locator
 import 'config/service_locator.dart';
@@ -19,6 +21,10 @@ import 'screens/medications_screen.dart';
 import 'screens/health_check_screen.dart';
 import 'screens/care_group_main_screen.dart';
 import 'screens/settings_screen.dart';
+import 'screens/help_center_screen.dart';
+import 'screens/contact_support_screen.dart';
+import 'screens/reminders_screen.dart';
+import 'screens/insights_screen.dart';
 
 // Features and widgets
 import 'features/auth/auth.dart';
@@ -43,6 +49,17 @@ Future<void> main() async {
 
     // Wait for critical services to be ready
     await ServiceLocator.waitForInitialization();
+
+    // Configure Firebase Crashlytics
+    FlutterError.onError = (errorDetails) {
+      FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
+    };
+
+    // Pass all uncaught asynchronous errors to Crashlytics
+    PlatformDispatcher.instance.onError = (error, stack) {
+      FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+      return true;
+    };
 
     // Set Firebase background message handler
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
@@ -95,6 +112,10 @@ class MainApp extends StatelessWidget {
         '/health-check': (context) => const HealthCheckScreen(),
         '/care-group': (context) => const CareGroupScreen(),
         '/settings': (context) => const SettingsScreen(),
+        '/help-center': (context) => const HelpCenterScreen(),
+        '/contact-support': (context) => const ContactSupportScreen(),
+        '/reminders': (context) => const RemindersScreen(),
+        '/insights': (context) => const InsightsScreen(),
       },
     );
   }

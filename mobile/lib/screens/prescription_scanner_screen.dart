@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import '../features/prescription/prescription.dart';
+import '../features/prescription_scanner/prescription_scanner.dart';
 import '../common/common.dart';
 import 'prescription_ocr_results_screen.dart';
 import 'prescription_manual_entry_screen.dart';
@@ -16,7 +17,8 @@ class PrescriptionScannerScreen extends StatefulWidget {
 
 class _PrescriptionScannerScreenState extends State<PrescriptionScannerScreen> {
   late final PrescriptionService _prescriptionService;
-  List<File> _prescriptionImages = [];
+  late final PrescriptionScannerService _scannerService;
+  List<CapturedImage> _prescriptionImages = [];
   bool _isLoading = false;
   String _totalSize = '0 B';
   final Map<String, bool> _scanningImages = {};
@@ -28,6 +30,10 @@ class _PrescriptionScannerScreenState extends State<PrescriptionScannerScreen> {
       apiClient: ApiClient.instance,
       logger: AppLogger('PrescriptionScannerScreen'),
     );
+    _scannerService = PrescriptionScannerService(
+      apiClient: ApiClient.instance,
+      logger: AppLogger('PrescriptionScannerService'),
+    );
     _loadPrescriptionImages();
   }
 
@@ -37,20 +43,122 @@ class _PrescriptionScannerScreenState extends State<PrescriptionScannerScreen> {
       _isLoading = true;
     });
 
-    // TODO: Implement image storage management
-    // For now, start with empty list
-    setState(() {
-      _prescriptionImages = [];
-      _totalSize = '0 B';
-      _isLoading = false;
-    });
+    try {
+      final result = await _scannerService.getAllSavedImages();
+
+      result.fold(
+        (images) {
+          // Calculate total size
+          int totalBytes = 0;
+          for (final image in images) {
+            try {
+              final stats = image.file.statSync();
+              totalBytes += stats.size;
+            } catch (e) {
+              // Skip files that can't be read
+            }
+          }
+
+          setState(() {
+            _prescriptionImages = images;
+            _totalSize = _formatFileSize(totalBytes);
+            _isLoading = false;
+          });
+        },
+        (error) {
+          setState(() {
+            _prescriptionImages = [];
+            _totalSize = '0 B';
+            _isLoading = false;
+          });
+          _showErrorSnackBar(
+              'Error loading images: ${error is NetworkException ? error.message : error.toString()}');
+        },
+      );
+    } catch (e) {
+      setState(() {
+        _prescriptionImages = [];
+        _totalSize = '0 B';
+        _isLoading = false;
+      });
+      _showErrorSnackBar('Error loading images: $e');
+    }
   }
 
-  /// Show image source dialog (placeholder)
-  Future<File?> _showImageSourceDialog(BuildContext context) async {
-    // TODO: Implement proper image picker
-    // For now, return null (no image selected)
-    return null;
+  /// Show image source dialog
+  Future<CapturedImage?> _showImageSourceDialog(BuildContext context) async {
+    return await showDialog<CapturedImage?>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Add Prescription Image'),
+          content:
+              const Text('Choose how you want to add the prescription image:'),
+          actions: [
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () => Navigator.pop(context, null),
+            ),
+            TextButton(
+              child: const Text('Gallery'),
+              onPressed: () async {
+                Navigator.pop(context);
+                final result = await _selectFromGallery();
+                if (mounted) {
+                  Navigator.of(context).pop(result);
+                }
+              },
+            ),
+            TextButton(
+              child: const Text('Camera'),
+              onPressed: () async {
+                Navigator.pop(context);
+                final result = await _captureFromCamera();
+                if (mounted) {
+                  Navigator.of(context).pop(result);
+                }
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  /// Capture image from camera
+  Future<CapturedImage?> _captureFromCamera() async {
+    try {
+      final result = await _scannerService.captureFromCamera();
+      return result.fold(
+        (capturedImage) => capturedImage,
+        (error) {
+          _showErrorSnackBar(
+              'Camera error: ${error is NetworkException ? error.message : error.toString()}');
+          return null;
+        },
+      );
+    } catch (e) {
+      _showErrorSnackBar('Camera error: $e');
+      return null;
+    }
+  }
+
+  /// Select image from gallery
+  Future<CapturedImage?> _selectFromGallery() async {
+    try {
+      final result = await _scannerService.selectFromGallery();
+      return result.fold(
+        (capturedImage) => capturedImage,
+        (error) {
+          _showErrorSnackBar(
+              'Gallery error: ${error is NetworkException ? error.message : error.toString()}');
+          return null;
+        },
+      );
+    } catch (e) {
+      _showErrorSnackBar('Gallery error: $e');
+      return null;
+    }
   }
 
   /// Format file size helper
@@ -69,8 +177,8 @@ class _PrescriptionScannerScreenState extends State<PrescriptionScannerScreen> {
   /// Handles adding a new prescription image
   Future<void> _addPrescriptionImage() async {
     try {
-      final file = await _showImageSourceDialog(context);
-      if (file != null) {
+      final capturedImage = await _showImageSourceDialog(context);
+      if (capturedImage != null) {
         await _loadPrescriptionImages();
         _showSuccessSnackBar('Prescription image added successfully');
       }
@@ -80,15 +188,16 @@ class _PrescriptionScannerScreenState extends State<PrescriptionScannerScreen> {
   }
 
   /// Handles scanning a prescription image with OCR
-  Future<void> _scanPrescriptionImage(File imageFile) async {
-    final imagePath = imageFile.path;
+  Future<void> _scanPrescriptionImage(CapturedImage capturedImage) async {
+    final imagePath = capturedImage.file.path;
 
     setState(() {
       _scanningImages[imagePath] = true;
     });
 
     try {
-      final result = await _prescriptionService.scanPrescription(imageFile);
+      final result =
+          await _prescriptionService.scanPrescription(capturedImage.file);
 
       if (mounted) {
         result.fold(
@@ -98,7 +207,7 @@ class _PrescriptionScannerScreenState extends State<PrescriptionScannerScreen> {
               context,
               MaterialPageRoute(
                 builder: (context) => PrescriptionOCRResultsScreen(
-                  imageFile: imageFile,
+                  imageFile: capturedImage.file,
                   ocrResult: response, // PrescriptionOCRResponse from service
                 ),
               ),
@@ -123,11 +232,17 @@ class _PrescriptionScannerScreenState extends State<PrescriptionScannerScreen> {
   }
 
   /// Delete prescription image helper
-  Future<bool> _deleteImageFile(File imageFile) async {
-    // TODO: Implement actual image deletion from storage
+  Future<bool> _deleteImageFile(CapturedImage capturedImage) async {
     try {
-      await imageFile.delete();
-      return true;
+      final result = await _scannerService.deleteSavedImage(capturedImage.id);
+      return result.fold(
+        (_) => true,
+        (error) {
+          AppLogger('PrescriptionScannerScreen')
+              .error('Error deleting image', error: error);
+          return false;
+        },
+      );
     } catch (e) {
       AppLogger('PrescriptionScannerScreen')
           .error('Error deleting image', error: e);
@@ -136,13 +251,11 @@ class _PrescriptionScannerScreenState extends State<PrescriptionScannerScreen> {
   }
 
   /// Handles deleting a prescription image
-  Future<void> _deletePrescriptionImage(File imageFile) async {
+  Future<void> _deletePrescriptionImage(CapturedImage capturedImage) async {
     final confirmed = await _showDeleteConfirmationDialog();
     if (confirmed) {
       try {
-        final success = await _deleteImageFile(
-          imageFile,
-        );
+        final success = await _deleteImageFile(capturedImage);
         if (success) {
           await _loadPrescriptionImages();
           _showSuccessSnackBar('Prescription image deleted successfully');
@@ -340,15 +453,15 @@ class _PrescriptionScannerScreenState extends State<PrescriptionScannerScreen> {
       ),
       itemCount: _prescriptionImages.length,
       itemBuilder: (context, index) {
-        final imageFile = _prescriptionImages[index];
-        return _buildImageTile(imageFile);
+        final capturedImage = _prescriptionImages[index];
+        return _buildImageTile(capturedImage);
       },
     );
   }
 
   /// Builds individual image tile
-  Widget _buildImageTile(File imageFile) {
-    final imagePath = imageFile.path;
+  Widget _buildImageTile(CapturedImage capturedImage) {
+    final imagePath = capturedImage.file.path;
     final isScanning = _scanningImages[imagePath] ?? false;
 
     return Card(
@@ -357,13 +470,13 @@ class _PrescriptionScannerScreenState extends State<PrescriptionScannerScreen> {
         children: [
           // Image
           GestureDetector(
-            onTap: () => _showFullScreenImage(imageFile),
+            onTap: () => _showFullScreenImage(capturedImage.file),
             child: Container(
               width: double.infinity,
               height: double.infinity,
               decoration: BoxDecoration(
                 image: DecorationImage(
-                  image: FileImage(imageFile),
+                  image: FileImage(capturedImage.file),
                   fit: BoxFit.cover,
                 ),
               ),
@@ -402,7 +515,7 @@ class _PrescriptionScannerScreenState extends State<PrescriptionScannerScreen> {
             top: 8,
             right: 8,
             child: GestureDetector(
-              onTap: () => _deletePrescriptionImage(imageFile),
+              onTap: () => _deletePrescriptionImage(capturedImage),
               child: Container(
                 decoration: const BoxDecoration(
                   color: Colors.red,
@@ -418,7 +531,7 @@ class _PrescriptionScannerScreenState extends State<PrescriptionScannerScreen> {
               top: 8,
               left: 8,
               child: GestureDetector(
-                onTap: () => _scanPrescriptionImage(imageFile),
+                onTap: () => _scanPrescriptionImage(capturedImage),
                 child: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
@@ -451,7 +564,7 @@ class _PrescriptionScannerScreenState extends State<PrescriptionScannerScreen> {
                 ),
               ),
               child: Text(
-                _getImageInfo(imageFile),
+                _getImageInfo(capturedImage.file),
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 12,

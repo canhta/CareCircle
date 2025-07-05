@@ -338,21 +338,126 @@ class FirebaseAuthService implements FirebaseAuthRepository {
   @override
   Future<Result<auth_models.AuthResult>> linkWithCredential(
       auth_models.AuthCredential credential) async {
-    // TODO: Implement when needed
-    return Result.failure(Exception('Not implemented'));
+    try {
+      _logger.info('Linking credential to current user');
+
+      final currentUser = _firebaseAuth.currentUser;
+      if (currentUser == null) {
+        return Result.failure(Exception('No user is currently signed in'));
+      }
+
+      // Convert our credential to Firebase credential
+      AuthCredential firebaseCredential;
+      if (credential is auth_models.GoogleCredential) {
+        firebaseCredential = GoogleAuthProvider.credential(
+          idToken: credential.idToken,
+          accessToken: credential.accessToken,
+        );
+      } else if (credential is auth_models.AppleCredential) {
+        firebaseCredential = OAuthProvider("apple.com").credential(
+          idToken: credential.identityToken,
+          accessToken: credential.authorizationCode,
+        );
+      } else if (credential is auth_models.PhoneCredential) {
+        firebaseCredential = PhoneAuthProvider.credential(
+          verificationId: credential.verificationId,
+          smsCode: credential.smsCode,
+        );
+      } else {
+        return Result.failure(Exception(
+            'Unsupported credential type: ${credential.runtimeType}'));
+      }
+
+      final userCredential =
+          await currentUser.linkWithCredential(firebaseCredential);
+      final authResult = _createAuthResult(userCredential);
+      await _storeUserSession(userCredential.user);
+
+      _logger.info('Credential linked successfully');
+      return Result.success(authResult);
+    } on FirebaseAuthException catch (e) {
+      final errorMessage = _getErrorMessage(e.code);
+      _logger.error('Link credential failed: ${e.code}', error: e);
+      return Result.success(auth_models.AuthResult.failure(errorMessage));
+    } catch (e) {
+      _logger.error('Link credential error', error: e);
+      return Result.success(
+          auth_models.AuthResult.failure('Failed to link credential'));
+    }
   }
 
   @override
   Future<Result<void>> unlinkFromProvider(String providerId) async {
-    // TODO: Implement when needed
-    return Result.failure(Exception('Not implemented'));
+    try {
+      _logger.info('Unlinking provider: $providerId');
+
+      final currentUser = _firebaseAuth.currentUser;
+      if (currentUser == null) {
+        return Result.failure(Exception('No user is currently signed in'));
+      }
+
+      await currentUser.unlink(providerId);
+      _logger.info('Provider unlinked successfully: $providerId');
+      return Result.success(null);
+    } on FirebaseAuthException catch (e) {
+      final errorMessage = _getErrorMessage(e.code);
+      _logger.error('Unlink provider failed: ${e.code}', error: e);
+      return Result.failure(Exception(errorMessage));
+    } catch (e) {
+      _logger.error('Unlink provider error', error: e);
+      return Result.failure(Exception('Failed to unlink provider'));
+    }
   }
 
   @override
   Future<Result<void>> reauthenticateWithCredential(
       auth_models.AuthCredential credential) async {
-    // TODO: Implement when needed
-    return Result.failure(Exception('Not implemented'));
+    try {
+      _logger.info('Reauthenticating with credential');
+
+      final currentUser = _firebaseAuth.currentUser;
+      if (currentUser == null) {
+        return Result.failure(Exception('No user is currently signed in'));
+      }
+
+      // Convert our credential to Firebase credential
+      AuthCredential firebaseCredential;
+      if (credential is auth_models.GoogleCredential) {
+        firebaseCredential = GoogleAuthProvider.credential(
+          idToken: credential.idToken,
+          accessToken: credential.accessToken,
+        );
+      } else if (credential is auth_models.AppleCredential) {
+        firebaseCredential = OAuthProvider("apple.com").credential(
+          idToken: credential.identityToken,
+          accessToken: credential.authorizationCode,
+        );
+      } else if (credential is auth_models.PhoneCredential) {
+        firebaseCredential = PhoneAuthProvider.credential(
+          verificationId: credential.verificationId,
+          smsCode: credential.smsCode,
+        );
+      } else if (credential is auth_models.EmailPasswordCredential) {
+        firebaseCredential = EmailAuthProvider.credential(
+          email: credential.email,
+          password: credential.password,
+        );
+      } else {
+        return Result.failure(Exception(
+            'Unsupported credential type: ${credential.runtimeType}'));
+      }
+
+      await currentUser.reauthenticateWithCredential(firebaseCredential);
+      _logger.info('Reauthentication successful');
+      return Result.success(null);
+    } on FirebaseAuthException catch (e) {
+      final errorMessage = _getErrorMessage(e.code);
+      _logger.error('Reauthentication failed: ${e.code}', error: e);
+      return Result.failure(Exception(errorMessage));
+    } catch (e) {
+      _logger.error('Reauthentication error', error: e);
+      return Result.failure(Exception('Failed to reauthenticate'));
+    }
   }
 
   @override
@@ -409,8 +514,27 @@ class FirebaseAuthService implements FirebaseAuthRepository {
 
   @override
   Future<Result<void>> updateEmail(String newEmail) async {
-    // TODO: Implement when needed
-    return Result.failure(Exception('Not implemented'));
+    try {
+      _logger.info('Updating user email');
+
+      final currentUser = _firebaseAuth.currentUser;
+      if (currentUser == null) {
+        return Result.failure(Exception('No user is currently signed in'));
+      }
+
+      await currentUser.verifyBeforeUpdateEmail(newEmail, forceResending: true);
+      await _storeUserSession(currentUser);
+
+      _logger.info('Email updated successfully');
+      return Result.success(null);
+    } on FirebaseAuthException catch (e) {
+      final errorMessage = _getErrorMessage(e.code);
+      _logger.error('Update email failed: ${e.code}', error: e);
+      return Result.failure(Exception(errorMessage));
+    } catch (e) {
+      _logger.error('Update email error', error: e);
+      return Result.failure(Exception('Failed to update email'));
+    }
   }
 
   @override

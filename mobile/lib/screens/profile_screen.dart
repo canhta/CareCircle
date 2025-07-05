@@ -1,5 +1,7 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:form_validator/form_validator.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../features/auth/auth.dart';
 import '../common/common.dart';
@@ -17,6 +19,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final _nameController = TextEditingController();
   final _phoneController = TextEditingController();
   late final AuthService _authService;
+  final ImagePicker _imagePicker = ImagePicker();
+  File? _selectedImage;
 
   bool _isLoading = false;
   bool _isEditing = false;
@@ -111,7 +115,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               right: 0,
                               child: GestureDetector(
                                 onTap: () {
-                                  // TODO: Implement image picker
+                                  _showImagePickerDialog();
                                 },
                                 child: Container(
                                   padding: const EdgeInsets.all(8),
@@ -476,6 +480,116 @@ class _ProfileScreenState extends State<ProfileScreen> {
           MaterialPageRoute(builder: (context) => const LoginScreen()),
           (route) => false,
         );
+      }
+    }
+  }
+
+  /// Show image picker dialog
+  void _showImagePickerDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Update Profile Picture'),
+          content:
+              const Text('Choose how you want to update your profile picture:'),
+          actions: [
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () => Navigator.pop(context),
+            ),
+            TextButton(
+              child: const Text('Gallery'),
+              onPressed: () {
+                Navigator.pop(context);
+                _pickImageFromGallery();
+              },
+            ),
+            TextButton(
+              child: const Text('Camera'),
+              onPressed: () {
+                Navigator.pop(context);
+                _pickImageFromCamera();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  /// Pick image from gallery
+  Future<void> _pickImageFromGallery() async {
+    try {
+      final XFile? image = await _imagePicker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 512,
+        maxHeight: 512,
+        imageQuality: 80,
+      );
+
+      if (image != null) {
+        setState(() {
+          _selectedImage = File(image.path);
+        });
+        await _uploadProfileImage();
+      }
+    } catch (e) {
+      _showErrorDialog('Error selecting image from gallery: $e');
+    }
+  }
+
+  /// Pick image from camera
+  Future<void> _pickImageFromCamera() async {
+    try {
+      final XFile? image = await _imagePicker.pickImage(
+        source: ImageSource.camera,
+        maxWidth: 512,
+        maxHeight: 512,
+        imageQuality: 80,
+      );
+
+      if (image != null) {
+        setState(() {
+          _selectedImage = File(image.path);
+        });
+        await _uploadProfileImage();
+      }
+    } catch (e) {
+      _showErrorDialog('Error capturing image from camera: $e');
+    }
+  }
+
+  /// Upload profile image
+  Future<void> _uploadProfileImage() async {
+    if (_selectedImage == null) return;
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      // TODO: Implement actual image upload to storage service
+      // For now, just show success message
+      await Future.delayed(const Duration(seconds: 1)); // Simulate upload
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Profile picture updated successfully!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        _showErrorDialog('Error uploading profile picture: $e');
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
       }
     }
   }

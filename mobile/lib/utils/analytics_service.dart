@@ -1,13 +1,22 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:firebase_performance/firebase_performance.dart';
 import '../common/common.dart';
 
 /// Analytics service for tracking user interactions and events
 /// Provides centralized analytics that can be extended with different providers
 class AnalyticsService {
   late final AppLogger _logger;
+  late final FirebaseAnalytics _analytics;
+  late final FirebaseCrashlytics _crashlytics;
+  late final FirebasePerformance _performance;
   bool _isInitialized = false;
 
   AnalyticsService() {
     _logger = AppLogger('AnalyticsService');
+    _analytics = FirebaseAnalytics.instance;
+    _crashlytics = FirebaseCrashlytics.instance;
+    _performance = FirebasePerformance.instance;
   }
 
   bool get isInitialized => _isInitialized;
@@ -22,7 +31,14 @@ class AnalyticsService {
     try {
       _logger.info('Initializing AnalyticsService...');
 
-      // TODO: Initialize actual analytics providers (Firebase Analytics, etc.)
+      // Initialize Firebase Analytics
+      await _analytics.setAnalyticsCollectionEnabled(true);
+
+      // Initialize Firebase Crashlytics
+      await _crashlytics.setCrashlyticsCollectionEnabled(true);
+
+      // Initialize Firebase Performance
+      await _performance.setPerformanceCollectionEnabled(true);
 
       _isInitialized = true;
       _logger.info('AnalyticsService initialized successfully');
@@ -44,13 +60,34 @@ class AnalyticsService {
     _logger.info('Tracking event: $eventName with properties: $properties');
 
     try {
-      // TODO: Send to actual analytics providers
-      // await FirebaseAnalytics.instance.logEvent(name: eventName, parameters: properties);
+      // Convert properties to Firebase Analytics compatible format
+      final Map<String, Object> analyticsProperties = {};
+      for (final entry in properties.entries) {
+        if (entry.value is String ||
+            entry.value is num ||
+            entry.value is bool) {
+          analyticsProperties[entry.key] = entry.value;
+        } else {
+          analyticsProperties[entry.key] = entry.value.toString();
+        }
+      }
 
-      // For now, just log the event
+      // Send to Firebase Analytics
+      await _analytics.logEvent(
+        name: eventName,
+        parameters: analyticsProperties,
+      );
+
       _logger.info('Analytics event tracked successfully');
     } catch (e) {
       _logger.error('Failed to track analytics event: $eventName', error: e);
+
+      // Also log to Crashlytics for debugging
+      await _crashlytics.recordError(
+        e,
+        StackTrace.current,
+        reason: 'Analytics event tracking failed: $eventName',
+      );
     }
   }
 
@@ -169,12 +206,19 @@ class AnalyticsService {
     _logger.info('Setting user property: $name = $value');
 
     try {
-      // TODO: Set user property in actual analytics providers
-      // await FirebaseAnalytics.instance.setUserProperty(name: name, value: value);
+      // Set user property in Firebase Analytics
+      await _analytics.setUserProperty(name: name, value: value);
 
       _logger.info('User property set successfully');
     } catch (e) {
       _logger.error('Failed to set user property: $name', error: e);
+
+      // Log error to Crashlytics
+      await _crashlytics.recordError(
+        e,
+        StackTrace.current,
+        reason: 'Failed to set user property: $name',
+      );
     }
   }
 
@@ -188,12 +232,86 @@ class AnalyticsService {
     _logger.info('Setting user ID: $userId');
 
     try {
-      // TODO: Set user ID in actual analytics providers
-      // await FirebaseAnalytics.instance.setUserId(id: userId);
+      // Set user ID in Firebase Analytics
+      await _analytics.setUserId(id: userId);
+
+      // Set user identifier in Crashlytics
+      await _crashlytics.setUserIdentifier(userId);
 
       _logger.info('User ID set successfully');
     } catch (e) {
       _logger.error('Failed to set user ID', error: e);
+
+      // Log error to Crashlytics
+      await _crashlytics.recordError(
+        e,
+        StackTrace.current,
+        reason: 'Failed to set user ID',
+      );
+    }
+  }
+
+  /// Track error events and send to Crashlytics
+  Future<void> recordError(
+    dynamic error,
+    StackTrace? stackTrace, {
+    String? reason,
+    Map<String, dynamic>? additionalData,
+    bool fatal = false,
+  }) async {
+    try {
+      _logger.error('Recording error: $reason', error: error);
+
+      // Set custom keys for additional context
+      if (additionalData != null) {
+        for (final entry in additionalData.entries) {
+          await _crashlytics.setCustomKey(entry.key, entry.value);
+        }
+      }
+
+      // Record the error
+      await _crashlytics.recordError(
+        error,
+        stackTrace,
+        reason: reason,
+        fatal: fatal,
+      );
+
+      // Also track as analytics event for non-fatal errors
+      if (!fatal) {
+        await trackError(
+          'non_fatal_error',
+          reason ?? error.toString(),
+          additionalProperties: additionalData,
+        );
+      }
+    } catch (e) {
+      _logger.error('Failed to record error', error: e);
+    }
+  }
+
+  /// Create and start a performance trace
+  Trace? startTrace(String traceName) {
+    try {
+      final trace = _performance.newTrace(traceName);
+      trace.start();
+      _logger.info('Started performance trace: $traceName');
+      return trace;
+    } catch (e) {
+      _logger.error('Failed to start trace: $traceName', error: e);
+      return null;
+    }
+  }
+
+  /// Stop a performance trace
+  Future<void> stopTrace(Trace? trace) async {
+    if (trace == null) return;
+
+    try {
+      await trace.stop();
+      _logger.info('Stopped performance trace');
+    } catch (e) {
+      _logger.error('Failed to stop trace', error: e);
     }
   }
 }

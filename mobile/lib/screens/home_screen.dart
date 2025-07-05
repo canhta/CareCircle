@@ -130,7 +130,7 @@ class HomeScreen extends StatelessWidget {
                     title: 'Reminders',
                     subtitle: 'Smart notifications',
                     color: Colors.orange,
-                    onTap: () => _showComingSoon(context, 'Reminders'),
+                    onTap: () => Navigator.pushNamed(context, '/reminders'),
                   ),
                   _buildFeatureCard(
                     context,
@@ -164,7 +164,7 @@ class HomeScreen extends StatelessWidget {
                     title: 'Insights',
                     subtitle: 'Health analytics',
                     color: Colors.indigo,
-                    onTap: () => _showComingSoon(context, 'Insights'),
+                    onTap: () => Navigator.pushNamed(context, '/insights'),
                   ),
                 ],
               ),
@@ -223,30 +223,6 @@ class HomeScreen extends StatelessWidget {
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  void _showComingSoon(BuildContext context, String feature) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Row(
-          children: [
-            Icon(Icons.construction, color: Theme.of(context).primaryColor),
-            const SizedBox(width: 8),
-            Text(feature),
-          ],
-        ),
-        content: Text(
-          '$feature feature is coming soon! We\'re working hard to bring you the best experience.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('OK'),
-          ),
-        ],
       ),
     );
   }

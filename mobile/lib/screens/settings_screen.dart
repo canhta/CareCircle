@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../features/auth/auth.dart';
 import '../common/common.dart';
+import '../models/user_preferences_model.dart';
+import '../services/user_preferences_service.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -11,34 +13,59 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   late final AuthService _authService;
+  late final UserPreferencesService _preferencesService;
   late final AppLogger _logger;
 
-  bool _notificationsEnabled = true;
-  bool _biometricEnabled = false;
-  bool _darkModeEnabled = false;
-  String _language = 'English';
+  UserPreferences? _preferences;
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
     _logger = AppLogger('SettingsScreen');
+    final secureStorage = SecureStorageService();
     _authService = AuthService(
       apiClient: ApiClient.instance,
-      secureStorage: SecureStorageService(),
+      secureStorage: secureStorage,
+      logger: _logger,
+    );
+    _preferencesService = UserPreferencesService(
+      secureStorage: secureStorage,
       logger: _logger,
     );
     _loadSettings();
   }
 
   Future<void> _loadSettings() async {
-    // Load settings from local storage or user preferences
-    // This is a placeholder implementation
-    setState(() {
-      _notificationsEnabled = true;
-      _biometricEnabled = false;
-      _darkModeEnabled = false;
-      _language = 'English';
-    });
+    try {
+      _logger.info('Loading user settings');
+      final preferences = await _preferencesService.loadPreferences();
+
+      if (mounted) {
+        setState(() {
+          _preferences = preferences;
+          _isLoading = false;
+        });
+      }
+
+      _logger.info('Settings loaded successfully');
+    } catch (e) {
+      _logger.error('Failed to load settings', error: e);
+
+      if (mounted) {
+        setState(() {
+          _preferences = const UserPreferences(); // Use defaults
+          _isLoading = false;
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to load settings: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   Future<void> _logout() async {
@@ -82,8 +109,68 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
+  /// Update a specific preference
+  Future<void> _updatePreference<T>(String key, T value) async {
+    try {
+      await _preferencesService.updatePreference(key, value);
+
+      // Reload preferences to update UI
+      final updatedPreferences =
+          await _preferencesService.getCurrentPreferences();
+
+      if (mounted) {
+        setState(() {
+          _preferences = updatedPreferences;
+        });
+
+        // Show success feedback
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Setting updated successfully'),
+            duration: Duration(seconds: 1),
+          ),
+        );
+      }
+
+      _logger.info('Preference updated: $key = $value');
+    } catch (e) {
+      _logger.error('Failed to update preference: $key', error: e);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to update setting: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('Settings'),
+        ),
+        body: const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
+    if (_preferences == null) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('Settings'),
+        ),
+        body: const Center(
+          child: Text('Failed to load settings'),
+        ),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Settings'),
@@ -96,8 +183,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               _buildSwitchTile(
                 'Enable Notifications',
                 'Receive push notifications',
-                _notificationsEnabled,
-                (value) => setState(() => _notificationsEnabled = value),
+                _preferences!.notificationsEnabled,
+                (value) => _updatePreference('notificationsEnabled', value),
               ),
               _buildListTile(
                 'Notification Preferences',
@@ -114,8 +201,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               _buildSwitchTile(
                 'Biometric Authentication',
                 'Use fingerprint or face ID',
-                _biometricEnabled,
-                (value) => setState(() => _biometricEnabled = value),
+                _preferences!.biometricEnabled,
+                (value) => _updatePreference('biometricEnabled', value),
               ),
               _buildListTile(
                 'Privacy Settings',
@@ -138,12 +225,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
               _buildSwitchTile(
                 'Dark Mode',
                 'Use dark theme',
-                _darkModeEnabled,
-                (value) => setState(() => _darkModeEnabled = value),
+                _preferences!.darkModeEnabled,
+                (value) => _updatePreference('darkModeEnabled', value),
               ),
               _buildListTile(
                 'Language',
-                _language,
+                _preferences!.language,
                 Icons.language_outlined,
                 _showLanguageDialog,
               ),
@@ -175,13 +262,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 'Help Center',
                 'Get help and support',
                 Icons.help_outline,
-                () => _showComingSoon(),
+                () => Navigator.pushNamed(context, '/help-center'),
               ),
               _buildListTile(
                 'Contact Support',
                 'Get in touch with our team',
                 Icons.contact_support_outlined,
-                () => _showComingSoon(),
+                () => Navigator.pushNamed(context, '/contact-support'),
               ),
               _buildListTile(
                 'About',
@@ -263,42 +350,34 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   void _showLanguageDialog() {
+    if (_preferences == null) return;
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Select Language'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
-          children: [
-            RadioListTile<String>(
-              title: const Text('English'),
-              value: 'English',
-              groupValue: _language,
+          children: AppLanguages.availableLanguages.map((language) {
+            return RadioListTile<String>(
+              title: Text(language),
+              value: language,
+              groupValue: _preferences!.language,
               onChanged: (value) {
-                setState(() => _language = value!);
-                Navigator.pop(context);
+                if (value != null) {
+                  _updatePreference('language', value);
+                  Navigator.pop(context);
+                }
               },
-            ),
-            RadioListTile<String>(
-              title: const Text('Spanish'),
-              value: 'Spanish',
-              groupValue: _language,
-              onChanged: (value) {
-                setState(() => _language = value!);
-                Navigator.pop(context);
-              },
-            ),
-            RadioListTile<String>(
-              title: const Text('French'),
-              value: 'French',
-              groupValue: _language,
-              onChanged: (value) {
-                setState(() => _language = value!);
-                Navigator.pop(context);
-              },
-            ),
-          ],
+            );
+          }).toList(),
         ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+        ],
       ),
     );
   }
@@ -315,14 +394,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
           'CareCircle helps you stay connected with your loved ones and manage your health together.',
         ),
       ],
-    );
-  }
-
-  void _showComingSoon() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Coming soon!'),
-      ),
     );
   }
 }
