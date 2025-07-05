@@ -28,39 +28,54 @@ export class WebhookService {
     try {
       switch (payload.event) {
         case WebhookEventType.PAYMENT_SUCCEEDED:
+          if (!payload.data.payment) {
+            throw new BadRequestException('Payment data is missing');
+          }
           return this.processPaymentSuccess(
             payload.data.payment.id,
-            payload.data.payment.paymentReference,
+            payload.data.payment.paymentReference || '',
             PaymentProvider.STRIPE,
           );
 
         case WebhookEventType.PAYMENT_FAILED:
+          if (!payload.data.payment) {
+            throw new BadRequestException('Payment data is missing');
+          }
           return this.processPaymentFailure(
             payload.data.payment.id,
-            payload.data.payment.paymentReference,
+            payload.data.payment.paymentReference || '',
             PaymentProvider.STRIPE,
           );
 
         case WebhookEventType.PAYMENT_REFUNDED:
+          if (!payload.data.payment) {
+            throw new BadRequestException('Payment data is missing');
+          }
           return this.processPaymentRefund(
             payload.data.payment.id,
-            payload.data.payment.paymentReference,
+            payload.data.payment.paymentReference || '',
             PaymentProvider.STRIPE,
           );
 
         case WebhookEventType.SUBSCRIPTION_CREATED:
         case WebhookEventType.SUBSCRIPTION_UPDATED:
+          if (!payload.data.subscription) {
+            throw new BadRequestException('Subscription data is missing');
+          }
           return this.processSubscriptionUpdate(
             payload.data.subscription.id,
-            payload.data.subscription.paymentReference,
-            payload.data.subscription.currentPeriodEnd,
+            payload.data.subscription.paymentReference || '',
+            payload.data.subscription.currentPeriodEnd || '',
             PaymentProvider.STRIPE,
           );
 
         case WebhookEventType.SUBSCRIPTION_CANCELLED:
+          if (!payload.data.subscription) {
+            throw new BadRequestException('Subscription data is missing');
+          }
           return this.processSubscriptionCancellation(
             payload.data.subscription.id,
-            payload.data.subscription.paymentReference,
+            payload.data.subscription.paymentReference || '',
             PaymentProvider.STRIPE,
           );
 
@@ -140,7 +155,7 @@ export class WebhookService {
       // Extract subscription ID from embed_data
       const paymentReference = this.extractPaymentReference(
         payload.embed_data,
-        null,
+        undefined,
       );
 
       if (payload.status === '1') {

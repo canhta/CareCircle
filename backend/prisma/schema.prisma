@@ -27,6 +27,9 @@ model User {
   isActive      Boolean   @default(true)
   lastLoginAt   DateTime?
 
+  // System roles
+  roles SystemRole[] @default([USER])
+
   // SSO
   googleId String?
   appleId  String?
@@ -72,6 +75,11 @@ model User {
   referralCodes ReferralCode[]
   referrals     Referral[]
 
+  // Audit and compliance relations
+  auditLogs          AuditLog[]
+  userConsents       UserConsent[]
+  dataAccessRequests DataAccessRequest[]
+
   @@map("users")
 }
 
@@ -80,6 +88,14 @@ enum Gender {
   FEMALE
   OTHER
   PREFER_NOT_TO_SAY
+}
+
+enum SystemRole {
+  SUPER_ADMIN
+  ADMIN
+  HEALTHCARE_PROVIDER
+  USER
+  GUEST
 }
 
 // Health Data Integration
@@ -1018,4 +1034,82 @@ enum ReferralStatus {
   COMPLETED
   EXPIRED
   CANCELLED
+}
+
+// Comprehensive Audit Logging
+model AuditLog {
+  id     String  @id @default(uuid())
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  // Event details
+  action   String
+  resource String
+  details  Json?
+
+  // Request context
+  ip            String?
+  userAgent     String?
+  correlationId String?
+
+  // Metadata
+  timestamp DateTime @default(now())
+
+  @@index([userId, timestamp])
+  @@index([action, timestamp])
+  @@index([correlationId])
+  @@map("audit_logs")
+}
+
+// System Metrics for monitoring and analytics
+model Metric {
+  id        String   @id @default(uuid())
+  name      String
+  value     Float
+  tags      Json? // Key-value pairs for filtering
+  timestamp DateTime @default(now())
+
+  @@index([name, timestamp])
+  @@index([timestamp])
+  @@map("metrics")
+}
+
+// User Consent Management for GDPR compliance
+model UserConsent {
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  consentType String // DATA_PROCESSING, DATA_SHARING, MARKETING, etc.
+  granted     Boolean
+  version     String // Consent version for tracking changes
+
+  // Context
+  ipAddress String?
+  userAgent String?
+  timestamp DateTime @default(now())
+
+  @@index([userId, consentType])
+  @@index([timestamp])
+  @@map("user_consents")
+}
+
+// Data Access Requests for GDPR compliance
+model DataAccessRequest {
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  requestType String // ACCESS, EXPORT, DELETE, RECTIFICATION
+  status      String // PENDING, APPROVED, REJECTED, COMPLETED
+  requestedBy String // User ID who made the request
+
+  requestDate   DateTime  @default(now())
+  completedDate DateTime?
+
+  details Json? // Additional request details
+
+  @@index([userId, status])
+  @@index([requestDate])
+  @@map("data_access_requests")
 }

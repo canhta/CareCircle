@@ -18,38 +18,6 @@ export enum WebhookEventType {
   SUBSCRIPTION_CANCELLED = 'subscription.cancelled',
 }
 
-export class WebhookPayloadDto {
-  @IsString()
-  id: string; // Webhook event ID
-
-  @IsEnum(WebhookEventType)
-  event: WebhookEventType;
-
-  @IsString()
-  @IsOptional()
-  livemode?: boolean;
-
-  @IsDateString()
-  created: string;
-
-  @IsObject()
-  @ValidateNested()
-  @Type(() => WebhookDataDto)
-  data: WebhookDataDto;
-}
-
-export class WebhookDataDto {
-  @IsObject()
-  @ValidateNested()
-  @Type(() => WebhookPaymentDto)
-  payment?: WebhookPaymentDto;
-
-  @IsObject()
-  @ValidateNested()
-  @Type(() => WebhookSubscriptionDto)
-  subscription?: WebhookSubscriptionDto;
-}
-
 export class WebhookPaymentDto {
   @IsString()
   id: string; // Provider's payment ID
@@ -96,6 +64,38 @@ export class WebhookSubscriptionDto {
   @IsObject()
   @IsOptional()
   metadata?: Record<string, any>;
+}
+
+export class WebhookDataDto {
+  @IsObject()
+  @ValidateNested()
+  @Type(() => WebhookPaymentDto)
+  payment?: WebhookPaymentDto;
+
+  @IsObject()
+  @ValidateNested()
+  @Type(() => WebhookSubscriptionDto)
+  subscription?: WebhookSubscriptionDto;
+}
+
+export class WebhookPayloadDto {
+  @IsString()
+  id: string; // Webhook event ID
+
+  @IsEnum(WebhookEventType)
+  event: WebhookEventType;
+
+  @IsString()
+  @IsOptional()
+  livemode?: boolean;
+
+  @IsDateString()
+  created: string;
+
+  @IsObject()
+  @ValidateNested()
+  @Type(() => WebhookDataDto)
+  data: WebhookDataDto;
 }
 
 // Provider-specific webhook DTOs
