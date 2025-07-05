@@ -1,27 +1,19 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { NotificationService } from './notification.service';
 import { UserBehaviorAnalyticsService } from './user-behavior-analytics.service';
-import { HealthInsight } from '../insights/insight-generator.service';
 import {
   NotificationType,
   NotificationChannel,
   NotificationPriority,
 } from '@prisma/client';
-
-export interface InteractiveNotificationOptions {
-  userId: string;
-  triggerType: 'insight' | 'risk_alert' | 'follow_up' | 'engagement';
-  triggerData: any;
-  priority: 'low' | 'medium' | 'high' | 'critical';
-  actions?: InteractiveAction[];
-}
-
-export interface InteractiveAction {
-  id: string;
-  label: string;
-  type: 'quick_response' | 'navigate' | 'schedule' | 'contact';
-  payload?: any;
-}
+import {
+  InteractiveNotificationOptions,
+  InteractiveAction,
+  HealthInsight,
+  NotificationPriorityLevel,
+  InteractiveTriggerType,
+} from '../common/interfaces/notification.interfaces';
+import { UserInteractionData } from '../common/interfaces';
 
 @Injectable()
 export class InteractiveNotificationService {
@@ -38,7 +30,7 @@ export class InteractiveNotificationService {
   async processInsightNotifications(
     userId: string,
     insights: HealthInsight[],
-    checkInData?: any,
+    checkInData?: Record<string, unknown>,
   ): Promise<void> {
     try {
       for (const insight of insights) {
@@ -94,7 +86,7 @@ export class InteractiveNotificationService {
     userId: string,
     notificationId: string,
     actionId: string,
-    responseData?: any,
+    responseData?: unknown,
   ): Promise<void> {
     try {
       // Track the interaction using existing behavior analytics
@@ -107,7 +99,13 @@ export class InteractiveNotificationService {
         timeOfDay: new Date().getHours(),
         dayOfWeek: new Date().getDay(),
         notificationType: 'interactive',
-        contextData: { actionId, responseData },
+        contextData: {
+          actionId,
+          // Convert responseData to string to ensure JSON compatibility
+          responseDataStr: responseData
+            ? JSON.stringify(responseData)
+            : undefined,
+        },
       });
 
       // Process the specific action
@@ -129,9 +127,7 @@ export class InteractiveNotificationService {
     return insight.severity === 'high' || insight.type === 'concern';
   }
 
-  private mapSeverityToPriority(
-    severity: string,
-  ): 'low' | 'medium' | 'high' | 'critical' {
+  private mapSeverityToPriority(severity: string): NotificationPriorityLevel {
     switch (severity) {
       case 'high':
         return 'high';
@@ -164,15 +160,17 @@ export class InteractiveNotificationService {
   }
 
   private generateNotificationContent(
-    triggerType: string,
-    triggerData: any,
+    triggerType: InteractiveTriggerType,
+    triggerData: unknown,
   ): { title: string; message: string } {
+    const typedTriggerData = triggerData as { insight?: HealthInsight };
+
     switch (triggerType) {
       case 'insight':
         return {
           title: '💡 Health Insight',
           message:
-            triggerData.insight?.description ||
+            typedTriggerData.insight?.description ||
             'We have important health insights for you.',
         };
       case 'risk_alert':
@@ -190,7 +188,7 @@ export class InteractiveNotificationService {
   }
 
   private mapTriggerTypeToNotificationType(
-    triggerType: string,
+    triggerType: InteractiveTriggerType,
   ): NotificationType {
     switch (triggerType) {
       case 'insight':
@@ -204,7 +202,9 @@ export class InteractiveNotificationService {
     }
   }
 
-  private getChannelsForPriority(priority: string): NotificationChannel[] {
+  private getChannelsForPriority(
+    priority: NotificationPriorityLevel,
+  ): NotificationChannel[] {
     switch (priority) {
       case 'critical':
         return ['PUSH', 'IN_APP', 'SMS'];
@@ -217,7 +217,9 @@ export class InteractiveNotificationService {
     }
   }
 
-  private mapPriorityToEnum(priority: string): NotificationPriority {
+  private mapPriorityToEnum(
+    priority: NotificationPriorityLevel,
+  ): NotificationPriority {
     switch (priority) {
       case 'critical':
         return 'CRITICAL';
@@ -230,7 +232,7 @@ export class InteractiveNotificationService {
     }
   }
 
-  private getActionUrlForTrigger(triggerType: string): string {
+  private getActionUrlForTrigger(triggerType: InteractiveTriggerType): string {
     switch (triggerType) {
       case 'insight':
         return '/insights';
@@ -246,12 +248,22 @@ export class InteractiveNotificationService {
   private async processInteractiveAction(
     userId: string,
     actionId: string,
-    responseData?: any,
+    responseData?: unknown,
   ): Promise<void> {
-    // Delegate to appropriate domain services based on action type
-    this.logger.log(
-      `Processing interactive action ${actionId} for user ${userId}`,
-    );
-    // Implementation would delegate to domain-specific services
+    // Process different types of actions
+    switch (actionId) {
+      case 'contact_caregiver':
+        // Notify caregivers
+        break;
+      case 'view_details':
+        // Nothing to do here, this is handled by frontend
+        break;
+      case 'acknowledge':
+        // Update acknowledgement status
+        break;
+      default:
+        // Custom action handling here
+        break;
+    }
   }
 }

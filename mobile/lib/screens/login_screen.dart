@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:form_validator/form_validator.dart';
-import 'package:go_router/go_router.dart';
 
 import '../features/auth/auth.dart';
 import '../common/common.dart';
@@ -96,8 +95,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final loginState = ref.watch(loginStateProvider);
-
     // Show error snackbar when there's an error
     ref.listen(loginStateProvider, (previous, next) {
       if (next.errorMessage != null &&

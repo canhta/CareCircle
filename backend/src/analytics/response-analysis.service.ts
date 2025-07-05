@@ -338,12 +338,12 @@ export class ResponseAnalysisService {
           label === 'neutral' ||
           label === 'negative'
         ) {
-          result.sentimentLabel = label as 'positive' | 'neutral' | 'negative';
+          result.sentimentLabel = label;
         }
       } else if (line.includes('Risk Level:')) {
         const level = line.split(':')[1].trim().toLowerCase();
         if (level === 'low' || level === 'medium' || level === 'high') {
-          result.riskLevel = level as 'low' | 'medium' | 'high';
+          result.riskLevel = level;
         }
       } else if (line.includes('Risk Score:')) {
         result.riskScore = parseFloat(line.split(':')[1].trim());
@@ -402,7 +402,7 @@ export class ResponseAnalysisService {
 
     let baselineValue = 0;
     let thresholdPercent = 0.25; // Default threshold 25%
-    let thresholdAbsolute = 2; // Default absolute threshold
+    const thresholdAbsolute = 2; // Default absolute threshold
     let isAnomaly = false;
     let direction = '';
 

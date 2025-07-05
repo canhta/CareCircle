@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import '../config/service_locator.dart';
 import '../common/logging/app_logger.dart';
-import '../utils/notification_manager.dart';
 
 class AppointmentReminderSetupScreen extends StatefulWidget {
   const AppointmentReminderSetupScreen({super.key});
 
   @override
-  State<AppointmentReminderSetupScreen> createState() => _AppointmentReminderSetupScreenState();
+  State<AppointmentReminderSetupScreen> createState() =>
+      _AppointmentReminderSetupScreenState();
 }
 
-class _AppointmentReminderSetupScreenState extends State<AppointmentReminderSetupScreen> {
+class _AppointmentReminderSetupScreenState
+    extends State<AppointmentReminderSetupScreen> {
   bool _enableReminders = true;
   String _selectedAdvanceTime = '1 hour';
   bool _enableSecondReminder = false;
@@ -165,7 +166,8 @@ class _AppointmentReminderSetupScreenState extends State<AppointmentReminderSetu
               value: _selectedAdvanceTime,
               decoration: const InputDecoration(
                 border: OutlineInputBorder(),
-                contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                contentPadding:
+                    EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               ),
               items: _advanceTimes.map((time) {
                 return DropdownMenuItem(
@@ -233,7 +235,8 @@ class _AppointmentReminderSetupScreenState extends State<AppointmentReminderSetu
                 value: _selectedSecondAdvanceTime,
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
-                  contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  contentPadding:
+                      EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   labelText: 'Second reminder time',
                 ),
                 items: _advanceTimes.map((time) {
@@ -333,7 +336,6 @@ class _AppointmentReminderSetupScreenState extends State<AppointmentReminderSetu
 
     try {
       final logger = ServiceLocator.get<AppLogger>();
-      final notificationManager = ServiceLocator.get<NotificationManager>();
 
       if (_enableReminders) {
         // Save appointment reminder preferences
@@ -349,7 +351,8 @@ class _AppointmentReminderSetupScreenState extends State<AppointmentReminderSetu
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Appointment reminder settings saved successfully!'),
+              content:
+                  Text('Appointment reminder settings saved successfully!'),
               backgroundColor: Colors.green,
             ),
           );
@@ -357,7 +360,7 @@ class _AppointmentReminderSetupScreenState extends State<AppointmentReminderSetu
       } else {
         // Disable appointment reminders
         logger.info('Appointment reminders disabled');
-        
+
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -376,7 +379,7 @@ class _AppointmentReminderSetupScreenState extends State<AppointmentReminderSetu
     } catch (e) {
       final logger = ServiceLocator.get<AppLogger>();
       logger.error('Failed to save appointment reminder settings', error: e);
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(

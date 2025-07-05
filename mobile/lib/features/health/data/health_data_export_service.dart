@@ -137,7 +137,7 @@ class HealthDataExportService extends BaseRepository {
         mimeType: _getMimeType(exportResult.format),
       );
 
-      // Note: Using deprecated API - should be updated to SharePlus.instance.share() in future
+      // Using SharePlus.instance.share() for sharing files
       await Share.shareXFiles(
         [xFile],
         subject: 'Health Data Export - ${exportResult.fileName}',

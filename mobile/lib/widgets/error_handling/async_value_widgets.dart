@@ -43,8 +43,8 @@ class ErrorDisplayWidget extends StatelessWidget {
             Text(
               customMessage ?? errorMessage,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                color: errorColor,
-              ),
+                    color: errorColor,
+                  ),
               textAlign: TextAlign.center,
             ),
             if (showDetails && error.toString().isNotEmpty) ...[
@@ -52,8 +52,8 @@ class ErrorDisplayWidget extends StatelessWidget {
               Text(
                 error.toString(),
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Colors.grey[600],
-                ),
+                      color: Colors.grey[600],
+                    ),
                 textAlign: TextAlign.center,
               ),
             ],
@@ -79,7 +79,7 @@ class ErrorDisplayWidget extends StatelessWidget {
     if (error is NetworkException) {
       final networkError = error as NetworkException;
       switch (networkError.type) {
-        case NetworkExceptionType.noInternet:
+        case NetworkExceptionType.noConnection:
           return 'No internet connection. Please check your network and try again.';
         case NetworkExceptionType.timeout:
           return 'Request timed out. Please try again.';
@@ -89,16 +89,16 @@ class ErrorDisplayWidget extends StatelessWidget {
           return 'Access to this resource is forbidden.';
         case NetworkExceptionType.notFound:
           return 'The requested resource was not found.';
-        case NetworkExceptionType.serverError:
+        case NetworkExceptionType.server:
           return 'Server error occurred. Please try again later.';
         case NetworkExceptionType.unknown:
         default:
-          return networkError.message.isNotEmpty 
-              ? networkError.message 
+          return networkError.message.isNotEmpty
+              ? networkError.message
               : 'An unexpected error occurred.';
       }
     }
-    
+
     return 'An unexpected error occurred. Please try again.';
   }
 
@@ -106,7 +106,7 @@ class ErrorDisplayWidget extends StatelessWidget {
     if (error is NetworkException) {
       final networkError = error as NetworkException;
       switch (networkError.type) {
-        case NetworkExceptionType.noInternet:
+        case NetworkExceptionType.noConnection:
           return Icons.wifi_off;
         case NetworkExceptionType.timeout:
           return Icons.access_time;
@@ -115,14 +115,14 @@ class ErrorDisplayWidget extends StatelessWidget {
           return Icons.lock;
         case NetworkExceptionType.notFound:
           return Icons.search_off;
-        case NetworkExceptionType.serverError:
-          return Icons.server_error;
+        case NetworkExceptionType.server:
+          return Icons.error;
         case NetworkExceptionType.unknown:
         default:
           return Icons.error_outline;
       }
     }
-    
+
     return Icons.error_outline;
   }
 
@@ -130,7 +130,7 @@ class ErrorDisplayWidget extends StatelessWidget {
     if (error is NetworkException) {
       final networkError = error as NetworkException;
       switch (networkError.type) {
-        case NetworkExceptionType.noInternet:
+        case NetworkExceptionType.noConnection:
           return Colors.orange;
         case NetworkExceptionType.timeout:
           return Colors.amber;
@@ -139,14 +139,14 @@ class ErrorDisplayWidget extends StatelessWidget {
           return Colors.red;
         case NetworkExceptionType.notFound:
           return Colors.grey;
-        case NetworkExceptionType.serverError:
+        case NetworkExceptionType.server:
           return Colors.red;
         case NetworkExceptionType.unknown:
         default:
           return Theme.of(context).colorScheme.error;
       }
     }
-    
+
     return Theme.of(context).colorScheme.error;
   }
 }
@@ -178,8 +178,8 @@ class LoadingDisplayWidget extends StatelessWidget {
             Text(
               message ?? 'Loading...',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Colors.grey[600],
-              ),
+                    color: Colors.grey[600],
+                  ),
             ),
           ],
         ],
@@ -222,8 +222,8 @@ class EmptyStateWidget extends StatelessWidget {
             Text(
               title,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                color: Colors.grey[600],
-              ),
+                    color: Colors.grey[600],
+                  ),
               textAlign: TextAlign.center,
             ),
             if (subtitle != null) ...[
@@ -231,8 +231,8 @@ class EmptyStateWidget extends StatelessWidget {
               Text(
                 subtitle!,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Colors.grey[500],
-                ),
+                      color: Colors.grey[500],
+                    ),
                 textAlign: TextAlign.center,
               ),
             ],
@@ -277,12 +277,14 @@ class AsyncValueWidget<T> extends StatelessWidget {
     return value.when(
       data: data,
       loading: () => loading ?? LoadingDisplayWidget(message: loadingMessage),
-      error: (err, stack) => error?.call(err, stack) ?? ErrorDisplayWidget(
-        error: err,
-        stackTrace: stack,
-        customMessage: errorMessage,
-        onRetry: onRetry,
-      ),
+      error: (err, stack) =>
+          error?.call(err, stack) ??
+          ErrorDisplayWidget(
+            error: err,
+            stackTrace: stack,
+            customMessage: errorMessage,
+            onRetry: onRetry,
+          ),
     );
   }
 }
@@ -321,17 +323,19 @@ extension AsyncValueUI on AsyncValue {
             onRetry: onRetry,
           );
     }
-    
+
     return const SizedBox.shrink();
   }
 }
 
 /// Helper function to create a standardized error snackbar
-void showErrorSnackBar(BuildContext context, Object error, {VoidCallback? onRetry}) {
+void showErrorSnackBar(BuildContext context, Object error,
+    {VoidCallback? onRetry}) {
   String message = 'An error occurred';
-  
+
   if (error is NetworkException) {
-    message = error.message.isNotEmpty ? error.message : 'Network error occurred';
+    message =
+        error.message.isNotEmpty ? error.message : 'Network error occurred';
   } else {
     message = error.toString();
   }

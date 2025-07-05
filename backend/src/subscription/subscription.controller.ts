@@ -93,9 +93,7 @@ export class SubscriptionController {
   }
 
   @Get('user-subscriptions')
-  async findUserSubscriptions(
-    @Request() req: RequestWithUser,
-  ): Promise<
+  async findUserSubscriptions(@Request() req: RequestWithUser): Promise<
     (UserSubscription & {
       subscriptionPlan: SubscriptionPlan;
       payments: Payment[];

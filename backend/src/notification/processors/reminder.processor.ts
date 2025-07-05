@@ -2,7 +2,8 @@ import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Logger } from '@nestjs/common';
 import { Job } from 'bullmq';
 import { PrismaService } from '../../prisma/prisma.service';
-import { NotificationService, ReminderData } from '../notification.service';
+import { NotificationService } from '../notification.service';
+import { ReminderData } from '../../common/interfaces/notification.interfaces';
 import { Reminder, Prescription, User } from '@prisma/client';
 
 interface ReminderWithPrescription extends Reminder {

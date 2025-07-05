@@ -8,14 +8,15 @@ class CheckinReminderSetupScreen extends StatefulWidget {
   const CheckinReminderSetupScreen({super.key});
 
   @override
-  State<CheckinReminderSetupScreen> createState() => _CheckinReminderSetupScreenState();
+  State<CheckinReminderSetupScreen> createState() =>
+      _CheckinReminderSetupScreenState();
 }
 
-class _CheckinReminderSetupScreenState extends State<CheckinReminderSetupScreen> {
+class _CheckinReminderSetupScreenState
+    extends State<CheckinReminderSetupScreen> {
   bool _enableReminders = true;
   TimeOfDay _reminderTime = const TimeOfDay(hour: 9, minute: 0);
   String _selectedFrequency = 'Daily';
-  bool _enableWeekends = true;
   bool _isLoading = false;
 
   final List<String> _frequencies = [
@@ -332,7 +333,7 @@ class _CheckinReminderSetupScreenState extends State<CheckinReminderSetupScreen>
       context: context,
       initialTime: _reminderTime,
     );
-    
+
     if (picked != null && picked != _reminderTime) {
       setState(() {
         _reminderTime = picked;
@@ -416,7 +417,7 @@ class _CheckinReminderSetupScreenState extends State<CheckinReminderSetupScreen>
             backgroundColor: Colors.green,
           ),
         );
-        
+
         Navigator.of(context).pop();
       }
     } catch (e) {

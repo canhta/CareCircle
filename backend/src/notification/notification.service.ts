@@ -15,29 +15,21 @@ import {
   NotificationPriority,
   ReminderStatus,
   Notification,
+  User,
+  Reminder,
+  Prescription,
+  CareGroup,
+  Prisma,
 } from '@prisma/client';
 
-export interface NotificationPayload {
-  userId: string;
-  title: string;
-  message: string;
-  type: NotificationType;
-  channels: NotificationChannel[];
-  priority?: NotificationPriority;
-  actionUrl?: string;
-  scheduledFor?: Date;
-  templateData?: Record<string, any>;
-}
-
-export interface ReminderData {
-  id: string;
-  prescriptionId: string;
-  userId: string;
-  medicationName: string;
-  dosage: string;
-  scheduledAt: Date;
-  frequency: string;
-}
+import {
+  NotificationPayload,
+  NotificationTemplateData,
+  ReminderData,
+  WeeklyHealthInsights,
+  CareGroupSummary,
+  PrescriptionWithMetadata,
+} from '../common/interfaces';
 
 @Injectable()
 export class NotificationService {
@@ -276,7 +268,6 @@ export class NotificationService {
       where: {
         id: notificationId,
         userId,
-        readAt: null,
       },
       data: {
         readAt: new Date(),
@@ -405,17 +396,16 @@ export class NotificationService {
   }
 
   /**
-   * Cron job to process pending medication reminders
+   * Process pending medication reminders
    */
-  @Cron('0 * * * * *') // Every minute
+  @Cron('*/5 * * * *') // Every 5 minutes
   async processPendingReminders(): Promise<void> {
-    const now = new Date();
     const reminders = await this.prisma.reminder.findMany({
       where: {
-        status: ReminderStatus.PENDING,
         scheduledAt: {
-          lte: now,
+          lte: new Date(),
         },
+        status: ReminderStatus.PENDING,
       },
       include: {
         prescription: {
@@ -459,17 +449,18 @@ export class NotificationService {
   }
 
   /**
-   * Cron job to send daily check-in reminders
+   * Send daily check-in reminders to users
    */
-  @Cron('0 0 9 * * *') // Every day at 9 AM
+  @Cron('0 9 * * *') // Every day at 9 AM
   async sendDailyCheckInReminders(): Promise<void> {
     const users = await this.prisma.user.findMany({
       where: {
         isActive: true,
-      },
-      select: {
-        id: true,
-        timezone: true,
+        subscriptions: {
+          some: {
+            status: 'ACTIVE',
+          },
+        },
       },
     });
 
@@ -497,18 +488,15 @@ export class NotificationService {
   /**
    * Clean up old notifications
    */
-  @Cron('0 0 0 * * 0') // Every Sunday at midnight
+  @Cron('0 3 * * *') // Every day at 3 AM
   async cleanupOldNotifications(): Promise<void> {
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    const threeMonthsAgo = new Date();
+    threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
 
     const result = await this.prisma.notification.deleteMany({
       where: {
         createdAt: {
-          lt: thirtyDaysAgo,
-        },
-        readAt: {
-          not: null,
+          lt: threeMonthsAgo,
         },
       },
     });
@@ -517,16 +505,16 @@ export class NotificationService {
   }
 
   /**
-   * Convert priority enum to numeric value for queue priority
+   * Get priority value for queue
    */
   private getPriorityValue(priority: NotificationPriority): number {
     const priorityMap = {
-      [NotificationPriority.LOW]: 10,
-      [NotificationPriority.NORMAL]: 5,
-      [NotificationPriority.HIGH]: 2,
-      [NotificationPriority.CRITICAL]: 1,
+      [NotificationPriority.LOW]: 3,
+      [NotificationPriority.NORMAL]: 2,
+      [NotificationPriority.HIGH]: 1,
+      [NotificationPriority.CRITICAL]: 0,
     };
-    return priorityMap[priority];
+    return priorityMap[priority] ?? 2;
   }
 
   /**
@@ -920,10 +908,10 @@ export class NotificationService {
   }
 
   /**
-   * Helper method to create reminders for a prescription
+   * Create reminders for prescription
    */
   private async createRemindersForPrescription(
-    prescription: any,
+    prescription: Prescription,
   ): Promise<void> {
     // This is a simplified version - in a real implementation,
     // you would parse the frequency and create appropriate reminder schedules
@@ -960,12 +948,11 @@ export class NotificationService {
   }
 
   /**
-   * Helper method to generate weekly insights (placeholder)
+   * Generate weekly insights for user
    */
-  private async generateWeeklyInsights(userId: string): Promise<{
-    summary: string;
-    metrics: Record<string, any>;
-  } | null> {
+  private async generateWeeklyInsights(
+    userId: string,
+  ): Promise<WeeklyHealthInsights | null> {
     try {
       // This would integrate with your AI/analytics service
       // For now, return a simple placeholder
@@ -993,12 +980,11 @@ export class NotificationService {
   }
 
   /**
-   * Helper method to generate care group summary
+   * Generate care group summary
    */
-  private async generateCareGroupSummary(careGroupId: string): Promise<{
-    activities: number;
-    newMembers: number;
-  }> {
+  private async generateCareGroupSummary(
+    careGroupId: string,
+  ): Promise<CareGroupSummary> {
     const lastWeek = new Date();
     lastWeek.setDate(lastWeek.getDate() - 7);
 

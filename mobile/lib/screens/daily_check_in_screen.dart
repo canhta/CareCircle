@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../features/daily_check_in/daily_check_in.dart';
-import '../common/common.dart';
 import '../widgets/widget_optimizer.dart';
 import '../providers/service_providers.dart';
-import '../widgets/error_handling/async_value_widgets.dart';
 import 'personalized_questions_screen.dart';
 import 'check_in_history_screen.dart';
 import 'insights_screen.dart';
@@ -174,6 +172,21 @@ class _DailyCheckInScreenState extends ConsumerState<DailyCheckInScreen> {
   final TextEditingController _notesController = TextEditingController();
   final TextEditingController _symptomsController = TextEditingController();
 
+  // State variables
+  bool _isLoading = false;
+  bool _isEditing = false;
+  DailyCheckIn? _todaysCheckIn;
+  late DailyCheckInService _service;
+
+  // Form values
+  double _moodScore = 5.0;
+  double _energyLevel = 5.0;
+  double _sleepQuality = 5.0;
+  double _painLevel = 0.0;
+  double _stressLevel = 5.0;
+  List<String> _symptoms = [];
+  String _notes = '';
+
   // Common symptoms for quick selection
   final List<String> _commonSymptoms = [
     'Headache',
@@ -191,6 +204,7 @@ class _DailyCheckInScreenState extends ConsumerState<DailyCheckInScreen> {
   @override
   void initState() {
     super.initState();
+    _service = ref.read(dailyCheckInServiceProvider);
     // Load today's check-in when the screen initializes
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadTodaysCheckIn();

@@ -2,7 +2,7 @@ import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Logger } from '@nestjs/common';
 import { Job } from 'bullmq';
 import { PrismaService } from '../../prisma/prisma.service';
-import { NotificationPayload } from '../notification.service';
+import { NotificationPayload } from '../../common/interfaces/notification.interfaces';
 import { NotificationAuditLoggingService } from '../audit-logging.service';
 import { NotificationChannel } from '@prisma/client';
 import { FirebaseService } from '../../firebase/firebase.service';
@@ -20,7 +20,7 @@ export class NotificationProcessor extends WorkerHost {
   }
 
   async process(
-    job: Job<NotificationPayload & { notificationId: string }>,
+    job: Job<{ notificationId: string } & NotificationPayload>,
   ): Promise<void> {
     const { notificationId, ...payload } = job.data;
     const startTime = Date.now();

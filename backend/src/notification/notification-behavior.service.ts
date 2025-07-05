@@ -2,6 +2,10 @@ import { Injectable, Logger } from '@nestjs/common';
 import { MilvusService } from '../vector/milvus.service';
 import { EmbeddingService } from '../ai/embedding.service';
 import { ConfigService } from '@nestjs/config';
+import {
+  BehaviorNotificationContextData,
+  BehaviorVectorParameters,
+} from '../common/interfaces/notification-behavior.interfaces';
 
 export interface NotificationBehaviorVector {
   id: string;
@@ -16,7 +20,7 @@ export interface NotificationBehaviorVector {
     timeOfDay: number;
     dayOfWeek: number;
     notificationType: string;
-    contextData?: Record<string, any>;
+    contextData?: BehaviorNotificationContextData;
   };
 }
 
@@ -158,8 +162,13 @@ export class NotificationBehaviorService {
           id: interaction.id,
           userId: interaction.userId,
           notificationId: interaction.checkInId,
-          action: (interaction.metadata.responseText?.split('_')[0] ||
-            'unknown') as any,
+          action:
+            (interaction.metadata.responseText?.split('_')[0] as
+              | 'opened'
+              | 'dismissed'
+              | 'snoozed'
+              | 'clicked'
+              | 'ignored') || 'unknown',
           timestamp: interaction.timestamp,
           vector: interaction.vector,
           metadata: {
@@ -184,15 +193,7 @@ export class NotificationBehaviorService {
   /**
    * Create behavior vector from notification behavior data
    */
-  createBehaviorVector(behaviorData: {
-    timeOfDay: number;
-    dayOfWeek: number;
-    action: string;
-    notificationType: string;
-    timeToAction?: number;
-    deviceType?: string;
-    contextData?: Record<string, any>;
-  }): number[] {
+  createBehaviorVector(behaviorData: BehaviorVectorParameters): number[] {
     // Create a behavior vector by encoding various features
     const vector: number[] = new Array(128).fill(0) as number[];
 

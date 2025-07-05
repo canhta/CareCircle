@@ -9,6 +9,9 @@ import '../features/health/data/health_data_export_service.dart';
 import '../features/prescription_scanner/data/prescription_scanner_service.dart';
 import '../utils/notification_manager.dart';
 import '../utils/analytics_service.dart';
+import '../models/daily_check_in_models.dart';
+import '../features/medication/domain/medication_models.dart';
+import '../features/health/domain/health_models.dart';
 
 /// Core service providers for dependency injection with Riverpod
 /// These providers replace direct service instantiation in screens
@@ -40,7 +43,8 @@ final healthServiceProvider = Provider<HealthService>((ref) {
   return ServiceLocator.get<HealthService>();
 });
 
-final healthDataExportServiceProvider = Provider<HealthDataExportService>((ref) {
+final healthDataExportServiceProvider =
+    Provider<HealthDataExportService>((ref) {
   return ServiceLocator.get<HealthDataExportService>();
 });
 
@@ -49,7 +53,8 @@ final medicationServiceProvider = Provider<MedicationService>((ref) {
   return ServiceLocator.get<MedicationService>();
 });
 
-final prescriptionScannerServiceProvider = Provider<PrescriptionScannerService>((ref) {
+final prescriptionScannerServiceProvider =
+    Provider<PrescriptionScannerService>((ref) {
   return ServiceLocator.get<PrescriptionScannerService>();
 });
 
@@ -76,93 +81,78 @@ final isAuthenticatedProvider = Provider<bool>((ref) {
 });
 
 // Daily Check-in State Providers
-final todayCheckInProvider = FutureProvider.autoDispose<DailyCheckIn?>((ref) async {
+final todayCheckInProvider =
+    FutureProvider.autoDispose<DailyCheckIn?>((ref) async {
   final service = ref.read(dailyCheckInServiceProvider);
   final result = await service.getTodayCheckIn();
-  
+
   return result.fold(
     (checkIn) => checkIn,
     (error) {
-      ref.read(appLoggerProvider).error('Failed to load today\'s check-in', error: error);
-      throw error;
+      ref
+          .read(appLoggerProvider)
+          .error('Failed to load today\'s check-in', error: error);
+      return null;
     },
   );
 });
 
-final recentCheckInsProvider = FutureProvider.autoDispose<List<DailyCheckIn>>((ref) async {
+final recentCheckInsProvider =
+    FutureProvider.autoDispose<List<DailyCheckIn>>((ref) async {
   final service = ref.read(dailyCheckInServiceProvider);
   final result = await service.getRecentCheckIns();
-  
+
   return result.fold(
     (checkIns) => checkIns,
     (error) {
-      ref.read(appLoggerProvider).error('Failed to load recent check-ins', error: error);
-      throw error;
+      ref
+          .read(appLoggerProvider)
+          .error('Failed to load recent check-ins', error: error);
+      return <DailyCheckIn>[];
     },
   );
 });
 
 // Medication State Providers
-final medicationsProvider = FutureProvider.autoDispose<List<PrescriptionModel>>((ref) async {
+final medicationsProvider =
+    FutureProvider.autoDispose<List<Medication>>((ref) async {
   final service = ref.read(medicationServiceProvider);
-  final result = await service.getAllPrescriptions();
-  
+  final result = await service.getMedications();
+
   return result.fold(
     (medications) => medications,
     (error) {
-      ref.read(appLoggerProvider).error('Failed to load medications', error: error);
+      ref
+          .read(appLoggerProvider)
+          .error('Failed to load medications', error: error);
       throw error;
     },
   );
 });
 
 // Health Data State Providers
-final healthDataProvider = FutureProvider.autoDispose.family<List<HealthDataPoint>, HealthDataRequest>((ref, request) async {
+final healthDataProvider = FutureProvider.autoDispose
+    .family<List<CareCircleHealthData>, HealthDataRequest>(
+        (ref, request) async {
   final service = ref.read(healthServiceProvider);
-  final result = await service.getHealthData(
-    startDate: request.startDate,
-    endDate: request.endDate,
-    types: request.types,
-  );
-  
+  final result = await service.getHealthData(request);
+
   return result.fold(
     (data) => data,
     (error) {
-      ref.read(appLoggerProvider).error('Failed to load health data', error: error);
+      ref
+          .read(appLoggerProvider)
+          .error('Failed to load health data', error: error);
       throw error;
     },
   );
 });
 
 // Helper classes for provider parameters
-class HealthDataRequest {
-  final DateTime startDate;
-  final DateTime endDate;
-  final List<HealthDataType> types;
-
-  const HealthDataRequest({
-    required this.startDate,
-    required this.endDate,
-    required this.types,
-  });
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is HealthDataRequest &&
-          runtimeType == other.runtimeType &&
-          startDate == other.startDate &&
-          endDate == other.endDate &&
-          types.length == other.types.length &&
-          types.every((type) => other.types.contains(type));
-
-  @override
-  int get hashCode => startDate.hashCode ^ endDate.hashCode ^ types.hashCode;
-}
 
 // Notification State Providers
-final notificationSettingsProvider = FutureProvider.autoDispose<NotificationSettings>((ref) async {
-  final manager = ref.read(notificationManagerProvider);
+final notificationSettingsProvider =
+    FutureProvider.autoDispose<NotificationSettings>((ref) async {
   // This would typically load from user preferences or backend
   return const NotificationSettings(
     medicationReminders: true,
@@ -201,8 +191,8 @@ class NotificationSettings {
 }
 
 // User Preferences State Provider
-final userPreferencesProvider = FutureProvider.autoDispose<UserPreferences>((ref) async {
-  final storage = ref.read(secureStorageProvider);
+final userPreferencesProvider =
+    FutureProvider.autoDispose<UserPreferences>((ref) async {
   // This would typically load from secure storage or backend
   return const UserPreferences(
     theme: 'system',

@@ -26,53 +26,43 @@ export class WebhookService {
     this.logger.log(`Processing Stripe webhook: ${payload.event}`);
 
     try {
+      // Verify Stripe webhook signature
+      // In a real application, you'd use the Stripe SDK to verify the signature
+      // const signature = req.headers['stripe-signature'];
+      // const event = stripe.webhooks.constructEvent(req.body, signature, endpointSecret);
+
       switch (payload.event) {
-        case WebhookEventType.PAYMENT_SUCCEEDED:
-          if (!payload.data.payment) {
-            throw new BadRequestException('Payment data is missing');
-          }
+        case 'payment_intent.succeeded':
           return this.processPaymentSuccess(
-            payload.data.payment.id,
-            payload.data.payment.paymentReference || '',
+            payload.data.payment_intent.id,
+            payload.data.payment_intent.metadata.paymentId || '',
             PaymentProvider.STRIPE,
           );
 
-        case WebhookEventType.PAYMENT_FAILED:
-          if (!payload.data.payment) {
-            throw new BadRequestException('Payment data is missing');
-          }
+        case 'payment_intent.payment_failed':
           return this.processPaymentFailure(
-            payload.data.payment.id,
-            payload.data.payment.paymentReference || '',
+            payload.data.payment_intent.id,
+            payload.data.payment_intent.metadata.paymentId || '',
             PaymentProvider.STRIPE,
           );
 
-        case WebhookEventType.PAYMENT_REFUNDED:
-          if (!payload.data.payment) {
-            throw new BadRequestException('Payment data is missing');
-          }
+        case 'charge.refunded':
           return this.processPaymentRefund(
-            payload.data.payment.id,
-            payload.data.payment.paymentReference || '',
+            payload.data.charge.id,
+            payload.data.charge.metadata.paymentId || '',
             PaymentProvider.STRIPE,
           );
 
-        case WebhookEventType.SUBSCRIPTION_CREATED:
-        case WebhookEventType.SUBSCRIPTION_UPDATED:
-          if (!payload.data.subscription) {
-            throw new BadRequestException('Subscription data is missing');
-          }
+        case 'customer.subscription.updated':
+          // Handle subscription updates (like plan changes, etc.)
           return this.processSubscriptionUpdate(
             payload.data.subscription.id,
             payload.data.subscription.paymentReference || '',
-            payload.data.subscription.currentPeriodEnd || '',
+            payload.data.subscription.current_period_end,
             PaymentProvider.STRIPE,
           );
 
-        case WebhookEventType.SUBSCRIPTION_CANCELLED:
-          if (!payload.data.subscription) {
-            throw new BadRequestException('Subscription data is missing');
-          }
+        case 'customer.subscription.deleted':
           return this.processSubscriptionCancellation(
             payload.data.subscription.id,
             payload.data.subscription.paymentReference || '',
@@ -80,16 +70,18 @@ export class WebhookService {
           );
 
         default:
-          this.logger.warn(`Unhandled Stripe event type: ${payload.event}`);
+          this.logger.warn(
+            `Unhandled Stripe event type: ${String(payload.event)}`,
+          );
           return { received: true, handled: false };
       }
     } catch (error) {
       this.logger.error(
-        `Error processing Stripe webhook: ${error.message}`,
-        error.stack,
+        `Error processing Stripe webhook: ${(error as Error).message}`,
+        (error as Error).stack,
       );
       throw new BadRequestException(
-        `Error processing webhook: ${error.message}`,
+        `Error processing webhook: ${(error as Error).message}`,
       );
     }
   }

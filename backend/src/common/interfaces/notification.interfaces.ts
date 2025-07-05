@@ -2,6 +2,11 @@ import {
   NotificationType,
   NotificationChannel,
   NotificationPriority,
+  Notification,
+  Reminder,
+  User,
+  Prescription,
+  CareGroup,
 } from '@prisma/client';
 import { CheckInInsight } from './daily-check-in.interfaces';
 
@@ -10,11 +15,25 @@ import { CheckInInsight } from './daily-check-in.interfaces';
  */
 export interface InteractiveNotificationOptions {
   userId: string;
-  triggerType: 'insight' | 'risk_alert' | 'follow_up' | 'engagement';
-  triggerData: any;
-  priority: 'low' | 'medium' | 'high' | 'critical';
+  triggerType: InteractiveTriggerType;
+  triggerData: unknown;
+  priority: NotificationPriorityLevel;
   actions?: InteractiveAction[];
 }
+
+/**
+ * Type for interactive trigger types
+ */
+export type InteractiveTriggerType =
+  | 'insight'
+  | 'risk_alert'
+  | 'follow_up'
+  | 'engagement';
+
+/**
+ * Type for notification priority levels
+ */
+export type NotificationPriorityLevel = 'low' | 'medium' | 'high' | 'critical';
 
 /**
  * Interface for interactive action
@@ -22,9 +41,18 @@ export interface InteractiveNotificationOptions {
 export interface InteractiveAction {
   id: string;
   label: string;
-  type: 'quick_response' | 'navigate' | 'schedule' | 'contact';
-  payload?: any;
+  type: InteractiveActionType;
+  payload?: unknown;
 }
+
+/**
+ * Type for interactive action types
+ */
+export type InteractiveActionType =
+  | 'quick_response'
+  | 'navigate'
+  | 'schedule'
+  | 'contact';
 
 /**
  * Interface for notification data
@@ -45,6 +73,47 @@ export interface NotificationData {
 }
 
 /**
+ * Interface for notification payload
+ */
+export interface NotificationPayload {
+  userId: string;
+  title: string;
+  message: string;
+  type: NotificationType;
+  channels: NotificationChannel[];
+  priority?: NotificationPriority;
+  actionUrl?: string;
+  scheduledFor?: Date;
+  templateData?: NotificationTemplateData;
+}
+
+/**
+ * Interface for notification template data
+ */
+export interface NotificationTemplateData {
+  medicationName?: string;
+  dosage?: string;
+  frequency?: string;
+  userName?: string;
+  actions?: InteractiveAction[];
+  triggerType?: string;
+  [key: string]: unknown;
+}
+
+/**
+ * Interface for medication reminder data
+ */
+export interface ReminderData {
+  id: string;
+  prescriptionId: string;
+  userId: string;
+  medicationName: string;
+  dosage: string;
+  scheduledAt: Date;
+  frequency: string;
+}
+
+/**
  * Interface for user interaction tracking
  */
 export interface UserInteractionData {
@@ -56,7 +125,7 @@ export interface UserInteractionData {
   timeOfDay: number;
   dayOfWeek: number;
   notificationType: string;
-  contextData?: Record<string, any>;
+  contextData?: Record<string, unknown>;
 }
 
 /**
@@ -64,6 +133,42 @@ export interface UserInteractionData {
  */
 export interface TestNotificationOptions {
   userId: string;
-  checkInData?: Record<string, any>;
+  checkInData?: Record<string, unknown>;
   insights?: CheckInInsight[];
+}
+
+/**
+ * Interface for weekly health insights
+ */
+export interface WeeklyHealthInsights {
+  summary: string;
+  metrics: Record<string, unknown>;
+}
+
+/**
+ * Interface for care group summary
+ */
+export interface CareGroupSummary {
+  activities: number;
+  newMembers: number;
+}
+
+/**
+ * Interface for prescription with associated metadata
+ */
+export interface PrescriptionWithMetadata extends Prescription {
+  medication: {
+    name: string;
+    dosage: string;
+    frequency: string;
+  };
+}
+
+/**
+ * Basic health insight interface
+ */
+export interface HealthInsight {
+  type: string;
+  description: string;
+  severity: string;
 }

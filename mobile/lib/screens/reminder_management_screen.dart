@@ -6,12 +6,12 @@ class ReminderManagementScreen extends StatefulWidget {
   const ReminderManagementScreen({super.key});
 
   @override
-  State<ReminderManagementScreen> createState() => _ReminderManagementScreenState();
+  State<ReminderManagementScreen> createState() =>
+      _ReminderManagementScreenState();
 }
 
 class _ReminderManagementScreenState extends State<ReminderManagementScreen> {
   String _selectedCategory = 'All';
-  bool _isLoading = false;
 
   final List<String> _categories = [
     'All',
@@ -99,7 +99,7 @@ class _ReminderManagementScreenState extends State<ReminderManagementScreen> {
         itemBuilder: (context, index) {
           final category = _categories[index];
           final isSelected = category == _selectedCategory;
-          
+
           return Padding(
             padding: const EdgeInsets.only(right: 8.0),
             child: FilterChip(
@@ -119,7 +119,7 @@ class _ReminderManagementScreenState extends State<ReminderManagementScreen> {
 
   Widget _buildRemindersList() {
     final filteredReminders = _getFilteredReminders();
-    
+
     if (filteredReminders.isEmpty) {
       return _buildEmptyState();
     }
@@ -262,7 +262,7 @@ class _ReminderManagementScreenState extends State<ReminderManagementScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            _selectedCategory == 'All' 
+            _selectedCategory == 'All'
                 ? 'You haven\'t set up any reminders yet'
                 : 'No ${_selectedCategory.toLowerCase()} reminders found',
             style: TextStyle(
@@ -354,7 +354,7 @@ class _ReminderManagementScreenState extends State<ReminderManagementScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          enabled 
+          enabled
               ? '${reminder['title']} reminder enabled'
               : '${reminder['title']} reminder disabled',
         ),
@@ -380,7 +380,7 @@ class _ReminderManagementScreenState extends State<ReminderManagementScreen> {
   void _editReminder(Map<String, dynamic> reminder) {
     // Navigate to appropriate edit screen based on category
     final category = reminder['category'] as String;
-    
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Edit $category reminder - Feature coming soon'),
@@ -403,7 +403,8 @@ class _ReminderManagementScreenState extends State<ReminderManagementScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Delete Reminder'),
-        content: Text('Are you sure you want to delete "${reminder['title']}"?'),
+        content:
+            Text('Are you sure you want to delete "${reminder['title']}"?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
