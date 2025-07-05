@@ -367,7 +367,7 @@
         "id": 6,
         "title": "Intelligent Daily Check-ins (FR-05)",
         "description": "[Mobile/Flutter, Backend/NestJS] Implement the adaptive daily check-in feature with interactive notifications and personalized question flows. The backend will process and store the check-in data.",
-        "status": "in-progress",
+        "status": "done",
         "priority": "medium",
         "dependencies": [
           5
@@ -691,7 +691,7 @@
     ],
     "metadata": {
       "created": "2025-07-03T13:21:13.212Z",
-      "updated": "2025-07-05T02:49:48.804Z",
+      "updated": "2025-07-05T08:17:16.580Z",
       "description": "Tasks for master context"
     }
   }

@@ -10,6 +10,10 @@ import 'screens/profile_screen.dart';
 import 'screens/prescription_scanner_screen.dart';
 import 'screens/notification_center_screen.dart';
 import 'screens/notification_preferences_screen.dart';
+import 'screens/medications_screen.dart';
+import 'screens/health_check_screen.dart';
+import 'screens/care_group_main_screen.dart';
+import 'screens/settings_screen.dart';
 import 'features/background_sync/background_sync.dart';
 import 'features/firebase_messaging/firebase_messaging.dart';
 import 'features/auth/auth.dart';
@@ -158,14 +162,10 @@ class MainApp extends StatelessWidget {
         '/notifications': (context) => const NotificationCenterScreen(),
         '/notification-preferences': (context) =>
             const NotificationPreferencesScreen(),
-        '/medications': (context) =>
-            const HomeScreen(), // TODO: Create MedicationsScreen
-        '/health-check': (context) =>
-            const HomeScreen(), // TODO: Create HealthCheckScreen
-        '/care-group': (context) =>
-            const HomeScreen(), // TODO: Create CareGroupScreen
-        '/settings': (context) =>
-            const HomeScreen(), // TODO: Create SettingsScreen
+        '/medications': (context) => const MedicationsScreen(),
+        '/health-check': (context) => const HealthCheckScreen(),
+        '/care-group': (context) => const CareGroupScreen(),
+        '/settings': (context) => const SettingsScreen(),
       },
     );
   }
