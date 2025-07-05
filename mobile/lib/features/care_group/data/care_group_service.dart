@@ -199,4 +199,17 @@ class CareGroupService extends BaseRepository {
       },
     );
   }
+
+  /// Generate a share link for a care group
+  Future<Result<ShareLinkData>> generateShareLink(String careGroupId) async {
+    final endpoint = ApiEndpoints.replacePathParams(
+      ApiEndpoints.careGroupShareLink,
+      {'id': careGroupId},
+    );
+
+    return await get<ShareLinkData>(
+      endpoint,
+      fromJson: (json) => ShareLinkData.fromJson(json),
+    );
+  }
 }

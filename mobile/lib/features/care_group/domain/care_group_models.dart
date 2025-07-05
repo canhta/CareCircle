@@ -286,3 +286,34 @@ class CareGroupSettingsRequest {
     return json;
   }
 }
+
+/// Share link data model
+class ShareLinkData {
+  final String deepLink;
+  final String universalLink;
+  final String? qrCodeData;
+
+  const ShareLinkData({
+    required this.deepLink,
+    required this.universalLink,
+    this.qrCodeData,
+  });
+
+  /// Create from JSON
+  factory ShareLinkData.fromJson(Map<String, dynamic> json) {
+    return ShareLinkData(
+      deepLink: json['deepLink'] ?? '',
+      universalLink: json['universalLink'] ?? '',
+      qrCodeData: json['qrCode'],
+    );
+  }
+
+  /// Convert to JSON
+  Map<String, dynamic> toJson() {
+    return {
+      'deepLink': deepLink,
+      'universalLink': universalLink,
+      'qrCode': qrCodeData,
+    };
+  }
+}

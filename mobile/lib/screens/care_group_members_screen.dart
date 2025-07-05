@@ -399,11 +399,103 @@ class _CareGroupMembersScreenState extends State<CareGroupMembersScreen> {
   }
 
   void _editMemberRole(CareGroupMember member) {
-    // TODO: Implement edit member role functionality
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-          content: Text('Edit member role functionality coming soon!')),
+    // Selected role (default to current role)
+    CareGroupRole selectedRole = member.role;
+    bool isSubmitting = false;
+
+    showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: Text('Edit ${member.fullName}\'s Role'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Current Role: ${_getRoleDisplayName(member.role)}',
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 16),
+              const Text('Select a new role:'),
+              const SizedBox(height: 8),
+              ...CareGroupRole.values.map(
+                (role) => RadioListTile<CareGroupRole>(
+                  title: Text(_getRoleDisplayName(role)),
+                  subtitle: Text(_getRoleDescription(role)),
+                  value: role,
+                  groupValue: selectedRole,
+                  onChanged: isSubmitting
+                      ? null
+                      : (value) => setState(() => selectedRole = value!),
+                  activeColor: _getRoleColor(role),
+                  dense: true,
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: isSubmitting ? null : () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            if (isSubmitting)
+              const CircularProgressIndicator()
+            else
+              ElevatedButton(
+                onPressed: selectedRole == member.role
+                    ? null
+                    : () async {
+                        setState(() => isSubmitting = true);
+
+                        final result = await _careGroupService.updateMemberRole(
+                          widget.careGroup.id,
+                          member.id,
+                          selectedRole,
+                        );
+
+                        if (!context.mounted) return;
+                        Navigator.pop(context);
+
+                        result.fold(
+                          (updatedMember) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                    'Role updated to ${_getRoleDisplayName(selectedRole)}'),
+                                backgroundColor: Colors.green,
+                              ),
+                            );
+                            _loadMembers();
+                          },
+                          (error) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                    'Failed to update role: ${error is NetworkException ? error.message : error.toString()}'),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          },
+                        );
+                      },
+                child: const Text('Update Role'),
+              ),
+          ],
+        ),
+      ),
     );
+  }
+
+  String _getRoleDescription(CareGroupRole role) {
+    switch (role) {
+      case CareGroupRole.admin:
+        return 'Can manage group and members';
+      case CareGroupRole.member:
+        return 'Can contribute and view all data';
+      case CareGroupRole.viewer:
+        return 'Can only view group data';
+    }
   }
 
   void _removeMember(CareGroupMember member) {

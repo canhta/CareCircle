@@ -512,36 +512,217 @@ class _CareGroupDetailScreenState extends State<CareGroupDetailScreen> {
   }
 
   void _editGroup() {
-    // TODO: Implement edit group functionality
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Edit group functionality coming soon!')),
+    // Form controllers
+    final nameController = TextEditingController(text: _careGroup.name);
+    final descriptionController =
+        TextEditingController(text: _careGroup.description);
+    final formKey = GlobalKey<FormState>();
+    bool isSubmitting = false;
+
+    showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: const Text('Edit Care Group'),
+          content: Form(
+            key: formKey,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextFormField(
+                    controller: nameController,
+                    decoration: const InputDecoration(
+                      labelText: 'Group Name',
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return 'Group name is required';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: descriptionController,
+                    decoration: const InputDecoration(
+                      labelText: 'Description',
+                      border: OutlineInputBorder(),
+                      alignLabelWithHint: true,
+                    ),
+                    maxLines: 3,
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return 'Description is required';
+                      }
+                      return null;
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            if (isSubmitting)
+              const CircularProgressIndicator()
+            else
+              ElevatedButton(
+                onPressed: () async {
+                  if (!formKey.currentState!.validate()) return;
+
+                  setState(() => isSubmitting = true);
+
+                  final request = UpdateCareGroupRequest(
+                    name: nameController.text.trim(),
+                    description: descriptionController.text.trim(),
+                  );
+
+                  final result = await _careGroupService.updateCareGroup(
+                      _careGroup.id, request);
+
+                  if (!context.mounted) return;
+                  Navigator.pop(context);
+
+                  result.fold(
+                    (updatedGroup) {
+                      setState(() {
+                        _careGroup = updatedGroup;
+                      });
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Care group updated successfully'),
+                          backgroundColor: Colors.green,
+                        ),
+                      );
+                    },
+                    (error) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                              'Failed to update care group: ${error is NetworkException ? error.message : error.toString()}'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    },
+                  );
+                },
+                child: const Text('Save'),
+              ),
+          ],
+        ),
+      ),
     );
   }
 
   void _shareGroup() async {
+    setState(() => _isLoading = true);
+
     try {
-      // TODO: Implement deep link generation
-      final shareText =
-          'Join my care group "${_careGroup.name}" on CareCircle!';
+      final result = await _careGroupService.generateShareLink(_careGroup.id);
 
-      await Clipboard.setData(ClipboardData(text: shareText));
+      setState(() => _isLoading = false);
 
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Care group link copied to clipboard!'),
-            backgroundColor: Colors.green,
-          ),
-        );
-      }
+      result.fold(
+        (linkData) {
+          final shareText =
+              'Join my care group "${_careGroup.name}" on CareCircle!\n\n${linkData.universalLink}';
+
+          _showShareDialog(shareText, linkData.deepLink);
+        },
+        (error) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                  'Failed to generate share link: ${error is NetworkException ? error.message : error.toString()}'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        },
+      );
     } catch (e) {
-      log('Error sharing group: $e');
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to generate share link')),
-        );
-      }
+      setState(() => _isLoading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error sharing group: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
+  }
+
+  void _showShareDialog(String shareText, String deepLink) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Share Care Group'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text('Share this link with people you want to invite:'),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      deepLink,
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.copy),
+                    onPressed: () async {
+                      await Clipboard.setData(ClipboardData(text: deepLink));
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Link copied to clipboard!'),
+                            backgroundColor: Colors.green,
+                          ),
+                        );
+                      }
+                    },
+                    tooltip: 'Copy link',
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton.icon(
+            icon: const Icon(Icons.share),
+            label: const Text('Share'),
+            onPressed: () async {
+              await Clipboard.setData(ClipboardData(text: shareText));
+              if (context.mounted) {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Share text copied to clipboard!'),
+                    backgroundColor: Colors.green,
+                  ),
+                );
+              }
+            },
+          ),
+        ],
+      ),
+    );
   }
 
   void _deleteGroup() {

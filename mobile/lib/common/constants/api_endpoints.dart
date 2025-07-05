@@ -45,6 +45,7 @@ class ApiEndpoints {
   static const String leaveCareGroup = '/care-groups/{id}/leave';
   static const String careGroupInvitations = '/care-groups/{id}/invitations';
   static const String careGroupSettings = '/care-groups/{id}/settings';
+  static const String careGroupShareLink = '/care-groups/{id}/share-link';
 
   // Daily Check-in endpoints
   static const String dailyCheckIns = '/daily-check-ins';
