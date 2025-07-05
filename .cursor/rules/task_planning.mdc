@@ -1,0 +1,190 @@
+---
+description: For the large tasks, we need to create a plan file in the project root before starting implementation
+alwaysApply: false
+---
+
+# Task Planning and Tracking
+
+## Core Requirements
+
+- **Create a plan before execution**: For any non-trivial task, create a plan file in the project root before starting implementation
+- **Use structured todo list format**: Track progress using the todo_write tool to ensure consistent progress tracking
+- **Update as you progress**: Keep the todo list updated with current status
+
+## Plan File Naming
+
+- Use a clear, descriptive filename with `PLAN-` prefix
+- Example: `PLAN-auth-service-refactoring.md`
+
+## Plan File Structure
+
+```markdown
+# Task Plan: [Brief Task Description]
+
+## Objective
+
+[Concise statement of what needs to be accomplished]
+
+## Context
+
+[Brief summary of relevant background information]
+
+## Implementation Steps
+
+[Initial list of steps, to be formalized as a todo list]
+
+## Todo List Status
+
+[This section will be managed by the todo_write tool]
+```
+
+## Todo List Management
+
+- Use the `todo_write` tool to initialize and update the todo list
+- Start with at least 3-5 specific, actionable tasks
+- Mark tasks as `in_progress`, `completed`, or `pending` as you work
+- Add new todos as needed during implementation
+
+## Example Usage
+
+```
+// Initialize the todo list (for a new task)
+todo_write(
+  merge: false,
+  todos: [
+    {
+      id: "setup",
+      content: "Set up project structure",
+      status: "pending",
+      dependencies: []
+    },
+    {
+      id: "implement",
+      content: "Implement core functionality",
+      status: "pending",
+      dependencies: ["setup"]
+    },
+    {
+      id: "test",
+      content: "Write tests",
+      status: "pending",
+      dependencies: ["implement"]
+    }
+  ]
+)
+
+// Update a task status
+todo_write(
+  merge: true,
+  todos: [
+    {
+      id: "setup",
+      status: "completed",
+      content: "Set up project structure",
+      dependencies: []
+    }
+  ]
+)
+```
+
+## When to Use
+
+- For all multi-step tasks
+- When implementing new features
+- During refactoring efforts
+- For bug fixes that require multiple changes
+
+---
+
+# Task Planning and Tracking
+
+## Core Requirements
+
+- **Create a plan before execution**: For any non-trivial task, create a plan file in the project root before starting implementation
+- **Use structured todo list format**: Track progress using the todo_write tool to ensure consistent progress tracking
+- **Update as you progress**: Keep the todo list updated with current status
+
+## Plan File Naming
+
+- Use a clear, descriptive filename with `PLAN-` prefix
+- Example: `PLAN-auth-service-refactoring.md`
+
+## Plan File Structure
+
+```markdown
+# Task Plan: [Brief Task Description]
+
+## Objective
+
+[Concise statement of what needs to be accomplished]
+
+## Context
+
+[Brief summary of relevant background information]
+
+## Implementation Steps
+
+[Initial list of steps, to be formalized as a todo list]
+
+## Todo List Status
+
+[This section will be managed by the todo_write tool]
+```
+
+## Todo List Management
+
+- Use the `todo_write` tool to initialize and update the todo list
+- Start with at least 3-5 specific, actionable tasks
+- Mark tasks as `in_progress`, `completed`, or `pending` as you work
+- Add new todos as needed during implementation
+
+## Example Usage
+
+```
+// Initialize the todo list (for a new task)
+todo_write(
+  merge: false,
+  todos: [
+    {
+      id: "setup",
+      content: "Set up project structure",
+      status: "pending",
+      dependencies: []
+    },
+    {
+      id: "implement",
+      content: "Implement core functionality",
+      status: "pending",
+      dependencies: ["setup"]
+    },
+    {
+      id: "test",
+      content: "Write tests",
+      status: "pending",
+      dependencies: ["implement"]
+    }
+  ]
+)
+
+// Update a task status
+todo_write(
+  merge: true,
+  todos: [
+    {
+      id: "setup",
+      status: "completed",
+      content: "Set up project structure",
+      dependencies: []
+    }
+  ]
+)
+```
+
+## When to Use
+
+- For all multi-step tasks
+- When implementing new features
+- During refactoring efforts
+- For bug fixes that require multiple changes
+
+---
