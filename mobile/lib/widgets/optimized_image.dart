@@ -26,7 +26,8 @@ class OptimizedImage extends StatelessWidget {
     this.errorWidget,
     this.memCacheWidth,
     this.memCacheHeight,
-  }) : assert(imageUrl != null || imageFile != null, 'Either imageUrl or imageFile must be provided');
+  }) : assert(imageUrl != null || imageFile != null,
+            'Either imageUrl or imageFile must be provided');
 
   @override
   Widget build(BuildContext context) {
@@ -39,17 +40,17 @@ class OptimizedImage extends StatelessWidget {
         fit: fit,
         memCacheWidth: memCacheWidth ?? 300,
         memCacheHeight: memCacheHeight ?? 300,
-        placeholder: placeholder != null 
-          ? (context, url) => placeholder!
-          : (context, url) => const Center(
-              child: CircularProgressIndicator(),
-            ),
+        placeholder: placeholder != null
+            ? (context, url) => placeholder!
+            : (context, url) => const Center(
+                  child: CircularProgressIndicator(),
+                ),
         errorWidget: errorWidget != null
-          ? (context, url, error) => errorWidget!
-          : (context, url, error) => const Icon(
-              Icons.error,
-              color: Colors.red,
-            ),
+            ? (context, url, error) => errorWidget!
+            : (context, url, error) => const Icon(
+                  Icons.error,
+                  color: Colors.red,
+                ),
       );
     }
 
@@ -63,18 +64,20 @@ class OptimizedImage extends StatelessWidget {
         cacheWidth: memCacheWidth,
         cacheHeight: memCacheHeight,
         errorBuilder: (context, error, stackTrace) {
-          return errorWidget ?? const Icon(
-            Icons.error,
-            color: Colors.red,
-          );
+          return errorWidget ??
+              const Icon(
+                Icons.error,
+                color: Colors.red,
+              );
         },
       );
     }
 
-    return errorWidget ?? const Icon(
-      Icons.error,
-      color: Colors.red,
-    );
+    return errorWidget ??
+        const Icon(
+          Icons.error,
+          color: Colors.red,
+        );
   }
 }
 

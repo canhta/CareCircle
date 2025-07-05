@@ -33,7 +33,7 @@ class VideoTutorialsScreen extends StatefulWidget {
 
 class _VideoTutorialsScreenState extends State<VideoTutorialsScreen> {
   String _selectedCategory = 'All';
-  
+
   final List<String> _categories = [
     'All',
     'Getting Started',
@@ -46,7 +46,7 @@ class _VideoTutorialsScreenState extends State<VideoTutorialsScreen> {
   @override
   Widget build(BuildContext context) {
     final filteredVideos = _getFilteredVideos();
-    
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Video Tutorials'),
@@ -118,7 +118,7 @@ class _VideoTutorialsScreenState extends State<VideoTutorialsScreen> {
         itemBuilder: (context, index) {
           final category = _categories[index];
           final isSelected = _selectedCategory == category;
-          
+
           return Padding(
             padding: const EdgeInsets.only(right: 8.0),
             child: FilterChip(
@@ -131,7 +131,8 @@ class _VideoTutorialsScreenState extends State<VideoTutorialsScreen> {
               },
               selectedColor: Colors.green.shade100,
               labelStyle: TextStyle(
-                color: isSelected ? Colors.green.shade700 : Colors.grey.shade700,
+                color:
+                    isSelected ? Colors.green.shade700 : Colors.grey.shade700,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
               ),
             ),
@@ -292,15 +293,15 @@ class _VideoTutorialsScreenState extends State<VideoTutorialsScreen> {
               ),
               const SizedBox(height: 8),
               ...video.keyPoints.map((point) => Padding(
-                padding: const EdgeInsets.only(bottom: 4),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('• '),
-                    Expanded(child: Text(point)),
-                  ],
-                ),
-              )),
+                    padding: const EdgeInsets.only(bottom: 4),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('• '),
+                        Expanded(child: Text(point)),
+                      ],
+                    ),
+                  )),
               const SizedBox(height: 16),
               Container(
                 padding: const EdgeInsets.all(12),
@@ -344,12 +345,14 @@ class _VideoTutorialsScreenState extends State<VideoTutorialsScreen> {
 
   List<TutorialVideo> _getFilteredVideos() {
     final allVideos = _getAllVideos();
-    
+
     if (_selectedCategory == 'All') {
       return allVideos;
     }
-    
-    return allVideos.where((video) => video.category == _selectedCategory).toList();
+
+    return allVideos
+        .where((video) => video.category == _selectedCategory)
+        .toList();
   }
 
   List<TutorialVideo> _getAllVideos() {
@@ -357,7 +360,8 @@ class _VideoTutorialsScreenState extends State<VideoTutorialsScreen> {
       const TutorialVideo(
         id: '1',
         title: 'Getting Started with CareCircle',
-        description: 'Learn the basics of setting up your CareCircle account and navigating the app.',
+        description:
+            'Learn the basics of setting up your CareCircle account and navigating the app.',
         duration: '3:45',
         category: 'Getting Started',
         icon: Icons.rocket_launch,
@@ -372,7 +376,8 @@ class _VideoTutorialsScreenState extends State<VideoTutorialsScreen> {
       const TutorialVideo(
         id: '2',
         title: 'Health Data Tracking',
-        description: 'Discover how to connect health devices and track your vital signs.',
+        description:
+            'Discover how to connect health devices and track your vital signs.',
         duration: '5:20',
         category: 'Health Tracking',
         icon: Icons.health_and_safety,
@@ -387,7 +392,8 @@ class _VideoTutorialsScreenState extends State<VideoTutorialsScreen> {
       const TutorialVideo(
         id: '3',
         title: 'Managing Medications',
-        description: 'Learn how to add medications, set reminders, and track adherence.',
+        description:
+            'Learn how to add medications, set reminders, and track adherence.',
         duration: '4:15',
         category: 'Medications',
         icon: Icons.medication,
@@ -402,7 +408,8 @@ class _VideoTutorialsScreenState extends State<VideoTutorialsScreen> {
       const TutorialVideo(
         id: '4',
         title: 'Creating Care Groups',
-        description: 'Set up care groups to coordinate with family members and caregivers.',
+        description:
+            'Set up care groups to coordinate with family members and caregivers.',
         duration: '6:30',
         category: 'Care Groups',
         icon: Icons.group,
@@ -417,7 +424,8 @@ class _VideoTutorialsScreenState extends State<VideoTutorialsScreen> {
       const TutorialVideo(
         id: '5',
         title: 'Daily Check-ins',
-        description: 'Complete daily health check-ins and understand your health trends.',
+        description:
+            'Complete daily health check-ins and understand your health trends.',
         duration: '3:00',
         category: 'Health Tracking',
         icon: Icons.check_circle,
@@ -432,7 +440,8 @@ class _VideoTutorialsScreenState extends State<VideoTutorialsScreen> {
       const TutorialVideo(
         id: '6',
         title: 'Privacy and Settings',
-        description: 'Configure your privacy settings and customize app preferences.',
+        description:
+            'Configure your privacy settings and customize app preferences.',
         duration: '4:45',
         category: 'Settings',
         icon: Icons.settings,

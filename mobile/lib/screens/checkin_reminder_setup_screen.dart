@@ -393,6 +393,9 @@ class _CheckinReminderSetupScreenState
             ? reminderDateTime.add(const Duration(days: 1))
             : reminderDateTime;
 
+        // Format time before async operation to avoid BuildContext issues
+        final formattedTime = _reminderTime.format(context);
+
         // Schedule the reminder
         await notificationManager.scheduleCheckInReminder(
           checkInType: 'daily',
@@ -400,7 +403,7 @@ class _CheckinReminderSetupScreenState
         );
 
         logger.info('Daily check-in reminder scheduled', data: {
-          'time': _reminderTime.format(context),
+          'time': formattedTime,
           'frequency': _selectedFrequency,
           'scheduledTime': scheduledTime.toIso8601String(),
         });

@@ -33,10 +33,12 @@ class _HealthDataExportDialogState extends State<HealthDataExportDialog> {
   }
 
   void _initializeData() {
-    _availableTypes = HealthDataExportService.getAvailableDataTypes(widget.healthData);
+    _availableTypes =
+        HealthDataExportService.getAvailableDataTypes(widget.healthData);
     _selectedTypes = Set.from(_availableTypes);
-    
-    final dateRange = HealthDataExportService.getDataDateRange(widget.healthData);
+
+    final dateRange =
+        HealthDataExportService.getDataDateRange(widget.healthData);
     if (dateRange != null) {
       _startDate = dateRange.start;
       _endDate = dateRange.end;
@@ -80,8 +82,8 @@ class _HealthDataExportDialogState extends State<HealthDataExportDialog> {
         Text(
           'Export Format',
           style: Theme.of(context).textTheme.titleSmall?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+                fontWeight: FontWeight.bold,
+              ),
         ),
         const SizedBox(height: 8),
         Row(
@@ -127,8 +129,8 @@ class _HealthDataExportDialogState extends State<HealthDataExportDialog> {
         Text(
           'Date Range',
           style: Theme.of(context).textTheme.titleSmall?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+                fontWeight: FontWeight.bold,
+              ),
         ),
         const SizedBox(height: 8),
         Row(
@@ -182,8 +184,8 @@ class _HealthDataExportDialogState extends State<HealthDataExportDialog> {
             Text(
               'Data Types',
               style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+                    fontWeight: FontWeight.bold,
+                  ),
             ),
             TextButton(
               onPressed: () {
@@ -216,7 +218,8 @@ class _HealthDataExportDialogState extends State<HealthDataExportDialog> {
                       } else {
                         _selectedTypes.remove(type);
                       }
-                      _selectAllTypes = _selectedTypes.length == _availableTypes.length;
+                      _selectAllTypes =
+                          _selectedTypes.length == _availableTypes.length;
                     });
                   },
                   contentPadding: EdgeInsets.zero,
@@ -232,11 +235,12 @@ class _HealthDataExportDialogState extends State<HealthDataExportDialog> {
   Future<void> _selectStartDate() async {
     final date = await showDatePicker(
       context: context,
-      initialDate: _startDate ?? DateTime.now().subtract(const Duration(days: 30)),
+      initialDate:
+          _startDate ?? DateTime.now().subtract(const Duration(days: 30)),
       firstDate: DateTime.now().subtract(const Duration(days: 365)),
       lastDate: _endDate ?? DateTime.now(),
     );
-    
+
     if (date != null) {
       setState(() {
         _startDate = date;
@@ -248,10 +252,11 @@ class _HealthDataExportDialogState extends State<HealthDataExportDialog> {
     final date = await showDatePicker(
       context: context,
       initialDate: _endDate ?? DateTime.now(),
-      firstDate: _startDate ?? DateTime.now().subtract(const Duration(days: 365)),
+      firstDate:
+          _startDate ?? DateTime.now().subtract(const Duration(days: 365)),
       lastDate: DateTime.now(),
     );
-    
+
     if (date != null) {
       setState(() {
         _endDate = date;

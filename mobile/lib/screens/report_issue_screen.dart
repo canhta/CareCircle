@@ -17,12 +17,12 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _stepsController = TextEditingController();
-  
+
   String _selectedCategory = 'Bug Report';
   String _selectedPriority = 'Medium';
   bool _includeDeviceInfo = true;
   bool _isSubmitting = false;
-  
+
   final List<String> _categories = [
     'Bug Report',
     'Feature Request',
@@ -32,7 +32,7 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
     'Notification Issue',
     'Other',
   ];
-  
+
   final List<String> _priorities = [
     'Low',
     'Medium',
@@ -193,7 +193,7 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
               default:
                 color = Colors.grey;
             }
-            
+
             return Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 4),
@@ -208,7 +208,8 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
                   selectedColor: color.withValues(alpha: 0.2),
                   labelStyle: TextStyle(
                     color: isSelected ? color : Colors.grey.shade700,
-                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                    fontWeight:
+                        isSelected ? FontWeight.bold : FontWeight.normal,
                   ),
                 ),
               ),
@@ -399,7 +400,7 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
 
     try {
       final logger = ServiceLocator.get<AppLogger>();
-      
+
       // Collect device information if enabled
       String deviceInfo = '';
       if (_includeDeviceInfo) {
@@ -428,7 +429,7 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
             backgroundColor: Colors.green,
           ),
         );
-        
+
         // Navigate back
         Navigator.of(context).pop();
       }
@@ -454,7 +455,7 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
     try {
       final deviceInfo = DeviceInfoPlugin();
       final buffer = StringBuffer();
-      
+
       if (Platform.isAndroid) {
         final androidInfo = await deviceInfo.androidInfo;
         buffer.writeln('Platform: Android');
@@ -469,7 +470,7 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
         buffer.writeln('System Name: ${iosInfo.systemName}');
         buffer.writeln('System Version: ${iosInfo.systemVersion}');
       }
-      
+
       return buffer.toString();
     } catch (e) {
       return 'Failed to collect device information: $e';

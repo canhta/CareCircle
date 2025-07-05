@@ -138,11 +138,13 @@ class HealthDataExportService extends BaseRepository {
       );
 
       // Using SharePlus.instance.share() for sharing files
-      await Share.shareXFiles(
-        [xFile],
-        subject: 'Health Data Export - ${exportResult.fileName}',
-        text:
-            'Your health data export containing ${exportResult.recordCount} records.',
+      await SharePlus.instance.share(
+        ShareParams(
+          files: [xFile],
+          subject: 'Health Data Export - ${exportResult.fileName}',
+          text:
+              'Your health data export containing ${exportResult.recordCount} records.',
+        ),
       );
 
       logger.info('Health data shared successfully');

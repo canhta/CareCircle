@@ -3,6 +3,10 @@ import { ConfigService } from '@nestjs/config';
 import { OpenAIService } from '../ai/openai.service';
 import { ResponseAnalysisResult } from '../analytics/response-analysis.service';
 import { InteractionInsights } from '../analytics/user-interaction.service';
+import {
+  PrescriptionData,
+  UserHealthContext,
+} from '../common/interfaces/insights.interfaces';
 
 export interface HealthInsight {
   id: string;
@@ -14,13 +18,6 @@ export interface HealthInsight {
   supportingData: string[];
   relatedMetrics: string[];
   timeframe: string;
-}
-
-export interface UserHealthContext {
-  age?: number;
-  gender?: string;
-  prescriptions: any[];
-  careGroupContext: any[];
 }
 
 @Injectable()
@@ -109,7 +106,7 @@ export class InsightGeneratorService {
   }
 
   private generateMedicationInsights(
-    prescriptions: any[],
+    prescriptions: PrescriptionData[],
   ): HealthInsight | null {
     if (prescriptions.length === 0) return null;
 

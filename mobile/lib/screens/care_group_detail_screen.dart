@@ -635,23 +635,27 @@ class _CareGroupDetailScreenState extends State<CareGroupDetailScreen> {
           _showShareDialog(shareText, linkData.deepLink);
         },
         (error) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                  'Failed to generate share link: ${error is NetworkException ? error.message : error.toString()}'),
-              backgroundColor: Colors.red,
-            ),
-          );
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                    'Failed to generate share link: ${error is NetworkException ? error.message : error.toString()}'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
         },
       );
     } catch (e) {
       setState(() => _isLoading = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error sharing group: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error sharing group: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 

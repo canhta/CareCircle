@@ -111,7 +111,7 @@ class DailyCheckInFormNotifier extends StateNotifier<DailyCheckInFormState> {
       sleepQuality: (checkIn.sleepQuality ?? 5).toDouble(),
       painLevel: (checkIn.painLevel ?? 0).toDouble(),
       stressLevel: (checkIn.stressLevel ?? 5).toDouble(),
-      symptoms: checkIn.symptoms ?? [],
+      symptoms: checkIn.symptoms,
       notes: checkIn.notes ?? '',
       isEditing: false,
     );
@@ -184,7 +184,7 @@ class _DailyCheckInScreenState extends ConsumerState<DailyCheckInScreen> {
   double _sleepQuality = 5.0;
   double _painLevel = 0.0;
   double _stressLevel = 5.0;
-  List<String> _symptoms = [];
+  final List<String> _symptoms = [];
   String _notes = '';
 
   // Common symptoms for quick selection
@@ -220,13 +220,14 @@ class _DailyCheckInScreenState extends ConsumerState<DailyCheckInScreen> {
 
   void _loadTodaysCheckIn() {
     // Refresh the today's check-in provider
+    // ignore: unused_result
     ref.refresh(todayCheckInProvider);
   }
 
   void _populateFormFromCheckIn(DailyCheckIn checkIn) {
     ref.read(dailyCheckInFormProvider.notifier).loadExistingCheckIn(checkIn);
     _notesController.text = checkIn.notes ?? '';
-    _symptomsController.text = (checkIn.symptoms ?? []).join(', ');
+    _symptomsController.text = checkIn.symptoms.join(', ');
   }
 
   Future<void> _saveCheckIn() async {

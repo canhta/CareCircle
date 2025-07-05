@@ -122,11 +122,11 @@ export class WebhookService {
       }
     } catch (error) {
       this.logger.error(
-        `Error processing MoMo webhook: ${error.message}`,
-        error.stack,
+        `Error processing MoMo webhook: ${(error as Error).message}`,
+        (error as Error).stack,
       );
       throw new BadRequestException(
-        `Error processing webhook: ${error.message}`,
+        `Error processing webhook: ${(error as Error).message}`,
       );
     }
   }
@@ -167,11 +167,11 @@ export class WebhookService {
       }
     } catch (error) {
       this.logger.error(
-        `Error processing ZaloPay webhook: ${error.message}`,
-        error.stack,
+        `Error processing ZaloPay webhook: ${(error as Error).message}`,
+        (error as Error).stack,
       );
       throw new BadRequestException(
-        `Error processing webhook: ${error.message}`,
+        `Error processing webhook: ${(error as Error).message}`,
       );
     }
   }
@@ -245,11 +245,11 @@ export class WebhookService {
       }
     } catch (error) {
       this.logger.error(
-        `Error processing Google Play webhook: ${error.message}`,
-        error.stack,
+        `Error processing Google Play webhook: ${(error as Error).message}`,
+        (error as Error).stack,
       );
       throw new BadRequestException(
-        `Error processing webhook: ${error.message}`,
+        `Error processing webhook: ${(error as Error).message}`,
       );
     }
   }
@@ -332,11 +332,11 @@ export class WebhookService {
       }
     } catch (error) {
       this.logger.error(
-        `Error processing Apple webhook: ${error.message}`,
-        error.stack,
+        `Error processing Apple webhook: ${(error as Error).message}`,
+        (error as Error).stack,
       );
       throw new BadRequestException(
-        `Error processing webhook: ${error.message}`,
+        `Error processing webhook: ${(error as Error).message}`,
       );
     }
   }
@@ -383,8 +383,8 @@ export class WebhookService {
       return { received: true, handled: true, paymentId: payment.id };
     } catch (error) {
       this.logger.error(
-        `Error processing payment success: ${error.message}`,
-        error.stack,
+        `Error processing payment success: ${(error as Error).message}`,
+        (error as Error).stack,
       );
       throw error;
     }
@@ -421,8 +421,8 @@ export class WebhookService {
       return { received: true, handled: true, paymentId: payment.id };
     } catch (error) {
       this.logger.error(
-        `Error processing payment failure: ${error.message}`,
-        error.stack,
+        `Error processing payment failure: ${(error as Error).message}`,
+        (error as Error).stack,
       );
       throw error;
     }
@@ -467,8 +467,8 @@ export class WebhookService {
       return { received: true, handled: true, paymentId: payment.id };
     } catch (error) {
       this.logger.error(
-        `Error processing payment refund: ${error.message}`,
-        error.stack,
+        `Error processing payment refund: ${(error as Error).message}`,
+        (error as Error).stack,
       );
       throw error;
     }
@@ -511,8 +511,8 @@ export class WebhookService {
       };
     } catch (error) {
       this.logger.error(
-        `Error processing subscription update: ${error.message}`,
-        error.stack,
+        `Error processing subscription update: ${(error as Error).message}`,
+        (error as Error).stack,
       );
       throw error;
     }
@@ -552,8 +552,8 @@ export class WebhookService {
       };
     } catch (error) {
       this.logger.error(
-        `Error processing subscription cancellation: ${error.message}`,
-        error.stack,
+        `Error processing subscription cancellation: ${(error as Error).message}`,
+        (error as Error).stack,
       );
       throw error;
     }
@@ -609,7 +609,9 @@ export class WebhookService {
       // Default fallback - use orderInfo directly if no better option
       return orderInfo;
     } catch (error) {
-      this.logger.error(`Error extracting payment reference: ${error.message}`);
+      this.logger.error(
+        `Error extracting payment reference: ${(error as Error).message}`,
+      );
       return orderInfo;
     }
   }
@@ -635,7 +637,9 @@ export class WebhookService {
 
       return signature === payload.signature;
     } catch (error) {
-      this.logger.error(`Error verifying MoMo signature: ${error.message}`);
+      this.logger.error(
+        `Error verifying MoMo signature: ${(error as Error).message}`,
+      );
       return false;
     }
   }
@@ -657,7 +661,9 @@ export class WebhookService {
 
       return mac === payload.signature;
     } catch (error) {
-      this.logger.error(`Error verifying ZaloPay signature: ${error.message}`);
+      this.logger.error(
+        `Error verifying ZaloPay signature: ${(error as Error).message}`,
+      );
       return false;
     }
   }

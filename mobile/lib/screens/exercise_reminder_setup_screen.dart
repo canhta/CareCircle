@@ -1,20 +1,27 @@
 import 'package:flutter/material.dart';
 import '../config/service_locator.dart';
 import '../common/logging/app_logger.dart';
-import '../utils/notification_manager.dart';
 
 class ExerciseReminderSetupScreen extends StatefulWidget {
   const ExerciseReminderSetupScreen({super.key});
 
   @override
-  State<ExerciseReminderSetupScreen> createState() => _ExerciseReminderSetupScreenState();
+  State<ExerciseReminderSetupScreen> createState() =>
+      _ExerciseReminderSetupScreenState();
 }
 
-class _ExerciseReminderSetupScreenState extends State<ExerciseReminderSetupScreen> {
+class _ExerciseReminderSetupScreenState
+    extends State<ExerciseReminderSetupScreen> {
   bool _enableReminders = true;
   TimeOfDay _reminderTime = const TimeOfDay(hour: 18, minute: 0);
   String _selectedFrequency = 'Daily';
-  List<String> _selectedDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+  List<String> _selectedDays = [
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday'
+  ];
   String _selectedExerciseType = 'Any Exercise';
   int _targetDuration = 30;
   bool _isLoading = false;
@@ -26,7 +33,13 @@ class _ExerciseReminderSetupScreenState extends State<ExerciseReminderSetupScree
   ];
 
   final List<String> _weekDays = [
-    'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday',
+    'Sunday'
   ];
 
   final List<String> _exerciseTypes = [
@@ -229,7 +242,8 @@ class _ExerciseReminderSetupScreenState extends State<ExerciseReminderSetupScree
               value: _selectedFrequency,
               decoration: const InputDecoration(
                 border: OutlineInputBorder(),
-                contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                contentPadding:
+                    EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               ),
               items: _frequencies.map((frequency) {
                 return DropdownMenuItem(
@@ -242,7 +256,13 @@ class _ExerciseReminderSetupScreenState extends State<ExerciseReminderSetupScree
                   setState(() {
                     _selectedFrequency = value;
                     if (value == 'Weekdays Only') {
-                      _selectedDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+                      _selectedDays = [
+                        'Monday',
+                        'Tuesday',
+                        'Wednesday',
+                        'Thursday',
+                        'Friday'
+                      ];
                     } else if (value == 'Daily') {
                       _selectedDays = List.from(_weekDays);
                     }
@@ -316,7 +336,8 @@ class _ExerciseReminderSetupScreenState extends State<ExerciseReminderSetupScree
               value: _selectedExerciseType,
               decoration: const InputDecoration(
                 border: OutlineInputBorder(),
-                contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                contentPadding:
+                    EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               ),
               items: _exerciseTypes.map((type) {
                 return DropdownMenuItem(
@@ -385,10 +406,10 @@ class _ExerciseReminderSetupScreenState extends State<ExerciseReminderSetupScree
   }
 
   Widget _buildPreviewCard() {
-    String frequencyText = _selectedFrequency == 'Custom Days' 
+    String frequencyText = _selectedFrequency == 'Custom Days'
         ? _selectedDays.join(', ')
         : _selectedFrequency.toLowerCase();
-    
+
     return Card(
       color: Colors.purple.shade50,
       child: Padding(
@@ -475,7 +496,6 @@ class _ExerciseReminderSetupScreenState extends State<ExerciseReminderSetupScree
 
     try {
       final logger = ServiceLocator.get<AppLogger>();
-      final notificationManager = ServiceLocator.get<NotificationManager>();
 
       if (_enableReminders) {
         logger.info('Exercise reminder settings saved', data: {
@@ -497,7 +517,7 @@ class _ExerciseReminderSetupScreenState extends State<ExerciseReminderSetupScree
         }
       } else {
         logger.info('Exercise reminders disabled');
-        
+
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -515,7 +535,7 @@ class _ExerciseReminderSetupScreenState extends State<ExerciseReminderSetupScree
     } catch (e) {
       final logger = ServiceLocator.get<AppLogger>();
       logger.error('Failed to save exercise reminder settings', error: e);
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(

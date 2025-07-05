@@ -90,7 +90,7 @@ class _PrescriptionScannerScreenState extends State<PrescriptionScannerScreen> {
   Future<CapturedImage?> _showImageSourceDialog(BuildContext context) async {
     return await showDialog<CapturedImage?>(
       context: context,
-      builder: (BuildContext context) {
+      builder: (BuildContext dialogContext) {
         return AlertDialog(
           title: const Text('Add Prescription Image'),
           content:
@@ -98,25 +98,25 @@ class _PrescriptionScannerScreenState extends State<PrescriptionScannerScreen> {
           actions: [
             TextButton(
               child: const Text('Cancel'),
-              onPressed: () => Navigator.pop(context, null),
+              onPressed: () => Navigator.pop(dialogContext, null),
             ),
             TextButton(
               child: const Text('Gallery'),
               onPressed: () async {
-                Navigator.pop(context);
+                Navigator.pop(dialogContext);
                 final result = await _selectFromGallery();
                 if (mounted) {
-                  Navigator.of(context).pop(result);
+                  Navigator.pop(context, result);
                 }
               },
             ),
             TextButton(
               child: const Text('Camera'),
               onPressed: () async {
-                Navigator.pop(context);
+                Navigator.pop(dialogContext);
                 final result = await _captureFromCamera();
                 if (mounted) {
-                  Navigator.of(context).pop(result);
+                  Navigator.pop(context, result);
                 }
               },
             ),

@@ -1,6 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { ResponseAnalysisResult } from '../analytics/response-analysis.service';
+import { ResponseAnalysisResult } from '../common/interfaces/analytics.interfaces';
 import { InteractionInsights } from '../analytics/user-interaction.service';
+import {
+  CheckInData,
+  HistoricalPatternData,
+  MetricAverages,
+} from '../common/interfaces/health-analytics.interfaces';
 
 @Injectable()
 export class HealthScoreCalculatorService {
@@ -9,7 +14,7 @@ export class HealthScoreCalculatorService {
   calculateOverallHealthScore(
     analysisResult: ResponseAnalysisResult,
     vectorInsights: InteractionInsights,
-    historicalPatterns: any,
+    historicalPatterns: HistoricalPatternData,
   ): number {
     // Base score from sentiment and risk
     let score = 50; // Start with neutral
@@ -50,7 +55,9 @@ export class HealthScoreCalculatorService {
     return overallTrendValue * 0.2; // 20% of total possible contribution
   }
 
-  private calculateConsistencyContribution(historicalPatterns: any): number {
+  private calculateConsistencyContribution(
+    historicalPatterns: HistoricalPatternData,
+  ): number {
     const checkIns = historicalPatterns.checkIns || [];
     const daysWithData = checkIns.length;
     const expectedDays = 30;
@@ -60,7 +67,7 @@ export class HealthScoreCalculatorService {
     return consistencyRatio * 10; // 10% of total possible contribution
   }
 
-  calculatePredictionConfidence(checkIns: any[]): number {
+  calculatePredictionConfidence(checkIns: CheckInData[]): number {
     const dataPoints = checkIns.length;
     if (dataPoints < 7) return 0.5;
     if (dataPoints < 14) return 0.7;
@@ -79,8 +86,15 @@ export class HealthScoreCalculatorService {
     return 'significant';
   }
 
-  calculateAverageMetrics(checkIns: any[]): any {
-    if (checkIns.length === 0) return {};
+  calculateAverageMetrics(checkIns: CheckInData[]): MetricAverages {
+    if (checkIns.length === 0)
+      return {
+        avgMoodScore: 0,
+        avgEnergyLevel: 0,
+        avgSleepQuality: 0,
+        avgPainLevel: 0,
+        avgStressLevel: 0,
+      };
 
     const totals = checkIns.reduce(
       (acc, checkIn) => ({

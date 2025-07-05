@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 typedef LazyLoadCallback<T> = Future<List<T>> Function(int page, int pageSize);
 
 /// Callback for building list items
-typedef LazyItemBuilder<T> = Widget Function(BuildContext context, T item, int index);
+typedef LazyItemBuilder<T> = Widget Function(
+    BuildContext context, T item, int index);
 
 /// A lazy loading list widget that loads data on demand
 class LazyLoadingList<T> extends StatefulWidget {
@@ -70,7 +71,7 @@ class _LazyLoadingListState<T> extends State<LazyLoadingList<T>> {
 
   Future<void> _loadInitialData() async {
     if (_isLoading) return;
-    
+
     setState(() {
       _isLoading = true;
       _error = null;
@@ -99,7 +100,8 @@ class _LazyLoadingListState<T> extends State<LazyLoadingList<T>> {
     setState(() => _isLoading = true);
 
     try {
-      final newItems = await widget.onLoadMore(_currentPage + 1, widget.pageSize);
+      final newItems =
+          await widget.onLoadMore(_currentPage + 1, widget.pageSize);
       setState(() {
         _items.addAll(newItems);
         _currentPage++;
@@ -263,7 +265,7 @@ class _LazyLoadingGridState<T> extends State<LazyLoadingGrid<T>> {
 
   Future<void> _loadInitialData() async {
     if (_isLoading) return;
-    
+
     setState(() {
       _isLoading = true;
       _error = null;
@@ -292,7 +294,8 @@ class _LazyLoadingGridState<T> extends State<LazyLoadingGrid<T>> {
     setState(() => _isLoading = true);
 
     try {
-      final newItems = await widget.onLoadMore(_currentPage + 1, widget.pageSize);
+      final newItems =
+          await widget.onLoadMore(_currentPage + 1, widget.pageSize);
       setState(() {
         _items.addAll(newItems);
         _currentPage++;

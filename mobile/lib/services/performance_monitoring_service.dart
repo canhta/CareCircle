@@ -29,22 +29,24 @@ class PerformanceMonitoringService {
   Future<void> initialize() async {
     try {
       _logger.info('Initializing PerformanceMonitoringService...');
-      
+
       // Enable performance collection
       await _performance.setPerformanceCollectionEnabled(true);
-      
+
       // Record app start time
       _appStartTime = DateTime.now();
-      
+
       _logger.info('PerformanceMonitoringService initialized successfully');
     } catch (e) {
-      _logger.error('Failed to initialize PerformanceMonitoringService', error: e);
+      _logger.error('Failed to initialize PerformanceMonitoringService',
+          error: e);
       rethrow;
     }
   }
 
   /// Start a custom trace
-  Future<String?> startTrace(String traceName, {Map<String, String>? attributes}) async {
+  Future<String?> startTrace(String traceName,
+      {Map<String, String>? attributes}) async {
     try {
       if (_activeTraces.containsKey(traceName)) {
         _logger.warning('Trace $traceName is already active');
@@ -52,7 +54,7 @@ class PerformanceMonitoringService {
       }
 
       final trace = _performance.newTrace(traceName);
-      
+
       // Add custom attributes
       if (attributes != null) {
         for (final entry in attributes.entries) {
@@ -104,14 +106,14 @@ class PerformanceMonitoringService {
   }) async {
     try {
       final metricKey = '${method.name}_${url.hashCode}';
-      
+
       if (_activeHttpMetrics.containsKey(metricKey)) {
         _logger.warning('HTTP metric $metricKey is already active');
         return metricKey;
       }
 
       final httpMetric = _performance.newHttpMetric(url, method);
-      
+
       // Add custom attributes
       if (attributes != null) {
         for (final entry in attributes.entries) {
@@ -174,7 +176,7 @@ class PerformanceMonitoringService {
       if (_appStartTime == null) return;
 
       final startupDuration = DateTime.now().difference(_appStartTime!);
-      
+
       await _analytics.trackPerformanceMetric(
         'app_startup_time',
         startupDuration.inMilliseconds.toDouble(),
@@ -185,7 +187,8 @@ class PerformanceMonitoringService {
         },
       );
 
-      _logger.info('App startup time tracked: ${startupDuration.inMilliseconds}ms');
+      _logger.info(
+          'App startup time tracked: ${startupDuration.inMilliseconds}ms');
     } catch (e) {
       _logger.error('Failed to track app startup time', error: e);
     }
@@ -218,7 +221,7 @@ class PerformanceMonitoringService {
       }
 
       final loadDuration = DateTime.now().difference(startTime);
-      
+
       // Stop the screen load trace
       await stopTrace('screen_load_$screenName', metrics: {
         'load_time_ms': loadDuration.inMilliseconds,
@@ -236,9 +239,11 @@ class PerformanceMonitoringService {
       );
 
       _screenLoadTimes.remove(screenName);
-      _logger.info('Screen load completed: $screenName (${loadDuration.inMilliseconds}ms)');
+      _logger.info(
+          'Screen load completed: $screenName (${loadDuration.inMilliseconds}ms)');
     } catch (e) {
-      _logger.error('Failed to complete screen load tracking: $screenName', error: e);
+      _logger.error('Failed to complete screen load tracking: $screenName',
+          error: e);
     }
   }
 
@@ -250,7 +255,7 @@ class PerformanceMonitoringService {
     Map<String, dynamic>? context,
   }) async {
     final traceName = 'db_$operation${tableName != null ? '_$tableName' : ''}';
-    
+
     try {
       // Start trace
       await startTrace(traceName, attributes: {
@@ -259,12 +264,12 @@ class PerformanceMonitoringService {
       });
 
       final startTime = DateTime.now();
-      
+
       // Execute database operation
       await databaseCall();
-      
+
       final duration = DateTime.now().difference(startTime);
-      
+
       // Stop trace with metrics
       await stopTrace(traceName, metrics: {
         'duration_ms': duration.inMilliseconds,
@@ -283,11 +288,12 @@ class PerformanceMonitoringService {
         },
       );
 
-      _logger.info('Database operation tracked: $operation (${duration.inMilliseconds}ms)');
+      _logger.info(
+          'Database operation tracked: $operation (${duration.inMilliseconds}ms)');
     } catch (e) {
       // Stop trace even if operation failed
       await stopTrace(traceName);
-      
+
       _logger.error('Database operation failed: $operation', error: e);
       rethrow;
     }
@@ -301,7 +307,7 @@ class PerformanceMonitoringService {
     Map<String, dynamic>? context,
   }) async {
     String? metricKey;
-    
+
     try {
       // Start HTTP metric
       metricKey = await startHttpMetric(endpoint, method, attributes: {
@@ -310,12 +316,12 @@ class PerformanceMonitoringService {
       });
 
       final startTime = DateTime.now();
-      
+
       // Execute API call
       final result = await apiCall();
-      
+
       final duration = DateTime.now().difference(startTime);
-      
+
       // Stop HTTP metric with success
       if (metricKey != null) {
         await stopHttpMetric(metricKey, httpResponseCode: 200);
@@ -335,7 +341,8 @@ class PerformanceMonitoringService {
         },
       );
 
-      _logger.info('API call tracked: $endpoint (${duration.inMilliseconds}ms)');
+      _logger
+          .info('API call tracked: $endpoint (${duration.inMilliseconds}ms)');
       return result;
     } catch (e) {
       // Stop HTTP metric with error
@@ -367,7 +374,7 @@ class PerformanceMonitoringService {
     try {
       // Note: Actual memory tracking would require platform-specific implementation
       // This is a placeholder for demonstration
-      
+
       await _analytics.trackPerformanceMetric(
         'memory_usage',
         0, // Placeholder value

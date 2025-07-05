@@ -5,9 +5,9 @@ import '../models/user_preferences_model.dart';
 class UserPreferencesService {
   late final SecureStorageService _secureStorage;
   late final AppLogger _logger;
-  
+
   UserPreferences? _cachedPreferences;
-  
+
   UserPreferencesService({
     required SecureStorageService secureStorage,
     required AppLogger logger,
@@ -20,9 +20,9 @@ class UserPreferencesService {
   Future<UserPreferences> loadPreferences() async {
     try {
       _logger.info('Loading user preferences');
-      
+
       final preferencesData = await _secureStorage.getUserPreferences();
-      
+
       if (preferencesData != null) {
         _cachedPreferences = UserPreferences.fromJson(preferencesData);
         _logger.info('User preferences loaded successfully');
@@ -31,7 +31,7 @@ class UserPreferencesService {
         _cachedPreferences = const UserPreferences();
         _logger.info('No existing preferences found, using defaults');
       }
-      
+
       return _cachedPreferences!;
     } catch (e) {
       _logger.error('Failed to load user preferences', error: e);
@@ -45,10 +45,10 @@ class UserPreferencesService {
   Future<void> savePreferences(UserPreferences preferences) async {
     try {
       _logger.info('Saving user preferences');
-      
+
       await _secureStorage.saveUserPreferences(preferences.toJson());
       _cachedPreferences = preferences;
-      
+
       _logger.info('User preferences saved successfully');
     } catch (e) {
       _logger.error('Failed to save user preferences', error: e);
@@ -129,9 +129,9 @@ class UserPreferencesService {
   Future<void> updateMultiplePreferences(Map<String, dynamic> updates) async {
     try {
       final currentPreferences = await getCurrentPreferences();
-      
+
       UserPreferences updatedPreferences = currentPreferences;
-      
+
       for (final entry in updates.entries) {
         switch (entry.key) {
           case 'notificationsEnabled':
@@ -193,10 +193,10 @@ class UserPreferencesService {
   Future<void> resetToDefaults() async {
     try {
       _logger.info('Resetting preferences to defaults');
-      
+
       const defaultPreferences = UserPreferences();
       await savePreferences(defaultPreferences);
-      
+
       _logger.info('Preferences reset to defaults successfully');
     } catch (e) {
       _logger.error('Failed to reset preferences to defaults', error: e);
@@ -208,10 +208,10 @@ class UserPreferencesService {
   Future<void> clearPreferences() async {
     try {
       _logger.info('Clearing all preferences');
-      
+
       await _secureStorage.clearUserData();
       _cachedPreferences = null;
-      
+
       _logger.info('All preferences cleared successfully');
     } catch (e) {
       _logger.error('Failed to clear preferences', error: e);
@@ -223,7 +223,7 @@ class UserPreferencesService {
   Future<T?> getPreference<T>(String key) async {
     try {
       final preferences = await getCurrentPreferences();
-      
+
       switch (key) {
         case 'notificationsEnabled':
           return preferences.notificationsEnabled as T;

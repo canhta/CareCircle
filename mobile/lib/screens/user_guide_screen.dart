@@ -53,7 +53,7 @@ class _UserGuideScreenState extends State<UserGuideScreen> {
   @override
   Widget build(BuildContext context) {
     final sections = _getGuideSections();
-    
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('User Guide'),
@@ -395,16 +395,20 @@ class _UserGuideScreenState extends State<UserGuideScreen> {
         steps: [
           GuideStep(
             title: 'Create Your Account',
-            description: 'Sign up with your email or phone number. Verify your account through the confirmation link or SMS code.',
-            tip: 'Use a strong password and enable two-factor authentication for better security.',
+            description:
+                'Sign up with your email or phone number. Verify your account through the confirmation link or SMS code.',
+            tip:
+                'Use a strong password and enable two-factor authentication for better security.',
           ),
           GuideStep(
             title: 'Complete Your Profile',
-            description: 'Add your personal information, emergency contacts, and health preferences. This helps personalize your experience.',
+            description:
+                'Add your personal information, emergency contacts, and health preferences. This helps personalize your experience.',
           ),
           GuideStep(
             title: 'Explore the Dashboard',
-            description: 'Familiarize yourself with the main dashboard. Here you\'ll see your health summary, recent activities, and quick actions.',
+            description:
+                'Familiarize yourself with the main dashboard. Here you\'ll see your health summary, recent activities, and quick actions.',
           ),
         ],
       ),
@@ -417,16 +421,20 @@ class _UserGuideScreenState extends State<UserGuideScreen> {
         steps: [
           GuideStep(
             title: 'Connect Health Devices',
-            description: 'Link your fitness trackers, smartwatches, or health monitoring devices to automatically sync data.',
-            tip: 'Most popular devices like Apple Watch, Fitbit, and Samsung Health are supported.',
+            description:
+                'Link your fitness trackers, smartwatches, or health monitoring devices to automatically sync data.',
+            tip:
+                'Most popular devices like Apple Watch, Fitbit, and Samsung Health are supported.',
           ),
           GuideStep(
             title: 'Manual Data Entry',
-            description: 'Enter health data manually when devices aren\'t available. Track weight, blood pressure, glucose levels, and more.',
+            description:
+                'Enter health data manually when devices aren\'t available. Track weight, blood pressure, glucose levels, and more.',
           ),
           GuideStep(
             title: 'View Health Charts',
-            description: 'Analyze your health trends with interactive charts. Switch between different time periods and data types.',
+            description:
+                'Analyze your health trends with interactive charts. Switch between different time periods and data types.',
           ),
         ],
       ),
@@ -439,16 +447,19 @@ class _UserGuideScreenState extends State<UserGuideScreen> {
         steps: [
           GuideStep(
             title: 'Add Medications',
-            description: 'Enter your medications with dosage, frequency, and instructions. Use the camera to scan prescription labels.',
+            description:
+                'Enter your medications with dosage, frequency, and instructions. Use the camera to scan prescription labels.',
             tip: 'Take a photo of your medication bottles for easy reference.',
           ),
           GuideStep(
             title: 'Set Reminders',
-            description: 'Configure reminder times that work with your schedule. Set different times for different medications.',
+            description:
+                'Configure reminder times that work with your schedule. Set different times for different medications.',
           ),
           GuideStep(
             title: 'Track Adherence',
-            description: 'Mark medications as taken, skipped, or delayed. View your adherence history and patterns.',
+            description:
+                'Mark medications as taken, skipped, or delayed. View your adherence history and patterns.',
           ),
         ],
       ),
@@ -461,16 +472,20 @@ class _UserGuideScreenState extends State<UserGuideScreen> {
         steps: [
           GuideStep(
             title: 'Create a Care Group',
-            description: 'Set up a care group and invite family members or caregivers. Choose what information to share.',
+            description:
+                'Set up a care group and invite family members or caregivers. Choose what information to share.',
           ),
           GuideStep(
             title: 'Manage Privacy',
-            description: 'Control what health information is visible to each care group member. Adjust settings anytime.',
-            tip: 'You can have different privacy levels for different family members.',
+            description:
+                'Control what health information is visible to each care group member. Adjust settings anytime.',
+            tip:
+                'You can have different privacy levels for different family members.',
           ),
           GuideStep(
             title: 'Share Updates',
-            description: 'Send health updates, emergency alerts, or daily check-ins to your care group members.',
+            description:
+                'Send health updates, emergency alerts, or daily check-ins to your care group members.',
           ),
         ],
       ),

@@ -4,31 +4,25 @@ import {
   UserBehaviorAnalyticsService,
   UserEngagementPattern,
 } from './user-behavior-analytics.service';
-import {
-  NotificationService,
-  NotificationPayload,
-} from './notification.service';
+import { NotificationService } from './notification.service';
 import { NotificationTemplateService } from './notification-template.service';
 import { NotificationBehaviorService } from './notification-behavior.service';
 import { OpenAIService } from '../ai/openai.service';
 import { ConfigService } from '@nestjs/config';
+import {
+  AdaptiveNotificationRequest,
+  NotificationRecommendation,
+  NotificationPriorityLevel,
+  NotificationEffectivenessAnalysis,
+  UserNotificationContext,
+  NotificationSummary,
+  NotificationPayload,
+} from '../common/interfaces/notification.interfaces';
+import { Notification, NotificationPriority, User } from '@prisma/client';
 
-export interface AdaptiveNotificationRequest {
-  userId: string;
-  notificationType: string;
-  medicationName?: string;
-  context?: Record<string, any>;
-  urgencyLevel?: 'low' | 'medium' | 'high' | 'critical';
-}
-
-export interface NotificationRecommendation {
-  optimalTime: Date;
-  messageContent: string;
-  title: string;
-  tone: string;
-  channels: string[];
-  reasoning: string;
-  confidence: number; // 0-1
+// Extended User type with notifications for internal use
+interface UserWithNotifications extends User {
+  notifications: Notification[];
 }
 
 @Injectable()
@@ -73,7 +67,7 @@ export class AdaptiveNotificationEngineService {
 
       // Prepare context for LLM
       const context = this.prepareUserContext(
-        user,
+        user as UserWithNotifications,
         engagementPattern || null,
         request,
       );
@@ -111,8 +105,8 @@ export class AdaptiveNotificationEngineService {
         userId: request.userId,
         title: recommendation.title,
         message: recommendation.messageContent,
-        type: request.notificationType as any,
-        channels: recommendation.channels as any[],
+        type: request.notificationType as any, // Temporary cast until we update schema
+        channels: recommendation.channels as any[], // Temporary cast until we update schema
         priority: this.mapUrgencyToPriority(request.urgencyLevel),
         scheduledFor: recommendation.optimalTime,
         templateData: {
@@ -232,100 +226,105 @@ export class AdaptiveNotificationEngineService {
   }
 
   /**
-   * Prepare user context for LLM analysis
+   * Prepare user context for LLM recommendation
    */
   private prepareUserContext(
-    user: any,
+    user: UserWithNotifications,
     engagementPattern: UserEngagementPattern | null,
     request: AdaptiveNotificationRequest,
-  ): string {
-    const context = {
-      user_profile: {
-        age: user.dateOfBirth
-          ? Math.floor(
-              (Date.now() - new Date(user.dateOfBirth).getTime()) /
-                (365.25 * 24 * 60 * 60 * 1000),
-            )
-          : null,
-        timezone: user.timezone,
-        first_name: user.firstName,
+  ): UserNotificationContext {
+    // Format recent notifications for context
+    const recentNotifications: NotificationSummary[] = user.notifications.map(
+      (notification) => ({
+        id: notification.id,
+        type: notification.type,
+        sent_at: notification.sentAt || notification.createdAt,
+        read_at: notification.readAt,
+        title: notification.title,
+        message: notification.message,
+      }),
+    );
+
+    return {
+      userId: user.id,
+      name: `${user.firstName || ''} ${user.lastName || ''}`.trim(),
+      age: user.dateOfBirth
+        ? Math.floor(
+            (new Date().getTime() - user.dateOfBirth.getTime()) /
+              (365.25 * 24 * 60 * 60 * 1000),
+          )
+        : undefined,
+      preferences: {
+        language: user.timezone?.split('/')[1] || 'en', // Using timezone region as a fallback for language
+        timezone: user.timezone || 'UTC',
+        notificationPreferences: {}, // Empty object since not in schema
       },
+      recent_notifications: recentNotifications,
       engagement_pattern: engagementPattern
         ? {
             preferred_times: engagementPattern.preferredTimes,
             response_rate: engagementPattern.responseRate,
             average_response_time: engagementPattern.averageResponseTime,
             best_notification_types: engagementPattern.bestNotificationTypes,
-            worst_notification_types: engagementPattern.worstNotificationTypes,
-            engagement_trend: engagementPattern.engagementTrend,
           }
-        : null,
+        : undefined,
       notification_request: {
         type: request.notificationType,
+        urgency: request.urgencyLevel || 'medium',
         medication_name: request.medicationName,
-        urgency_level: request.urgencyLevel,
         context: request.context,
       },
-      current_time: new Date().toISOString(),
-      recent_notifications: user.notifications.map((n: any) => ({
-        type: n.type,
-        sent_at: n.sentAt,
-        read_at: n.readAt,
-      })),
     };
-
-    return JSON.stringify(context, null, 2);
   }
 
   /**
-   * Generate LLM-based notification recommendation
+   * Generate notification recommendation using LLM
    */
   private async generateLLMRecommendation(
-    context: string,
+    context: UserNotificationContext,
   ): Promise<NotificationRecommendation> {
     const prompt = `
-Analyze the following user context and generate an optimal notification recommendation:
+You are an adaptive notification system for a healthcare app that helps patients manage their medications and health.
 
-${context}
+USER CONTEXT:
+${JSON.stringify(context, null, 2)}
 
-Based on this data, provide a JSON response with the following structure:
+Based on this context, generate a personalized notification recommendation in the following JSON format:
+
 {
-  "optimalTime": "ISO 8601 timestamp for when to send the notification",
-  "messageContent": "personalized message content",
-  "title": "notification title",
-  "tone": "communication tone (supportive, direct, casual, urgent)",
-  "channels": ["array of recommended delivery channels: push, email, sms"],
-  "reasoning": "brief explanation of why these recommendations were made",
-  "confidence": number between 0-1 representing confidence in recommendations
+  "optimalTime": "ISO date string for the best time to send this notification",
+  "messageContent": "The message content that will resonate with this user",
+  "title": "A brief, engaging title",
+  "tone": "warm/urgent/informative/encouraging",
+  "channels": ["app", "sms", "email"],
+  "reasoning": "Explanation of why this recommendation was made",
+  "confidence": 0.95
 }
 
 Consider:
-- User's historical engagement patterns and preferred times
-- Notification type and urgency level
-- Time zone and current time
-- Recent notification history to avoid fatigue
-- Personalization based on user profile
-- Medication adherence context if applicable
-
-Optimize for maximum engagement while respecting user preferences and avoiding notification fatigue.
+1. User's engagement patterns and preferred times
+2. Type and urgency of the notification
+3. User's past response behavior
+4. Best tone and approach based on notification type
+5. Appropriate channels based on urgency and content
 `;
 
     const completion = await this.openaiService.createCompletion(prompt, {
       model: 'gpt-4o-mini',
-      temperature: 0.3,
+      temperature: 0.2,
     });
 
     const recommendation = JSON.parse(completion || '{}');
 
-    return {
-      optimalTime: new Date(recommendation.optimalTime),
-      messageContent: recommendation.messageContent,
-      title: recommendation.title,
-      tone: recommendation.tone,
-      channels: recommendation.channels,
-      reasoning: recommendation.reasoning,
-      confidence: recommendation.confidence,
-    };
+    // Ensure optimal time is a Date object
+    if (
+      recommendation.optimalTime &&
+      typeof recommendation.optimalTime === 'string'
+    ) {
+      recommendation.optimalTime = new Date(recommendation.optimalTime);
+    }
+
+    return recommendation as NotificationRecommendation;
   }
 
   /**
@@ -334,16 +333,43 @@ Optimize for maximum engagement while respecting user preferences and avoiding n
   private generateFallbackRecommendation(
     request: AdaptiveNotificationRequest,
   ): NotificationRecommendation {
-    const defaultTime = new Date();
-    defaultTime.setHours(9, 0, 0, 0);
+    // Set a default time at 9 AM tomorrow
+    const optimalTime = new Date();
+    optimalTime.setHours(9, 0, 0, 0);
+    optimalTime.setDate(optimalTime.getDate() + 1);
+
+    // Default message content based on notification type
+    let title = 'Important Health Notification';
+    let messageContent =
+      'Please check your healthcare app for an important update.';
+
+    if (
+      request.notificationType === 'medication_reminder' &&
+      request.medicationName
+    ) {
+      title = 'Medication Reminder';
+      messageContent = `Time to take your ${request.medicationName}. Don't forget!`;
+    } else if (request.notificationType === 'health_check') {
+      title = 'Daily Health Check';
+      messageContent = 'Please complete your daily health check-in.';
+    }
+
+    // Default channels based on urgency
+    const channels =
+      request.urgencyLevel === 'critical' || request.urgencyLevel === 'high'
+        ? ['app', 'sms', 'email']
+        : ['app'];
 
     return {
-      optimalTime: defaultTime,
-      messageContent: `Don't forget to take your ${request.medicationName || 'medication'}!`,
-      title: '💊 Medication Reminder',
-      tone: 'supportive',
-      channels: ['push'],
-      reasoning: 'Using fallback recommendation due to analysis failure',
+      optimalTime,
+      messageContent,
+      title,
+      tone:
+        request.urgencyLevel === 'critical' || request.urgencyLevel === 'high'
+          ? 'urgent'
+          : 'friendly',
+      channels,
+      reasoning: 'Fallback recommendation due to error in LLM processing',
       confidence: 0.5,
     };
   }
@@ -351,17 +377,19 @@ Optimize for maximum engagement while respecting user preferences and avoiding n
   /**
    * Map urgency level to notification priority
    */
-  private mapUrgencyToPriority(urgencyLevel?: string): any {
+  private mapUrgencyToPriority(
+    urgencyLevel?: NotificationPriorityLevel,
+  ): NotificationPriority {
     switch (urgencyLevel) {
       case 'critical':
-        return 'CRITICAL';
+        return NotificationPriority.CRITICAL;
       case 'high':
-        return 'HIGH';
+        return NotificationPriority.HIGH;
       case 'medium':
-        return 'NORMAL';
+        return NotificationPriority.NORMAL;
       case 'low':
       default:
-        return 'LOW';
+        return NotificationPriority.LOW;
     }
   }
 
@@ -387,7 +415,9 @@ Optimize for maximum engagement while respecting user preferences and avoiding n
   /**
    * Analyze effectiveness using LLM
    */
-  private async analyzeLLMEffectiveness(data: string): Promise<any> {
+  private async analyzeLLMEffectiveness(
+    data: string,
+  ): Promise<NotificationEffectivenessAnalysis> {
     const prompt = `
 Analyze the following notification effectiveness data:
 
@@ -411,7 +441,7 @@ Provide insights and recommendations for improving notification effectiveness in
       temperature: 0.1,
     });
 
-    return JSON.parse(completion || '{}');
+    return JSON.parse(completion || '{}') as NotificationEffectivenessAnalysis;
   }
 
   /**
@@ -419,7 +449,7 @@ Provide insights and recommendations for improving notification effectiveness in
    */
   private async storeEffectivenessInsights(
     userId: string,
-    analysis: any,
+    analysis: NotificationEffectivenessAnalysis,
   ): Promise<void> {
     await this.prisma.userEngagementPattern.upsert({
       where: { userId },

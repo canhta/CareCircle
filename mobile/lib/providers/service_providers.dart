@@ -86,15 +86,14 @@ final todayCheckInProvider =
   final service = ref.read(dailyCheckInServiceProvider);
   final result = await service.getTodayCheckIn();
 
-  return result.fold(
-    (checkIn) => checkIn,
-    (error) {
-      ref
-          .read(appLoggerProvider)
-          .error('Failed to load today\'s check-in', error: error);
-      return null;
-    },
-  );
+  if (result.isSuccess) {
+    return (result as Success<DailyCheckIn?>).data;
+  } else {
+    ref
+        .read(appLoggerProvider)
+        .error('Failed to load today\'s check-in', error: result.exception);
+    return null;
+  }
 });
 
 final recentCheckInsProvider =
@@ -102,15 +101,14 @@ final recentCheckInsProvider =
   final service = ref.read(dailyCheckInServiceProvider);
   final result = await service.getRecentCheckIns();
 
-  return result.fold(
-    (checkIns) => checkIns,
-    (error) {
-      ref
-          .read(appLoggerProvider)
-          .error('Failed to load recent check-ins', error: error);
-      return <DailyCheckIn>[];
-    },
-  );
+  if (result.isSuccess) {
+    return (result as Success<List<DailyCheckIn>>).data;
+  } else {
+    ref
+        .read(appLoggerProvider)
+        .error('Failed to load recent check-ins', error: result.exception);
+    return <DailyCheckIn>[];
+  }
 });
 
 // Medication State Providers

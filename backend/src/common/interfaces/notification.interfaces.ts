@@ -171,4 +171,83 @@ export interface HealthInsight {
   type: string;
   description: string;
   severity: string;
+  confidence?: number; // 0-1 value indicating confidence in this insight
+  title?: string;
+  id?: string;
+  supportingData?: string[];
+  relatedMetrics?: string[];
+  timeframe?: string;
+}
+
+/**
+ * Interface for adaptive notification request
+ */
+export interface AdaptiveNotificationRequest {
+  userId: string;
+  notificationType: string;
+  medicationName?: string;
+  context?: Record<string, unknown>;
+  urgencyLevel?: NotificationPriorityLevel;
+}
+
+/**
+ * Interface for notification recommendation
+ */
+export interface NotificationRecommendation {
+  optimalTime: Date;
+  messageContent: string;
+  title: string;
+  tone: string;
+  channels: string[];
+  reasoning: string;
+  confidence: number; // 0-1
+}
+
+/**
+ * Interface for notification effectiveness analysis
+ */
+export interface NotificationEffectivenessAnalysis {
+  overall_effectiveness: number;
+  key_insights: string[];
+  recommendations: string[];
+  optimal_patterns: {
+    best_times: number[];
+    best_types: string[];
+    engagement_factors: string[];
+  };
+}
+
+/**
+ * Interface for user context in adaptive notifications
+ */
+export interface UserNotificationContext {
+  userId: string;
+  name: string;
+  age?: number;
+  preferences?: Record<string, unknown>;
+  recent_notifications: NotificationSummary[];
+  engagement_pattern?: {
+    preferred_times: number[];
+    response_rate: number;
+    average_response_time: number;
+    best_notification_types: string[];
+  };
+  notification_request: {
+    type: string;
+    urgency: string;
+    medication_name?: string;
+    context?: Record<string, unknown>;
+  };
+}
+
+/**
+ * Interface for notification summary
+ */
+export interface NotificationSummary {
+  id: string;
+  type: string;
+  sent_at: Date;
+  read_at?: Date | null;
+  title: string;
+  message: string;
 }

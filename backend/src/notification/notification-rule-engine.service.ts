@@ -1,26 +1,51 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { HealthInsight } from '../insights/insight-generator.service';
+import { HealthInsight } from '../common/interfaces/notification.interfaces';
 
 export interface NotificationRule {
   id: string;
   name: string;
   description: string;
-  condition: (data: any) => boolean;
-  triggerType: 'insight' | 'risk_alert' | 'follow_up' | 'engagement';
-  priority: 'low' | 'medium' | 'high' | 'critical';
+  condition: (data: RuleEvaluationData) => boolean;
+  triggerType: NotificationRuleTriggerType;
+  priority: NotificationRulePriority;
   enabled: boolean;
 }
+
+export type NotificationRuleTriggerType =
+  | 'insight'
+  | 'risk_alert'
+  | 'follow_up'
+  | 'engagement';
+export type NotificationRulePriority = 'low' | 'medium' | 'high' | 'critical';
 
 export interface RuleEvaluationData {
   insight?: HealthInsight;
   riskScore?: number;
   trends?: string[];
   symptoms?: string[];
-  prescriptions?: any[];
+  prescriptions?: PrescriptionData[];
   missedDays?: number;
   totalCheckIns?: number;
   lastCheckIn?: Date;
-  userContext?: any;
+  userContext?: UserRuleContext;
+}
+
+export interface PrescriptionData {
+  id: string;
+  medicationName: string;
+  dosage?: string;
+  frequency?: string;
+  startDate?: Date;
+  endDate?: Date;
+}
+
+export interface UserRuleContext {
+  userId: string;
+  durationDays?: number;
+  lastActivity?: Date;
+  engagementScore?: number;
+  riskFactors?: string[];
+  [key: string]: unknown;
 }
 
 @Injectable()
@@ -126,7 +151,9 @@ export class NotificationRuleEngine {
   /**
    * Get rules by trigger type
    */
-  getRulesByTriggerType(triggerType: string): NotificationRule[] {
+  getRulesByTriggerType(
+    triggerType: NotificationRuleTriggerType,
+  ): NotificationRule[] {
     return this.defaultRules.filter((rule) => rule.triggerType === triggerType);
   }
 
@@ -156,15 +183,17 @@ export class NotificationRuleEngine {
    */
   createInsightEvaluationData(
     insight: HealthInsight,
-    additionalContext?: any,
+    additionalContext?: Record<string, unknown>,
   ): RuleEvaluationData {
     return {
       insight,
-      riskScore: insight.confidence * 10, // Convert to 1-10 scale
+      riskScore:
+        typeof insight.confidence === 'number' ? insight.confidence * 10 : 5, // Convert to 1-10 scale
       trends: [insight.type],
-      symptoms: additionalContext?.symptoms || [],
-      prescriptions: additionalContext?.prescriptions || [],
-      userContext: additionalContext,
+      symptoms: (additionalContext?.symptoms as string[]) || [],
+      prescriptions:
+        (additionalContext?.prescriptions as PrescriptionData[]) || [],
+      userContext: additionalContext as UserRuleContext,
     };
   }
 
