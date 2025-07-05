@@ -88,7 +88,7 @@ class _PrescriptionScannerScreenState extends State<PrescriptionScannerScreen> {
 
   /// Show image source dialog
   Future<CapturedImage?> _showImageSourceDialog(BuildContext context) async {
-    return await showDialog<CapturedImage?>(
+    final choice = await showDialog<String>(
       context: context,
       builder: (BuildContext dialogContext) {
         return AlertDialog(
@@ -102,28 +102,28 @@ class _PrescriptionScannerScreenState extends State<PrescriptionScannerScreen> {
             ),
             TextButton(
               child: const Text('Gallery'),
-              onPressed: () async {
-                Navigator.pop(dialogContext);
-                final result = await _selectFromGallery();
-                if (mounted) {
-                  Navigator.pop(context, result);
-                }
-              },
+              onPressed: () => Navigator.pop(dialogContext, 'gallery'),
             ),
             TextButton(
               child: const Text('Camera'),
-              onPressed: () async {
-                Navigator.pop(dialogContext);
-                final result = await _captureFromCamera();
-                if (mounted) {
-                  Navigator.pop(context, result);
-                }
-              },
+              onPressed: () => Navigator.pop(dialogContext, 'camera'),
             ),
           ],
         );
       },
     );
+
+    if (choice == null) return null;
+
+    // Handle the choice after dialog is closed
+    switch (choice) {
+      case 'gallery':
+        return await _selectFromGallery();
+      case 'camera':
+        return await _captureFromCamera();
+      default:
+        return null;
+    }
   }
 
   /// Capture image from camera
