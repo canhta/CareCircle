@@ -15,6 +15,11 @@ import {
   Permission,
   ROLE_PERMISSIONS,
 } from '../decorators/roles.decorator';
+import {
+  UserWithRoles,
+  GuardRequest,
+  AuthFailureDetails,
+} from '../interfaces/guards.interfaces';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -43,14 +48,14 @@ export class RolesGuard implements CanActivate {
       return true;
     }
 
-    const request = context.switchToHttp().getRequest();
+    const request = context.switchToHttp().getRequest<GuardRequest>();
     const user = request.user;
 
     if (!user) {
       throw new ForbiddenException('Authentication required');
     }
 
-    const userId = user.id || user.sub;
+    const userId = user.id || (user.sub as string);
 
     try {
       // Get user with roles and permissions
@@ -70,14 +75,18 @@ export class RolesGuard implements CanActivate {
         requiredRoles &&
         !this.hasRequiredRoles(userWithRoles, requiredRoles)
       ) {
+        const userRolesArray = Array.isArray(userWithRoles.roles)
+          ? userWithRoles.roles
+          : [userWithRoles.roles];
+
         await this.auditAuthorizationFailure(
           userId,
           'INSUFFICIENT_ROLE',
           request,
-          { requiredRoles, userRoles: userWithRoles.roles },
+          { requiredRoles, userRoles: userRolesArray },
         );
         throw new ForbiddenException(
-          `Insufficient role. Required: ${requiredRoles.join(', ')}, Has: ${userWithRoles.roles.join(', ')}`,
+          `Insufficient role. Required: ${requiredRoles.join(', ')}, Has: ${userRolesArray.join(', ')}`,
         );
       }
 
@@ -86,13 +95,14 @@ export class RolesGuard implements CanActivate {
         requiredPermissions &&
         !this.hasRequiredPermissions(userWithRoles, requiredPermissions)
       ) {
+        const userPermissions = this.getUserPermissions(userWithRoles);
         await this.auditAuthorizationFailure(
           userId,
           'INSUFFICIENT_PERMISSIONS',
           request,
           {
             requiredPermissions,
-            userPermissions: this.getUserPermissions(userWithRoles),
+            userPermissions,
           },
         );
         throw new ForbiddenException(
@@ -102,6 +112,10 @@ export class RolesGuard implements CanActivate {
 
       // Audit successful authorization for sensitive operations
       if (this.isSensitiveOperation(requiredRoles, requiredPermissions)) {
+        const userRolesArray = Array.isArray(userWithRoles.roles)
+          ? userWithRoles.roles
+          : [userWithRoles.roles];
+
         await this.auditService.logSecurityEvent({
           userId,
           action: 'AUTHORIZATION_SUCCESS',
@@ -109,7 +123,7 @@ export class RolesGuard implements CanActivate {
           details: {
             requiredRoles,
             requiredPermissions,
-            userRoles: userWithRoles.roles,
+            userRoles: userRolesArray,
           },
           timestamp: new Date(),
           severity: 'LOW',
@@ -127,8 +141,10 @@ export class RolesGuard implements CanActivate {
     }
   }
 
-  private async getUserWithRoles(userId: string) {
-    return await this.prisma.user.findUnique({
+  private async getUserWithRoles(
+    userId: string,
+  ): Promise<UserWithRoles | null> {
+    const user = await this.prisma.user.findUnique({
       where: { id: userId },
       select: {
         id: true,
@@ -138,15 +154,20 @@ export class RolesGuard implements CanActivate {
         // If roles are in a separate table, include them here
       },
     });
+
+    return user as UserWithRoles | null;
   }
 
-  private hasRequiredRoles(user: any, requiredRoles: SystemRole[]): boolean {
+  private hasRequiredRoles(
+    user: UserWithRoles,
+    requiredRoles: SystemRole[],
+  ): boolean {
     const userRoles = Array.isArray(user.roles) ? user.roles : [user.roles];
     return requiredRoles.some((role) => userRoles.includes(role));
   }
 
   private hasRequiredPermissions(
-    user: any,
+    user: UserWithRoles,
     requiredPermissions: Permission[],
   ): boolean {
     const userPermissions = this.getUserPermissions(user);
@@ -155,7 +176,7 @@ export class RolesGuard implements CanActivate {
     );
   }
 
-  private getUserPermissions(user: any): Permission[] {
+  private getUserPermissions(user: UserWithRoles): Permission[] {
     const userRoles = Array.isArray(user.roles) ? user.roles : [user.roles];
     const permissions = new Set<Permission>();
 
@@ -192,16 +213,16 @@ export class RolesGuard implements CanActivate {
 
   private async auditAuthorizationFailure(
     userId: string,
-    reason: string,
-    request: any,
-    details: any,
+    failureReason: string,
+    request: GuardRequest,
+    details: AuthFailureDetails,
   ): Promise<void> {
     await this.auditService.logSecurityEvent({
       userId,
       action: 'AUTHORIZATION_FAILURE',
       resource: `${request.method} ${request.url}`,
       details: {
-        reason,
+        reason: failureReason,
         ...details,
         ip: request.ip,
         userAgent: request.get('User-Agent'),

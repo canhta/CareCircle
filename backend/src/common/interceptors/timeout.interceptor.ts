@@ -9,11 +9,21 @@ import {
 import { Observable, throwError, TimeoutError } from 'rxjs';
 import { timeout, catchError } from 'rxjs/operators';
 import { Reflector } from '@nestjs/core';
+import { RequestWithCorrelationId } from '../interfaces/interceptor.interfaces';
+
+// Timeout response error shape
+export interface TimeoutErrorResponse {
+  message: string;
+  timeout: number;
+  path: string;
+  method: string;
+  correlationId: string;
+}
 
 // Decorator to set custom timeout for specific endpoints
 export const Timeout = (ms: number) => {
   return (
-    target: any,
+    target: object,
     propertyName: string,
     descriptor: PropertyDescriptor,
   ) => {
@@ -28,9 +38,11 @@ export class TimeoutInterceptor implements NestInterceptor {
 
   constructor(private reflector: Reflector) {}
 
-  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+  intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
     const handler = context.getHandler();
-    const request = context.switchToHttp().getRequest();
+    const request = context
+      .switchToHttp()
+      .getRequest<RequestWithCorrelationId>();
 
     // Get custom timeout or use default based on endpoint type
     const customTimeout = this.reflector.get<number>('timeout', handler);
@@ -48,16 +60,15 @@ export class TimeoutInterceptor implements NestInterceptor {
             correlationId,
           );
 
-          return throwError(
-            () =>
-              new RequestTimeoutException({
-                message: `Request timeout after ${timeoutMs}ms`,
-                timeout: timeoutMs,
-                path: request.url,
-                method: request.method,
-                correlationId,
-              }),
-          );
+          const errorResponse: TimeoutErrorResponse = {
+            message: `Request timeout after ${timeoutMs}ms`,
+            timeout: timeoutMs,
+            path: request.url,
+            method: request.method,
+            correlationId,
+          };
+
+          return throwError(() => new RequestTimeoutException(errorResponse));
         }
         return throwError(() => error);
       }),

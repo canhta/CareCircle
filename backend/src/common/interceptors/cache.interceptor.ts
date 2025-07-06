@@ -12,11 +12,15 @@ import { Request } from 'express';
 import { Cache } from 'cache-manager';
 import { Inject } from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import {
+  RequestWithCorrelationId,
+  CacheOptions,
+} from '../interfaces/interceptor.interfaces';
 
 // Decorator to enable caching for specific endpoints
 export const Cacheable = (ttl?: number, key?: string) => {
   return (
-    target: any,
+    target: object,
     propertyName: string,
     descriptor: PropertyDescriptor,
   ) => {
@@ -33,13 +37,20 @@ export const Cacheable = (ttl?: number, key?: string) => {
 // Decorator to exclude specific endpoints from caching
 export const NoCache = () => {
   return (
-    target: any,
+    target: object,
     propertyName: string,
     descriptor: PropertyDescriptor,
   ) => {
     Reflect.defineMetadata('cache:disabled', true, descriptor.value);
   };
 };
+
+// Interface for cached response data
+export interface CacheableResponseData {
+  [key: string]: unknown;
+  error?: unknown;
+  statusCode?: number;
+}
 
 @Injectable()
 export class CustomCacheInterceptor implements NestInterceptor {
@@ -53,8 +64,10 @@ export class CustomCacheInterceptor implements NestInterceptor {
   async intercept(
     context: ExecutionContext,
     next: CallHandler,
-  ): Promise<Observable<any>> {
-    const request = context.switchToHttp().getRequest<Request>();
+  ): Promise<Observable<unknown>> {
+    const request = context
+      .switchToHttp()
+      .getRequest<RequestWithCorrelationId>();
     const handler = context.getHandler();
 
     // Check if caching is disabled for this endpoint
@@ -96,34 +109,40 @@ export class CustomCacheInterceptor implements NestInterceptor {
       // If not in cache, execute the handler and cache the result
       return next.handle().pipe(
         tap(async (data) => {
-          if (data && this.shouldCacheResponse(data)) {
+          if (data && this.shouldCacheResponse(data as CacheableResponseData)) {
             try {
               await this.cacheManager.set(cacheKey, data, ttl);
               this.logger.debug(
                 `Cached result for key: ${cacheKey}, TTL: ${ttl}ms`,
               );
             } catch (error) {
+              const err =
+                error instanceof Error ? error : new Error(String(error));
               this.logger.error(
                 `Failed to cache result for key: ${cacheKey}`,
-                error.stack,
+                err.stack,
               );
             }
           }
         }),
       );
     } catch (error) {
-      this.logger.error(`Cache error for key: ${cacheKey}`, error.stack);
+      const err = error instanceof Error ? error : new Error(String(error));
+      this.logger.error(`Cache error for key: ${cacheKey}`, err.stack);
       return next.handle();
     }
   }
 
-  private generateCacheKey(request: Request, handler: Function): string {
+  private generateCacheKey(
+    request: RequestWithCorrelationId,
+    handler: Function,
+  ): string {
     const customKey = this.reflector.get<string>('cache:key', handler);
     if (customKey) {
       return this.interpolateKey(customKey, request);
     }
 
-    const userId = (request as any).user?.id || 'anonymous';
+    const userId = request.user?.id || 'anonymous';
     const { method, url, query } = request;
 
     // Create a deterministic key from request parameters
@@ -135,8 +154,11 @@ export class CustomCacheInterceptor implements NestInterceptor {
     return `${method}:${url}:${userId}:${queryString}`;
   }
 
-  private interpolateKey(template: string, request: Request): string {
-    const userId = (request as any).user?.id || 'anonymous';
+  private interpolateKey(
+    template: string,
+    request: RequestWithCorrelationId,
+  ): string {
+    const userId = request.user?.id || 'anonymous';
     const params = request.params || {};
     const query = request.query || {};
 
@@ -175,9 +197,13 @@ export class CustomCacheInterceptor implements NestInterceptor {
     return phiEndpoints.some((endpoint) => request.url.includes(endpoint));
   }
 
-  private shouldCacheResponse(data: any): boolean {
+  private shouldCacheResponse(data: CacheableResponseData): boolean {
     // Don't cache empty responses or error responses
-    if (!data || data.error || data.statusCode >= 400) {
+    if (
+      !data ||
+      data.error ||
+      (typeof data.statusCode === 'number' && data.statusCode >= 400)
+    ) {
       return false;
     }
 

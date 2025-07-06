@@ -9,6 +9,10 @@ import { Observable } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
 import { Request, Response } from 'express';
 import { AuditService } from '../services/audit.service';
+import {
+  RequestWithCorrelationId,
+  PHIAccessAuditData,
+} from '../interfaces/interceptor.interfaces';
 
 @Injectable()
 export class LoggingInterceptor implements NestInterceptor {
@@ -16,18 +20,19 @@ export class LoggingInterceptor implements NestInterceptor {
 
   constructor(private readonly auditService: AuditService) {}
 
-  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+  intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
     const request = context.switchToHttp().getRequest<Request>();
     const response = context.switchToHttp().getResponse<Response>();
     const { method, url, ip, headers } = request;
     const userAgent = headers['user-agent'] || '';
-    const userId = (request as any).user?.id || 'anonymous';
+    const typedRequest = request as RequestWithCorrelationId;
+    const userId = typedRequest.user?.id || 'anonymous';
 
     const startTime = Date.now();
     const correlationId = this.generateCorrelationId();
 
     // Add correlation ID to request for tracking
-    (request as any).correlationId = correlationId;
+    typedRequest.correlationId = correlationId;
 
     // Log incoming request
     this.logger.log(
@@ -97,31 +102,32 @@ export class LoggingInterceptor implements NestInterceptor {
     duration: number,
     correlationId: string,
   ): void {
-    const userId = (request as any).user?.id;
+    const typedRequest = request as RequestWithCorrelationId;
+    const userId = typedRequest.user?.id;
     const { method, url, ip, headers } = request;
     const { statusCode } = response;
 
     // Audit PHI access asynchronously
     setImmediate(() => {
-      this.auditService
-        .logPHIAccess({
-          userId,
-          action: method,
-          resource: url,
-          statusCode,
-          duration,
-          ip,
-          userAgent: headers['user-agent'],
+      const auditData: PHIAccessAuditData = {
+        userId,
+        action: method,
+        resource: url,
+        statusCode,
+        duration,
+        ip,
+        userAgent: headers['user-agent'],
+        correlationId,
+        timestamp: new Date(),
+      };
+
+      this.auditService.logPHIAccess(auditData).catch((auditError) => {
+        this.logger.error(
+          'Failed to audit PHI access',
+          auditError.stack,
           correlationId,
-          timestamp: new Date(),
-        })
-        .catch((auditError) => {
-          this.logger.error(
-            'Failed to audit PHI access',
-            auditError.stack,
-            correlationId,
-          );
-        });
+        );
+      });
     });
   }
 }

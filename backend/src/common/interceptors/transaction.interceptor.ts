@@ -9,6 +9,10 @@ import { Observable } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
 import { Reflector } from '@nestjs/core';
 import { PrismaService } from '../../prisma/prisma.service';
+import {
+  RequestWithCorrelationId,
+  TransactionOptions,
+} from '../interfaces/interceptor.interfaces';
 
 // Decorator to enable database transactions for specific endpoints
 export const Transactional = (
@@ -19,7 +23,7 @@ export const Transactional = (
     | 'Serializable',
 ) => {
   return (
-    target: any,
+    target: object,
     propertyName: string,
     descriptor: PropertyDescriptor,
   ) => {
@@ -34,6 +38,11 @@ export const Transactional = (
   };
 };
 
+// Extended request type with transaction property
+export interface RequestWithTransaction extends RequestWithCorrelationId {
+  transaction: unknown;
+}
+
 @Injectable()
 export class TransactionInterceptor implements NestInterceptor {
   private readonly logger = new Logger(TransactionInterceptor.name);
@@ -43,9 +52,11 @@ export class TransactionInterceptor implements NestInterceptor {
     private prisma: PrismaService,
   ) {}
 
-  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+  intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
     const handler = context.getHandler();
-    const request = context.switchToHttp().getRequest();
+    const request = context
+      .switchToHttp()
+      .getRequest<RequestWithCorrelationId>();
 
     // Check if transaction is enabled for this endpoint
     const transactionEnabled = this.reflector.get<boolean>(
@@ -73,7 +84,7 @@ export class TransactionInterceptor implements NestInterceptor {
         .$transaction(
           async (tx) => {
             // Attach transaction to request for use in services
-            request.transaction = tx;
+            (request as RequestWithTransaction).transaction = tx;
 
             return new Promise((resolve, reject) => {
               next.handle().subscribe({
@@ -90,7 +101,11 @@ export class TransactionInterceptor implements NestInterceptor {
             });
           },
           {
-            isolationLevel: isolationLevel as any,
+            isolationLevel: isolationLevel as
+              | 'ReadUncommitted'
+              | 'ReadCommitted'
+              | 'RepeatableRead'
+              | 'Serializable',
             timeout: this.getTransactionTimeout(request.url),
           },
         )
@@ -115,7 +130,9 @@ export class TransactionInterceptor implements NestInterceptor {
     });
   }
 
-  private shouldUseTransactionByDefault(request: any): boolean {
+  private shouldUseTransactionByDefault(
+    request: RequestWithCorrelationId,
+  ): boolean {
     const { method, url } = request;
 
     // Use transactions for these operations by default
