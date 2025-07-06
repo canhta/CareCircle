@@ -9,6 +9,8 @@ import { Reflector } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
 import { AuditService } from '../services/audit.service';
 import { SetMetadata } from '@nestjs/common';
+import { RequestIPData, IPAuditData } from '../interfaces/guards.interfaces';
+import { SecurityEventType } from '../interfaces/exception.interfaces';
 
 // Metadata key for IP restrictions
 export const IP_RESTRICTION_KEY = 'ip_restriction';
@@ -63,9 +65,9 @@ export class IPRestrictionGuard implements CanActivate {
       return true;
     }
 
-    const request = context.switchToHttp().getRequest();
+    const request = context.switchToHttp().getRequest<RequestIPData>();
     const clientIP = this.getClientIP(request);
-    const userId = request.user?.id || 'anonymous';
+    const userId = request.user?.id || request.user?.sub || 'anonymous';
 
     try {
       const isAllowed = this.checkIPAccess(clientIP, ipConfig);
@@ -84,14 +86,15 @@ export class IPRestrictionGuard implements CanActivate {
 
       return true;
     } catch (error) {
+      const err = error instanceof Error ? error : new Error(String(error));
       this.logger.warn(
-        `IP restriction check failed for ${clientIP}: ${error.message}`,
+        `IP restriction check failed for ${clientIP}: ${err.message}`,
       );
       throw error;
     }
   }
 
-  private getClientIP(request: any): string {
+  private getClientIP(request: RequestIPData): string {
     // Check various headers for the real client IP
     const possibleHeaders = [
       'x-forwarded-for',
@@ -107,7 +110,8 @@ export class IPRestrictionGuard implements CanActivate {
       const value = request.headers[header];
       if (value) {
         // x-forwarded-for can contain multiple IPs, take the first one
-        const ip = value.split(',')[0].trim();
+        const ipValue = Array.isArray(value) ? value[0] : value;
+        const ip = ipValue.split(',')[0].trim();
         if (this.isValidIP(ip)) {
           return ip;
         }
@@ -179,7 +183,8 @@ export class IPRestrictionGuard implements CanActivate {
 
       return false;
     } catch (error) {
-      this.logger.error(`Invalid CIDR format: ${cidr}`, error.stack);
+      const err = error instanceof Error ? error : new Error(String(error));
+      this.logger.error(`Invalid CIDR format: ${cidr}`, err.stack);
       return false;
     }
   }
@@ -250,21 +255,41 @@ export class IPRestrictionGuard implements CanActivate {
   private async auditIPRestriction(
     userId: string,
     clientIP: string,
-    request: any,
+    request: RequestIPData,
     result: 'ALLOWED' | 'BLOCKED',
   ): Promise<void> {
-    await this.auditService.logSecurityEvent({
+    const auditData: IPAuditData = {
       userId,
-      action: `IP_RESTRICTION_${result}`,
-      resource: `${request.method} ${request.url}`,
-      details: {
-        clientIP,
-        userAgent: request.get('User-Agent'),
-        result,
-      },
+      ip: clientIP,
+      url: request.url,
+      method: request.method,
       timestamp: new Date(),
-      severity: result === 'BLOCKED' ? 'HIGH' : 'LOW',
-      eventType: 'SYSTEM',
-    });
+      result,
+      details: {
+        correlationId: request.correlationId,
+        userAgent: request.get('User-Agent'),
+      },
+    };
+
+    try {
+      await this.auditService.logSecurityEvent({
+        userId,
+        action: `IP_${result}`,
+        resource: `${request.method} ${request.url}`,
+        details: {
+          ip: clientIP,
+          ...auditData.details,
+        },
+        timestamp: new Date(),
+        severity: result === 'BLOCKED' ? 'MEDIUM' : 'LOW',
+        eventType: 'SYSTEM' as SecurityEventType,
+      });
+    } catch (error) {
+      const err = error instanceof Error ? error : new Error(String(error));
+      this.logger.error(
+        `Failed to audit IP restriction: ${err.message}`,
+        err.stack,
+      );
+    }
   }
 }

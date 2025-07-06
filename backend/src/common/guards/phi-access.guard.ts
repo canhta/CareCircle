@@ -13,6 +13,11 @@ import {
   PHIAccessMetadata,
   PHIDataType,
 } from '../decorators/phi-access.decorator';
+import {
+  RequestIPData,
+  PHIAccessAuditData,
+} from '../interfaces/guards.interfaces';
+import { SecurityEventType } from '../interfaces/exception.interfaces';
 
 @Injectable()
 export class PHIAccessGuard implements CanActivate {
@@ -36,7 +41,7 @@ export class PHIAccessGuard implements CanActivate {
       return true;
     }
 
-    const request = context.switchToHttp().getRequest();
+    const request = context.switchToHttp().getRequest<RequestIPData>();
     const user = request.user;
 
     if (!user) {
@@ -62,9 +67,10 @@ export class PHIAccessGuard implements CanActivate {
 
       return true;
     } catch (error) {
+      const err = error instanceof Error ? error : new Error(String(error));
       this.logger.error(
-        `PHI access denied for user ${userId}: ${error.message}`,
-        error.stack,
+        `PHI access denied for user ${userId}: ${err.message}`,
+        err.stack,
         correlationId,
       );
 
@@ -74,12 +80,12 @@ export class PHIAccessGuard implements CanActivate {
         action: 'PHI_ACCESS_DENIED',
         resource: `${request.method} ${request.url}`,
         details: {
-          reason: error.message,
+          reason: err.message,
           phiMetadata,
         },
         timestamp: new Date(),
         severity: 'HIGH',
-        eventType: 'DATA_ACCESS',
+        eventType: 'DATA_ACCESS' as SecurityEventType,
       });
 
       throw error;
@@ -116,12 +122,12 @@ export class PHIAccessGuard implements CanActivate {
   }
 
   private async auditPHIAccess(
-    request: any,
+    request: RequestIPData,
     metadata: PHIAccessMetadata,
     userId: string,
     correlationId: string,
   ): Promise<void> {
-    await this.auditService.logPHIAccess({
+    const auditData: PHIAccessAuditData = {
       userId,
       action: `PHI_${metadata.level}`,
       resource: `${request.method} ${request.url}`,
@@ -134,7 +140,17 @@ export class PHIAccessGuard implements CanActivate {
       userAgent: request.get('User-Agent'),
       correlationId,
       timestamp: new Date(),
-    });
+    };
+
+    try {
+      await this.auditService.logPHIAccess(auditData);
+    } catch (error) {
+      const err = error instanceof Error ? error : new Error(String(error));
+      this.logger.error(
+        `Failed to audit PHI access: ${err.message}`,
+        err.stack,
+      );
+    }
   }
 
   private async checkPHIRateLimit(

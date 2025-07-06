@@ -7,12 +7,17 @@ import {
 } from '@nestjs/common';
 import { validate, ValidationError } from 'class-validator';
 import { plainToClass } from 'class-transformer';
+import {
+  FormattedValidationErrors,
+  ValidationErrorResponse,
+  Constructor,
+} from '../interfaces/validation.interfaces';
 
 @Injectable()
-export class CustomValidationPipe implements PipeTransform<any> {
+export class CustomValidationPipe implements PipeTransform<unknown> {
   private readonly logger = new Logger(CustomValidationPipe.name);
 
-  async transform(value: any, { metatype }: ArgumentMetadata) {
+  async transform(value: unknown, { metatype }: ArgumentMetadata) {
     if (!metatype || !this.toValidate(metatype)) {
       return value;
     }
@@ -29,23 +34,27 @@ export class CustomValidationPipe implements PipeTransform<any> {
       const errorMessages = this.formatValidationErrors(errors);
       this.logger.warn(`Validation failed: ${JSON.stringify(errorMessages)}`);
 
-      throw new BadRequestException({
+      const errorResponse: ValidationErrorResponse = {
         message: 'Validation failed',
         errors: errorMessages,
         statusCode: 400,
-      });
+      };
+
+      throw new BadRequestException(errorResponse);
     }
 
     return object;
   }
 
-  private toValidate(metatype: Function): boolean {
-    const types: Function[] = [String, Boolean, Number, Array, Object];
+  private toValidate(metatype: Constructor): boolean {
+    const types: Constructor[] = [String, Boolean, Number, Array, Object];
     return !types.includes(metatype);
   }
 
-  private formatValidationErrors(errors: ValidationError[]): any {
-    const result = {};
+  private formatValidationErrors(
+    errors: ValidationError[],
+  ): FormattedValidationErrors {
+    const result: FormattedValidationErrors = {};
 
     errors.forEach((error) => {
       if (error.children && error.children.length > 0) {
