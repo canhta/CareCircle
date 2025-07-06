@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 // Configuration and Service Locator
 import 'config/service_locator.dart';
 import 'config/router_config.dart';
 import 'utils/notification_manager.dart';
+import 'firebase_options.dart';
 
 // Features and widgets
 
@@ -25,6 +27,12 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   try {
+    // Initialize Firebase first (required for router authentication)
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    debugPrint('Firebase initialized successfully');
+
     // Initialize all services through service locator
     await ServiceLocator.initialize();
 

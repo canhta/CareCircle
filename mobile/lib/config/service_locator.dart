@@ -49,22 +49,26 @@ class ServiceLocator {
     // Navigation service - singleton, immediately available
     _instance.registerSingleton<NavigationService>(NavigationService());
 
-    // Secure storage - singleton
-    final secureStorage = SecureStorageService();
-    secureStorage.initialize();
-    _instance.registerSingleton<SecureStorageService>(secureStorage);
+    // Secure storage - async singleton (to support dependency chain)
+    _instance.registerSingletonAsync<SecureStorageService>(
+      () async {
+        final secureStorage = SecureStorageService();
+        secureStorage.initialize();
+        return secureStorage;
+      },
+    );
 
     // API Client - async singleton with dependencies
     _instance.registerSingletonAsync<ApiClient>(
       () async {
         final apiClient = ApiClient.instance;
         await apiClient.initialize(
-          secureStorage: get<SecureStorageService>(),
+          secureStorage: await getAsync<SecureStorageService>(),
           logger: get<AppLogger>(),
         );
         return apiClient;
       },
-      dependsOn: [SecureStorageService, AppLogger],
+      dependsOn: [SecureStorageService],
     );
   }
 
@@ -84,64 +88,68 @@ class ServiceLocator {
       () async {
         final messagingService = FirebaseMessagingService(
           logger: get<AppLogger>(),
-          secureStorage: get<SecureStorageService>(),
+          secureStorage: await getAsync<SecureStorageService>(),
         );
         await messagingService.initialize();
         return messagingService;
       },
-      dependsOn: [FirebaseInitializer, AppLogger, SecureStorageService],
+      dependsOn: [FirebaseInitializer, SecureStorageService],
     );
   }
 
   /// Register feature services (auth, background sync, etc.)
   static Future<void> _registerFeatureServices() async {
-    // Auth Service - singleton with dependencies
-    _instance.registerLazySingleton<AuthService>(
-      () => AuthService(
-        apiClient: get<ApiClient>(),
+    // Auth Service - async singleton with dependencies
+    _instance.registerSingletonAsync<AuthService>(
+      () async => AuthService(
+        apiClient: await getAsync<ApiClient>(),
         logger: get<AppLogger>(),
-        secureStorage: get<SecureStorageService>(),
+        secureStorage: await getAsync<SecureStorageService>(),
       ),
+      dependsOn: [ApiClient, SecureStorageService],
     );
 
-    // Medication Service - singleton with dependencies
-    _instance.registerLazySingleton<MedicationService>(
-      () => MedicationService(
-        apiClient: get<ApiClient>(),
+    // Medication Service - async singleton with dependencies
+    _instance.registerSingletonAsync<MedicationService>(
+      () async => MedicationService(
+        apiClient: await getAsync<ApiClient>(),
         logger: get<AppLogger>(),
-        secureStorage: get<SecureStorageService>(),
+        secureStorage: await getAsync<SecureStorageService>(),
       ),
+      dependsOn: [ApiClient, SecureStorageService],
     );
 
-    // Health Service - singleton with dependencies
-    _instance.registerLazySingleton<HealthService>(
-      () => HealthService(
-        apiClient: get<ApiClient>(),
+    // Health Service - async singleton with dependencies
+    _instance.registerSingletonAsync<HealthService>(
+      () async => HealthService(
+        apiClient: await getAsync<ApiClient>(),
         logger: get<AppLogger>(),
-        secureStorage: get<SecureStorageService>(),
+        secureStorage: await getAsync<SecureStorageService>(),
       ),
+      dependsOn: [ApiClient, SecureStorageService],
     );
 
-    // Health Data Export Service - singleton with dependencies
-    _instance.registerLazySingleton<HealthDataExportService>(
-      () => HealthDataExportService(
-        apiClient: get<ApiClient>(),
+    // Health Data Export Service - async singleton with dependencies
+    _instance.registerSingletonAsync<HealthDataExportService>(
+      () async => HealthDataExportService(
+        apiClient: await getAsync<ApiClient>(),
         logger: get<AppLogger>(),
       ),
+      dependsOn: [ApiClient],
     );
 
     // Background Sync Service - async singleton
     _instance.registerSingletonAsync<BackgroundSyncService>(
       () async {
         final syncService = BackgroundSyncService(
-          apiClient: get<ApiClient>(),
+          apiClient: await getAsync<ApiClient>(),
           logger: get<AppLogger>(),
-          secureStorage: get<SecureStorageService>(),
+          secureStorage: await getAsync<SecureStorageService>(),
         );
         await syncService.initialize();
         return syncService;
       },
-      dependsOn: [ApiClient, AppLogger, SecureStorageService],
+      dependsOn: [ApiClient, SecureStorageService],
     );
   }
 
@@ -172,13 +180,13 @@ class ServiceLocator {
     _instance.registerSingletonAsync<ErrorTrackingService>(
       () async {
         final errorTrackingService = ErrorTrackingService(
-          analytics: get<AnalyticsService>(),
+          analytics: await getAsync<AnalyticsService>(),
           logger: get<AppLogger>(),
         );
         await errorTrackingService.initialize();
         return errorTrackingService;
       },
-      dependsOn: [AnalyticsService, AppLogger],
+      dependsOn: [AnalyticsService],
     );
 
     // Notification Manager - async singleton
@@ -186,12 +194,12 @@ class ServiceLocator {
       () async {
         final notificationManager = NotificationManager(
           logger: get<AppLogger>(),
-          messagingService: get<FirebaseMessagingService>(),
+          messagingService: await getAsync<FirebaseMessagingService>(),
         );
         await notificationManager.initialize();
         return notificationManager;
       },
-      dependsOn: [AppLogger, FirebaseMessagingService],
+      dependsOn: [FirebaseMessagingService],
     );
 
     // App Initializer - async singleton (handles app-level initialization)

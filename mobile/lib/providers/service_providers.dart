@@ -21,17 +21,17 @@ final appLoggerProvider = Provider<AppLogger>((ref) {
   return ServiceLocator.get<AppLogger>();
 });
 
-final secureStorageProvider = Provider<SecureStorageService>((ref) {
-  return ServiceLocator.get<SecureStorageService>();
+final secureStorageProvider = FutureProvider<SecureStorageService>((ref) async {
+  return await ServiceLocator.getAsync<SecureStorageService>();
 });
 
-final apiClientProvider = Provider<ApiClient>((ref) {
-  return ServiceLocator.get<ApiClient>();
+final apiClientProvider = FutureProvider<ApiClient>((ref) async {
+  return await ServiceLocator.getAsync<ApiClient>();
 });
 
 // Authentication Services
-final authServiceProvider = Provider<AuthService>((ref) {
-  return ServiceLocator.get<AuthService>();
+final authServiceProvider = FutureProvider<AuthService>((ref) async {
+  return await ServiceLocator.getAsync<AuthService>();
 });
 
 // Health Services
@@ -39,18 +39,19 @@ final dailyCheckInServiceProvider = Provider<DailyCheckInService>((ref) {
   return ServiceLocator.get<DailyCheckInService>();
 });
 
-final healthServiceProvider = Provider<HealthService>((ref) {
-  return ServiceLocator.get<HealthService>();
+final healthServiceProvider = FutureProvider<HealthService>((ref) async {
+  return await ServiceLocator.getAsync<HealthService>();
 });
 
 final healthDataExportServiceProvider =
-    Provider<HealthDataExportService>((ref) {
-  return ServiceLocator.get<HealthDataExportService>();
+    FutureProvider<HealthDataExportService>((ref) async {
+  return await ServiceLocator.getAsync<HealthDataExportService>();
 });
 
 // Medication Services
-final medicationServiceProvider = Provider<MedicationService>((ref) {
-  return ServiceLocator.get<MedicationService>();
+final medicationServiceProvider =
+    FutureProvider<MedicationService>((ref) async {
+  return await ServiceLocator.getAsync<MedicationService>();
 });
 
 final prescriptionScannerServiceProvider =
@@ -59,12 +60,13 @@ final prescriptionScannerServiceProvider =
 });
 
 // Utility Services
-final notificationManagerProvider = Provider<NotificationManager>((ref) {
-  return ServiceLocator.get<NotificationManager>();
+final notificationManagerProvider =
+    FutureProvider<NotificationManager>((ref) async {
+  return await ServiceLocator.getAsync<NotificationManager>();
 });
 
-final analyticsServiceProvider = Provider<AnalyticsService>((ref) {
-  return ServiceLocator.get<AnalyticsService>();
+final analyticsServiceProvider = FutureProvider<AnalyticsService>((ref) async {
+  return await ServiceLocator.getAsync<AnalyticsService>();
 });
 
 // State Providers for common app state
@@ -114,7 +116,7 @@ final recentCheckInsProvider =
 // Medication State Providers
 final medicationsProvider =
     FutureProvider.autoDispose<List<Medication>>((ref) async {
-  final service = ref.read(medicationServiceProvider);
+  final service = await ref.read(medicationServiceProvider.future);
   final result = await service.getMedications();
 
   return result.fold(
@@ -132,7 +134,7 @@ final medicationsProvider =
 final healthDataProvider = FutureProvider.autoDispose
     .family<List<CareCircleHealthData>, HealthDataRequest>(
         (ref, request) async {
-  final service = ref.read(healthServiceProvider);
+  final service = await ref.read(healthServiceProvider.future);
   final result = await service.getHealthData(request);
 
   return result.fold(

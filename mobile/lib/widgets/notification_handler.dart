@@ -685,7 +685,7 @@ class _NotificationHandlerState extends State<NotificationHandler> {
   static Future<void> _storeOfflineAction(
       String actionType, Map<String, dynamic> data) async {
     final logger = ServiceLocator.get<AppLogger>();
-    final secureStorage = ServiceLocator.get<SecureStorageService>();
+    final secureStorage = await ServiceLocator.getAsync<SecureStorageService>();
 
     try {
       // Get existing offline actions

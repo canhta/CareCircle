@@ -4,14 +4,16 @@ import 'package:form_validator/form_validator.dart';
 
 import '../features/auth/auth.dart';
 import '../common/common.dart';
-import '../providers/service_providers.dart';
+import '../config/service_locator.dart';
 import '../widgets/error_handling/async_value_widgets.dart';
 import '../config/router_config.dart';
 
 // Login state provider
 final loginStateProvider =
     StateNotifierProvider<LoginNotifier, LoginState>((ref) {
-  return LoginNotifier(ref.read(authServiceProvider));
+  // We'll initialize the LoginNotifier without the auth service first
+  // and set it later when the async service is ready
+  return LoginNotifier();
 });
 
 class LoginState {
@@ -39,9 +41,20 @@ class LoginState {
 }
 
 class LoginNotifier extends StateNotifier<LoginState> {
-  final AuthService _authService;
+  AuthService? _authService;
 
-  LoginNotifier(this._authService) : super(const LoginState());
+  LoginNotifier() : super(const LoginState()) {
+    _initializeAuthService();
+  }
+
+  Future<void> _initializeAuthService() async {
+    try {
+      _authService = await ServiceLocator.getAsync<AuthService>();
+    } catch (e) {
+      state = state.copyWith(
+          errorMessage: 'Failed to initialize authentication service');
+    }
+  }
 
   void togglePasswordVisibility() {
     state = state.copyWith(isPasswordVisible: !state.isPasswordVisible);
@@ -52,10 +65,16 @@ class LoginNotifier extends StateNotifier<LoginState> {
   }
 
   Future<bool> login(String email, String password) async {
+    if (_authService == null) {
+      state = state.copyWith(errorMessage: 'Authentication service not ready');
+      return false;
+    }
+
     state = state.copyWith(isLoading: true, errorMessage: null);
 
     try {
-      final result = await _authService.login(email: email, password: password);
+      final result =
+          await _authService!.login(email: email, password: password);
 
       if (result.isSuccess) {
         state = state.copyWith(isLoading: false);

@@ -721,7 +721,8 @@ class NotificationManager {
 
     try {
       // Get SecureStorageService instance
-      final secureStorage = ServiceLocator.get<SecureStorageService>();
+      final secureStorage =
+          await ServiceLocator.getAsync<SecureStorageService>();
 
       // Get stored offline actions
       final actionsJson = await secureStorage.readString('offline_actions');
