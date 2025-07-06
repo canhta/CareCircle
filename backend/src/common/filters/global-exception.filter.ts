@@ -11,17 +11,15 @@ import { Request, Response } from 'express';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { ThrottlerException } from '@nestjs/throttler';
 import { AuditService } from '../services/audit.service';
-
-export interface ErrorResponse {
-  statusCode: number;
-  timestamp: string;
-  path: string;
-  method: string;
-  message: string | string[];
-  error?: string;
-  correlationId: string;
-  details?: any;
-}
+import {
+  ErrorDetails,
+  ErrorResponse,
+  HttpExceptionResponse,
+  RequestWithUser,
+  SecurityEventLog,
+  SecuritySeverity,
+  SecurityEventType,
+} from '../interfaces/exception.interfaces';
 
 @Injectable()
 @Catch()
@@ -43,7 +41,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     let status: number;
     let message: string | string[] = 'Internal server error';
     let error: string = 'Unknown Error';
-    let details: any;
+    let details: ErrorDetails | undefined;
 
     // Handle different types of exceptions
     if (exception instanceof HttpException) {
@@ -54,9 +52,10 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         message = exceptionResponse;
         error = exception.name;
       } else if (typeof exceptionResponse === 'object') {
-        message = (exceptionResponse as any).message || exception.message;
-        error = (exceptionResponse as any).error || exception.name;
-        details = (exceptionResponse as any).details;
+        const typedResponse = exceptionResponse as HttpExceptionResponse;
+        message = typedResponse.message || exception.message;
+        error = typedResponse.error || exception.name;
+        details = typedResponse.details;
       }
     } else if (exception instanceof PrismaClientKnownRequestError) {
       status = HttpStatus.BAD_REQUEST;
@@ -136,12 +135,18 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     errorResponse: ErrorResponse,
     request: Request,
   ): void {
-    const { statusCode, correlationId, message } = errorResponse;
-    const userId = (request as any).user?.id || 'anonymous';
+    const { statusCode, correlationId } = errorResponse;
+    const messageStr =
+      typeof errorResponse.message === 'string'
+        ? errorResponse.message
+        : errorResponse.message.join(', ');
+
+    const requestWithUser = request as unknown as RequestWithUser;
+    const userId = requestWithUser.user?.id || 'anonymous';
     const userAgent = request.get('User-Agent') || 'unknown';
     const ip = request.ip || request.connection.remoteAddress;
 
-    const logMessage = `${statusCode} ${message} - User: ${userId}, IP: ${ip}, UA: ${userAgent}`;
+    const logMessage = `${statusCode} ${messageStr} - User: ${userId}, IP: ${ip}, UA: ${userAgent}`;
 
     if (statusCode >= 500) {
       this.logger.error(
@@ -162,36 +167,35 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     request: Request,
     errorResponse: ErrorResponse,
   ): void {
-    const userId = (request as any).user?.id;
+    const requestWithUser = request as unknown as RequestWithUser;
+    const userId = requestWithUser.user?.id;
     const ip = request.ip || request.connection.remoteAddress;
 
     // Audit the security event asynchronously
     setImmediate(() => {
-      this.auditService
-        .logSecurityEvent({
-          userId,
-          action: 'SECURITY_ERROR',
-          resource: errorResponse.path,
-          details: {
-            statusCode: errorResponse.statusCode,
-            error: errorResponse.error,
-            ip,
-            userAgent: request.get('User-Agent'),
-            correlationId: errorResponse.correlationId,
-          },
-          timestamp: new Date(),
-          severity: this.getSecuritySeverity(errorResponse.statusCode),
-          eventType: 'SYSTEM',
-        })
-        .catch((auditError) => {
-          this.logger.error('Failed to audit security error', auditError.stack);
-        });
+      const securityEvent: SecurityEventLog = {
+        userId,
+        action: 'SECURITY_ERROR',
+        resource: errorResponse.path,
+        details: {
+          statusCode: errorResponse.statusCode,
+          error: errorResponse.error,
+          ip,
+          userAgent: request.get('User-Agent'),
+          correlationId: errorResponse.correlationId,
+        },
+        timestamp: new Date(),
+        severity: this.getSecuritySeverity(errorResponse.statusCode),
+        eventType: 'SYSTEM',
+      };
+
+      this.auditService.logSecurityEvent(securityEvent).catch((auditError) => {
+        this.logger.error('Failed to audit security error', auditError.stack);
+      });
     });
   }
 
-  private getSecuritySeverity(
-    statusCode: number,
-  ): 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL' {
+  private getSecuritySeverity(statusCode: number): SecuritySeverity {
     if (statusCode >= 500) return 'CRITICAL';
     if (statusCode === 403 || statusCode === 401) return 'HIGH';
     if (statusCode === 429) return 'MEDIUM';

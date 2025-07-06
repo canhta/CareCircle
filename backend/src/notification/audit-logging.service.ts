@@ -5,6 +5,11 @@ import {
   NotificationChannel,
   DeliveryStatus,
 } from '@prisma/client';
+import {
+  AuditLogMetadata,
+  ChannelDeliveryStats,
+  NotificationDeliveryStats,
+} from '../common/interfaces/audit-logging.interfaces';
 
 export interface AuditLogEntry {
   notificationId: string;
@@ -17,7 +22,7 @@ export interface AuditLogEntry {
   errorMessage?: string;
   processingTime?: number;
   retryCount?: number;
-  metadata?: Record<string, any>;
+  metadata?: AuditLogMetadata;
 }
 
 export interface DeliveryLogEntry {
@@ -279,7 +284,7 @@ export class NotificationAuditLoggingService {
   async logNotificationOpened(
     notificationId: string,
     channel: NotificationChannel,
-    metadata?: Record<string, any>,
+    metadata?: AuditLogMetadata,
   ): Promise<void> {
     await this.logAuditEvent({
       notificationId,
@@ -312,7 +317,7 @@ export class NotificationAuditLoggingService {
   async logNotificationClicked(
     notificationId: string,
     channel: NotificationChannel,
-    metadata?: Record<string, any>,
+    metadata?: AuditLogMetadata,
   ): Promise<void> {
     await this.logAuditEvent({
       notificationId,
@@ -363,74 +368,86 @@ export class NotificationAuditLoggingService {
    * Get delivery statistics for a user
    */
   async getDeliveryStats(userId: string, days: number = 30) {
-    const fromDate = new Date();
-    fromDate.setDate(fromDate.getDate() - days);
+    try {
+      const fromDate = new Date();
+      fromDate.setDate(fromDate.getDate() - days);
 
-    const notifications = await this.prisma.notification.findMany({
-      where: {
-        userId,
-        createdAt: { gte: fromDate },
-      },
-      include: {
-        auditLogs: true,
-      },
-    });
-
-    const stats = {
-      totalNotifications: notifications.length,
-      sentCount: 0,
-      deliveredCount: 0,
-      failedCount: 0,
-      openedCount: 0,
-      clickedCount: 0,
-      byChannel: {} as Record<string, any>,
-    };
-
-    notifications.forEach((notification) => {
-      notification.auditLogs.forEach((log) => {
-        switch (log.event) {
-          case NotificationEvent.SENT:
-            stats.sentCount++;
-            break;
-          case NotificationEvent.DELIVERED:
-            stats.deliveredCount++;
-            break;
-          case NotificationEvent.FAILED:
-            stats.failedCount++;
-            break;
-          case NotificationEvent.OPENED:
-            stats.openedCount++;
-            break;
-          case NotificationEvent.CLICKED:
-            stats.clickedCount++;
-            break;
-        }
-
-        // Channel statistics
-        if (!stats.byChannel[log.channel]) {
-          stats.byChannel[log.channel] = {
-            sent: 0,
-            delivered: 0,
-            failed: 0,
-            opened: 0,
-            clicked: 0,
-          };
-        }
-
-        if (log.event === NotificationEvent.SENT)
-          stats.byChannel[log.channel].sent++;
-        if (log.event === NotificationEvent.DELIVERED)
-          stats.byChannel[log.channel].delivered++;
-        if (log.event === NotificationEvent.FAILED)
-          stats.byChannel[log.channel].failed++;
-        if (log.event === NotificationEvent.OPENED)
-          stats.byChannel[log.channel].opened++;
-        if (log.event === NotificationEvent.CLICKED)
-          stats.byChannel[log.channel].clicked++;
+      const notifications = await this.prisma.notification.findMany({
+        where: {
+          userId,
+          createdAt: { gte: fromDate },
+        },
+        include: {
+          auditLogs: true,
+        },
       });
-    });
 
-    return stats;
+      const stats: NotificationDeliveryStats = {
+        total: notifications.length,
+        byStatus: {
+          success: 0,
+          failure: 0,
+          pending: 0,
+        },
+        byChannel: {} as ChannelDeliveryStats,
+      };
+
+      notifications.forEach((notification) => {
+        notification.auditLogs.forEach((log) => {
+          switch (log.status) {
+            case DeliveryStatus.SENT:
+            case DeliveryStatus.DELIVERED:
+              stats.byStatus.success++;
+              break;
+            case DeliveryStatus.FAILED:
+              stats.byStatus.failure++;
+              break;
+            case DeliveryStatus.PENDING:
+            case DeliveryStatus.PROCESSING:
+              stats.byStatus.pending++;
+              break;
+          }
+
+          // Channel statistics
+          if (!stats.byChannel[log.channel]) {
+            stats.byChannel[log.channel] = {
+              total: 0,
+              success: 0,
+              failure: 0,
+              pending: 0,
+              sent: 0,
+              delivered: 0,
+              failed: 0,
+              opened: 0,
+              clicked: 0,
+            };
+          }
+
+          stats.byChannel[log.channel].total++;
+
+          if (log.status === DeliveryStatus.SENT)
+            stats.byChannel[log.channel].sent++;
+          if (log.status === DeliveryStatus.DELIVERED)
+            stats.byChannel[log.channel].delivered++;
+          if (log.status === DeliveryStatus.FAILED)
+            stats.byChannel[log.channel].failed++;
+
+          // Track opened and clicked events
+          if (log.event === NotificationEvent.OPENED)
+            stats.byChannel[log.channel].opened++;
+          if (log.event === NotificationEvent.CLICKED)
+            stats.byChannel[log.channel].clicked++;
+        });
+      });
+
+      return stats;
+    } catch (error) {
+      this.logger.error(
+        `Failed to get delivery stats for user ${userId}:`,
+        error,
+      );
+      throw error;
+    }
   }
 
   /**

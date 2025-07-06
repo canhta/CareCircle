@@ -24,6 +24,12 @@ import {
   AsyncSyncResponse,
   QueueStats,
 } from '../common/interfaces/health-data.interfaces';
+import {
+  HealthSummary,
+  HealthSummaryPeriod,
+  MetricCalculationData,
+  MetricTrend,
+} from '../common/interfaces/health-summary.interfaces';
 
 @Injectable()
 export class HealthRecordService {
@@ -347,8 +353,8 @@ export class HealthRecordService {
 
   async getHealthSummary(
     userId: string,
-    period: 'week' | 'month' | 'year',
-  ): Promise<Record<string, any>> {
+    period: HealthSummaryPeriod,
+  ): Promise<HealthSummary> {
     const now = new Date();
     let startDate: Date;
 
@@ -384,7 +390,7 @@ export class HealthRecordService {
     });
 
     // Calculate aggregated data
-    const summary = {
+    const summary: HealthSummary = {
       period,
       startDate,
       endDate: now,
@@ -400,8 +406,8 @@ export class HealthRecordService {
   private calculateAverages(metrics: HealthMetrics[]): Record<string, number> {
     if (metrics.length === 0) return {};
 
-    const sums: any = {};
-    const counts: any = {};
+    const sums: MetricCalculationData = {};
+    const counts: MetricCalculationData = {};
 
     metrics.forEach((metric) => {
       Object.keys(metric).forEach((key) => {
@@ -412,7 +418,7 @@ export class HealthRecordService {
       });
     });
 
-    const averages: any = {};
+    const averages: MetricCalculationData = {};
     Object.keys(sums).forEach((key) => {
       averages[key] = sums[key] / counts[key];
     });
@@ -422,7 +428,7 @@ export class HealthRecordService {
 
   private calculateTrends(
     metrics: HealthMetrics[],
-  ): Record<string, 'up' | 'down' | 'stable'> {
+  ): Record<string, MetricTrend> {
     // Simple trend calculation - compare first half vs second half
     if (metrics.length < 4) return {};
 
@@ -433,7 +439,7 @@ export class HealthRecordService {
     const firstAvg = this.calculateAverages(firstHalf);
     const secondAvg = this.calculateAverages(secondHalf);
 
-    const trends: any = {};
+    const trends: Record<string, MetricTrend> = {};
     Object.keys(firstAvg).forEach((key) => {
       if (secondAvg[key] && firstAvg[key]) {
         const change = ((secondAvg[key] - firstAvg[key]) / firstAvg[key]) * 100;
@@ -535,7 +541,7 @@ export class HealthRecordService {
       await this.prisma.healthDataConsent.updateMany({
         where: {
           userId,
-          consentType: consentType as any,
+          consentType: consentType as ConsentType,
           revokedAt: null,
         },
         data: {
