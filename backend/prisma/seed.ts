@@ -412,6 +412,14 @@ async function main() {
 
   console.log('✅ Created sample notification');
 
+  // Delete existing device tokens for the demo user
+  await prisma.deviceToken.deleteMany({
+    where: {
+      userId: demoUser.id,
+      token: 'demo-fcm-token-example',
+    },
+  });
+
   // Create a device token for demo user
   await prisma.deviceToken.create({
     data: {
