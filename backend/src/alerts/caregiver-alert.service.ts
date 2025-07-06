@@ -1,6 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { NotificationService } from '../notification/notification.service';
+import {
+  InteractiveAction,
+  InteractiveActionType,
+} from '../common/interfaces/notification.interfaces';
 
 export interface CaregiverAlert {
   id: string;
@@ -37,6 +41,31 @@ export class CaregiverAlertService {
     private readonly prisma: PrismaService,
     private readonly notificationService: NotificationService,
   ) {}
+
+  // Helper method to convert AlertAction to InteractiveAction
+  private convertToInteractiveAction(action: AlertAction): InteractiveAction {
+    // Map AlertAction type to InteractiveActionType
+    let actionType: InteractiveActionType;
+
+    switch (action.type) {
+      case 'contact':
+        actionType = 'contact';
+        break;
+      case 'acknowledge':
+      case 'escalate':
+      case 'custom':
+      default:
+        actionType = 'quick_response';
+        break;
+    }
+
+    return {
+      id: action.id,
+      label: action.label,
+      type: actionType,
+      payload: action.metadata,
+    };
+  }
 
   async generateCaregiverAlerts(
     userId: string,
@@ -363,7 +392,9 @@ export class CaregiverAlertService {
             alertId: alert.id,
             alertType: alert.type,
             patientId: alert.userId,
-            actions: alert.actions,
+            actions: alert.actions.map((action) =>
+              this.convertToInteractiveAction(action),
+            ),
             triggerType: 'care_alert',
           },
         });

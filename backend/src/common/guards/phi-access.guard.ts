@@ -49,6 +49,11 @@ export class PHIAccessGuard implements CanActivate {
     }
 
     const userId = user.id || user.sub;
+
+    if (!userId) {
+      throw new ForbiddenException('User ID is required for PHI access');
+    }
+
     const correlationId = request.correlationId || 'unknown';
 
     try {
@@ -127,6 +132,7 @@ export class PHIAccessGuard implements CanActivate {
     userId: string,
     correlationId: string,
   ): Promise<void> {
+    const userAgent = request.get('User-Agent');
     const auditData: PHIAccessAuditData = {
       userId,
       action: `PHI_${metadata.level}`,
@@ -137,7 +143,7 @@ export class PHIAccessGuard implements CanActivate {
         level: metadata.level,
       },
       ip: request.ip,
-      userAgent: request.get('User-Agent'),
+      userAgent: Array.isArray(userAgent) ? userAgent[0] : userAgent,
       correlationId,
       timestamp: new Date(),
     };

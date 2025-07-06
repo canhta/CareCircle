@@ -13,6 +13,12 @@ import {
   EmbeddingInput,
 } from '../common/interfaces/user-interaction.interfaces';
 
+// Re-export interfaces for use in other modules
+export {
+  UserInteractionData,
+  InteractionInsights,
+} from '../common/interfaces/user-interaction.interfaces';
+
 @Injectable()
 export class UserInteractionService {
   private readonly logger = new Logger(UserInteractionService.name);

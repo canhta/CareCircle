@@ -8,10 +8,56 @@ import {
   GooglePlayWebhookDto,
   AppleWebhookDto,
 } from '../dto/webhook.dto';
-import { PaymentProvider, PaymentStatus } from '../dto/payment.dto';
-import { SubscriptionStatus } from '../dto/subscription.dto';
+import {
+  PaymentProvider,
+  PaymentStatus,
+  SubscriptionStatus,
+} from '@prisma/client';
 import * as crypto from 'crypto';
 import { ConfigService } from '@nestjs/config';
+
+// Define GoogleNotificationType enum
+export enum GoogleNotificationType {
+  SUBSCRIPTION_RECOVERED = 1,
+  SUBSCRIPTION_RENEWED = 2,
+  SUBSCRIPTION_PURCHASED = 8,
+}
+
+// Define mapping from string event types to enum
+const EVENT_TYPE_MAPPING = {
+  'payment_intent.succeeded': WebhookEventType.PAYMENT_SUCCEEDED,
+  'payment_intent.payment_failed': WebhookEventType.PAYMENT_FAILED,
+  'charge.refunded': WebhookEventType.PAYMENT_REFUNDED,
+  'customer.subscription.updated': WebhookEventType.SUBSCRIPTION_UPDATED,
+  'customer.subscription.deleted': WebhookEventType.SUBSCRIPTION_CANCELLED,
+};
+
+// Define webhook data structure
+interface WebhookData {
+  payment_intent?: {
+    id: string;
+    metadata: {
+      paymentId?: string;
+    };
+  };
+  charge?: {
+    id: string;
+    metadata: {
+      paymentId?: string;
+    };
+  };
+  subscription?: {
+    id: string;
+    paymentReference?: string;
+    currentPeriodEnd?: string;
+  };
+}
+
+// Extend WebhookPayloadDto to include proper types
+interface TypedWebhookPayloadDto extends WebhookPayloadDto {
+  event: WebhookEventType;
+  data: WebhookData;
+}
 
 @Injectable()
 export class WebhookService {
@@ -23,7 +69,9 @@ export class WebhookService {
   ) {}
 
   async handleStripeWebhook(payload: WebhookPayloadDto) {
-    this.logger.log(`Processing Stripe webhook: ${payload.event}`);
+    // Convert string event type to enum if needed
+    const eventType = payload.event;
+    this.logger.log(`Processing Stripe webhook: ${eventType}`);
 
     try {
       // Verify Stripe webhook signature
@@ -31,48 +79,46 @@ export class WebhookService {
       // const signature = req.headers['stripe-signature'];
       // const event = stripe.webhooks.constructEvent(req.body, signature, endpointSecret);
 
-      switch (payload.event) {
-        case 'payment_intent.succeeded':
+      switch (eventType) {
+        case WebhookEventType.PAYMENT_SUCCEEDED:
           return this.processPaymentSuccess(
-            payload.data.payment_intent.id,
-            payload.data.payment_intent.metadata.paymentId || '',
+            payload.data.payment?.id || '',
+            payload.data.payment?.paymentReference || '',
             PaymentProvider.STRIPE,
           );
 
-        case 'payment_intent.payment_failed':
+        case WebhookEventType.PAYMENT_FAILED:
           return this.processPaymentFailure(
-            payload.data.payment_intent.id,
-            payload.data.payment_intent.metadata.paymentId || '',
+            payload.data.payment?.id || '',
+            payload.data.payment?.paymentReference || '',
             PaymentProvider.STRIPE,
           );
 
-        case 'charge.refunded':
+        case WebhookEventType.PAYMENT_REFUNDED:
           return this.processPaymentRefund(
-            payload.data.charge.id,
-            payload.data.charge.metadata.paymentId || '',
+            payload.data.payment?.id || '',
+            payload.data.payment?.paymentReference || '',
             PaymentProvider.STRIPE,
           );
 
-        case 'customer.subscription.updated':
+        case WebhookEventType.SUBSCRIPTION_UPDATED:
           // Handle subscription updates (like plan changes, etc.)
           return this.processSubscriptionUpdate(
-            payload.data.subscription.id,
-            payload.data.subscription.paymentReference || '',
-            payload.data.subscription.current_period_end,
+            payload.data.subscription?.id || '',
+            payload.data.subscription?.paymentReference || '',
+            payload.data.subscription?.currentPeriodEnd || '',
             PaymentProvider.STRIPE,
           );
 
-        case 'customer.subscription.deleted':
+        case WebhookEventType.SUBSCRIPTION_CANCELLED:
           return this.processSubscriptionCancellation(
-            payload.data.subscription.id,
-            payload.data.subscription.paymentReference || '',
+            payload.data.subscription?.id || '',
+            payload.data.subscription?.paymentReference || '',
             PaymentProvider.STRIPE,
           );
 
         default:
-          this.logger.warn(
-            `Unhandled Stripe event type: ${String(payload.event)}`,
-          );
+          this.logger.warn(`Unhandled Stripe event type: ${String(eventType)}`);
           return { received: true, handled: false };
       }
     } catch (error) {
@@ -212,9 +258,11 @@ export class WebhookService {
       }
 
       switch (subscriptionNotification.notificationType) {
-        case 1: // SUBSCRIPTION_RECOVERED
-        case 2: // SUBSCRIPTION_RENEWED
-        case 8: // SUBSCRIPTION_PURCHASED
+        case GoogleNotificationType.SUBSCRIPTION_RECOVERED:
+
+        // eslint-disable-next-line no-fallthrough
+        case GoogleNotificationType.SUBSCRIPTION_RENEWED:
+        case GoogleNotificationType.SUBSCRIPTION_PURCHASED:
           return this.processPaymentSuccess(
             purchaseToken,
             payment.id,
@@ -564,25 +612,45 @@ export class WebhookService {
     paymentIdOrReference: string,
     provider: PaymentProvider,
   ) {
-    // First try to find by ID
-    let payment = await this.prisma.payment.findFirst({
-      where: { id: paymentIdOrReference },
-    });
-
-    if (!payment) {
-      // Then try to find by provider-specific IDs
-      payment = await this.prisma.payment.findFirst({
+    try {
+      // First try to find by payment ID
+      const paymentById = await this.prisma.payment.findUnique({
         where: {
-          paymentProvider: provider,
-          OR: [
-            { providerTransactionId: paymentIdOrReference },
-            { providerPaymentId: paymentIdOrReference },
-          ],
+          id: paymentIdOrReference,
         },
       });
+
+      if (paymentById) {
+        return paymentById;
+      }
+    } catch (error) {
+      // Handle error looking up by ID
+      this.logger.warn(
+        `Error looking up payment by ID: ${error instanceof Error ? error.message : String(error)}`,
+      );
     }
 
-    return payment;
+    try {
+      // Then try to find by provider's reference
+      const paymentByReference = await this.prisma.payment.findFirst({
+        where: {
+          providerPaymentId: paymentIdOrReference,
+          paymentProvider: provider,
+        },
+      });
+
+      if (paymentByReference) {
+        return paymentByReference;
+      }
+    } catch (error) {
+      // Handle error looking up by reference
+      this.logger.warn(
+        `Error looking up payment by reference: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
+
+    // If not found by either method
+    return null;
   }
 
   private extractPaymentReference(
@@ -594,7 +662,9 @@ export class WebhookService {
       try {
         const orderData = JSON.parse(orderInfo);
         if (orderData.paymentId) return orderData.paymentId;
-      } catch {}
+      } catch {
+        this.logger.warn(`Error parsing orderInfo: ${orderInfo}`);
+      }
 
       // Try to extract from extraData if available
       if (extraData) {
@@ -603,7 +673,9 @@ export class WebhookService {
             Buffer.from(extraData, 'base64').toString(),
           );
           if (extraDataObj.paymentId) return extraDataObj.paymentId;
-        } catch {}
+        } catch {
+          this.logger.warn(`Error parsing extraData: ${extraData}`);
+        }
       }
 
       // Default fallback - use orderInfo directly if no better option

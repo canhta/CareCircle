@@ -62,7 +62,9 @@ export class NotificationAuditLoggingService {
           errorMessage: entry.errorMessage,
           processingTime: entry.processingTime,
           retryCount: entry.retryCount,
-          metadata: entry.metadata,
+          metadata: entry.metadata
+            ? JSON.parse(JSON.stringify(entry.metadata))
+            : undefined,
         },
       });
 

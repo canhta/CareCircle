@@ -8,6 +8,9 @@ import {
   UserHealthContext,
 } from '../common/interfaces/insights.interfaces';
 
+// Re-export interface for use in other modules
+export { UserHealthContext } from '../common/interfaces/insights.interfaces';
+
 export interface HealthInsight {
   id: string;
   type: 'positive' | 'concern' | 'trend' | 'medication' | 'lifestyle';

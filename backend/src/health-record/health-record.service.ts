@@ -30,6 +30,10 @@ import {
   MetricCalculationData,
   MetricTrend,
 } from '../common/interfaces/health-summary.interfaces';
+import {
+  HealthDataSyncJobData,
+  QueueHealthDataPoint,
+} from '../common/interfaces/health-data.interfaces';
 
 @Injectable()
 export class HealthRecordService {
@@ -104,18 +108,43 @@ export class HealthRecordService {
     userId: string,
     syncData: HealthDataSyncDto,
   ): Promise<AsyncSyncResponse> {
+    // Create a HealthDataSyncJobData object from the DTO
+    const syncJobData: HealthDataSyncJobData = {
+      source: syncData.source,
+      startDate: syncData.syncStartDate,
+      endDate: syncData.syncEndDate,
+      dataTypes: [], // No dataTypes in DTO
+      options: {
+        forceResync: false,
+        skipValidation: false,
+      },
+    };
+
     // Add sync job to queue for asynchronous processing
-    await this.queueService.addSyncJob(userId, syncData, {
+    await this.queueService.addSyncJob(userId, syncJobData, {
       priority: 'normal',
       retryAttempts: 3,
     });
 
-    // Also add data processing jobs for aggregation and analysis
+    // Convert HealthDataPointDto to QueueHealthDataPoint
     if (syncData.data && syncData.data.length > 0) {
+      const queueDataPoints: QueueHealthDataPoint[] = syncData.data.map(
+        (point) => ({
+          dataType: point.type, // Add the required dataType field
+          value: point.value,
+          unit: point.unit,
+          timestamp: new Date(point.timestamp),
+          source: point.source,
+          deviceId: point.deviceId,
+          metadata: point.metadata,
+        }),
+      );
+
+      // Also add data processing jobs for aggregation and analysis
       await this.queueService.addProcessingJob(
         userId,
         'health_metrics',
-        syncData.data,
+        queueDataPoints,
         'aggregate',
         { priority: 'low' },
       );
@@ -123,7 +152,7 @@ export class HealthRecordService {
       await this.queueService.addProcessingJob(
         userId,
         'health_metrics',
-        syncData.data,
+        queueDataPoints,
         'analyze',
         { priority: 'low' },
       );

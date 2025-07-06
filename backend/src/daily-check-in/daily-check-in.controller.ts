@@ -8,6 +8,8 @@ import {
   Query,
   UseGuards,
   Request,
+  Patch,
+  Delete,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -26,14 +28,15 @@ import {
   AnswerQuestionDto,
   CheckInResponseDto,
 } from './dto/daily-check-in.dto';
+import { AuthenticatedRequest } from '../auth/interfaces/auth-request.interface';
 import {
-  RequestWithUser,
   CheckInResponse,
   CheckInInsight,
   WeeklyInsightsSummary,
   CheckInInsightEntry,
   NotificationResponseData,
-} from '../common/interfaces';
+} from '../common/interfaces/daily-check-in.interfaces';
+import { AnalyticsCheckInResponse } from '../common/interfaces';
 
 @ApiTags('Daily Check-ins')
 @ApiBearerAuth()
@@ -49,11 +52,11 @@ export class DailyCheckInController {
   @ApiOperation({ summary: 'Create a new daily check-in' })
   @ApiResponse({
     status: 201,
-    description: 'Check-in created successfully',
+    description: 'The check-in has been successfully created',
     type: CheckInResponseDto,
   })
   async createCheckIn(
-    @Request() req: RequestWithUser,
+    @Request() req: AuthenticatedRequest,
     @Body() createCheckInDto: CreateDailyCheckInDto,
   ): Promise<CheckInResponseDto> {
     return this.dailyCheckInService.createCheckIn(
@@ -70,7 +73,7 @@ export class DailyCheckInController {
     type: CheckInResponseDto,
   })
   async updateCheckIn(
-    @Request() req: RequestWithUser,
+    @Request() req: AuthenticatedRequest,
     @Param('id') checkInId: string,
     @Body() updateCheckInDto: UpdateDailyCheckInDto,
   ): Promise<CheckInResponseDto> {
@@ -89,7 +92,7 @@ export class DailyCheckInController {
     type: CheckInResponseDto,
   })
   async getTodaysCheckIn(
-    @Request() req: RequestWithUser,
+    @Request() req: AuthenticatedRequest,
   ): Promise<CheckInResponseDto | null> {
     return this.dailyCheckInService.getTodaysCheckIn(req.user.id);
   }
@@ -102,7 +105,7 @@ export class DailyCheckInController {
     type: CheckInResponseDto,
   })
   async createOrUpdateTodaysCheckIn(
-    @Request() req: RequestWithUser,
+    @Request() req: AuthenticatedRequest,
     @Body() updateData: Partial<CreateDailyCheckInDto>,
   ): Promise<CheckInResponseDto> {
     return this.dailyCheckInService.createOrUpdateTodaysCheckIn(
@@ -119,7 +122,7 @@ export class DailyCheckInController {
     type: CheckInResponseDto,
   })
   async getCheckInByDate(
-    @Request() req: RequestWithUser,
+    @Request() req: AuthenticatedRequest,
     @Param('date') date: string,
   ): Promise<CheckInResponseDto | null> {
     return this.dailyCheckInService.getCheckInByDate(req.user.id, date);
@@ -133,7 +136,7 @@ export class DailyCheckInController {
     type: [CheckInResponseDto],
   })
   async getRecentCheckIns(
-    @Request() req: RequestWithUser,
+    @Request() req: AuthenticatedRequest,
     @Query('limit') limit?: number,
   ): Promise<CheckInResponseDto[]> {
     return this.dailyCheckInService.getRecentCheckIns(req.user.id, limit);
@@ -147,7 +150,7 @@ export class DailyCheckInController {
     type: CheckInResponseDto,
   })
   async getCheckInById(
-    @Request() req: RequestWithUser,
+    @Request() req: AuthenticatedRequest,
     @Param('id') checkInId: string,
   ): Promise<CheckInResponseDto> {
     return this.dailyCheckInService.getCheckInById(req.user.id, checkInId);
@@ -161,7 +164,7 @@ export class DailyCheckInController {
     type: [PersonalizedQuestionDto],
   })
   async generatePersonalizedQuestions(
-    @Request() req: RequestWithUser,
+    @Request() req: AuthenticatedRequest,
     @Body() generateQuestionsDto: GenerateQuestionsDto,
   ): Promise<PersonalizedQuestionDto[]> {
     return this.dailyCheckInService.generatePersonalizedQuestions(
@@ -177,7 +180,7 @@ export class DailyCheckInController {
     description: 'Answer submitted successfully',
   })
   async answerQuestion(
-    @Request() req: RequestWithUser,
+    @Request() req: AuthenticatedRequest,
     @Param('date') date: string,
     @Body() answerDto: AnswerQuestionDto,
   ): Promise<void> {
@@ -195,9 +198,9 @@ export class DailyCheckInController {
     description: 'Insights generated successfully',
   })
   async generateInsights(
-    @Request() req: RequestWithUser,
+    @Request() req: AuthenticatedRequest,
     @Param('date') date: string,
-    @Body() responses: CheckInResponse[],
+    @Body() responses: AnalyticsCheckInResponse[],
   ): Promise<CheckInInsight[]> {
     return this.dailyCheckInService.generateComprehensiveInsights(
       req.user.id,
@@ -213,7 +216,7 @@ export class DailyCheckInController {
     description: 'Recent insights retrieved successfully',
   })
   async getRecentInsights(
-    @Request() req: RequestWithUser,
+    @Request() req: AuthenticatedRequest,
     @Query('limit') limit?: number,
   ): Promise<CheckInInsightEntry[]> {
     return this.dailyCheckInService.getRecentInsights(req.user.id, limit);
@@ -226,7 +229,7 @@ export class DailyCheckInController {
     description: 'Weekly insights summary retrieved successfully',
   })
   async getWeeklyInsightsSummary(
-    @Request() req: RequestWithUser,
+    @Request() req: AuthenticatedRequest,
   ): Promise<WeeklyInsightsSummary> {
     return this.dailyCheckInService.generateWeeklyInsightsSummary(req.user.id);
   }
@@ -238,7 +241,7 @@ export class DailyCheckInController {
     description: 'Stored insights retrieved successfully',
   })
   async getStoredInsights(
-    @Request() req: RequestWithUser,
+    @Request() req: AuthenticatedRequest,
     @Param('checkInId') checkInId: string,
   ): Promise<CheckInInsight[]> {
     return this.dailyCheckInService.getStoredInsights(req.user.id, checkInId);
@@ -251,7 +254,7 @@ export class DailyCheckInController {
     description: 'Engagement notifications processed successfully',
   })
   async processEngagementNotifications(
-    @Request() req: RequestWithUser,
+    @Request() req: AuthenticatedRequest,
   ): Promise<void> {
     return this.dailyCheckInService.processEngagementNotifications(req.user.id);
   }
@@ -263,7 +266,7 @@ export class DailyCheckInController {
     description: 'Notification response handled successfully',
   })
   async handleNotificationResponse(
-    @Request() req: RequestWithUser,
+    @Request() req: AuthenticatedRequest,
     @Param('notificationId') notificationId: string,
     @Body() responseData: NotificationResponseData,
   ): Promise<void> {

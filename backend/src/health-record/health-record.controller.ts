@@ -228,9 +228,9 @@ export class HealthRecordController {
         activeMinutes: summary.averages?.activeMinutes || 0,
         caloriesBurned: summary.averages?.caloriesBurned || 0,
         trends: {
-          stepTrend: summary.trends?.steps || 'stable',
-          heartRateTrend: summary.trends?.heartRate || 'stable',
-          sleepTrend: summary.trends?.sleep || 'stable',
+          stepTrend: summary.trends?.steps?.direction || 'stable',
+          heartRateTrend: summary.trends?.heartRate?.direction || 'stable',
+          sleepTrend: summary.trends?.sleep?.direction || 'stable',
         },
         insights: [],
       },

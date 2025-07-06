@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:form_validator/form_validator.dart';
+import 'package:go_router/go_router.dart';
 
 import '../features/auth/auth.dart';
 import '../common/common.dart';
@@ -51,7 +52,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black87),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => context.go('/login'),
         ),
       ),
       body: SafeArea(
@@ -280,7 +281,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     if (result.isSuccess) {
       if (mounted) {
         // Navigate to main app
-        Navigator.pushReplacementNamed(context, '/home');
+        context.go('/');
       }
     } else {
       if (mounted) {

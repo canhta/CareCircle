@@ -425,10 +425,15 @@ export class DailyCheckInService {
 
   async getUserHealthContext(userId: string): Promise<UserHealthContext> {
     try {
-      // Get user basic information
       const user = await this.prisma.user.findUnique({
         where: { id: userId },
-        include: {
+        select: {
+          id: true,
+          email: true,
+          firstName: true,
+          lastName: true,
+          dateOfBirth: true,
+          gender: true,
           prescriptions: {
             where: { isActive: true },
             select: {
@@ -441,12 +446,12 @@ export class DailyCheckInService {
             },
           },
           careGroupMembers: {
-            include: {
+            select: {
+              role: true,
               careGroup: {
                 select: {
                   id: true,
                   name: true,
-                  description: true,
                 },
               },
             },
@@ -458,17 +463,38 @@ export class DailyCheckInService {
         throw new NotFoundException('User not found');
       }
 
+      // Convert prescription data to match PrescriptionData interface
+      const formattedPrescriptions = user.prescriptions.map((prescription) => ({
+        id: prescription.id,
+        medicationName: prescription.medicationName,
+        dosage: prescription.dosage,
+        frequency: prescription.frequency,
+        startDate: prescription.startDate,
+        endDate:
+          prescription.endDate === null ? undefined : prescription.endDate,
+        status: 'active' as const,
+      }));
+
+      // Convert care group data to match CareGroupContextData interface
+      const formattedCareGroups = user.careGroupMembers.map((membership) => ({
+        id: membership.careGroup.id,
+        name: membership.careGroup.name,
+        role: membership.role as
+          | 'caregiver'
+          | 'patient'
+          | 'physician'
+          | 'family',
+        memberCount: 1, // Default value since we don't have this information
+        lastActivity: new Date(), // Default to current date
+      }));
+
       return {
         age: user.dateOfBirth
           ? new Date().getFullYear() - user.dateOfBirth.getFullYear()
           : undefined,
         gender: user.gender || undefined,
-        prescriptions: user.prescriptions,
-        careGroupContext: user.careGroupMembers.map((membership) => ({
-          groupId: membership.careGroup.id,
-          groupName: membership.careGroup.name,
-          role: membership.role,
-        })),
+        prescriptions: formattedPrescriptions,
+        careGroupContext: formattedCareGroups,
       };
     } catch (error) {
       this.logger.error(

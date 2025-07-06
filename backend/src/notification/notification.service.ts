@@ -31,6 +31,11 @@ import {
   PrescriptionWithMetadata,
 } from '../common/interfaces';
 
+import {
+  MedicationContextData,
+  CareGroupContextData,
+} from '../common/interfaces/notification-template.interfaces';
+
 @Injectable()
 export class NotificationService {
   private readonly logger = new Logger(NotificationService.name);
@@ -582,38 +587,58 @@ export class NotificationService {
       where: { id: reminderData.userId },
     });
 
-    if (!user) {
-      this.logger.error(`User not found: ${reminderData.userId}`);
+    const prescription = await this.prisma.prescription.findUnique({
+      where: { id: reminderData.prescriptionId },
+    });
+
+    if (!user || !prescription) {
+      this.logger.error(
+        `User or prescription not found: ${reminderData.userId}, ${reminderData.prescriptionId}`,
+      );
       return;
     }
 
     // Get the best template for medication reminders
     const template = await this.templateService.getBestTemplate(
       NotificationType.MEDICATION_REMINDER,
-      { language: 'en' }, // Default to English for now
+      { language: 'en' }, // Default to English since user.language doesn't exist
     );
 
     if (!template) {
-      // Fallback to the original method if no template is found
-      await this.sendMedicationReminder(reminderData);
+      // Fallback notification
+      await this.sendNotification({
+        userId: reminderData.userId,
+        title: 'Medication Reminder',
+        message: `Time to take ${prescription.medicationName}`,
+        type: NotificationType.MEDICATION_REMINDER,
+        channels: [NotificationChannel.PUSH, NotificationChannel.IN_APP],
+        priority: NotificationPriority.HIGH,
+        actionUrl: `/medications/${reminderData.prescriptionId}`,
+      });
       return;
     }
 
-    // Create medication context
-    const prescription = await this.prisma.prescription.findUnique({
-      where: { id: reminderData.prescriptionId },
-    });
-
-    if (!prescription) {
-      this.logger.error(
-        `Prescription not found: ${reminderData.prescriptionId}`,
-      );
-      return;
-    }
+    // Create medication context for the template
+    const medicationContext: MedicationContextData = {
+      userId: user.id,
+      userName: `${user.firstName} ${user.lastName || ''}`.trim(),
+      firstName: user.firstName,
+      lastName: user.lastName || undefined,
+      medicationName: prescription.medicationName,
+      dosage: prescription.dosage,
+      schedule: prescription.frequency,
+      instructions: prescription.instructions || undefined,
+      remainingDays: prescription.endDate
+        ? Math.ceil(
+            (prescription.endDate.getTime() - new Date().getTime()) /
+              (1000 * 60 * 60 * 24),
+          )
+        : undefined,
+    };
 
     const context = this.templateService.createMedicationContext(
       user,
-      prescription,
+      medicationContext,
       {
         scheduledTime: reminderData.scheduledAt.toLocaleTimeString(),
         isOverdue: reminderData.scheduledAt < new Date(),
@@ -697,10 +722,23 @@ export class NotificationService {
       return;
     }
 
+    // Create care group context data that matches the interface
+    const careGroupContextData: CareGroupContextData = {
+      userId: user.id,
+      userName: `${user.firstName} ${user.lastName || ''}`.trim(),
+      firstName: user.firstName,
+      lastName: user.lastName || undefined,
+      careGroupId: careGroup.id,
+      careGroupName: careGroup.name,
+      memberCount: careGroup.members.length,
+      role:
+        careGroup.members.find((m) => m.userId === userId)?.role || 'member',
+    };
+
     // Create care group context
     const careGroupContext = this.templateService.createCareGroupContext(
       user,
-      careGroup,
+      careGroupContextData,
       context,
     );
 

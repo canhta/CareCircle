@@ -6,6 +6,12 @@ import {
   UserContextData,
 } from '../common/interfaces/template-rendering.interfaces';
 
+// Re-export interfaces for use in other modules
+export {
+  TemplateContext,
+  TemplateMetadata,
+} from '../common/interfaces/template-rendering.interfaces';
+
 @Injectable()
 export class TemplateRenderingService {
   /**
@@ -121,6 +127,10 @@ export class TemplateRenderingService {
       return value.toString();
     }
 
+    if (typeof value === 'string') {
+      return value;
+    }
+
     // Handle objects by converting them to JSON strings
     if (typeof value === 'object') {
       try {
@@ -130,7 +140,9 @@ export class TemplateRenderingService {
       }
     }
 
-    return String(value);
+    // For symbol, function, bigint or any other type
+    // Use explicit type assertions to avoid TypeScript no-base-to-string error
+    return `${value as unknown as string}`;
   }
 
   /**
