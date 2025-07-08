@@ -80,11 +80,49 @@ class AuthService {
     }
   }
 
+  Future<AuthResponse> loginWithFirebaseToken(String idToken) async {
+    try {
+      final response = await _dio.post(
+        '/auth/firebase-login',
+        data: {'idToken': idToken},
+      );
+
+      final authResponse = AuthResponse.fromJson(response.data);
+      await _saveAuthData(authResponse);
+      return authResponse;
+    } on DioException catch (e) {
+      throw _handleDioError(e);
+    }
+  }
+
   Future<AuthResponse> register(RegisterRequest request) async {
     try {
       final response = await _dio.post(
         '/auth/register',
         data: request.toJson(),
+      );
+
+      final authResponse = AuthResponse.fromJson(response.data);
+      await _saveAuthData(authResponse);
+      return authResponse;
+    } on DioException catch (e) {
+      throw _handleDioError(e);
+    }
+  }
+
+  Future<AuthResponse> registerWithFirebaseToken(
+    String idToken,
+    RegisterRequest request,
+  ) async {
+    try {
+      final response = await _dio.post(
+        '/auth/firebase-register',
+        data: {
+          'idToken': idToken,
+          'displayName': request.displayName,
+          'firstName': request.firstName,
+          'lastName': request.lastName,
+        },
       );
 
       final authResponse = AuthResponse.fromJson(response.data);
@@ -125,6 +163,36 @@ class AuthService {
           if (password != null) 'password': password,
           if (displayName != null) 'displayName': displayName,
         },
+      );
+
+      final authResponse = AuthResponse.fromJson(response.data);
+      await _saveAuthData(authResponse);
+      return authResponse;
+    } on DioException catch (e) {
+      throw _handleDioError(e);
+    }
+  }
+
+  Future<AuthResponse> signInWithGoogle(String idToken) async {
+    try {
+      final response = await _dio.post(
+        '/auth/social/google',
+        data: {'idToken': idToken},
+      );
+
+      final authResponse = AuthResponse.fromJson(response.data);
+      await _saveAuthData(authResponse);
+      return authResponse;
+    } on DioException catch (e) {
+      throw _handleDioError(e);
+    }
+  }
+
+  Future<AuthResponse> signInWithApple(String idToken) async {
+    try {
+      final response = await _dio.post(
+        '/auth/social/apple',
+        data: {'idToken': idToken},
       );
 
       final authResponse = AuthResponse.fromJson(response.data);

@@ -2,7 +2,6 @@
 
 ## In Progress
 
-- [ ] Integrate actual Firebase Authentication SDK (currently simplified)
 - [ ] Add comprehensive error handling and validation
 - [ ] Implement offline authentication capabilities
 - [ ] Add comprehensive testing for authentication flows
@@ -49,3 +48,7 @@
 - [x] Add proper error handling and validation
 - [x] Implement guest mode and account conversion
 - [x] Add authentication routing and navigation
+- [x] Integrate actual Firebase Authentication SDK with full functionality
+- [x] Implement complete social login (Google, Apple) with Firebase
+- [x] Add Firebase ID token authentication with backend
+- [x] Replace simplified Firebase service with production implementation

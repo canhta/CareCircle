@@ -53,8 +53,21 @@ class AuthNotifier extends _$AuthNotifier {
     state = state.copyWith(isLoading: true, error: null);
 
     try {
+      final firebaseAuthService = ref.read(firebaseAuthServiceProvider);
       final authService = ref.read(authServiceProvider);
-      final authResponse = await authService.loginWithEmail(email, password);
+
+      // Sign in with Firebase first
+      final userCredential = await firebaseAuthService
+          .signInWithEmailAndPassword(email: email, password: password);
+
+      // Get Firebase ID token
+      final idToken = await userCredential.user?.getIdToken();
+      if (idToken == null) {
+        throw Exception('Failed to get Firebase ID token');
+      }
+
+      // Authenticate with backend using Firebase ID token
+      final authResponse = await authService.loginWithFirebaseToken(idToken);
 
       state = state.copyWith(
         user: authResponse.user,
@@ -73,8 +86,27 @@ class AuthNotifier extends _$AuthNotifier {
     state = state.copyWith(isLoading: true, error: null);
 
     try {
+      final firebaseAuthService = ref.read(firebaseAuthServiceProvider);
       final authService = ref.read(authServiceProvider);
-      final authResponse = await authService.register(request);
+
+      // Create user with Firebase first
+      final userCredential = await firebaseAuthService
+          .createUserWithEmailAndPassword(
+            email: request.email!,
+            password: request.password,
+          );
+
+      // Get Firebase ID token
+      final idToken = await userCredential.user?.getIdToken();
+      if (idToken == null) {
+        throw Exception('Failed to get Firebase ID token');
+      }
+
+      // Register with backend using Firebase ID token
+      final authResponse = await authService.registerWithFirebaseToken(
+        idToken,
+        request,
+      );
 
       state = state.copyWith(
         user: authResponse.user,
@@ -94,7 +126,12 @@ class AuthNotifier extends _$AuthNotifier {
 
     try {
       final deviceId = await _getDeviceId();
+      final firebaseAuthService = ref.read(firebaseAuthServiceProvider);
       final authService = ref.read(authServiceProvider);
+
+      // Sign in anonymously with Firebase
+      await firebaseAuthService.signInAnonymously();
+
       final authResponse = await authService.loginAsGuest(deviceId);
 
       state = state.copyWith(
@@ -103,6 +140,70 @@ class AuthNotifier extends _$AuthNotifier {
         accessToken: authResponse.accessToken,
         refreshToken: authResponse.refreshToken,
         status: AuthStatus.guest,
+        isLoading: false,
+      );
+    } catch (e) {
+      state = state.copyWith(error: e.toString(), isLoading: false);
+    }
+  }
+
+  Future<void> signInWithGoogle() async {
+    state = state.copyWith(isLoading: true, error: null);
+
+    try {
+      final firebaseAuthService = ref.read(firebaseAuthServiceProvider);
+      final authService = ref.read(authServiceProvider);
+
+      // Sign in with Google via Firebase
+      final userCredential = await firebaseAuthService.signInWithGoogle();
+
+      // Get Firebase ID token
+      final idToken = await userCredential.user?.getIdToken();
+      if (idToken == null) {
+        throw Exception('Failed to get Firebase ID token');
+      }
+
+      // Authenticate with backend using Google token
+      final authResponse = await authService.signInWithGoogle(idToken);
+
+      state = state.copyWith(
+        user: authResponse.user,
+        profile: authResponse.profile,
+        accessToken: authResponse.accessToken,
+        refreshToken: authResponse.refreshToken,
+        status: AuthStatus.authenticated,
+        isLoading: false,
+      );
+    } catch (e) {
+      state = state.copyWith(error: e.toString(), isLoading: false);
+    }
+  }
+
+  Future<void> signInWithApple() async {
+    state = state.copyWith(isLoading: true, error: null);
+
+    try {
+      final firebaseAuthService = ref.read(firebaseAuthServiceProvider);
+      final authService = ref.read(authServiceProvider);
+
+      // Sign in with Apple via Firebase
+      final userCredential = await firebaseAuthService.signInWithApple();
+
+      // Get Firebase ID token
+      final idToken = await userCredential.user?.getIdToken();
+      if (idToken == null) {
+        throw Exception('Failed to get Firebase ID token');
+      }
+
+      // Authenticate with backend using Apple token
+      final authResponse = await authService.signInWithApple(idToken);
+
+      state = state.copyWith(
+        user: authResponse.user,
+        profile: authResponse.profile,
+        accessToken: authResponse.accessToken,
+        refreshToken: authResponse.refreshToken,
+        status: AuthStatus.authenticated,
         isLoading: false,
       );
     } catch (e) {
