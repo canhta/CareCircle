@@ -1,5 +1,7 @@
 # Firebase Authentication Implementation
 
+> **Note:** This document expands on the high-level authentication flow described in [Firebase Authentication Integration Flow](../details/firebase_auth_integration_flow.md). While that document provides architectural overview and sequence diagrams, this document focuses on detailed implementation code and guidelines.
+
 ## Overview
 
 This document provides detailed implementation guidelines for Firebase Authentication in the CareCircle platform, with special focus on guest mode functionality, account linking, and conversion from anonymous to registered users. It supplements the Identity & Access Context module documentation with specific implementation details.
@@ -123,6 +125,7 @@ This document provides detailed implementation guidelines for Firebase Authentic
    ```
 
 4. **Credential Storage**
+
    ```typescript
    async function storeGuestCredential(
      credential: UserCredential
@@ -272,6 +275,7 @@ This document provides detailed implementation guidelines for Firebase Authentic
    ```
 
 3. **Convert User Profile**
+
    ```typescript
    async function convertGuestToRegisteredUser(
      uid: string,
@@ -386,6 +390,7 @@ This document provides detailed implementation guidelines for Firebase Authentic
    ```
 
 2. **Social Authentication Registration**
+
    ```typescript
    async function registerWithSocialProvider(
      provider: AuthProvider

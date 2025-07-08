@@ -1,5 +1,10 @@
 # CareCircle Planning and Development Roadmap
 
+> **Note:** This document provides the high-level planning overview. For implementation:
+>
+> - **Technical Implementation**: See the [modules directory](./modules/) with detailed implementation guides following the [Implementation Order Guide](./modules/implementation_order.md)
+> - **Feature Requirements**: See the [details directory](./details/) for feature-specific requirements and specifications
+
 This document outlines the development plan for the CareCircle health management platform, organized by Domain-Driven Design (DDD) Bounded Contexts. This structure ensures that development teams can work independently on different contexts while maintaining clear boundaries and interfaces between them.
 
 > **Note:** For more detailed specifications of major features, please refer to the corresponding files in the `./docs/details/` directory.

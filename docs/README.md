@@ -1,114 +1,69 @@
-# CareCircle System Documentation
+# CareCircle Documentation
 
-This directory contains comprehensive documentation for the CareCircle system, an AI-powered family health management platform designed for Southeast Asia. The documentation follows modern best practices including Domain-Driven Design (DDD) and Clean Architecture principles.
+This directory contains all technical documentation for the CareCircle health management platform. The documentation is structured to minimize duplication and provide clear implementation guidance for AI agents and developers.
 
 ## Documentation Structure
 
-The documentation is organized into the following main components:
+The documentation is organized into three main categories:
 
-1. **Main Architecture Documents**
+1. **Module Documentation** (`./modules/`) - Implementation-focused technical specifications for each Domain-Driven Design (DDD) bounded context
 
-   - High-level architecture and design documents
-   - Overview of all system components
+   - See [Module Documentation Index](./modules/README.md)
 
-2. **Detailed Specifications**
-   - In-depth documentation of major features
-   - Technical specifications for system components
-   - UI/UX documentation with separated functional and visual concerns
+2. **Feature Specifications** (`./details/`) - User story-driven feature specifications that may span multiple modules
 
-## Main Documents
+   - See [Feature Specifications Index](./details/README.md)
 
-| Document                                                         | Description                                                               |
-| ---------------------------------------------------------------- | ------------------------------------------------------------------------- |
-| [features_list.md](./features_list.md)                           | Comprehensive list of all system features organized by domain             |
-| [backend_structure.md](./backend_structure.md)                   | Backend architecture following Clean Architecture and DDD principles      |
-| [mobile_structure.md](./mobile_structure.md)                     | Mobile application architecture using Flutter and feature-first design    |
-| [planning_and_todolist_ddd.md](./planning_and_todolist_ddd.md)   | Development roadmap organized by DDD Bounded Contexts                     |
-| [legacy_migration_decisions.md](./legacy_migration_decisions.md) | Summary of key architectural decisions migrated from legacy documentation |
+3. **Architecture Documents** (root directory) - System-level architecture and design decisions
+   - Backend structure, mobile structure, planning, etc.
 
-## Detailed Specifications
+## Avoiding Documentation Duplication
 
-For more detailed specifications on specific features, please see the [details](./details) directory, which includes:
+To minimize duplication while maintaining comprehensive documentation:
 
-### Feature Specifications
+1. **Module vs. Feature Focus**
 
-- [AI Health Chat](./details/feature_AHA-001.md) - Detailed specification for the AI-powered health assistant
-- [Prescription Scanning](./details/feature_MM-001.md) - Detailed specification for prescription scanning feature
-- [Care Group Creation](./details/feature_FCC-001.md) - Detailed specification for care group management
-- [Firebase Authentication](./details/feature_UM-010.md) - Detailed specification for authentication with guest mode and account linking
-- [Smart Notification System](./details/feature_NSS-001.md) - Detailed specification for AI-powered notification system
+   - Module docs focus on the "how" - technical implementation details
+   - Feature docs focus on the "what" - user-facing functionality
 
-### Technical Specifications
+2. **Cross-Reference Instead of Duplicate**
 
-- [Bounded Context Communication](./details/technical_bounded_context_communication.md) - Technical specification for bounded context communication patterns
-- [AI Agent Implementation Options](./details/technical_ai_agent_implementation.md) - Comparative analysis of different AI chat and TTS implementation approaches
-- [Firebase Authentication Integration Flow](./details/firebase_auth_integration_flow.md) - Detailed authentication flow between mobile, backend, and Firebase Auth
+   - Documents link to each other rather than duplicating content
+   - Example: Firebase authentication is detailed in module docs, referenced in feature docs
 
-### UI/UX Documentation
+3. **Implementation Order**
+   - Follow the [Implementation Order Guide](./modules/implementation_order.md) when implementing the system
 
-- [UI/UX Mockups](./details/uiux) - Functional UI/UX specifications and visual design placeholders
-- [UI/UX Textual Mockup Guidelines](./details/uiux_textual_mockup_guidelines.md) - Guidelines for creating textual UI/UX mockups
+## Key Documentation Files
 
-## UI/UX Documentation Approach
+### Architecture Documents (Root Level)
 
-The CareCircle documentation follows a separation of concerns approach for UI/UX specifications:
+- [Mobile Structure](./mobile_structure.md) - Mobile app architecture
+- [Backend Structure](./backend_structure.md) - Backend service architecture
+- [Planning and TodoList DDD](./planning_and_todolist_ddd.md) - DDD planning guidelines
+- [Features List](./features_list.md) - Complete list of platform features
+- [Legacy Migration Decisions](./legacy_migration_decisions.md) - Migration planning
 
-1. **Textual Mockups**: Functional descriptions focusing on:
+### Module Documentation (`./modules/`)
 
-   - Information architecture
-   - User flows
-   - Functional requirements
-   - Screen states
-   - Accessibility considerations
+- Documentation for each DDD bounded context module
+- Numbered in implementation order (e.g., `01_identity_access_context.md`)
+- Technical details for implementation
 
-2. **Visual Design Documents**: Visual specifications focusing on:
-   - Visual composition
-   - Style guide application
-   - Component usage
-   - Responsive design
-   - Animation and transitions
+### Feature Documentation (`./details/`)
 
-This approach allows for clear communication of functional requirements independently from visual design decisions, which may evolve separately during the development lifecycle.
+- Feature specifications organized by feature ID
+- User stories, requirements, and acceptance criteria
+- UI/UX specifications in the `./details/uiux/` subdirectory
 
-For details on this approach, see the [UI/UX Textual Mockup Guidelines](./details/uiux_textual_mockup_guidelines.md).
+## Implementation Guidelines
 
-## Documentation Conventions
+When implementing features in CareCircle:
 
-This documentation follows these conventions:
+1. Start with the numbered module documentation in `./modules/`
+2. Reference the feature specifications for user-facing requirements
+3. Use the architecture documents to understand system-wide patterns
 
-1. **Feature IDs**: Each feature has a unique ID (e.g., `AHA-001`) consisting of:
+## For AI Agents
 
-   - Domain/module prefix (e.g., `AHA` for AI Health Assistant)
-   - Sequential number (e.g., `001`)
-
-2. **Cross-References**: Documents reference each other using:
-
-   - Direct links to other documents
-   - Section references using header anchors (e.g., `#5-ai-integration-flow`)
-
-3. **Diagrams**: ASCII diagrams are used for:
-
-   - Architecture components
-   - Data flows
-   - UI mockups
-
-4. **Code Examples**: Illustrative code examples are provided using appropriate syntax highlighting
-
-## Using This Documentation
-
-- **For product managers**: Start with `features_list.md` to understand the system's capabilities
-- **For backend developers**: Begin with `backend_structure.md` and relevant detailed specifications
-- **For mobile developers**: Focus on `mobile_structure.md` and mobile feature specifications
-- **For system architects**: Review `planning_and_todolist_ddd.md` for the overall system design
-- **For designers**: Review the textual mockups for functional requirements and create corresponding visual designs
-
-## Contributing to Documentation
-
-When adding to or modifying this documentation:
-
-1. Maintain the established structure and formatting
-2. Update cross-references when changing document organization
-3. Place detailed specifications in the `details` directory
-4. Follow the naming conventions for new files
-5. For UI/UX documentation, maintain separation between functional and visual specifications
-6. Update relevant README files when adding new documents
+AI agents should focus primarily on the module documentation as it provides implementation-focused technical details. Feature specifications should be consulted for understanding user requirements and acceptance criteria.

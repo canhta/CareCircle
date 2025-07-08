@@ -2,22 +2,25 @@
 
 This document provides a comprehensive list of features for the CareCircle application, grouped by domain or capability. Each feature has a unique ID, a clear name, and a concise user story.
 
-> **Note:** For major features that require more detailed specifications, please refer to the corresponding files in the `./docs/details/` directory. These files follow the naming convention `feature_[ID].md` (e.g., `feature_AHA-001.md` for AI Health Chat).
+> **Note:** For major features that require more detailed information:
+>
+> 1. **Feature Specifications**: See the corresponding files in the `./docs/details/` directory following the naming convention `feature_[ID].md` (e.g., `feature_AHA-001.md` for AI Health Chat)
+> 2. **Implementation Details**: See the corresponding module documentation in the `./docs/modules/` directory for technical implementation guidelines
 
 ## User Management (UM)
 
-| ID     | Name                     | Priority | Description                                                                                               | Status      |
-| ------ | ------------------------ | -------- | --------------------------------------------------------------------------------------------------------- | ----------- |
-| UM-001 | User Registration        | P0       | Allow users to create accounts with email, phone, or social media                                         | Planned     |
-| UM-002 | User Authentication      | P0       | Authenticate users securely using various methods                                                         | Planned     |
-| UM-003 | User Profile Management  | P1       | Allow users to view and update their personal information                                                 | Planned     |
-| UM-004 | User Preferences         | P2       | Allow users to set application preferences and notifications                                              | Planned     |
-| UM-005 | User Roles & Permissions | P1       | Define and manage roles and permissions for different user types                                          | Planned     |
-| UM-006 | Account Recovery         | P1       | Allow users to recover access to their accounts                                                           | Planned     |
-| UM-007 | Session Management       | P1       | Manage user sessions, including timeout and multi-device access                                           | Planned     |
-| UM-008 | User Deletion            | P2       | Allow users to delete their accounts and associated data                                                  | Planned     |
-| UM-009 | User Activity Tracking   | P3       | Track and display user activity history                                                                   | Planned     |
-| UM-010 | Firebase Authentication  | P0       | Comprehensive authentication system with guest mode, account linking, and device-based account management | In Progress |
+| ID     | Name                     | Priority | Description                                                                                               | Status      | Module | Implementation Doc                                                                   |
+| ------ | ------------------------ | -------- | --------------------------------------------------------------------------------------------------------- | ----------- | ------ | ------------------------------------------------------------------------------------ |
+| UM-001 | User Registration        | P0       | Allow users to create accounts with email, phone, or social media                                         | Planned     | IAC    | [01_identity_access_context.md](./modules/01_identity_access_context.md)             |
+| UM-002 | User Authentication      | P0       | Authenticate users securely using various methods                                                         | Planned     | IAC    | [01_identity_access_context.md](./modules/01_identity_access_context.md)             |
+| UM-003 | User Profile Management  | P1       | Allow users to view and update their personal information                                                 | Planned     | IAC    | [01_identity_access_context.md](./modules/01_identity_access_context.md)             |
+| UM-004 | User Preferences         | P2       | Allow users to set application preferences and notifications                                              | Planned     | IAC    | [01_identity_access_context.md](./modules/01_identity_access_context.md)             |
+| UM-005 | User Roles & Permissions | P1       | Define and manage roles and permissions for different user types                                          | Planned     | IAC    | [01_identity_access_context.md](./modules/01_identity_access_context.md)             |
+| UM-006 | Account Recovery         | P1       | Allow users to recover access to their accounts                                                           | Planned     | IAC    | [01_identity_access_context.md](./modules/01_identity_access_context.md)             |
+| UM-007 | Session Management       | P1       | Manage user sessions, including timeout and multi-device access                                           | Planned     | IAC    | [01_identity_access_context.md](./modules/01_identity_access_context.md)             |
+| UM-008 | User Deletion            | P2       | Allow users to delete their accounts and associated data                                                  | Planned     | IAC    | [01_identity_access_context.md](./modules/01_identity_access_context.md)             |
+| UM-009 | User Activity Tracking   | P3       | Track and display user activity history                                                                   | Planned     | IAC    | [01_identity_access_context.md](./modules/01_identity_access_context.md)             |
+| UM-010 | Firebase Authentication  | P0       | Comprehensive authentication system with guest mode, account linking, and device-based account management | In Progress | IAC    | [01a_firebase_auth_implementation.md](./modules/01a_firebase_auth_implementation.md) |
 
 ### UM-001: User Registration
 
