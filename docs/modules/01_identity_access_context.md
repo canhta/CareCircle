@@ -296,37 +296,37 @@ interface PermissionService {
    - Implement token refresh on reconnection
    - Handle expired credentials during offline periods
 
-## To-do Checklist
+## Implementation Tasks
 
-### Backend Tasks
+### Backend Implementation Requirements
 
-- [ ] BE: Set up Firebase Authentication project and configure settings
-- [ ] BE: Implement Firebase Admin SDK integration in NestJS
-- [ ] BE: Create user repository and domain services
-- [ ] BE: Build role-based access control system with custom Firebase claims
-- [ ] BE: Implement authentication middleware for API protection
-- [ ] BE: Develop guest mode authentication flow with device tracking
-- [ ] BE: Create multi-factor authentication implementation
-- [ ] BE: Build account recovery mechanisms with secure token handling
-- [ ] BE: Implement session management with Redis for token storage
-- [ ] BE: Create audit logging service for authentication events
-- [ ] BE: Develop health check endpoints for authentication services
-- [ ] BE: Implement rate limiting for authentication endpoints
+1. Set up Firebase Authentication project and configure settings
+2. Implement Firebase Admin SDK integration in NestJS
+3. Create user repository and domain services
+4. Build role-based access control system with custom Firebase claims
+5. Implement authentication middleware for API protection
+6. Develop guest mode authentication flow with device tracking
+7. Create multi-factor authentication implementation
+8. Build account recovery mechanisms with secure token handling
+9. Implement session management with Redis for token storage
+10. Create audit logging service for authentication events
+11. Develop health check endpoints for authentication services
+12. Implement rate limiting for authentication endpoints
 
-### Mobile Tasks
+### Mobile Implementation Requirements
 
-- [ ] Mobile: Integrate Firebase Authentication SDK
-- [ ] Mobile: Implement secure credential storage using platform security features
-- [ ] Mobile: Create login/registration screens with form validation
-- [ ] Mobile: Build biometric authentication integration
-- [ ] Mobile: Implement social login options (Google, Apple)
-- [ ] Mobile: Create profile management UI with photo upload capability
-- [ ] Mobile: Develop permission request UI for sensitive operations
-- [ ] Mobile: Build token management and refresh system
-- [ ] Mobile: Implement offline authentication mechanisms
-- [ ] Mobile: Create account recovery flow with verification
-- [ ] Mobile: Develop Elder Mode UI adaptations for authentication screens
-- [ ] Mobile: Create guest mode experience with conversion prompts
+1. Integrate Firebase Authentication SDK
+2. Implement secure credential storage using platform security features
+3. Create login/registration screens with form validation
+4. Build biometric authentication integration
+5. Implement social login options (Google, Apple)
+6. Create profile management UI with photo upload capability
+7. Develop permission request UI for sensitive operations
+8. Build token management and refresh system
+9. Implement offline authentication mechanisms
+10. Create account recovery flow with verification
+11. Develop Elder Mode UI adaptations for authentication screens
+12. Create guest mode experience with conversion prompts
 
 ## References
 

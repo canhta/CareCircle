@@ -2,6 +2,15 @@
 
 This directory contains all technical documentation for the CareCircle health management platform. The documentation is structured to minimize duplication and provide clear implementation guidance for AI agents and developers.
 
+## Task Management for AI Agents
+
+**Important:** AI agents must follow the new task management workflow:
+
+1. **Before starting any implementation work**, AI agents must first append corresponding to-do items in the format `[ ]` within a `@TODO.md` file located in the relevant module folder
+2. **All progress tracking** should be handled directly in repository TODO.md files, not within documentation files
+3. **Documentation files** should focus on specifications and requirements, not progress tracking
+4. Use the [TODO Template](./TODO_TEMPLATE.md) to create standardized TODO.md files in module directories
+
 ## Documentation Structure
 
 The documentation is organized into three main categories:
