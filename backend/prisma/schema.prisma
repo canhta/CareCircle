@@ -1,8 +1,6 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+// CareCircle Prisma Schema
+// Healthcare platform with DDD bounded contexts
+// Database: PostgreSQL with TimescaleDB extension
 
 generator client {
   provider = "prisma-client-js"
@@ -12,3 +10,942 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+// =============================================================================
+// IDENTITY & ACCESS CONTEXT (IAC)
+// =============================================================================
+
+model UserAccount {
+  id                String   @id @default(uuid())
+  email             String?  @unique
+  phoneNumber       String?  @unique
+  isEmailVerified   Boolean  @default(false)
+  isPhoneVerified   Boolean  @default(false)
+  isGuest           Boolean  @default(false)
+  deviceId          String?  // For guest mode tracking
+  createdAt         DateTime @default(now())
+  lastLoginAt       DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Relationships
+  profile           UserProfile?
+  authMethods       AuthMethod[]
+  permissionSet     PermissionSet?
+  careGroupMembers  CareGroupMember[]
+  healthProfile     HealthProfile?
+  healthMetrics     HealthMetric[]
+  healthDevices     HealthDevice[]
+  medications       Medication[]
+  medicationSchedules MedicationSchedule[]
+  medicationDoses   MedicationDose[]
+  medicationInventory MedicationInventory[]
+  notifications     Notification[]
+  notificationPreferences NotificationPreference[]
+  conversations     Conversation[]
+  insights          Insight[]
+
+  @@map("user_accounts")
+}
+
+model UserProfile {
+  id                String    @id @default(uuid())
+  userId            String    @unique
+  displayName       String
+  firstName         String?
+  lastName          String?
+  dateOfBirth       DateTime?
+  gender            Gender?
+  language          Language  @default(ENGLISH)
+  photoUrl          String?
+  useElderMode      Boolean   @default(false)
+
+  // Unit preferences (JSON)
+  preferredUnits    Json      @default("{\"weight\":\"kg\",\"height\":\"cm\",\"temperature\":\"c\",\"glucose\":\"mmol/L\"}")
+
+  // Emergency contact (JSON)
+  emergencyContact  Json?
+
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  // Relationships
+  user              UserAccount @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_profiles")
+}
+
+model AuthMethod {
+  id          String          @id @default(uuid())
+  userId      String
+  type        AuthMethodType
+  identifier  String          // Email, phone number, etc.
+  isVerified  Boolean         @default(false)
+  lastUsed    DateTime        @default(now())
+  createdAt   DateTime        @default(now())
+
+  // Relationships
+  user        UserAccount     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, type, identifier])
+  @@map("auth_methods")
+}
+
+model PermissionSet {
+  id                String          @id @default(uuid())
+  userId            String          @unique
+  roles             Role[]
+  customPermissions Permission[]
+  dataAccessLevel   DataAccessLevel @default(BASIC)
+  isAdmin           Boolean         @default(false)
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  // Relationships
+  user              UserAccount     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("permission_sets")
+}
+
+// =============================================================================
+// CARE GROUP CONTEXT (CGC)
+// =============================================================================
+
+model CareGroup {
+  id                String    @id @default(uuid())
+  name              String
+  description       String?
+  createdBy         String
+  isActive          Boolean   @default(true)
+  inviteCode        String?   @unique
+  inviteExpiration  DateTime?
+
+  // Settings (JSON)
+  settings          Json      @default("{}")
+
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  // Relationships
+  members           CareGroupMember[]
+  careRecipients    CareRecipient[]
+  tasks             CareTask[]
+  activities        CareActivity[]
+
+  @@map("care_groups")
+}
+
+model CareGroupMember {
+  id                String    @id @default(uuid())
+  groupId           String
+  userId            String
+  role              MemberRole
+  customTitle       String?
+  isActive          Boolean   @default(true)
+  joinedAt          DateTime  @default(now())
+  invitedBy         String?
+  lastActive        DateTime?
+
+  // Notification preferences (JSON)
+  notificationPreferences Json @default("{}")
+
+  // Custom permissions (JSON array)
+  permissions       Json      @default("[]")
+
+  // Relationships
+  group             CareGroup   @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  user              UserAccount @relation(fields: [userId], references: [id], onDelete: Cascade)
+  assignedTasks     CareTask[]  @relation("TaskAssignee")
+  createdTasks      CareTask[]  @relation("TaskCreator")
+  activities        CareActivity[]
+
+  @@unique([groupId, userId])
+  @@map("care_group_members")
+}
+
+model CareRecipient {
+  id                String    @id @default(uuid())
+  groupId           String
+  name              String
+  relationship      String
+  dateOfBirth       DateTime?
+
+  // Health summary (JSON)
+  healthSummary     Json      @default("{}")
+
+  // Care preferences (JSON)
+  carePreferences   Json      @default("{}")
+
+  isActive          Boolean   @default(true)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  // Relationships
+  group             CareGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  tasks             CareTask[]
+
+  @@map("care_recipients")
+}
+
+model CareTask {
+  id                String      @id @default(uuid())
+  groupId           String
+  recipientId       String?
+  assigneeId        String?
+  createdById       String
+  title             String
+  description       String?
+  category          TaskCategory
+  priority          TaskPriority @default(MEDIUM)
+  status            TaskStatus   @default(PENDING)
+  dueDate           DateTime?
+  completedAt       DateTime?
+
+  // Recurrence settings (JSON)
+  recurrence        Json?
+
+  // Task metadata (JSON)
+  metadata          Json         @default("{}")
+
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  // Relationships
+  group             CareGroup        @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  recipient         CareRecipient?   @relation(fields: [recipientId], references: [id])
+  assignee          CareGroupMember? @relation("TaskAssignee", fields: [assigneeId], references: [id])
+  createdBy         CareGroupMember  @relation("TaskCreator", fields: [createdById], references: [id])
+
+  @@map("care_tasks")
+}
+
+model CareActivity {
+  id                String    @id @default(uuid())
+  groupId           String
+  memberId          String
+  activityType      ActivityType
+  description       String
+
+  // Activity data (JSON)
+  data              Json      @default("{}")
+
+  timestamp         DateTime  @default(now())
+
+  // Relationships
+  group             CareGroup       @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  member            CareGroupMember @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@map("care_activities")
+}
+
+// =============================================================================
+// HEALTH DATA CONTEXT (HDC)
+// =============================================================================
+
+model HealthProfile {
+  id                String    @id @default(uuid())
+  userId            String    @unique
+
+  // Baseline metrics (JSON)
+  baselineMetrics   Json      @default("{}")
+
+  // Health conditions (JSON array)
+  healthConditions  Json      @default("[]")
+
+  // Allergies (JSON array)
+  allergies         Json      @default("[]")
+
+  // Risk factors (JSON array)
+  riskFactors       Json      @default("[]")
+
+  // Health goals (JSON array)
+  healthGoals       Json      @default("[]")
+
+  lastUpdated       DateTime  @default(now())
+  createdAt         DateTime  @default(now())
+
+  // Relationships
+  user              UserAccount @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("health_profiles")
+}
+
+model HealthMetric {
+  id                String            @id @default(uuid())
+  userId            String
+  metricType        MetricType
+  value             Float
+  unit              String
+  timestamp         DateTime
+  source            DataSource
+  deviceId          String?
+  notes             String?
+  isManualEntry     Boolean           @default(false)
+  validationStatus  ValidationStatus  @default(PENDING)
+
+  // Additional metadata (JSON)
+  metadata          Json              @default("{}")
+
+  createdAt         DateTime          @default(now())
+
+  // Relationships
+  user              UserAccount       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  device            HealthDevice?     @relation(fields: [deviceId], references: [id])
+
+  @@map("health_metrics")
+}
+
+model HealthDevice {
+  id                String            @id @default(uuid())
+  userId            String
+  deviceType        DeviceType
+  manufacturer      String
+  model             String
+  serialNumber      String?
+  lastSyncTimestamp DateTime
+  connectionStatus  ConnectionStatus  @default(DISCONNECTED)
+  batteryLevel      Int?
+  firmware          String?
+
+  // Device settings (JSON)
+  settings          Json              @default("{}")
+
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  // Relationships
+  user              UserAccount       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  metrics           HealthMetric[]
+
+  @@map("health_devices")
+}
+
+model HealthInsight {
+  id                String      @id @default(uuid())
+  userId            String
+  insightType       InsightType
+  title             String
+  description       String
+  severity          InsightSeverity @default(INFO)
+
+  // Insight data and recommendations (JSON)
+  data              Json        @default("{}")
+
+  // Related metrics (JSON array of metric IDs)
+  relatedMetrics    Json        @default("[]")
+
+  isRead            Boolean     @default(false)
+  isActionable      Boolean     @default(false)
+  expiresAt         DateTime?
+
+  createdAt         DateTime    @default(now())
+
+  @@map("health_insights")
+}
+
+// =============================================================================
+// MEDICATION CONTEXT (MDC)
+// =============================================================================
+
+model Medication {
+  id                String      @id @default(uuid())
+  userId            String
+  name              String
+  genericName       String?
+  strength          String
+  form              MedicationForm
+  manufacturer      String?
+  rxNormCode        String?
+  ndcCode           String?
+  classification    String?
+  isActive          Boolean     @default(true)
+  startDate         DateTime
+  endDate           DateTime?
+  prescriptionId    String?
+  notes             String?
+
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+
+  // Relationships
+  user              UserAccount           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  schedules         MedicationSchedule[]
+  doses             MedicationDose[]
+  inventory         MedicationInventory[]
+  prescription      Prescription?         @relation(fields: [prescriptionId], references: [id])
+
+  @@map("medications")
+}
+
+model Prescription {
+  id                String      @id @default(uuid())
+  userId            String
+  prescribedBy      String      // Doctor name
+  prescribedDate    DateTime
+  pharmacy          String?
+
+  // OCR extracted data (JSON)
+  ocrData           Json?
+
+  // Prescription image URL
+  imageUrl          String?
+
+  // Verification status
+  isVerified        Boolean     @default(false)
+  verifiedAt        DateTime?
+  verifiedBy        String?
+
+  // Prescription medications (JSON array)
+  medications       Json        @default("[]")
+
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+
+  // Relationships
+  medicationEntries Medication[]
+
+  @@map("prescriptions")
+}
+
+model MedicationSchedule {
+  id                String      @id @default(uuid())
+  medicationId      String
+  userId            String
+  instructions      String
+  remindersEnabled  Boolean     @default(true)
+  startDate         DateTime
+  endDate           DateTime?
+
+  // Schedule configuration (JSON)
+  schedule          Json        // DosageSchedule object
+
+  // Reminder times (JSON array)
+  reminderTimes     Json        @default("[]")
+
+  // Reminder settings (JSON)
+  reminderSettings  Json        @default("{}")
+
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+
+  // Relationships
+  medication        Medication        @relation(fields: [medicationId], references: [id], onDelete: Cascade)
+  user              UserAccount       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  doses             MedicationDose[]
+
+  @@map("medication_schedules")
+}
+
+model MedicationDose {
+  id                String      @id @default(uuid())
+  medicationId      String
+  scheduleId        String
+  userId            String
+  scheduledTime     DateTime
+  dosage            Float
+  unit              String
+  status            DoseStatus  @default(SCHEDULED)
+  takenAt           DateTime?
+  skippedReason     String?
+  notes             String?
+  reminderId        String?
+
+  createdAt         DateTime    @default(now())
+
+  // Relationships
+  medication        Medication        @relation(fields: [medicationId], references: [id], onDelete: Cascade)
+  schedule          MedicationSchedule @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+  user              UserAccount       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("medication_doses")
+}
+
+model MedicationInventory {
+  id                String      @id @default(uuid())
+  medicationId      String
+  userId            String
+  currentQuantity   Float
+  unit              String
+  reorderThreshold  Float
+  reorderAmount     Float
+  expirationDate    DateTime?
+  location          String?
+  batchNumber       String?
+  purchaseDate      DateTime?
+  cost              Float?
+  refillStatus      RefillStatus?
+
+  lastUpdated       DateTime    @default(now())
+  createdAt         DateTime    @default(now())
+
+  // Relationships
+  medication        Medication  @relation(fields: [medicationId], references: [id], onDelete: Cascade)
+  user              UserAccount @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("medication_inventory")
+}
+
+// =============================================================================
+// NOTIFICATION CONTEXT (NOC)
+// =============================================================================
+
+model Notification {
+  id                String            @id @default(uuid())
+  userId            String
+  title             String
+  message           String
+  type              NotificationType
+  priority          NotificationPriority @default(NORMAL)
+  channel           NotificationChannel
+  status            NotificationStatus   @default(PENDING)
+
+  // Context information (JSON)
+  context           Json              @default("{}")
+
+  // Actions available (JSON array)
+  actions           Json              @default("[]")
+
+  // Delivery metadata (JSON)
+  deliveryMetadata  Json              @default("{}")
+
+  scheduledFor      DateTime?
+  deliveredAt       DateTime?
+  readAt            DateTime?
+  expiresAt         DateTime?
+
+  createdAt         DateTime          @default(now())
+
+  // Relationships
+  user              UserAccount       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  interactions      NotificationInteraction[]
+
+  @@map("notifications")
+}
+
+model NotificationInteraction {
+  id                String            @id @default(uuid())
+  notificationId    String
+  interactionType   InteractionType
+
+  // Interaction data (JSON)
+  data              Json              @default("{}")
+
+  timestamp         DateTime          @default(now())
+
+  // Relationships
+  notification      Notification      @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+
+  @@map("notification_interactions")
+}
+
+model NotificationPreference {
+  id                String            @id @default(uuid())
+  userId            String
+  contextType       ContextType
+  channel           NotificationChannel
+  frequency         NotificationFrequency @default(IMMEDIATELY)
+  isEnabled         Boolean           @default(true)
+
+  // Quiet hours (JSON)
+  quietHours        Json?
+
+  // Custom settings (JSON)
+  settings          Json              @default("{}")
+
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  // Relationships
+  user              UserAccount       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, contextType, channel])
+  @@map("notification_preferences")
+}
+
+model NotificationTemplate {
+  id                String            @id @default(uuid())
+  name              String            @unique
+  type              NotificationType
+  channel           NotificationChannel
+
+  // Template content (JSON with placeholders)
+  template          Json
+
+  // Template metadata (JSON)
+  metadata          Json              @default("{}")
+
+  isActive          Boolean           @default(true)
+  version           Int               @default(1)
+
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  @@map("notification_templates")
+}
+
+// =============================================================================
+// AI ASSISTANT CONTEXT (AAC)
+// =============================================================================
+
+model Conversation {
+  id                String            @id @default(uuid())
+  userId            String
+  title             String
+  status            ConversationStatus @default(ACTIVE)
+
+  // Conversation metadata (JSON)
+  metadata          Json              @default("{}")
+
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  // Relationships
+  user              UserAccount       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages          Message[]
+
+  @@map("conversations")
+}
+
+model Message {
+  id                String            @id @default(uuid())
+  conversationId    String
+  role              MessageRole
+  content           String
+
+  // Message metadata (JSON)
+  metadata          Json              @default("{}")
+
+  // Attachments (JSON array)
+  attachments       Json              @default("[]")
+
+  // References (JSON array)
+  references        Json              @default("[]")
+
+  // Entities extracted (JSON array)
+  entities          Json              @default("[]")
+
+  // Processing status
+  processingStatus  ProcessingStatus  @default(COMPLETED)
+
+  timestamp         DateTime          @default(now())
+
+  // Relationships
+  conversation      Conversation      @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@map("messages")
+}
+
+model Insight {
+  id                String            @id @default(uuid())
+  userId            String
+  type              InsightType
+  title             String
+  description       String
+  severity          InsightSeverity   @default(INFO)
+  category          InsightCategory
+
+  // Insight data (JSON)
+  data              Json              @default("{}")
+
+  // Related data references (JSON)
+  relatedData       Json              @default("{}")
+
+  // Recommendations (JSON array)
+  recommendations   Json              @default("[]")
+
+  isRead            Boolean           @default(false)
+  isActionable      Boolean           @default(false)
+  confidence        Float             @default(0.0)
+  expiresAt         DateTime?
+
+  createdAt         DateTime          @default(now())
+
+  // Relationships
+  user              UserAccount       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("insights")
+}
+
+// =============================================================================
+// ENUMS
+// =============================================================================
+
+// Identity & Access Context Enums
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+  PREFER_NOT_TO_SAY
+}
+
+enum Language {
+  ENGLISH
+  VIETNAMESE
+}
+
+enum AuthMethodType {
+  EMAIL
+  PHONE
+  GOOGLE
+  APPLE
+  FACEBOOK
+  ANONYMOUS
+}
+
+enum Role {
+  USER
+  CAREGIVER
+  FAMILY_ADMIN
+  SYSTEM_ADMIN
+}
+
+enum Permission {
+  READ_PROFILE
+  WRITE_PROFILE
+  READ_HEALTH_DATA
+  WRITE_HEALTH_DATA
+  READ_MEDICATIONS
+  WRITE_MEDICATIONS
+  MANAGE_CARE_GROUP
+  ADMIN_ACCESS
+}
+
+enum DataAccessLevel {
+  NONE
+  BASIC
+  STANDARD
+  FULL
+}
+
+// Care Group Context Enums
+enum MemberRole {
+  ADMIN
+  CAREGIVER
+  FAMILY_MEMBER
+  HEALTHCARE_PROVIDER
+  OBSERVER
+}
+
+enum TaskCategory {
+  MEDICATION
+  APPOINTMENT
+  EXERCISE
+  MONITORING
+  EMERGENCY
+  GENERAL
+}
+
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum TaskStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  OVERDUE
+}
+
+enum ActivityType {
+  TASK_CREATED
+  TASK_COMPLETED
+  MEMBER_JOINED
+  MEMBER_LEFT
+  HEALTH_UPDATE
+  MEDICATION_TAKEN
+  EMERGENCY_ALERT
+}
+
+// Health Data Context Enums
+enum MetricType {
+  BLOOD_PRESSURE
+  HEART_RATE
+  WEIGHT
+  BLOOD_GLUCOSE
+  TEMPERATURE
+  OXYGEN_SATURATION
+  STEPS
+  SLEEP_DURATION
+  EXERCISE_MINUTES
+  MOOD
+  PAIN_LEVEL
+}
+
+enum DataSource {
+  MANUAL_ENTRY
+  HEALTH_KIT
+  GOOGLE_FIT
+  DEVICE_SYNC
+  IMPORTED
+}
+
+enum ValidationStatus {
+  PENDING
+  VALIDATED
+  FLAGGED
+  REJECTED
+}
+
+enum DeviceType {
+  BLOOD_PRESSURE_MONITOR
+  GLUCOSE_METER
+  SCALE
+  FITNESS_TRACKER
+  SMARTWATCH
+  PULSE_OXIMETER
+  THERMOMETER
+  OTHER
+}
+
+enum ConnectionStatus {
+  CONNECTED
+  DISCONNECTED
+  SYNCING
+  ERROR
+}
+
+enum InsightSeverity {
+  INFO
+  WARNING
+  ALERT
+  CRITICAL
+}
+
+enum InsightType {
+  HEALTH_TREND
+  MEDICATION_ADHERENCE
+  RISK_ASSESSMENT
+  ANOMALY_DETECTION
+  RECOMMENDATION
+  CORRELATION
+  PREDICTION
+}
+
+// Medication Context Enums
+enum MedicationForm {
+  TABLET
+  CAPSULE
+  LIQUID
+  INJECTION
+  PATCH
+  INHALER
+  CREAM
+  OINTMENT
+  DROPS
+  SUPPOSITORY
+  OTHER
+}
+
+enum DoseStatus {
+  SCHEDULED
+  TAKEN
+  MISSED
+  SKIPPED
+  LATE
+}
+
+enum RefillStatus {
+  AVAILABLE
+  LOW_STOCK
+  OUT_OF_STOCK
+  ORDERED
+  READY_FOR_PICKUP
+}
+
+// Notification Context Enums
+enum NotificationType {
+  MEDICATION_REMINDER
+  HEALTH_ALERT
+  APPOINTMENT_REMINDER
+  TASK_REMINDER
+  CARE_GROUP_UPDATE
+  SYSTEM_NOTIFICATION
+  EMERGENCY_ALERT
+}
+
+enum NotificationPriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+enum NotificationChannel {
+  PUSH
+  SMS
+  EMAIL
+  IN_APP
+}
+
+enum NotificationStatus {
+  PENDING
+  SENT
+  DELIVERED
+  READ
+  FAILED
+  EXPIRED
+}
+
+enum InteractionType {
+  DELIVERED
+  READ
+  DISMISSED
+  ACTION_CLICKED
+  SNOOZED
+}
+
+enum NotificationFrequency {
+  IMMEDIATELY
+  BATCHED_HOURLY
+  BATCHED_DAILY
+  DIGEST
+}
+
+enum ContextType {
+  MEDICATION
+  HEALTH_DATA
+  USER
+  CARE_GROUP
+  AI_ASSISTANT
+  EMERGENCY
+  SYSTEM
+}
+
+// AI Assistant Context Enums
+enum ConversationStatus {
+  ACTIVE
+  ARCHIVED
+  DELETED
+}
+
+enum MessageRole {
+  USER
+  ASSISTANT
+  SYSTEM
+}
+
+enum ProcessingStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+enum InsightCategory {
+  HEALTH_TREND
+  MEDICATION_ADHERENCE
+  RISK_ASSESSMENT
+  RECOMMENDATION
+  ALERT
+  EDUCATIONAL
+}
+
+// =============================================================================
+// INDEXES AND CONSTRAINTS
+// =============================================================================
+
+// Add indexes for performance optimization
+// These will be created as part of migrations

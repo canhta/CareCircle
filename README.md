@@ -47,7 +47,6 @@ npm run start:dev
 ```bash
 cd mobile
 flutter pub get
-flutter pub run build_runner build
 flutter run --flavor development
 ```
 
@@ -95,9 +94,10 @@ npm run build          # Build for production
 ### Mobile
 ```bash
 flutter run --flavor development    # Run development build
-flutter pub run build_runner build  # Generate code
 flutter analyze                     # Check code quality
 ```
+
+**JSON Serialization Policy**: Uses manual `dart:convert` only - NO code generation tools (json_annotation, freezed, etc.)
 
 ## 📚 Documentation
 

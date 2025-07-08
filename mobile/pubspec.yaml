@@ -57,21 +57,20 @@ dependencies:
   connectivity_plus: ^6.1.4
   permission_handler: ^12.0.1
   package_info_plus: ^8.3.0
+  device_info_plus: ^10.1.2
 
-  # Development
-  json_annotation: ^4.8.1
-  freezed_annotation: ^3.1.0
+
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
-  # Code Generation
+  # Code Generation (ONLY for Riverpod providers and Retrofit API clients)
+  # RESTRICTION: Do NOT add json_annotation, freezed, json_serializable, freezed_annotation
+  # Use manual JSON serialization with dart:convert instead
   build_runner: ^2.4.7
   riverpod_generator: ^2.3.9
   retrofit_generator: ^9.2.0
-  json_serializable: ^6.7.1
-  freezed: ^3.1.0
 
   # Linting
   flutter_lints: ^6.0.0

@@ -13,6 +13,19 @@ CareCircle mobile app adopts a **Feature-First MVVM Architecture** with the foll
 - **ViewModel**: Manages UI state and business logic for views
 - **Repository**: Abstracts data sources and provides a clean API for ViewModels
 
+### JSON Serialization Policy
+
+**IMPORTANT RESTRICTION**: CareCircle uses **manual JSON serialization** with `dart:convert` only.
+
+**Prohibited Dependencies:**
+- `json_annotation`
+- `json_serializable`
+- `freezed`
+- `freezed_annotation`
+- Any code generation tools for JSON serialization
+
+**Rationale**: Manual JSON serialization provides better control, reduces build complexity, and eliminates code generation dependencies that can cause maintenance issues.
+
 ### State Management
 
 The application uses **Riverpod** for state management, offering advantages like:
