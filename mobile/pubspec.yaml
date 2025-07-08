@@ -10,8 +10,73 @@ dependencies:
   flutter:
     sdk: flutter
 
+  # State Management
+  flutter_riverpod: ^2.4.9
+  riverpod_annotation: ^2.3.3
+
+  # Navigation
+  go_router: ^16.0.0
+
+  # Network
+  dio: ^5.4.0
+  retrofit: ^4.0.3
+
+  # Local Storage
+  flutter_secure_storage: ^9.2.4
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+
+  # Authentication
+  local_auth: ^2.1.6
+  firebase_auth: ^5.6.2
+
+  # Health Integration
+  health: ^13.1.1
+
+  # Notifications
+  flutter_local_notifications: ^19.3.0
+
+  # UI Components (Design System)
+  flutter_hooks: ^0.21.2
+  cached_network_image: ^3.3.0
+  flutter_svg: ^2.0.9
+  google_fonts: ^6.1.0
+
+  # AI Assistant Interface
+  speech_to_text: ^7.1.0
+  flutter_tts: ^4.2.3
+
+  # Healthcare UI Components
+  fl_chart: ^1.0.0
+  percent_indicator: ^4.2.3
+
+  # Design System
+  flex_color_scheme: ^8.2.0
+
+  # Utilities
+  connectivity_plus: ^6.1.4
+  permission_handler: ^12.0.1
+  package_info_plus: ^8.3.0
+
+  # Development
+  json_annotation: ^4.8.1
+  freezed_annotation: ^3.1.0
+
 dev_dependencies:
-  flutter_lints: ^5.0.0
+  flutter_test:
+    sdk: flutter
+
+  # Code Generation
+  build_runner: ^2.4.7
+  riverpod_generator: ^2.3.9
+  retrofit_generator: ^9.2.0
+  json_serializable: ^6.7.1
+  freezed: ^3.1.0
+
+  # Linting
+  flutter_lints: ^6.0.0
+
+
 
 flutter:
   uses-material-design: true

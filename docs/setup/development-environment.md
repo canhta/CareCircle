@@ -243,55 +243,6 @@ npx prisma db seed
 
 ## Mobile Development Setup (Flutter)
 
-### 1. Flutter SDK Installation
-
-**Install Flutter SDK:**
-```bash
-# macOS
-git clone https://github.com/flutter/flutter.git -b stable
-export PATH="$PATH:`pwd`/flutter/bin"
-
-# Add to your shell profile (.bashrc, .zshrc, etc.)
-echo 'export PATH="$PATH:/path/to/flutter/bin"' >> ~/.zshrc
-
-# Verify installation
-flutter doctor
-```
-
-**Install Flutter Version Manager (FVM) - Recommended:**
-```bash
-dart pub global activate fvm
-fvm install 3.16.0
-fvm use 3.16.0
-```
-
-### 2. Platform-Specific Setup
-
-**Android Setup:**
-```bash
-# Install Android Studio
-# Download from: https://developer.android.com/studio
-
-# Accept Android licenses
-flutter doctor --android-licenses
-
-# Set Android SDK path
-export ANDROID_HOME=$HOME/Library/Android/sdk
-export PATH=$PATH:$ANDROID_HOME/tools
-export PATH=$PATH:$ANDROID_HOME/platform-tools
-```
-
-**iOS Setup (macOS only):**
-```bash
-# Install Xcode from App Store
-# Install Xcode command line tools
-sudo xcode-select --install
-
-# Install CocoaPods
-sudo gem install cocoapods
-```
-
-### 3. Flutter Dependencies
 
 **Core Flutter packages to add to `pubspec.yaml`:**
 ```yaml
