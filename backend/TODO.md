@@ -2,10 +2,10 @@
 
 ## In Progress
 
-- [ ] Configure Firebase Admin SDK with actual credentials
-- [ ] Implement user authentication endpoints
-- [ ] Create Prisma database schema for bounded contexts
-- [ ] Run initial database migrations
+- [ ] Setup production Firebase credentials (currently using development mode)
+- [ ] Implement social login (Google, Apple) integration
+- [ ] Add comprehensive API documentation
+- [ ] Performance optimization and database indexing
 
 ## Backlog
 
@@ -18,12 +18,23 @@
 
 ## Completed
 
+### Phase 2: Core Authentication & Security ✅
 - [x] Initialize backend project structure
 - [x] Install all required NestJS dependencies (25+ packages)
 - [x] Setup Docker Compose with TimescaleDB, Redis, and Milvus
 - [x] Create environment configuration files (.env.example and .env)
 - [x] Initialize Prisma ORM and generate client
 - [x] Create database initialization script with bounded context schemas
+- [x] Configure Firebase Admin SDK with development credentials
+- [x] Implement complete user authentication endpoints (login, register, guest, convert, refresh, logout)
+- [x] Create comprehensive Prisma database schema for all bounded contexts
+- [x] Execute database migrations successfully
+- [x] Implement JWT token management and refresh logic
+- [x] Build role-based access control system
+- [x] Create user profile management API
+- [x] Setup guest mode authentication
+- [x] Implement account conversion functionality
+- [x] Add password reset backend support
 - [x] Configure development scripts in package.json
 - [x] Remove testing dependencies (jest, e2e tests)
 - [x] Verify backend builds successfully

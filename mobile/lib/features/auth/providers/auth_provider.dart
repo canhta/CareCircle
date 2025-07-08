@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../models/auth_models.dart';
 import '../services/auth_service.dart';
+import '../services/firebase_auth_service.dart';
+import '../services/biometric_auth_service.dart';
 
 part 'auth_provider.g.dart';
 
@@ -173,6 +175,36 @@ class AuthNotifier extends _$AuthNotifier {
     }
   }
 
+  Future<void> convertGuest({
+    String? email,
+    String? phoneNumber,
+    String? password,
+    String? displayName,
+  }) async {
+    state = state.copyWith(isLoading: true, error: null);
+
+    try {
+      final authService = ref.read(authServiceProvider);
+      final authResponse = await authService.convertGuest(
+        email: email,
+        phoneNumber: phoneNumber,
+        password: password,
+        displayName: displayName,
+      );
+
+      state = state.copyWith(
+        user: authResponse.user,
+        profile: authResponse.profile,
+        accessToken: authResponse.accessToken,
+        refreshToken: authResponse.refreshToken,
+        status: AuthStatus.authenticated,
+        isLoading: false,
+      );
+    } catch (e) {
+      state = state.copyWith(error: e.toString(), isLoading: false);
+    }
+  }
+
   void clearError() {
     state = state.copyWith(error: null);
   }
@@ -222,4 +254,19 @@ User? currentUser(Ref ref) {
 UserProfile? currentProfile(Ref ref) {
   final authState = ref.watch(authNotifierProvider);
   return authState.profile;
+}
+
+@riverpod
+AuthService authService(Ref ref) {
+  return AuthService();
+}
+
+@riverpod
+FirebaseAuthService firebaseAuthService(Ref ref) {
+  return FirebaseAuthService();
+}
+
+@riverpod
+BiometricAuthService biometricAuthService(Ref ref) {
+  return BiometricAuthService();
 }

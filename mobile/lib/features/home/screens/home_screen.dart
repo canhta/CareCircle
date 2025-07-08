@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../core/design/design_tokens.dart';
 import '../../../core/widgets/care_circle_button.dart';
 import '../../auth/providers/auth_provider.dart';
@@ -77,14 +78,7 @@ class HomeScreen extends ConsumerWidget {
                       const SizedBox(height: 16),
                       CareCircleButton(
                         onPressed: () {
-                          // TODO: Navigate to convert guest screen
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text(
-                                'Convert guest feature coming soon',
-                              ),
-                            ),
-                          );
+                          context.push('/auth/convert-guest');
                         },
                         text: 'Create Account',
                         variant: CareCircleButtonVariant.primary,
