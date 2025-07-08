@@ -16,10 +16,7 @@
     "db:migrate": "npx prisma migrate dev",
     "db:generate": "npx prisma generate",
     "db:seed": "npx prisma db seed",
-    "db:reset": "npx prisma migrate reset",
-    "docker:dev": "docker-compose -f docker-compose.dev.yml up -d",
-    "docker:down": "docker-compose -f docker-compose.dev.yml down",
-    "docker:logs": "docker-compose -f docker-compose.dev.yml logs -f"
+    "db:reset": "npx prisma migrate reset"
   },
   "dependencies": {
     "@nestjs/bull": "^11.0.2",

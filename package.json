@@ -1,0 +1,24 @@
+{
+  "name": "carecircle",
+  "version": "1.0.0",
+  "description": "CareCircle is a comprehensive health management platform designed to facilitate family care coordination, medication management, and AI-powered health insights for elderly care and chronic condition management.",
+    "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "docker:dev": "docker-compose -f docker-compose.dev.yml up -d",
+    "docker:down": "docker-compose -f docker-compose.dev.yml down",
+    "docker:logs": "docker-compose -f docker-compose.dev.yml logs -f"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/canhta/CareCircle.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/canhta/CareCircle/issues"
+  },
+  "homepage": "https://github.com/canhta/CareCircle#readme"
+}
