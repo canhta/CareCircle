@@ -97,7 +97,7 @@ flutter run --flavor development    # Run development build
 flutter analyze                     # Check code quality
 ```
 
-**JSON Serialization Policy**: Uses manual `dart:convert` only - NO code generation tools (json_annotation, freezed, etc.)
+**JSON Serialization**: Uses modern code generation tools (json_serializable, freezed) for type safety and maintainability
 
 ## 📚 Documentation
 

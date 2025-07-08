@@ -268,6 +268,12 @@ class AuthNotifier extends _$AuthNotifier {
 
     try {
       final authService = ref.read(authServiceProvider);
+      final firebaseAuthService = ref.read(firebaseAuthServiceProvider);
+
+      // Sign out from Firebase first
+      await firebaseAuthService.signOut();
+
+      // Then call backend logout and clear local tokens
       await authService.logout();
 
       state = const AuthState(status: AuthStatus.unauthenticated);

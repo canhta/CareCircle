@@ -18,6 +18,7 @@
 ## Completed
 
 ### Phase 1 - Foundation Setup
+
 - [x] Initialize Flutter project
 - [x] Install all required Flutter dependencies (25+ packages)
 - [x] Update dependencies to latest versions
@@ -31,12 +32,14 @@
 - [x] Verify Flutter analysis passes with no issues
 
 ### Phase 2 - Core Authentication & Security ✅
+
+- [x] Fix logout functionality to properly sign out from Firebase Authentication
 - [x] Fix all Flutter lint issues (deprecated Riverpod references)
-- [x] Implement manual JSON serialization using dart:convert
-- [x] Add explicit restrictions against code generation for JSON serialization
+- [x] Update to use modern JSON serialization with code generation tools
+- [x] Configure json_serializable and freezed for type-safe data models
 - [x] Verify adherence to DDD bounded contexts architecture
-- [x] Update documentation to reflect manual JSON serialization policy
-- [x] Confirm no prohibited dependencies (json_annotation, freezed, etc.)
+- [x] Update documentation to reflect modern JSON serialization approach
+- [x] Add code generation dependencies (json_annotation, freezed, etc.)
 - [x] Create authentication screens (welcome, login, register)
 - [x] Implement Firebase authentication with backend integration
 - [x] Add biometric authentication service
@@ -52,3 +55,31 @@
 - [x] Implement complete social login (Google, Apple) with Firebase
 - [x] Add Firebase ID token authentication with backend
 - [x] Replace simplified Firebase service with production implementation
+
+## Known Issues & Troubleshooting
+
+### Freezed Code Generation Issues
+
+**Issue**: "Missing concrete implementations" errors when using Freezed with json_serializable
+- **Symptoms**: Analysis errors like `Missing concrete implementations of 'getter mixin _$User on Object.createdAt'`
+- **Root Cause**: Missing `abstract` keyword in Freezed class declarations
+- **Solution**: Use `abstract class` instead of `class` for single-constructor Freezed models
+- **Example**:
+  ```dart
+  // ❌ Incorrect - causes "missing concrete implementations" errors
+  @freezed
+  class User with _$User {
+    const factory User({...}) = _User;
+    factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);
+  }
+
+  // ✅ Correct - works properly with code generation
+  @freezed
+  abstract class User with _$User {
+    const factory User({...}) = _User;
+    factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);
+  }
+  ```
+- **Reference**: [Official Freezed Documentation](https://pub.dev/packages/freezed)
+- **Fixed In**: Auth models migration (2025-07-08)
+- **Related Files**: `mobile/lib/features/auth/models/auth_models.dart`

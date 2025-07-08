@@ -298,18 +298,21 @@ dependencies:
   permission_handler: ^11.1.0
   package_info_plus: ^4.2.0
   
-  # Manual JSON serialization using dart:convert - NO CODE GENERATION TOOLS
-  # RESTRICTION: Do NOT add json_annotation, freezed, json_serializable, or freezed_annotation
+  # JSON Serialization with Code Generation
+  json_annotation: ^4.8.1
+  json_serializable: ^6.7.1
+  freezed_annotation: ^2.4.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
-  # Code Generation (ONLY for Riverpod providers and Retrofit API clients)
-  # RESTRICTION: Do NOT use build_runner for JSON serialization
+  # Code Generation
   build_runner: ^2.4.7
   riverpod_generator: ^2.3.9
   retrofit_generator: ^8.0.4
+  json_serializable: ^6.7.1
+  freezed: ^2.4.6
   
   # Linting
   flutter_lints: ^3.0.1
@@ -323,8 +326,7 @@ dev_dependencies:
 **Install dependencies:**
 ```bash
 flutter pub get
-# Generate code ONLY for Riverpod providers and Retrofit API clients
-# DO NOT use build_runner for JSON serialization - use manual dart:convert instead
+# Generate code for Riverpod providers, Retrofit API clients, and JSON serialization
 flutter pub run build_runner build
 ```
 

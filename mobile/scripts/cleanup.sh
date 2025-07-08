@@ -77,15 +77,24 @@ if [ -d "android" ]; then
     rm -rf android/.dart_tool/
 fi
 
-# Step 5: Get Flutter dependencies
+# Step 5: Clean build_runner generated files
+print_status "Cleaning build_runner generated files..."
+# Remove generated .g.dart and .freezed.dart files
+find . -name "*.g.dart" -type f -delete
+find . -name "*.freezed.dart" -type f -delete
+# Clean build_runner cache
+rm -rf .dart_tool/build/
+rm -rf build/
+
+# Step 6: Get Flutter dependencies
 print_status "Getting Flutter dependencies..."
 flutter pub get
 
-# Step 6: Upgrade Flutter dependencies (optional - can be commented out)
+# Step 7: Upgrade Flutter dependencies (optional - can be commented out)
 print_status "Upgrading Flutter dependencies..."
 flutter pub upgrade
 
-# Step 7: Install iOS pods (if iOS directory exists)
+# Step 8: Install iOS pods (if iOS directory exists)
 if [ -d "ios" ]; then
     print_status "Installing iOS CocoaPods dependencies..."
     cd ios
@@ -98,16 +107,16 @@ if [ -d "ios" ]; then
     cd ..
 fi
 
-# Step 8: Clean and rebuild (optional)
+# Step 9: Clean and rebuild (optional)
 print_status "Running flutter clean again after dependency installation..."
 flutter clean
 
 print_status "Getting dependencies one more time..."
 flutter pub get
 
-# Step 9: Verify installation
+# Step 10: Verify installation
 print_status "Verifying Flutter installation..."
 flutter doctor
 
 print_success "Flutter project cleanup and reinstall completed successfully!"
-print_status "You can now run: flutter run --dart-define-from-file=.env.development"
+print_status "You can now run: ./scripts/debug.sh"

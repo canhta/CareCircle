@@ -15,16 +15,16 @@ CareCircle mobile app adopts a **Feature-First MVVM Architecture** with the foll
 
 ### JSON Serialization Policy
 
-**IMPORTANT RESTRICTION**: CareCircle uses **manual JSON serialization** with `dart:convert` only.
+CareCircle uses **modern code generation tools** for JSON serialization to ensure type safety, reduce boilerplate, and improve maintainability.
 
-**Prohibited Dependencies:**
-- `json_annotation`
-- `json_serializable`
-- `freezed`
-- `freezed_annotation`
-- Any code generation tools for JSON serialization
+**Recommended Dependencies:**
+- `json_annotation` - Annotations for JSON serialization
+- `json_serializable` - Code generation for JSON serialization
+- `freezed` - Immutable data classes with JSON support
+- `freezed_annotation` - Annotations for Freezed
+- `build_runner` - Code generation runner
 
-**Rationale**: Manual JSON serialization provides better control, reduces build complexity, and eliminates code generation dependencies that can cause maintenance issues.
+**Rationale**: Code generation tools provide type safety, reduce manual boilerplate code, ensure consistency across the codebase, and leverage the Dart ecosystem's best practices for data modeling.
 
 ### State Management
 
