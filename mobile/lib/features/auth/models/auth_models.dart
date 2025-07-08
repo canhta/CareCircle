@@ -144,13 +144,19 @@ class UserProfile {
           ? DateTime.parse(json['dateOfBirth'] as String)
           : null,
       gender: json['gender'] as String?,
-      language: json['language'] as String,
+      language: json['language'] as String? ?? 'ENGLISH',
       photoUrl: json['photoUrl'] as String?,
-      useElderMode: json['useElderMode'] as bool,
-      preferredUnits: Map<String, String>.from(json['preferredUnits'] as Map),
+      useElderMode: json['useElderMode'] as bool? ?? false,
+      preferredUnits: json['preferredUnits'] != null
+          ? Map<String, String>.from(json['preferredUnits'] as Map)
+          : <String, String>{},
       emergencyContact: json['emergencyContact'] as Map<String, dynamic>?,
-      createdAt: DateTime.parse(json['createdAt'] as String),
-      updatedAt: DateTime.parse(json['updatedAt'] as String),
+      createdAt: json['createdAt'] != null
+          ? DateTime.parse(json['createdAt'] as String)
+          : DateTime.now(),
+      updatedAt: json['updatedAt'] != null
+          ? DateTime.parse(json['updatedAt'] as String)
+          : DateTime.now(),
     );
   }
 

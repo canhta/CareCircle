@@ -10,13 +10,10 @@ class FirebaseAuthService {
 
   // Initialize Google Sign In if needed
   Future<void> _initializeGoogleSignIn() async {
-    // Check if already initialized by attempting to get current user
     try {
-      // This will work if already initialized
-      await _googleSignIn.attemptLightweightAuthentication();
-    } catch (e) {
-      // If not initialized, initialize it
       await _googleSignIn.initialize();
+    } catch (e) {
+      throw Exception('Failed to initialize Google Sign-In: ${e.toString()}');
     }
   }
 
@@ -61,19 +58,44 @@ class FirebaseAuthService {
       // Initialize Google Sign In if needed
       await _initializeGoogleSignIn();
 
-      // Trigger the authentication flow
+      // Trigger the authentication flow using the new API
       final GoogleSignInAccount googleUser = await _googleSignIn.authenticate();
 
       // Obtain the auth details from the request
       final GoogleSignInAuthentication googleAuth = googleUser.authentication;
 
+      if (googleAuth.idToken == null) {
+        throw Exception('Failed to get Google ID token');
+      }
+
       // Create a new credential
       final credential = GoogleAuthProvider.credential(
-        idToken: googleAuth.idToken,
+        idToken: googleAuth.idToken!,
       );
 
       // Sign in to Firebase with the Google credential
-      return await _firebaseAuth.signInWithCredential(credential);
+      final userCredential = await _firebaseAuth.signInWithCredential(
+        credential,
+      );
+
+      return userCredential;
+    } on GoogleSignInException catch (e) {
+      final errorMessage = switch (e.code) {
+        GoogleSignInExceptionCode.canceled =>
+          'Google sign-in was cancelled by user',
+        GoogleSignInExceptionCode.interrupted =>
+          'Google sign-in was interrupted. Please try again.',
+        GoogleSignInExceptionCode.clientConfigurationError =>
+          'Google sign-in client configuration error. Please check your setup.',
+        GoogleSignInExceptionCode.providerConfigurationError =>
+          'Google sign-in provider configuration error. Please check your setup.',
+        GoogleSignInExceptionCode.uiUnavailable =>
+          'Google sign-in UI unavailable. Please try again.',
+        GoogleSignInExceptionCode.userMismatch =>
+          'Google sign-in user mismatch. Please try again.',
+        _ => 'Google sign-in failed: ${e.description}',
+      };
+      throw Exception(errorMessage);
     } on FirebaseAuthException catch (e) {
       throw _handleFirebaseAuthException(e);
     } catch (e) {
