@@ -40,7 +40,6 @@ npm install @nestjs/terminus
 npm install -D @types/node @types/express
 npm install -D @typescript-eslint/eslint-plugin
 npm install -D prettier eslint
-npm install -D jest @nestjs/testing
 npm install -D prisma
 ```
 
@@ -177,14 +176,8 @@ JWT_EXPIRES_IN=7d
 JWT_REFRESH_SECRET=your-refresh-secret-key
 JWT_REFRESH_EXPIRES_IN=30d
 
-# External APIs
-OPENAI_API_KEY=your-openai-api-key
-TWILIO_ACCOUNT_SID=your-twilio-account-sid
-TWILIO_AUTH_TOKEN=your-twilio-auth-token
-
 # Monitoring and Logging
 LOG_LEVEL=debug
-SENTRY_DSN=your-sentry-dsn
 
 # Rate Limiting
 THROTTLE_TTL=60
@@ -212,24 +205,6 @@ npx prisma init
 npx prisma generate
 ```
 
-**Create database initialization script `scripts/init-db.sql`:**
-```sql
--- Enable TimescaleDB extension
-CREATE EXTENSION IF NOT EXISTS timescaledb;
-
--- Create additional extensions for healthcare data
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-CREATE EXTENSION IF NOT EXISTS "pgcrypto";
-
--- Create schemas for different bounded contexts
-CREATE SCHEMA IF NOT EXISTS identity_access;
-CREATE SCHEMA IF NOT EXISTS care_group;
-CREATE SCHEMA IF NOT EXISTS health_data;
-CREATE SCHEMA IF NOT EXISTS medication;
-CREATE SCHEMA IF NOT EXISTS notification;
-CREATE SCHEMA IF NOT EXISTS ai_assistant;
-```
-
 **Run database migrations:**
 ```bash
 # Start database services
@@ -255,11 +230,6 @@ npx prisma db seed
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:cov": "jest --coverage",
-    "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json",
     "db:migrate": "npx prisma migrate dev",
     "db:generate": "npx prisma generate",
     "db:seed": "npx prisma db seed",
