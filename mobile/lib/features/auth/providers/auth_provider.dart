@@ -13,13 +13,17 @@ part 'auth_provider.g.dart';
 class AuthNotifier extends _$AuthNotifier {
   @override
   AuthState build() {
-    _initializeAuth();
-    return const AuthState();
+    // Return initial state first
+    final state = const AuthState(status: AuthStatus.loading, isLoading: true);
+
+    // Schedule initialization after the build is complete
+    Future.microtask(() => _initializeAuth());
+
+    return state;
   }
 
   Future<void> _initializeAuth() async {
-    state = state.copyWith(isLoading: true, status: AuthStatus.loading);
-
+    // No need to set loading state again as it's already set in build()
     try {
       final authService = ref.read(authServiceProvider);
       final user = await authService.getStoredUser();
