@@ -6,7 +6,19 @@ import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 class FirebaseAuthService {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
+  final GoogleSignIn _googleSignIn = GoogleSignIn.instance;
+
+  // Initialize Google Sign In if needed
+  Future<void> _initializeGoogleSignIn() async {
+    // Check if already initialized by attempting to get current user
+    try {
+      // This will work if already initialized
+      await _googleSignIn.attemptLightweightAuthentication();
+    } catch (e) {
+      // If not initialized, initialize it
+      await _googleSignIn.initialize();
+    }
+  }
 
   // Check if user is signed in
   bool get isSignedIn => _firebaseAuth.currentUser != null;
@@ -46,20 +58,17 @@ class FirebaseAuthService {
   // Sign in with Google
   Future<UserCredential> signInWithGoogle() async {
     try {
-      // Trigger the authentication flow
-      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+      // Initialize Google Sign In if needed
+      await _initializeGoogleSignIn();
 
-      if (googleUser == null) {
-        throw Exception('Google sign-in was cancelled');
-      }
+      // Trigger the authentication flow
+      final GoogleSignInAccount googleUser = await _googleSignIn.authenticate();
 
       // Obtain the auth details from the request
-      final GoogleSignInAuthentication googleAuth =
-          await googleUser.authentication;
+      final GoogleSignInAuthentication googleAuth = googleUser.authentication;
 
       // Create a new credential
       final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
 

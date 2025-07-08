@@ -190,17 +190,59 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
                 const SizedBox(height: 24),
 
-                // Guest login button
+                // Google Sign In button
                 CareCircleButton(
                   onPressed: authState.isLoading
                       ? null
                       : () async {
                           await ref
                               .read(authNotifierProvider.notifier)
-                              .loginAsGuest();
+                              .signInWithGoogle();
+                        },
+                  text: 'Sign in with Google',
+                  variant: CareCircleButtonVariant.secondary,
+                  icon: Icons.g_mobiledata,
+                ),
+
+                const SizedBox(height: 16),
+
+                // Apple Sign In button
+                CareCircleButton(
+                  onPressed: authState.isLoading
+                      ? null
+                      : () async {
+                          await ref
+                              .read(authNotifierProvider.notifier)
+                              .signInWithApple();
+                        },
+                  text: 'Sign in with Apple',
+                  variant: CareCircleButtonVariant.secondary,
+                  icon: Icons.apple,
+                ),
+
+                const SizedBox(height: 16),
+
+                // Guest login button
+                CareCircleButton(
+                  onPressed: authState.isLoading
+                      ? null
+                      : () async {
+                          try {
+                            await ref
+                                .read(authNotifierProvider.notifier)
+                                .loginAsGuest();
+                          } catch (e) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Failed to sign in as guest: $e'),
+                                backgroundColor:
+                                    CareCircleDesignTokens.criticalAlert,
+                              ),
+                            );
+                          }
                         },
                   text: 'Continue as Guest',
-                  variant: CareCircleButtonVariant.secondary,
+                  variant: CareCircleButtonVariant.ghost,
                 ),
 
                 const SizedBox(height: 32),
