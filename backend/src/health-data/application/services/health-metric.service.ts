@@ -195,42 +195,22 @@ export class HealthMetricService {
     metricType: MetricType,
     days: number = 30,
   ): Promise<{
-    anomalies: HealthMetric[];
-    threshold: { min: number; max: number };
-    statistics: MetricStatistics;
+    anomalies: Array<{
+      timestamp: Date;
+      value: number;
+      zScore: number;
+      isAnomaly: boolean;
+    }>;
+    totalAnomalies: number;
+    anomalyRate: number;
   }> {
-    const endDate = new Date();
-    const startDate = new Date();
-    startDate.setDate(endDate.getDate() - days);
-
-    const metrics = await this.getMetricsByDateRange(
+    // Use TimescaleDB anomaly detection function for better performance
+    return this.healthMetricRepository.detectAnomalies(
       userId,
       metricType,
-      startDate,
-      endDate,
+      days,
+      2.0, // 2 standard deviations threshold
     );
-    const statistics = await this.getMetricStatistics(
-      userId,
-      metricType,
-      startDate,
-      endDate,
-    );
-
-    // Simple anomaly detection using standard deviation
-    const threshold = {
-      min: statistics.average - 2 * statistics.standardDeviation,
-      max: statistics.average + 2 * statistics.standardDeviation,
-    };
-
-    const anomalies = metrics.filter(
-      (metric) => metric.value < threshold.min || metric.value > threshold.max,
-    );
-
-    return {
-      anomalies,
-      threshold,
-      statistics,
-    };
   }
 
   private generateId(): string {

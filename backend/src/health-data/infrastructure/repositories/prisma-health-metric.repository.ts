@@ -209,14 +209,30 @@ export class PrismaHealthMetricRepository extends HealthMetricRepository {
     startDate: Date,
     endDate: Date,
   ): Promise<MetricStatistics> {
-    const metrics = await this.getMetricsByDateRange(
-      userId,
-      metricType,
-      startDate,
-      endDate,
-    );
+    // Use TimescaleDB continuous aggregates for better performance
+    const result = await this.prisma.$queryRaw<
+      Array<{
+        count: bigint;
+        avg_value: number;
+        min_value: number;
+        max_value: number;
+        std_deviation: number;
+      }>
+    >`
+      SELECT
+        COUNT(*) as count,
+        AVG(avg_value) as avg_value,
+        MIN(min_value) as min_value,
+        MAX(max_value) as max_value,
+        AVG(std_deviation) as std_deviation
+      FROM health_metrics_daily_avg
+      WHERE "userId" = ${userId}
+        AND "metricType" = ${metricType}::"MetricType"
+        AND day >= ${startDate}
+        AND day <= ${endDate}
+    `;
 
-    if (metrics.length === 0) {
+    if (result.length === 0 || result[0].count === 0n) {
       return {
         count: 0,
         average: 0,
@@ -227,34 +243,37 @@ export class PrismaHealthMetricRepository extends HealthMetricRepository {
       };
     }
 
-    const values = metrics.map((m) => m.value);
-    const count = values.length;
-    const sum = values.reduce((a, b) => a + b, 0);
-    const average = sum / count;
-    const minimum = Math.min(...values);
-    const maximum = Math.max(...values);
+    const stats = result[0];
 
-    // Calculate standard deviation
-    const variance =
-      values.reduce((acc, val) => acc + Math.pow(val - average, 2), 0) / count;
-    const standardDeviation = Math.sqrt(variance);
-
-    // Simple trend calculation
-    const firstHalf = values.slice(0, Math.floor(count / 2));
-    const secondHalf = values.slice(Math.floor(count / 2));
-    const firstAvg = firstHalf.reduce((a, b) => a + b, 0) / firstHalf.length;
-    const secondAvg = secondHalf.reduce((a, b) => a + b, 0) / secondHalf.length;
-    const change = ((secondAvg - firstAvg) / firstAvg) * 100;
+    // Calculate trend using TimescaleDB function
+    const trendResult = await this.prisma.$queryRaw<
+      Array<{
+        trend_direction: string;
+        trend_strength: number;
+        correlation_coefficient: number;
+      }>
+    >`
+      SELECT * FROM calculate_metric_trend(
+        ${userId},
+        ${metricType}::text,
+        ${Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24))}
+      )
+    `;
 
     const trend =
-      change > 5 ? 'increasing' : change < -5 ? 'decreasing' : 'stable';
+      trendResult.length > 0
+        ? (trendResult[0].trend_direction as
+            | 'increasing'
+            | 'decreasing'
+            | 'stable')
+        : 'stable';
 
     return {
-      count,
-      average,
-      minimum,
-      maximum,
-      standardDeviation,
+      count: Number(stats.count),
+      average: stats.avg_value || 0,
+      minimum: stats.min_value || 0,
+      maximum: stats.max_value || 0,
+      standardDeviation: stats.std_deviation || 0,
       trend,
     };
   }
@@ -264,17 +283,25 @@ export class PrismaHealthMetricRepository extends HealthMetricRepository {
     metricType: MetricType,
     days: number,
   ): Promise<{ date: Date; value: number }[]> {
-    const endDate = new Date();
-    const startDate = new Date();
-    startDate.setDate(endDate.getDate() - days);
+    // Use TimescaleDB daily aggregates for better performance
+    const result = await this.prisma.$queryRaw<
+      Array<{
+        day: Date;
+        avg_value: number;
+      }>
+    >`
+      SELECT day, avg_value
+      FROM health_metrics_daily_avg
+      WHERE "userId" = ${userId}
+        AND "metricType" = ${metricType}::"MetricType"
+        AND day >= NOW() - INTERVAL '${days} days'
+      ORDER BY day ASC
+    `;
 
-    const metrics = await this.getMetricsByDateRange(
-      userId,
-      metricType,
-      startDate,
-      endDate,
-    );
-    return metrics.map((m) => ({ date: m.timestamp, value: m.value }));
+    return result.map((row) => ({
+      date: row.day,
+      value: row.avg_value,
+    }));
   }
 
   async getDailyAverages(
@@ -370,6 +397,128 @@ export class PrismaHealthMetricRepository extends HealthMetricRepository {
         },
       },
     });
+  }
+
+  // TimescaleDB-specific operations
+  async detectAnomalies(
+    userId: string,
+    metricType: MetricType,
+    days: number,
+    stdThreshold: number = 2.0,
+  ): Promise<{
+    anomalies: Array<{
+      timestamp: Date;
+      value: number;
+      zScore: number;
+      isAnomaly: boolean;
+    }>;
+    totalAnomalies: number;
+    anomalyRate: number;
+  }> {
+    const result = await this.prisma.$queryRaw<
+      Array<{
+        timestamp: Date;
+        value: number;
+        z_score: number;
+        is_anomaly: boolean;
+      }>
+    >`
+      SELECT * FROM detect_metric_anomalies(
+        ${userId},
+        ${metricType}::text,
+        ${days},
+        ${stdThreshold}
+      )
+    `;
+
+    const anomalies = result.map((row) => ({
+      timestamp: row.timestamp,
+      value: row.value,
+      zScore: row.z_score,
+      isAnomaly: row.is_anomaly,
+    }));
+
+    const totalAnomalies = anomalies.filter((a) => a.isAnomaly).length;
+    const anomalyRate = result.length > 0 ? totalAnomalies / result.length : 0;
+
+    return {
+      anomalies,
+      totalAnomalies,
+      anomalyRate,
+    };
+  }
+
+  async getLatestMetricValue(
+    userId: string,
+    metricType: MetricType,
+  ): Promise<{
+    value: number;
+    unit: string;
+    timestamp: Date;
+    source: string;
+  } | null> {
+    const result = await this.prisma.$queryRaw<
+      Array<{
+        value: number;
+        unit: string;
+        timestamp: Date;
+        source: string;
+      }>
+    >`
+      SELECT * FROM get_latest_metric_value(
+        ${userId},
+        ${metricType}::text
+      )
+    `;
+
+    return result.length > 0 ? result[0] : null;
+  }
+
+  async calculateTrendAnalysis(
+    userId: string,
+    metricType: MetricType,
+    days: number,
+  ): Promise<{
+    trendDirection:
+      | 'increasing'
+      | 'decreasing'
+      | 'stable'
+      | 'insufficient_data';
+    trendStrength: number;
+    correlationCoefficient: number;
+  }> {
+    const result = await this.prisma.$queryRaw<
+      Array<{
+        trend_direction: string;
+        trend_strength: number;
+        correlation_coefficient: number;
+      }>
+    >`
+      SELECT * FROM calculate_metric_trend(
+        ${userId},
+        ${metricType}::text,
+        ${days}
+      )
+    `;
+
+    if (result.length === 0) {
+      return {
+        trendDirection: 'insufficient_data',
+        trendStrength: 0,
+        correlationCoefficient: 0,
+      };
+    }
+
+    const trend = result[0];
+    return {
+      trendDirection: trend.trend_direction as
+        | 'increasing'
+        | 'decreasing'
+        | 'stable'
+        | 'insufficient_data',
+      trendStrength: trend.trend_strength,
+      correlationCoefficient: trend.correlation_coefficient,
+    };
   }
 
   private mapToEntity(data: PrismaHealthMetric): HealthMetric {

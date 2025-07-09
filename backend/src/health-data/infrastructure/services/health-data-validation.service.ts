@@ -15,6 +15,9 @@ export interface ValidationResult {
   warnings: string[];
   errors: string[];
   suggestions: string[];
+  confidence: number; // 0-1 confidence score
+  normalizedValue?: number; // Normalized value if unit conversion applied
+  qualityScore: number; // 0-100 data quality score
 }
 
 @Injectable()
@@ -84,6 +87,8 @@ export class HealthDataValidationService {
       warnings: [],
       errors: [],
       suggestions: [],
+      confidence: 1.0,
+      qualityScore: 100,
     };
 
     const rule = this.validationRules.find(
@@ -116,6 +121,9 @@ export class HealthDataValidationService {
 
     // Temporal validation
     this.validateTemporal(metric, result);
+
+    // Calculate quality score and confidence
+    this.calculateQualityMetrics(metric, result);
 
     return result;
   }
@@ -312,5 +320,193 @@ export class HealthDataValidationService {
     if (metricTime < oneYearAgo) {
       result.warnings.push('Metric timestamp is more than 1 year old');
     }
+  }
+
+  private calculateQualityMetrics(
+    metric: HealthMetric,
+    result: ValidationResult,
+  ): void {
+    let qualityScore = 100;
+    let confidence = 1.0;
+
+    // Reduce quality score for errors and warnings
+    qualityScore -= result.errors.length * 30;
+    qualityScore -= result.warnings.length * 10;
+
+    // Adjust confidence based on data source
+    switch (metric.source) {
+      case 'MANUAL_ENTRY':
+        confidence *= 0.8; // Manual entry less reliable
+        break;
+      case 'DEVICE_SYNC':
+      case 'HEALTH_KIT':
+      case 'GOOGLE_FIT':
+        confidence *= 0.95; // Device data generally reliable
+        break;
+      case 'IMPORTED':
+        confidence *= 0.7; // Imported data may have quality issues
+        break;
+    }
+
+    // Adjust confidence based on validation status
+    if (!result.isValid) {
+      confidence *= 0.3;
+      qualityScore = Math.min(qualityScore, 30);
+    }
+
+    // Adjust for manual entry flag
+    if (metric.isManualEntry) {
+      confidence *= 0.9;
+      qualityScore -= 5;
+    }
+
+    // Ensure bounds
+    qualityScore = Math.max(0, Math.min(100, qualityScore));
+    confidence = Math.max(0, Math.min(1, confidence));
+
+    result.qualityScore = qualityScore;
+    result.confidence = confidence;
+  }
+
+  // Enhanced validation methods for specific health conditions
+  validateMetricForCondition(
+    metric: HealthMetric,
+    healthConditions: string[],
+  ): ValidationResult {
+    const result = this.validateMetric(metric);
+
+    // Apply condition-specific validation rules
+    for (const condition of healthConditions) {
+      this.applyConditionSpecificRules(metric, condition, result);
+    }
+
+    return result;
+  }
+
+  private applyConditionSpecificRules(
+    metric: HealthMetric,
+    condition: string,
+    result: ValidationResult,
+  ): void {
+    switch (condition.toLowerCase()) {
+      case 'diabetes':
+        this.validateForDiabetes(metric, result);
+        break;
+      case 'hypertension':
+        this.validateForHypertension(metric, result);
+        break;
+      case 'heart_disease':
+        this.validateForHeartDisease(metric, result);
+        break;
+      default:
+        break;
+    }
+  }
+
+  private validateForDiabetes(
+    metric: HealthMetric,
+    result: ValidationResult,
+  ): void {
+    if (metric.metricType === MetricType.BLOOD_GLUCOSE) {
+      const glucose = metric.value;
+      if (glucose > 180) {
+        result.warnings.push(
+          'Blood glucose level is concerning for diabetes management',
+        );
+        result.suggestions.push(
+          'Consider consulting with your healthcare provider about glucose management',
+        );
+      }
+    }
+  }
+
+  private validateForHypertension(
+    metric: HealthMetric,
+    result: ValidationResult,
+  ): void {
+    if (metric.metricType === MetricType.BLOOD_PRESSURE) {
+      const systolic = metric.value;
+      const diastolic = (metric.metadata?.diastolic as number) || 0;
+
+      if (systolic > 130 || diastolic > 80) {
+        result.warnings.push(
+          'Blood pressure reading is elevated for hypertension management',
+        );
+        result.suggestions.push(
+          'Monitor blood pressure regularly and follow prescribed treatment plan',
+        );
+      }
+    }
+  }
+
+  private validateForHeartDisease(
+    metric: HealthMetric,
+    result: ValidationResult,
+  ): void {
+    if (metric.metricType === MetricType.HEART_RATE) {
+      const heartRate = metric.value;
+      if (heartRate > 120 || heartRate < 50) {
+        result.warnings.push(
+          'Heart rate reading may require attention given heart condition',
+        );
+        result.suggestions.push(
+          'Consider discussing this reading with your cardiologist',
+        );
+      }
+    }
+  }
+
+  // Batch validation for multiple metrics
+  validateMetricBatch(metrics: HealthMetric[]): ValidationResult[] {
+    return metrics.map((metric) => this.validateMetric(metric));
+  }
+
+  // Get validation summary for a set of metrics
+  getValidationSummary(validationResults: ValidationResult[]): {
+    totalMetrics: number;
+    validMetrics: number;
+    invalidMetrics: number;
+    averageQualityScore: number;
+    averageConfidence: number;
+    commonIssues: string[];
+  } {
+    const totalMetrics = validationResults.length;
+    const validMetrics = validationResults.filter((r) => r.isValid).length;
+    const invalidMetrics = totalMetrics - validMetrics;
+
+    const averageQualityScore =
+      validationResults.reduce((sum, r) => sum + r.qualityScore, 0) /
+      totalMetrics;
+
+    const averageConfidence =
+      validationResults.reduce((sum, r) => sum + r.confidence, 0) /
+      totalMetrics;
+
+    // Collect all issues and find most common ones
+    const allIssues = validationResults.flatMap((r) => [
+      ...r.errors,
+      ...r.warnings,
+    ]);
+    const issueCounts = allIssues.reduce(
+      (counts, issue) => {
+        counts[issue] = (counts[issue] || 0) + 1;
+        return counts;
+      },
+      {} as Record<string, number>,
+    );
+
+    const commonIssues = Object.entries(issueCounts)
+      .sort(([, a], [, b]) => b - a)
+      .slice(0, 5)
+      .map(([issue]) => issue);
+
+    return {
+      totalMetrics,
+      validMetrics,
+      invalidMetrics,
+      averageQualityScore,
+      averageConfidence,
+      commonIssues,
+    };
   }
 }

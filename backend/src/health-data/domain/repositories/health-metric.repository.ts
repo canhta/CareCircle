@@ -91,4 +91,45 @@ export abstract class HealthMetricRepository {
     startDate: Date,
     endDate: Date,
   ): Promise<number>;
+
+  // TimescaleDB-specific operations
+  abstract detectAnomalies(
+    userId: string,
+    metricType: MetricType,
+    days: number,
+    stdThreshold?: number,
+  ): Promise<{
+    anomalies: Array<{
+      timestamp: Date;
+      value: number;
+      zScore: number;
+      isAnomaly: boolean;
+    }>;
+    totalAnomalies: number;
+    anomalyRate: number;
+  }>;
+
+  abstract getLatestMetricValue(
+    userId: string,
+    metricType: MetricType,
+  ): Promise<{
+    value: number;
+    unit: string;
+    timestamp: Date;
+    source: string;
+  } | null>;
+
+  abstract calculateTrendAnalysis(
+    userId: string,
+    metricType: MetricType,
+    days: number,
+  ): Promise<{
+    trendDirection:
+      | 'increasing'
+      | 'decreasing'
+      | 'stable'
+      | 'insufficient_data';
+    trendStrength: number;
+    correlationCoefficient: number;
+  }>;
 }

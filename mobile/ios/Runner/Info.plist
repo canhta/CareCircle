@@ -46,6 +46,12 @@
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 
+	<!-- HealthKit Permissions -->
+	<key>NSHealthShareUsageDescription</key>
+	<string>CareCircle needs access to read your health data to provide personalized health insights and track your wellness progress.</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>CareCircle needs access to write health data to sync your manually entered health metrics with Apple Health.</string>
+
 	<!-- Google Sign-In Configuration -->
 	<key>GIDClientID</key>
 	<string>630059752294-0s96d9jp5hn1jn103a701lbsh1ce1ree.apps.googleusercontent.com</string>

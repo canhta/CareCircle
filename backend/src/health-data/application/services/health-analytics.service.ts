@@ -1,6 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { HealthMetricService } from './health-metric.service';
 import { HealthProfileService } from './health-profile.service';
+import { HealthMetricRepository } from '../../domain/repositories/health-metric.repository';
 import { MetricType } from '@prisma/client';
 
 export interface HealthInsight {
@@ -45,6 +46,8 @@ export class HealthAnalyticsService {
   constructor(
     private readonly healthMetricService: HealthMetricService,
     private readonly healthProfileService: HealthProfileService,
+    @Inject('HealthMetricRepository')
+    private readonly healthMetricRepository: HealthMetricRepository,
   ) {}
 
   async generateHealthInsights(userId: string): Promise<HealthInsight[]> {
@@ -167,11 +170,11 @@ export class HealthAnalyticsService {
       return {
         id: this.generateId(),
         type: 'trend',
-        title: `${metricType.replace('_', ' ')} Trend`,
-        description: `Your ${metricType.replace('_', ' ')} has been ${trend} by ${Math.abs(change).toFixed(1)}% over the last 30 days.`,
+        title: `${metricType.replace('_', ' ')} Trend Analysis`,
+        description: `Your ${metricType.replace('_', ' ')} shows a ${trend} trend with ${Math.abs(change).toFixed(1)}% change over the last 30 days.`,
         severity,
         metricType,
-        data: { trend, change, trendData },
+        data: { trend, change, dataPoints: trendData.length },
         recommendations: this.getTrendRecommendations(
           metricType,
           trend,
@@ -189,26 +192,34 @@ export class HealthAnalyticsService {
     metricType: MetricType,
   ): Promise<HealthInsight | null> {
     try {
-      const anomalyData = await this.healthMetricService.detectAnomalies(
+      // Use TimescaleDB anomaly detection function
+      const anomalyData = await this.healthMetricRepository.detectAnomalies(
         userId,
         metricType,
         30,
+        2.0, // 2 standard deviations threshold
       );
-      if (anomalyData.anomalies.length === 0) return null;
 
-      const severity = anomalyData.anomalies.length > 5 ? 'warning' : 'info';
+      if (anomalyData.totalAnomalies === 0) return null;
+
+      // Determine severity based on anomaly rate
+      const severity = anomalyData.anomalyRate > 0.15 ? 'warning' : 'info';
 
       return {
         id: this.generateId(),
         type: 'anomaly',
-        title: `${metricType.replace('_', ' ')} Anomalies`,
-        description: `Found ${anomalyData.anomalies.length} unusual ${metricType.replace('_', ' ')} readings in the last 30 days.`,
+        title: `${metricType.replace('_', ' ')} Anomaly Detection`,
+        description: `Detected ${anomalyData.totalAnomalies} unusual ${metricType.replace('_', ' ')} readings (${(anomalyData.anomalyRate * 100).toFixed(1)}% anomaly rate) in the last 30 days.`,
         severity,
         metricType,
-        data: anomalyData,
+        data: {
+          totalAnomalies: anomalyData.totalAnomalies,
+          anomalyRate: anomalyData.anomalyRate,
+          recentAnomalies: anomalyData.anomalies.slice(0, 5), // Show only recent 5
+        },
         recommendations: this.getAnomalyRecommendations(
           metricType,
-          anomalyData.anomalies.length,
+          anomalyData.totalAnomalies,
         ),
         createdAt: new Date(),
       };
