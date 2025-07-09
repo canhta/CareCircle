@@ -508,3 +508,75 @@ interface NlpService {
 - **HL7 FHIR**: Healthcare data interoperability
   - Standard for healthcare information exchange
   - Structured approach to medical data representation
+
+## Logging Specifications
+
+### AI Assistant Context Logging
+
+The AI Assistant bounded context implements comprehensive logging for conversation management, voice interactions, and emergency detection while maintaining strict healthcare privacy compliance.
+
+**Logger Instance**: `BoundedContextLoggers.aiAssistant`
+
+**Log Categories**:
+
+- **Conversation Management**: Message sending, receiving, and processing
+- **Voice Interactions**: Speech-to-text and text-to-speech operations
+- **Emergency Detection**: Critical health event identification and escalation
+- **Context Integration**: Health data context retrieval and processing
+- **Performance Monitoring**: Response times and system resource usage
+
+**Privacy Protection**:
+
+- All user messages are sanitized before logging
+- Health context data is anonymized with user IDs hashed
+- Voice audio data is never logged, only metadata
+- Emergency keywords are logged for compliance but user content is redacted
+
+**Critical Logging Points**:
+
+1. **Message Processing**: Log message initiation, processing time, and completion
+2. **Emergency Detection**: Log emergency keyword detection and escalation actions
+3. **Voice Operations**: Log speech recognition accuracy and TTS generation
+4. **API Interactions**: Log backend communication and response handling
+5. **Error Handling**: Comprehensive error logging with context preservation
+
+**Example Implementation**:
+
+```dart
+class AiAssistantService {
+  static final _logger = BoundedContextLoggers.aiAssistant;
+
+  Future<AiResponse> sendMessage(String message) async {
+    _logger.i('AI message processing initiated', extra: {
+      'messageLength': message.length,
+      'timestamp': DateTime.now().toIso8601String(),
+    });
+
+    try {
+      final sanitizedMessage = LogSanitizer.sanitizeUserMessage(message);
+      final response = await _processMessage(message);
+
+      _logger.i('AI response generated successfully', extra: {
+        'responseLength': response.message.length,
+        'processingTimeMs': response.processingTime,
+        'emergencyDetected': response.isEmergency,
+      });
+
+      return response;
+    } catch (e) {
+      _logger.e('AI message processing failed', error: e, extra: {
+        'errorType': e.runtimeType.toString(),
+        'messageLength': message.length,
+      });
+      rethrow;
+    }
+  }
+}
+```
+
+**Compliance Requirements**:
+
+- All health-related conversations must be logged for audit purposes
+- Emergency detection events require immediate audit trail creation
+- Voice interaction metadata must be retained for quality assurance
+- Performance metrics must be tracked for system optimization

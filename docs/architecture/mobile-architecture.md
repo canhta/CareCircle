@@ -18,6 +18,7 @@ CareCircle mobile app adopts a **Feature-First MVVM Architecture** with the foll
 CareCircle uses **modern code generation tools** for JSON serialization to ensure type safety, reduce boilerplate, and improve maintainability.
 
 **Recommended Dependencies:**
+
 - `json_annotation` - Annotations for JSON serialization
 - `json_serializable` - Code generation for JSON serialization
 - `freezed` - Immutable data classes with JSON support
@@ -49,7 +50,12 @@ lib/
 │   ├── exceptions/         # Custom exceptions
 │   ├── extensions/         # Extension methods
 │   ├── localization/       # Localization resources
-│   ├── logging/            # Logging utilities
+│   ├── logging/            # Comprehensive logging infrastructure
+│   │   ├── app_logger.dart         # Main application logger
+│   │   ├── healthcare_log_filter.dart # Healthcare-compliant log filtering
+│   │   ├── log_config.dart         # Environment-based log configuration
+│   │   ├── bounded_context_loggers.dart # Context-specific logger instances
+│   │   └── log_sanitizer.dart      # PII/PHI data sanitization
 │   ├── navigation/         # Navigation helpers
 │   ├── network/            # Network utilities
 │   ├── storage/            # Local storage utilities
@@ -788,6 +794,7 @@ void main() {
 ### 15.1 State Management Architecture
 
 **Implementation Guide for AI Agents:**
+
 - Use MVVM pattern with ChangeNotifier for healthcare data management
 - Implement optimistic state updates for better user experience
 - Use Provider or Riverpod for dependency injection and state management
@@ -795,6 +802,7 @@ void main() {
 - Implement proper error handling and loading states
 
 **Key Components to Implement:**
+
 - HealthDataViewModel extending ChangeNotifier
 - Optimistic updates for medication tracking
 - Offline-first state management for critical health features
@@ -804,6 +812,7 @@ void main() {
 ### 15.2 Healthcare-Specific Mobile Patterns
 
 **Implementation Guide for AI Agents:**
+
 - Implement secure storage for sensitive health data using flutter_secure_storage
 - Use biometric authentication for app access and sensitive operations
 - Implement offline-first architecture for critical health features
@@ -811,6 +820,7 @@ void main() {
 - Use local notifications for medication reminders and health alerts
 
 **Key Components to Implement:**
+
 - SecureHealthStorage service for PHI protection
 - BiometricAuthService for secure access
 - OfflineHealthRepository with sync capabilities
@@ -820,6 +830,7 @@ void main() {
 ### 15.3 Performance Optimization
 
 **Implementation Guide for AI Agents:**
+
 - Use ListView.builder for large health data lists
 - Implement image caching for medical images and documents
 - Use const constructors where possible to reduce rebuilds
@@ -827,6 +838,7 @@ void main() {
 - Implement lazy loading for data-heavy health records
 
 **Key Components to Implement:**
+
 - Efficient list rendering for health records
 - Image caching service for medical documents
 - Widget optimization with const constructors
@@ -836,6 +848,7 @@ void main() {
 ### 15.4 Security Best Practices
 
 **Implementation Guide for AI Agents:**
+
 - Use certificate pinning for API calls to healthcare backend
 - Implement biometric authentication with fallback options
 - Encrypt sensitive data at rest using secure storage
@@ -843,6 +856,7 @@ void main() {
 - Implement proper session management with automatic logout
 
 **Key Components to Implement:**
+
 - Certificate pinning configuration for network security
 - Biometric authentication with PIN/password fallback
 - Encrypted local storage for health data
@@ -852,6 +866,7 @@ void main() {
 ### 15.5 Offline-First Architecture
 
 **Implementation Guide for AI Agents:**
+
 - Implement local database for critical health data storage
 - Use sync mechanisms for data consistency across devices
 - Handle network connectivity changes gracefully
@@ -859,6 +874,7 @@ void main() {
 - Implement conflict resolution for concurrent data modifications
 
 **Key Components to Implement:**
+
 - Local database service (SQLite/Hive) for health data
 - Sync service with queue management for offline operations
 - Connectivity monitoring service
@@ -868,6 +884,7 @@ void main() {
 ### 15.6 Accessibility and Usability
 
 **Implementation Guide for AI Agents:**
+
 - Implement proper semantic labels for screen readers
 - Use appropriate color contrast for medical information
 - Support dynamic text sizing for elderly users
@@ -875,6 +892,7 @@ void main() {
 - Add haptic feedback for critical health alerts
 
 **Key Components to Implement:**
+
 - Accessibility service with semantic annotations
 - High contrast theme for medical data visualization
 - Dynamic text scaling support
@@ -884,6 +902,7 @@ void main() {
 ### 15.7 Recommended Libraries for Healthcare Mobile Apps
 
 **Essential Libraries for AI Agents to Include:**
+
 - flutter_secure_storage - Secure data storage for PHI
 - connectivity_plus - Network connectivity monitoring
 - health - HealthKit/Health Connect integration
@@ -894,15 +913,111 @@ void main() {
 - flutter_hooks - React-like hooks for state management
 
 **Integration Guidelines:**
+
 - Configure each library according to healthcare compliance requirements
 - Implement proper error handling and logging for all integrations
 - Use environment-specific configurations for development and production
 - Add health checks for all external dependencies
 - Document security considerations and data handling for each library
 
-### 15.8 Testing Strategy for Healthcare Apps
+### 15.8 Comprehensive Logging Infrastructure
+
+**Healthcare-Compliant Logging Architecture:**
+
+The CareCircle mobile application implements a comprehensive logging system designed for healthcare applications with strict privacy and compliance requirements.
+
+**Core Logging Components:**
+
+```dart
+// Main application logger with healthcare-specific configuration
+class AppLogger {
+  static final Logger _logger = Logger(
+    filter: HealthcareLogFilter(),
+    printer: HealthcarePrettyPrinter(),
+    output: MultiOutput([
+      ConsoleOutput(),
+      FileOutput(),
+      AuditOutput(), // For compliance tracking
+    ]),
+  );
+
+  // Bounded context-specific loggers
+  static final Logger auth = Logger.detached('AUTH');
+  static final Logger aiAssistant = Logger.detached('AI_ASSISTANT');
+  static final Logger healthData = Logger.detached('HEALTH_DATA');
+  static final Logger medication = Logger.detached('MEDICATION');
+  static final Logger careGroup = Logger.detached('CARE_GROUP');
+  static final Logger notification = Logger.detached('NOTIFICATION');
+}
+```
+
+**Healthcare Data Privacy and Sanitization:**
+
+```dart
+class LogSanitizer {
+  static Map<String, dynamic> sanitizeHealthData(Map<String, dynamic> data) {
+    final sanitized = Map<String, dynamic>.from(data);
+
+    // Remove PII/PHI fields
+    _removeSensitiveFields(sanitized, [
+      'email', 'phone', 'ssn', 'medicalRecordNumber',
+      'bloodPressure', 'heartRate', 'weight', 'height',
+      'medications', 'diagnoses', 'symptoms'
+    ]);
+
+    // Replace with anonymized identifiers
+    _anonymizeIdentifiers(sanitized);
+
+    return sanitized;
+  }
+}
+```
+
+**Log Levels and Categories:**
+
+- **TRACE**: Detailed execution flow (development only)
+- **DEBUG**: Development debugging information
+- **INFO**: General application events and user actions
+- **WARNING**: Recoverable errors and performance issues
+- **ERROR**: Application errors requiring attention
+- **FATAL**: Critical system failures
+
+**Bounded Context Integration:**
+
+Each DDD bounded context maintains its own logger instance with context-specific configuration:
+
+```dart
+// Authentication Context Logging
+class AuthService {
+  static final _logger = AppLogger.auth;
+
+  Future<AuthResponse> loginWithEmail(String email, String password) async {
+    _logger.i('Login attempt initiated', extra: {'method': 'email'});
+
+    try {
+      final response = await _performLogin(email, password);
+      _logger.i('Login successful', extra: {'userId': response.user.id});
+      return response;
+    } catch (e) {
+      _logger.e('Login failed', error: e, extra: {'method': 'email'});
+      rethrow;
+    }
+  }
+}
+```
+
+**Performance and Compliance Considerations:**
+
+- Asynchronous logging to prevent UI blocking
+- Automatic log rotation and cleanup
+- Environment-based log level configuration
+- HIPAA-compliant log storage and transmission
+- Audit trail generation for healthcare operations
+
+### 15.9 Testing Strategy for Healthcare Apps
 
 **Implementation Guide for AI Agents:**
+
 - Implement unit tests for all health data calculations and validations
 - Use widget tests for critical health UI components
 - Implement integration tests for medication tracking workflows
@@ -910,6 +1025,7 @@ void main() {
 - Validate accessibility features with automated testing
 
 **Key Components to Implement:**
+
 - Unit test suites for health data models and calculations
 - Widget test suites for medication and health tracking UI
 - Integration test scenarios for critical health workflows
@@ -919,6 +1035,7 @@ void main() {
 ### 15.9 Compliance and Audit Requirements
 
 **Implementation Guide for AI Agents:**
+
 - Implement comprehensive logging for all health data access
 - Add audit trails for medication changes and health data modifications
 - Implement data retention policies according to healthcare regulations
@@ -926,6 +1043,7 @@ void main() {
 - Implement data export capabilities for patient data portability
 
 **Key Components to Implement:**
+
 - Audit logging service for all health data operations
 - Data retention service with automatic cleanup
 - Consent management system with granular permissions

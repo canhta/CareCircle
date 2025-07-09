@@ -7,6 +7,7 @@ This document provides developer guidelines for implementing the CareCircle desi
 ### Design Token System
 
 #### Color Token Implementation
+
 ```dart
 // Flutter Implementation
 class CareCircleColors {
@@ -15,27 +16,27 @@ class CareCircleColors {
   static const Color primaryVariant = Color(0xFF1565C0);
   static const Color secondaryHealthGreen = Color(0xFF4CAF50);
   static const Color secondaryVariant = Color(0xFF388E3C);
-  
+
   // Healthcare-Specific Semantic Colors
   static const Color criticalAlert = Color(0xFFD32F2F);
   static const Color warningAmber = Color(0xFFFF9800);
   static const Color infoBlue = Color(0xFF2196F3);
   static const Color successGreen = Color(0xFF4CAF50);
-  
+
   // Blood Pressure Indicators
   static const Color bpHigh = Color(0xFFE53935);
   static const Color bpNormal = Color(0xFF4CAF50);
   static const Color bpLow = Color(0xFFFF9800);
-  
+
   // Medication Status
   static const Color medicationDue = Color(0xFFFF5722);
   static const Color medicationTaken = Color(0xFF4CAF50);
-  
+
   // Accessibility Colors
   static const Color highContrastPrimary = Color(0xFF000000);
   static const Color highContrastSecondary = Color(0xFFFFFFFF);
   static const Color focusIndicator = Color(0xFF2196F3);
-  
+
   // Dark Mode Adaptations
   static const Color darkBackground = Color(0xFF121212);
   static const Color darkSurface = Color(0xFF1E1E1E);
@@ -44,12 +45,13 @@ class CareCircleColors {
 ```
 
 #### Typography Token Implementation
+
 ```dart
 // Flutter Typography System
 class CareCircleTextStyles {
   static const String primaryFont = 'Inter';
   static const String monospaceFont = 'JetBrains Mono';
-  
+
   // Medical Data Typography
   static const TextStyle vitalSignsValue = TextStyle(
     fontFamily: monospaceFont,
@@ -57,14 +59,14 @@ class CareCircleTextStyles {
     fontWeight: FontWeight.w600,
     height: 1.25,
   );
-  
+
   static const TextStyle medicationDosage = TextStyle(
     fontFamily: monospaceFont,
     fontSize: 16,
     fontWeight: FontWeight.w500,
     height: 1.5,
   );
-  
+
   // AI Assistant Typography
   static const TextStyle aiResponse = TextStyle(
     fontFamily: primaryFont,
@@ -72,7 +74,7 @@ class CareCircleTextStyles {
     fontWeight: FontWeight.w400,
     height: 1.6, // Increased for readability
   );
-  
+
   // Accessibility Typography
   static const TextStyle highContrastText = TextStyle(
     fontFamily: primaryFont,
@@ -84,6 +86,7 @@ class CareCircleTextStyles {
 ```
 
 #### Spacing Token Implementation
+
 ```dart
 // Flutter Spacing System
 class CareCircleSpacing {
@@ -93,7 +96,7 @@ class CareCircleSpacing {
   static const double lg = 24.0;
   static const double xl = 32.0;
   static const double xxl = 48.0;
-  
+
   // Healthcare-Specific Spacing
   static const double touchTargetMin = 48.0;
   static const double emergencyButtonMin = 56.0;
@@ -105,13 +108,14 @@ class CareCircleSpacing {
 ### Component Implementation Guidelines
 
 #### AI Assistant Chat Interface
+
 ```dart
 // AI Message Bubble Component
 class AiMessageBubble extends StatelessWidget {
   final String message;
   final bool isTyping;
   final VoidCallback? onTap;
-  
+
   @override
   Widget build(BuildContext context) {
     return Semantics(
@@ -143,6 +147,7 @@ class AiMessageBubble extends StatelessWidget {
 ```
 
 #### Healthcare Data Card
+
 ```dart
 // Vital Signs Card Component
 class VitalSignsCard extends StatelessWidget {
@@ -152,7 +157,7 @@ class VitalSignsCard extends StatelessWidget {
   final HealthStatus status;
   final DateTime timestamp;
   final VoidCallback? onTap;
-  
+
   @override
   Widget build(BuildContext context) {
     return Semantics(
@@ -210,6 +215,7 @@ class VitalSignsCard extends StatelessWidget {
 ```
 
 #### Medication Tracker Component
+
 ```dart
 // Medication Tracker Widget
 class MedicationTracker extends StatelessWidget {
@@ -218,7 +224,7 @@ class MedicationTracker extends StatelessWidget {
   final VoidCallback onTaken;
   final VoidCallback onSkip;
   final VoidCallback onSnooze;
-  
+
   @override
   Widget build(BuildContext context) {
     return Semantics(
@@ -293,6 +299,7 @@ class MedicationTracker extends StatelessWidget {
 ### Accessibility Implementation
 
 #### Screen Reader Support
+
 ```dart
 // Accessibility Helper Functions
 class AccessibilityHelpers {
@@ -305,12 +312,12 @@ class AccessibilityHelpers {
     return '$type reading: $value $unit. Status: ${status.description}. '
            '${status.isNormal ? "This is within normal range." : "Please consult your healthcare provider."}';
   }
-  
+
   static String formatMedicationForScreenReader(Medication medication) {
     return '${medication.name}, ${medication.dosage}. '
            '${medication.isDue ? "Due now." : "Next dose at ${medication.nextDose}"}';
   }
-  
+
   static Widget makeAccessible({
     required Widget child,
     required String label,
@@ -330,6 +337,7 @@ class AccessibilityHelpers {
 ```
 
 #### Voice Control Integration
+
 ```dart
 // Voice Control Implementation
 class VoiceControlManager {
@@ -338,18 +346,18 @@ class VoiceControlManager {
     if (Platform.isIOS) {
       _setupIOSVoiceCommands();
     }
-    
+
     // Android Voice Access integration
     if (Platform.isAndroid) {
       _setupAndroidVoiceCommands();
     }
   }
-  
+
   static void _setupIOSVoiceCommands() {
     // Register custom voice commands for health actions
     // "Take medication", "Log blood pressure", "Emergency help"
   }
-  
+
   static void _setupAndroidVoiceCommands() {
     // Register Android Voice Access commands
     // Integration with Android accessibility services
@@ -360,6 +368,7 @@ class VoiceControlManager {
 ### Platform-Specific Implementation
 
 #### iOS Implementation Guidelines
+
 ```dart
 // iOS-Specific Adaptations
 class IOSHealthIntegration {
@@ -385,7 +394,7 @@ class IOSHealthIntegration {
       ),
     );
   }
-  
+
   // HealthKit Integration
   static Future<void> syncWithHealthKit() async {
     // Sync health data with iOS HealthKit
@@ -396,6 +405,7 @@ class IOSHealthIntegration {
 ```
 
 #### Android Implementation Guidelines
+
 ```dart
 // Android-Specific Adaptations
 class AndroidHealthIntegration {
@@ -422,7 +432,7 @@ class AndroidHealthIntegration {
       ),
     );
   }
-  
+
   // Health Connect Integration
   static Future<void> syncWithHealthConnect() async {
     // Sync health data with Android Health Connect
@@ -435,11 +445,12 @@ class AndroidHealthIntegration {
 ### Performance Optimization
 
 #### Efficient Rendering
+
 ```dart
 // Performance-Optimized Components
 class OptimizedHealthList extends StatelessWidget {
   final List<HealthRecord> records;
-  
+
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
@@ -460,12 +471,13 @@ class OptimizedHealthList extends StatelessWidget {
 ```
 
 #### Memory Management
+
 ```dart
 // Memory-Efficient Image Loading
 class HealthImageWidget extends StatelessWidget {
   final String imageUrl;
   final String semanticLabel;
-  
+
   @override
   Widget build(BuildContext context) {
     return Semantics(
@@ -486,28 +498,29 @@ class HealthImageWidget extends StatelessWidget {
 ### Testing Implementation
 
 #### Accessibility Testing
+
 ```dart
 // Accessibility Test Helpers
 class AccessibilityTestHelpers {
   static Future<void> testScreenReaderCompatibility(WidgetTester tester) async {
     // Test VoiceOver/TalkBack compatibility
     final semanticsHandle = tester.ensureSemantics();
-    
+
     // Verify all interactive elements have proper labels
     expect(find.bySemanticsLabel(RegExp(r'.+')), findsWidgets);
-    
+
     // Test focus order
     await tester.sendKeyEvent(LogicalKeyboardKey.tab);
     // Verify focus moves in logical order
-    
+
     semanticsHandle.dispose();
   }
-  
+
   static Future<void> testColorContrast(WidgetTester tester) async {
     // Automated color contrast testing
     // Verify all text meets WCAG 2.1 AA standards
   }
-  
+
   static Future<void> testTouchTargets(WidgetTester tester) async {
     // Verify all interactive elements meet minimum size requirements
     final buttons = find.byType(ElevatedButton);
@@ -523,6 +536,7 @@ class AccessibilityTestHelpers {
 ### Integration with Backend Architecture
 
 #### API Integration Patterns
+
 ```dart
 // Healthcare API Client with Design System Integration
 class HealthcareApiClient {
@@ -534,12 +548,12 @@ class HealthcareApiClient {
     try {
       // Show loading state using design system components
       LoadingOverlay.show();
-      
+
       final response = await dio.post(endpoint, data: data);
-      
+
       // Hide loading state
       LoadingOverlay.hide();
-      
+
       return ApiResponse.success(fromJson(response.data));
     } catch (error) {
       // Show error using design system error components
@@ -550,11 +564,176 @@ class HealthcareApiClient {
           onPressed: () => makeRequest(endpoint: endpoint, fromJson: fromJson, data: data),
         ),
       );
-      
+
       return ApiResponse.error(error.toString());
     }
   }
 }
 ```
 
-This implementation guide ensures that the CareCircle design system is consistently applied across all platforms while maintaining healthcare-specific requirements, accessibility standards, and performance optimization.
+## Logging Best Practices
+
+### Healthcare-Compliant Logging Standards
+
+The CareCircle application implements comprehensive logging that balances debugging needs with healthcare privacy requirements.
+
+#### Core Logging Principles
+
+1. **Privacy First**: Never log PII/PHI data without explicit sanitization
+2. **Structured Format**: Use consistent, machine-readable log formats
+3. **Context Awareness**: Include relevant context without sensitive data
+4. **Performance Conscious**: Implement asynchronous logging to prevent UI blocking
+5. **Environment Appropriate**: Different log levels for development vs production
+
+#### Implementation Standards
+
+```dart
+// Standard logging pattern for service classes
+class HealthDataService {
+  static final _logger = BoundedContextLoggers.healthData;
+
+  Future<List<HealthMetric>> getMetrics(String userId, DateRange range) async {
+    _logger.i('Health metrics retrieval initiated', extra: {
+      'userId': LogSanitizer.hashUserId(userId),
+      'dateRange': '${range.start.toIso8601String()} - ${range.end.toIso8601String()}',
+      'operation': 'getMetrics',
+    });
+
+    try {
+      final metrics = await _fetchMetrics(userId, range);
+
+      _logger.i('Health metrics retrieved successfully', extra: {
+        'userId': LogSanitizer.hashUserId(userId),
+        'metricsCount': metrics.length,
+        'operation': 'getMetrics',
+      });
+
+      return metrics;
+    } catch (e) {
+      _logger.e('Health metrics retrieval failed', error: e, extra: {
+        'userId': LogSanitizer.hashUserId(userId),
+        'operation': 'getMetrics',
+        'errorType': e.runtimeType.toString(),
+      });
+      rethrow;
+    }
+  }
+}
+```
+
+#### Log Level Guidelines
+
+- **TRACE**: Detailed execution flow (development only)
+- **DEBUG**: Development debugging information
+- **INFO**: User actions and system events
+- **WARNING**: Recoverable errors and performance issues
+- **ERROR**: Application errors requiring attention
+- **FATAL**: Critical system failures
+
+#### Sensitive Data Handling
+
+```dart
+// Example of proper data sanitization
+class LogSanitizer {
+  static Map<String, dynamic> sanitizeHealthData(Map<String, dynamic> data) {
+    final sanitized = Map<String, dynamic>.from(data);
+
+    // Remove sensitive health fields
+    const sensitiveFields = [
+      'bloodPressure', 'heartRate', 'weight', 'height',
+      'medications', 'diagnoses', 'symptoms', 'allergies'
+    ];
+
+    for (final field in sensitiveFields) {
+      if (sanitized.containsKey(field)) {
+        sanitized[field] = '[HEALTH_DATA_REDACTED]';
+      }
+    }
+
+    return sanitized;
+  }
+
+  static String hashUserId(String userId) {
+    return userId.hashCode.toString();
+  }
+}
+```
+
+#### Error Handling Integration
+
+```dart
+// Combine logging with user-friendly error handling
+class AuthProvider extends StateNotifier<AuthState> {
+  static final _logger = BoundedContextLoggers.auth;
+
+  Future<void> signInWithEmail(String email, String password) async {
+    _logger.i('Email sign-in initiated');
+
+    state = state.copyWith(status: AuthStatus.loading);
+
+    try {
+      final result = await _authService.signInWithEmail(email, password);
+
+      _logger.i('Email sign-in successful', extra: {
+        'userId': LogSanitizer.hashUserId(result.user.id),
+        'method': 'email',
+      });
+
+      state = state.copyWith(
+        status: AuthStatus.authenticated,
+        user: result.user,
+      );
+    } catch (e) {
+      _logger.e('Email sign-in failed', error: e, extra: {
+        'method': 'email',
+        'errorType': e.runtimeType.toString(),
+      });
+
+      state = state.copyWith(
+        status: AuthStatus.unauthenticated,
+        error: _getUserFriendlyError(e),
+      );
+    }
+  }
+}
+```
+
+#### Performance Monitoring
+
+```dart
+// Performance-aware logging with timing
+class AiAssistantService {
+  static final _logger = BoundedContextLoggers.aiAssistant;
+
+  Future<AiResponse> processMessage(String message) async {
+    final stopwatch = Stopwatch()..start();
+
+    _logger.d('AI message processing started', extra: {
+      'messageLength': message.length,
+    });
+
+    try {
+      final response = await _generateResponse(message);
+      stopwatch.stop();
+
+      _logger.i('AI message processed successfully', extra: {
+        'processingTimeMs': stopwatch.elapsedMilliseconds,
+        'responseLength': response.message.length,
+        'emergencyDetected': response.isEmergency,
+      });
+
+      return response;
+    } catch (e) {
+      stopwatch.stop();
+
+      _logger.e('AI message processing failed', error: e, extra: {
+        'processingTimeMs': stopwatch.elapsedMilliseconds,
+        'messageLength': message.length,
+      });
+      rethrow;
+    }
+  }
+}
+```
+
+This implementation guide ensures that the CareCircle design system is consistently applied across all platforms while maintaining healthcare-specific requirements, accessibility standards, performance optimization, and comprehensive logging capabilities.
