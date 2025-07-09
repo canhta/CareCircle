@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+import 'core/logging/logging.dart';
+import 'core/logging/error_tracker.dart';
 import 'core/design/design_tokens.dart';
 import 'features/auth/models/auth_models.dart';
 import 'features/auth/providers/auth_provider.dart';
@@ -16,7 +18,20 @@ import 'features/onboarding/screens/onboarding_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize Firebase
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  // Initialize healthcare-compliant logging system
+  await AppLogger.initialize();
+  await BoundedContextLoggers.initialize();
+
+  // Initialize error tracking with Firebase Crashlytics
+  await ErrorTracker.initialize();
+
+  // Log application startup
+  AppLogger.info('CareCircle mobile application starting', {'timestamp': DateTime.now().toIso8601String()});
+
   runApp(const ProviderScope(child: CareCircleApp()));
 }
 
@@ -32,6 +47,10 @@ class CareCircleApp extends ConsumerWidget {
       theme: _createTheme(),
       routerConfig: router,
       debugShowCheckedModeBanner: false,
+      // Add navigation logging observer
+      builder: (context, child) {
+        return TalkerWrapper(talker: AppLogger.instance, options: LogConfig.talkerWrapperOptions, child: child!);
+      },
     );
   }
 
@@ -43,16 +62,10 @@ class CareCircleApp extends ConsumerWidget {
         brightness: Brightness.light,
       ),
       appBarTheme: const AppBarTheme(centerTitle: true, elevation: 0),
-      cardTheme: CardThemeData(
-        elevation: 2,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      ),
+      cardTheme: CardThemeData(elevation: 2, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
       inputDecorationTheme: InputDecorationTheme(
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 16,
-        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       ),
     );
   }
@@ -62,9 +75,7 @@ class CareCircleApp extends ConsumerWidget {
       initialLocation: '/',
       redirect: (context, state) {
         final authState = ref.read(authNotifierProvider);
-        final isLoggedIn =
-            authState.status == AuthStatus.authenticated ||
-            authState.status == AuthStatus.guest;
+        final isLoggedIn = authState.status == AuthStatus.authenticated || authState.status == AuthStatus.guest;
         final isLoading = authState.status == AuthStatus.loading;
 
         // Don't redirect while loading
@@ -84,30 +95,12 @@ class CareCircleApp extends ConsumerWidget {
       },
       routes: [
         GoRoute(path: '/', builder: (context, state) => const WelcomeScreen()),
-        GoRoute(
-          path: '/auth/login',
-          builder: (context, state) => const LoginScreen(),
-        ),
-        GoRoute(
-          path: '/auth/register',
-          builder: (context, state) => const RegisterScreen(),
-        ),
-        GoRoute(
-          path: '/auth/convert-guest',
-          builder: (context, state) => const ConvertGuestScreen(),
-        ),
-        GoRoute(
-          path: '/auth/forgot-password',
-          builder: (context, state) => const ForgotPasswordScreen(),
-        ),
-        GoRoute(
-          path: '/onboarding',
-          builder: (context, state) => const OnboardingScreen(),
-        ),
-        GoRoute(
-          path: '/home',
-          builder: (context, state) => const MainAppShell(),
-        ),
+        GoRoute(path: '/auth/login', builder: (context, state) => const LoginScreen()),
+        GoRoute(path: '/auth/register', builder: (context, state) => const RegisterScreen()),
+        GoRoute(path: '/auth/convert-guest', builder: (context, state) => const ConvertGuestScreen()),
+        GoRoute(path: '/auth/forgot-password', builder: (context, state) => const ForgotPasswordScreen()),
+        GoRoute(path: '/onboarding', builder: (context, state) => const OnboardingScreen()),
+        GoRoute(path: '/home', builder: (context, state) => const MainAppShell()),
       ],
     );
   }

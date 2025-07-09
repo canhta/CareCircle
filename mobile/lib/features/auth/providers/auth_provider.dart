@@ -5,12 +5,16 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../models/auth_models.dart';
 import '../services/auth_service.dart';
 import '../services/firebase_auth_service.dart';
+import '../../../core/logging/logging.dart';
 import '../services/biometric_auth_service.dart';
 
 part 'auth_provider.g.dart';
 
 @riverpod
 class AuthNotifier extends _$AuthNotifier {
+  // Healthcare-compliant logger for authentication context
+  static final _logger = BoundedContextLoggers.auth;
+
   @override
   AuthState build() {
     // Return initial state first
@@ -43,27 +47,22 @@ class AuthNotifier extends _$AuthNotifier {
         } else {
           // Firebase user exists but no stored user data - sign out
           await firebaseAuthService.signOut();
-          state = state.copyWith(
-            status: AuthStatus.unauthenticated,
-            isLoading: false,
-          );
+          state = state.copyWith(status: AuthStatus.unauthenticated, isLoading: false);
         }
       } else {
-        state = state.copyWith(
-          status: AuthStatus.unauthenticated,
-          isLoading: false,
-        );
+        state = state.copyWith(status: AuthStatus.unauthenticated, isLoading: false);
       }
     } catch (e) {
-      state = state.copyWith(
-        error: e.toString(),
-        status: AuthStatus.unauthenticated,
-        isLoading: false,
-      );
+      state = state.copyWith(error: e.toString(), status: AuthStatus.unauthenticated, isLoading: false);
     }
   }
 
   Future<void> loginWithEmail(String email, String password) async {
+    _logger.info('Email login flow initiated', {
+      'flow': 'email_password',
+      'timestamp': DateTime.now().toIso8601String(),
+    });
+
     state = state.copyWith(isLoading: true, error: null);
 
     try {
@@ -71,8 +70,7 @@ class AuthNotifier extends _$AuthNotifier {
       final authService = ref.read(authServiceProvider);
 
       // Sign in with Firebase first
-      final userCredential = await firebaseAuthService
-          .signInWithEmailAndPassword(email: email, password: password);
+      final userCredential = await firebaseAuthService.signInWithEmailAndPassword(email: email, password: password);
 
       // Get Firebase ID token
       final idToken = await userCredential.user?.getIdToken();
@@ -89,7 +87,18 @@ class AuthNotifier extends _$AuthNotifier {
         status: AuthStatus.authenticated,
         isLoading: false,
       );
+
+      _logger.logAuthEvent('Email login flow completed', {
+        'userId': authResponse.user.id,
+        'flow': 'email_password',
+        'timestamp': DateTime.now().toIso8601String(),
+      });
     } catch (e) {
+      _logger.error('Email login flow failed', {
+        'flow': 'email_password',
+        'error': e.toString(),
+        'timestamp': DateTime.now().toIso8601String(),
+      });
       state = state.copyWith(error: e.toString(), isLoading: false);
     }
   }
@@ -102,11 +111,10 @@ class AuthNotifier extends _$AuthNotifier {
       final authService = ref.read(authServiceProvider);
 
       // Create user with Firebase first
-      final userCredential = await firebaseAuthService
-          .createUserWithEmailAndPassword(
-            email: request.email!,
-            password: request.password,
-          );
+      final userCredential = await firebaseAuthService.createUserWithEmailAndPassword(
+        email: request.email!,
+        password: request.password,
+      );
 
       // Get Firebase ID token
       final idToken = await userCredential.user?.getIdToken();
@@ -115,10 +123,7 @@ class AuthNotifier extends _$AuthNotifier {
       }
 
       // Register with backend using Firebase ID token
-      final authResponse = await authService.registerWithFirebaseToken(
-        idToken,
-        request,
-      );
+      final authResponse = await authService.registerWithFirebaseToken(idToken, request);
 
       state = state.copyWith(
         user: authResponse.user,
@@ -277,19 +282,11 @@ class AuthNotifier extends _$AuthNotifier {
       state = const AuthState(status: AuthStatus.unauthenticated);
     } catch (e) {
       // Even if logout fails on server, clear local state
-      state = const AuthState(
-        status: AuthStatus.unauthenticated,
-        error: 'Logout completed locally',
-      );
+      state = const AuthState(status: AuthStatus.unauthenticated, error: 'Logout completed locally');
     }
   }
 
-  Future<void> convertGuest({
-    String? email,
-    String? phoneNumber,
-    String? password,
-    String? displayName,
-  }) async {
+  Future<void> convertGuest({String? email, String? phoneNumber, String? password, String? displayName}) async {
     state = state.copyWith(isLoading: true, error: null);
 
     try {
@@ -347,8 +344,7 @@ bool isGuest(Ref ref) {
 @riverpod
 bool isLoggedIn(Ref ref) {
   final authState = ref.watch(authNotifierProvider);
-  return authState.status == AuthStatus.authenticated ||
-      authState.status == AuthStatus.guest;
+  return authState.status == AuthStatus.authenticated || authState.status == AuthStatus.guest;
 }
 
 @riverpod

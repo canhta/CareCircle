@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/config/app_config.dart';
+
 import '../../auth/services/firebase_auth_service.dart';
 import '../models/conversation_models.dart';
 import '../services/ai_assistant_service.dart';
@@ -40,27 +41,19 @@ final conversationsProvider = FutureProvider<List<Conversation>>((ref) async {
 });
 
 // Active conversations provider
-final activeConversationsProvider = FutureProvider<List<Conversation>>((
-  ref,
-) async {
+final activeConversationsProvider = FutureProvider<List<Conversation>>((ref) async {
   final repository = ref.read(aiAssistantRepositoryProvider);
   return repository.getUserConversations(status: 'ACTIVE');
 });
 
 // Single conversation provider
-final conversationProvider = FutureProvider.family<Conversation, String>((
-  ref,
-  id,
-) async {
+final conversationProvider = FutureProvider.family<Conversation, String>((ref, id) async {
   final repository = ref.read(aiAssistantRepositoryProvider);
   return repository.getConversation(id);
 });
 
 // Messages provider for a conversation
-final messagesProvider = FutureProvider.family<List<Message>, String>((
-  ref,
-  conversationId,
-) async {
+final messagesProvider = FutureProvider.family<List<Message>, String>((ref, conversationId) async {
   final repository = ref.read(aiAssistantRepositoryProvider);
   return repository.getMessages(conversationId);
 });
@@ -78,13 +71,11 @@ final typingIndicatorProvider = StateProvider<bool>((ref) => false);
 final voiceRecordingProvider = StateProvider<bool>((ref) => false);
 
 // AI Assistant notifier for managing conversations
-class AiAssistantNotifier
-    extends StateNotifier<AsyncValue<List<Conversation>>> {
+class AiAssistantNotifier extends StateNotifier<AsyncValue<List<Conversation>>> {
   final AiAssistantRepository _repository;
   final Ref _ref;
 
-  AiAssistantNotifier(this._repository, this._ref)
-    : super(const AsyncValue.loading()) {
+  AiAssistantNotifier(this._repository, this._ref) : super(const AsyncValue.loading()) {
     loadConversations();
   }
 
@@ -98,15 +89,9 @@ class AiAssistantNotifier
     }
   }
 
-  Future<Conversation> createConversation({
-    String? title,
-    String? initialMessage,
-  }) async {
+  Future<Conversation> createConversation({String? title, String? initialMessage}) async {
     try {
-      final request = CreateConversationRequest(
-        title: title,
-        initialMessage: initialMessage,
-      );
+      final request = CreateConversationRequest(title: title, initialMessage: initialMessage);
 
       final conversation = await _repository.createConversation(request);
 
@@ -122,10 +107,7 @@ class AiAssistantNotifier
     }
   }
 
-  Future<SendMessageResponse> sendMessage(
-    String conversationId,
-    String content,
-  ) async {
+  Future<SendMessageResponse> sendMessage(String conversationId, String content) async {
     try {
       // Show typing indicator
       _ref.read(typingIndicatorProvider.notifier).state = true;
@@ -135,8 +117,7 @@ class AiAssistantNotifier
       // Update current conversation if it matches
       final currentConv = _ref.read(currentConversationProvider);
       if (currentConv?.id == conversationId) {
-        _ref.read(currentConversationProvider.notifier).state =
-            response.conversation;
+        _ref.read(currentConversationProvider.notifier).state = response.conversation;
       }
 
       // Refresh messages for this conversation
@@ -157,8 +138,7 @@ class AiAssistantNotifier
       // Update current conversation if it matches
       final currentConv = _ref.read(currentConversationProvider);
       if (currentConv?.id == id) {
-        _ref.read(currentConversationProvider.notifier).state = currentConv
-            ?.copyWith(title: title);
+        _ref.read(currentConversationProvider.notifier).state = currentConv?.copyWith(title: title);
       }
     } catch (error) {
       rethrow;
@@ -202,10 +182,7 @@ class AiAssistantNotifier
 }
 
 // AI Assistant notifier provider
-final aiAssistantNotifierProvider =
-    StateNotifierProvider<AiAssistantNotifier, AsyncValue<List<Conversation>>>((
-      ref,
-    ) {
-      final repository = ref.read(aiAssistantRepositoryProvider);
-      return AiAssistantNotifier(repository, ref);
-    });
+final aiAssistantNotifierProvider = StateNotifierProvider<AiAssistantNotifier, AsyncValue<List<Conversation>>>((ref) {
+  final repository = ref.read(aiAssistantRepositoryProvider);
+  return AiAssistantNotifier(repository, ref);
+});

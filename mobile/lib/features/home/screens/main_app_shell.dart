@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/design/design_tokens.dart';
+
+import '../../../core/navigation/navigation_service.dart';
 import '../../ai-assistant/screens/ai_assistant_home_screen.dart';
 import 'home_screen.dart';
 
@@ -13,6 +15,9 @@ class MainAppShell extends ConsumerStatefulWidget {
 
 class _MainAppShellState extends ConsumerState<MainAppShell> {
   int _currentIndex = 0;
+
+  // Tab names for logging
+  final List<String> _tabNames = ['Home', 'Health Data', 'AI Assistant', 'Medications', 'Care Circle'];
 
   final List<Widget> _screens = [
     const HomeScreen(),
@@ -42,11 +47,7 @@ class _MainAppShellState extends ConsumerState<MainAppShell> {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             _buildNavItem(icon: Icons.home, label: 'Home', index: 0),
-            _buildNavItem(
-              icon: Icons.health_and_safety,
-              label: 'Health',
-              index: 1,
-            ),
+            _buildNavItem(icon: Icons.health_and_safety, label: 'Health', index: 1),
             const SizedBox(width: 40), // Space for FAB
             _buildNavItem(icon: Icons.medication, label: 'Meds', index: 3),
             _buildNavItem(icon: Icons.family_restroom, label: 'Care', index: 4),
@@ -56,18 +57,16 @@ class _MainAppShellState extends ConsumerState<MainAppShell> {
     );
   }
 
-  Widget _buildNavItem({
-    required IconData icon,
-    required String label,
-    required int index,
-  }) {
+  Widget _buildNavItem({required IconData icon, required String label, required int index}) {
     final isSelected = _currentIndex == index;
-    final color = isSelected
-        ? CareCircleDesignTokens.primaryMedicalBlue
-        : Colors.grey;
+    final color = isSelected ? CareCircleDesignTokens.primaryMedicalBlue : Colors.grey;
 
     return InkWell(
-      onTap: () => setState(() => _currentIndex = index),
+      onTap: () {
+        final previousIndex = _currentIndex;
+        NavigationService.logTabNavigation(previousIndex, index, _tabNames[index]);
+        setState(() => _currentIndex = index);
+      },
       borderRadius: BorderRadius.circular(12),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -92,7 +91,11 @@ class _MainAppShellState extends ConsumerState<MainAppShell> {
 
   Widget _buildAIAssistantFAB() {
     return FloatingActionButton.large(
-      onPressed: () => setState(() => _currentIndex = 2),
+      onPressed: () {
+        final previousIndex = _currentIndex;
+        NavigationService.logTabNavigation(previousIndex, 2, _tabNames[2]);
+        setState(() => _currentIndex = 2);
+      },
       backgroundColor: CareCircleDesignTokens.primaryMedicalBlue,
       foregroundColor: Colors.white,
       elevation: 8,
@@ -104,11 +107,7 @@ class _MainAppShellState extends ConsumerState<MainAppShell> {
           const SizedBox(height: 2),
           const Text(
             'AI',
-            style: TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
+            style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.white),
           ),
         ],
       ),

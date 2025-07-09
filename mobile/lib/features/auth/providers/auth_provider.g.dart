@@ -146,7 +146,7 @@ final biometricAuthServiceProvider =
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef BiometricAuthServiceRef = AutoDisposeProviderRef<BiometricAuthService>;
-String _$authNotifierHash() => r'bea7766c6f71d21ab4b5ac2988acff69098fe85d';
+String _$authNotifierHash() => r'354d81acbc21979d95f00c5826993ae8c05ad937';
 
 /// See also [AuthNotifier].
 @ProviderFor(AuthNotifier)

@@ -5,6 +5,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../models/auth_models.dart';
 import '../../../core/config/app_config.dart';
+import '../../../core/logging/logging.dart';
 import 'firebase_auth_service.dart';
 
 part 'auth_service.g.dart';
@@ -18,6 +19,9 @@ class AuthService {
   static const _storage = FlutterSecureStorage();
   static const _userKey = 'user';
   static const _profileKey = 'profile';
+
+  // Healthcare-compliant logger for authentication context
+  static final _logger = BoundedContextLoggers.auth;
 
   late final Dio _dio;
   final FirebaseAuthService _firebaseAuthService = FirebaseAuthService();
@@ -54,41 +58,62 @@ class AuthService {
   }
 
   Future<AuthResponse> loginWithEmail(String email, String password) async {
+    _logger.info('Email login initiated', {'method': 'email', 'timestamp': DateTime.now().toIso8601String()});
+
     try {
-      final response = await _dio.post(
-        '/auth/login',
-        data: {'email': email, 'password': password},
-      );
+      final response = await _dio.post('/auth/login', data: {'email': email, 'password': password});
 
       final authResponse = AuthResponse.fromJson(response.data);
       await _saveAuthData(authResponse);
+
+      _logger.logAuthEvent('Email login successful', {
+        'userId': authResponse.user.id,
+        'method': 'email',
+        'timestamp': DateTime.now().toIso8601String(),
+      });
+
       return authResponse;
     } on DioException catch (e) {
+      _logger.error('Email login failed', {
+        'method': 'email',
+        'errorType': e.type.name,
+        'statusCode': e.response?.statusCode,
+        'timestamp': DateTime.now().toIso8601String(),
+      });
       throw _handleDioError(e);
     }
   }
 
   Future<AuthResponse> loginWithFirebaseToken(String idToken) async {
+    _logger.info('Firebase login initiated', {'method': 'firebase', 'timestamp': DateTime.now().toIso8601String()});
+
     try {
-      final response = await _dio.post(
-        '/auth/firebase-login',
-        data: {'idToken': idToken},
-      );
+      final response = await _dio.post('/auth/firebase-login', data: {'idToken': idToken});
 
       final authResponse = AuthResponse.fromJson(response.data);
       await _saveAuthData(authResponse);
+
+      _logger.logAuthEvent('Firebase login successful', {
+        'userId': authResponse.user.id,
+        'method': 'firebase',
+        'timestamp': DateTime.now().toIso8601String(),
+      });
+
       return authResponse;
     } on DioException catch (e) {
+      _logger.error('Firebase login failed', {
+        'method': 'firebase',
+        'errorType': e.type.name,
+        'statusCode': e.response?.statusCode,
+        'timestamp': DateTime.now().toIso8601String(),
+      });
       throw _handleDioError(e);
     }
   }
 
   Future<AuthResponse> register(RegisterRequest request) async {
     try {
-      final response = await _dio.post(
-        '/auth/register',
-        data: request.toJson(),
-      );
+      final response = await _dio.post('/auth/register', data: request.toJson());
 
       final authResponse = AuthResponse.fromJson(response.data);
       await _saveAuthData(authResponse);
@@ -98,10 +123,7 @@ class AuthService {
     }
   }
 
-  Future<AuthResponse> registerWithFirebaseToken(
-    String idToken,
-    RegisterRequest request,
-  ) async {
+  Future<AuthResponse> registerWithFirebaseToken(String idToken, RegisterRequest request) async {
     try {
       final response = await _dio.post(
         '/auth/firebase-register',
@@ -123,10 +145,7 @@ class AuthService {
 
   Future<AuthResponse> loginAsGuest(String deviceId) async {
     try {
-      final response = await _dio.post(
-        '/auth/guest',
-        data: {'deviceId': deviceId},
-      );
+      final response = await _dio.post('/auth/guest', data: {'deviceId': deviceId});
 
       final authResponse = AuthResponse.fromJson(response.data);
       await _saveAuthData(authResponse);
@@ -136,12 +155,7 @@ class AuthService {
     }
   }
 
-  Future<AuthResponse> convertGuest({
-    String? email,
-    String? phoneNumber,
-    String? password,
-    String? displayName,
-  }) async {
+  Future<AuthResponse> convertGuest({String? email, String? phoneNumber, String? password, String? displayName}) async {
     try {
       final response = await _dio.post(
         '/auth/convert-guest',
@@ -163,10 +177,7 @@ class AuthService {
 
   Future<AuthResponse> signInWithGoogle(String idToken) async {
     try {
-      final response = await _dio.post(
-        '/auth/social/google',
-        data: {'idToken': idToken},
-      );
+      final response = await _dio.post('/auth/social/google', data: {'idToken': idToken});
 
       final authResponse = AuthResponse.fromJson(response.data);
       await _saveAuthData(authResponse);
@@ -178,10 +189,7 @@ class AuthService {
 
   Future<AuthResponse> signInWithApple(String idToken) async {
     try {
-      final response = await _dio.post(
-        '/auth/social/apple',
-        data: {'idToken': idToken},
-      );
+      final response = await _dio.post('/auth/social/apple', data: {'idToken': idToken});
 
       final authResponse = AuthResponse.fromJson(response.data);
       await _saveAuthData(authResponse);
@@ -212,27 +220,31 @@ class AuthService {
   }
 
   Future<void> logout() async {
+    _logger.info('Logout initiated', {'timestamp': DateTime.now().toIso8601String()});
+
     try {
       // Sign out from Firebase
       await _firebaseAuthService.signOut();
+
+      _logger.logAuthEvent('Firebase logout successful', {'timestamp': DateTime.now().toIso8601String()});
     } catch (e) {
+      _logger.warning('Firebase logout failed, continuing with local logout', {
+        'error': e.toString(),
+        'timestamp': DateTime.now().toIso8601String(),
+      });
       // Continue with local logout even if Firebase logout fails
     } finally {
       await clearStoredData();
+
+      _logger.logAuthEvent('Local logout completed', {'timestamp': DateTime.now().toIso8601String()});
     }
   }
 
   Future<void> _saveAuthData(AuthResponse authResponse) async {
     await Future.wait([
-      _storage.write(
-        key: _userKey,
-        value: jsonEncode(authResponse.user.toJson()),
-      ),
+      _storage.write(key: _userKey, value: jsonEncode(authResponse.user.toJson())),
       if (authResponse.profile != null)
-        _storage.write(
-          key: _profileKey,
-          value: jsonEncode(authResponse.profile!.toJson()),
-        ),
+        _storage.write(key: _profileKey, value: jsonEncode(authResponse.profile!.toJson())),
     ]);
   }
 
@@ -261,10 +273,7 @@ class AuthService {
   }
 
   Future<void> clearStoredData() async {
-    await Future.wait([
-      _storage.delete(key: _userKey),
-      _storage.delete(key: _profileKey),
-    ]);
+    await Future.wait([_storage.delete(key: _userKey), _storage.delete(key: _profileKey)]);
   }
 
   Future<bool> isLoggedIn() async {
