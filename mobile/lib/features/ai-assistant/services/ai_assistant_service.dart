@@ -14,7 +14,7 @@ abstract class AiAssistantService {
   Future<List<Conversation>> getUserConversations(@Query('status') String? status);
 
   @POST('/ai-assistant/conversations')
-  Future<Conversation> createConversation(@Body() CreateConversationRequest request);
+  Future<Conversation> createConversation(@Body() Map<String, dynamic> request);
 
   @GET('/ai-assistant/conversations/{id}')
   Future<Conversation> getConversation(@Path('id') String id);
@@ -26,7 +26,7 @@ abstract class AiAssistantService {
   Future<void> deleteConversation(@Path('id') String id);
 
   @POST('/ai-assistant/conversations/{id}/messages')
-  Future<SendMessageResponse> sendMessage(@Path('id') String conversationId, @Body() SendMessageRequest request);
+  Future<SendMessageResponse> sendMessage(@Path('id') String conversationId, @Body() Map<String, dynamic> request);
 
   @GET('/ai-assistant/conversations/{id}/messages')
   Future<List<Message>> getMessages(
@@ -60,7 +60,7 @@ class AiAssistantRepository {
     });
 
     try {
-      final conversation = await _service.createConversation(request);
+      final conversation = await _service.createConversation(request.toJson());
 
       _logger.logAiInteraction('Conversation created successfully', {
         'conversationId': conversation.id,
@@ -124,7 +124,7 @@ class AiAssistantRepository {
 
     try {
       final request = SendMessageRequest(content: content);
-      final response = await _service.sendMessage(conversationId, request);
+      final response = await _service.sendMessage(conversationId, request.toJson());
 
       _logger.logAiInteraction('Message sent successfully', {
         'conversationId': conversationId,

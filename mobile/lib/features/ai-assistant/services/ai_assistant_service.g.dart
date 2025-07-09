@@ -50,13 +50,12 @@ class _AiAssistantService implements AiAssistantService {
   }
 
   @override
-  Future<Conversation> createConversation(
-    CreateConversationRequest request,
-  ) async {
+  Future<Conversation> createConversation(Map<String, dynamic> request) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
-    final _data = request;
+    final _data = <String, dynamic>{};
+    _data.addAll(request);
     final _options = _setStreamType<Conversation>(
       Options(method: 'POST', headers: _headers, extra: _extra)
           .compose(
@@ -158,12 +157,13 @@ class _AiAssistantService implements AiAssistantService {
   @override
   Future<SendMessageResponse> sendMessage(
     String conversationId,
-    SendMessageRequest request,
+    Map<String, dynamic> request,
   ) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
-    final _data = request;
+    final _data = <String, dynamic>{};
+    _data.addAll(request);
     final _options = _setStreamType<SendMessageResponse>(
       Options(method: 'POST', headers: _headers, extra: _extra)
           .compose(
