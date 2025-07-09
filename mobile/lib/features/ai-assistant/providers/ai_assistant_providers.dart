@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/config/app_config.dart';
-import '../../auth/services/auth_service.dart';
+import '../../auth/services/firebase_auth_service.dart';
 import '../models/conversation_models.dart';
 import '../services/ai_assistant_service.dart';
 
@@ -20,10 +20,10 @@ final aiAssistantRepositoryProvider = Provider<AiAssistantRepository>((ref) {
   dio.interceptors.add(
     InterceptorsWrapper(
       onRequest: (options, handler) async {
-        final authService = AuthService();
-        final token = await authService.getAccessToken();
-        if (token != null) {
-          options.headers['Authorization'] = 'Bearer $token';
+        final firebaseAuthService = FirebaseAuthService();
+        final idToken = await firebaseAuthService.getIdToken();
+        if (idToken != null) {
+          options.headers['Authorization'] = 'Bearer $idToken';
         }
         handler.next(options);
       },

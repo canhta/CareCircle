@@ -172,9 +172,9 @@ Map<String, dynamic> _$MessageToJson(_Message instance) => <String, dynamic>{
 };
 
 const _$MessageRoleEnumMap = {
-  MessageRole.user: 'user',
-  MessageRole.assistant: 'assistant',
-  MessageRole.system: 'system',
+  MessageRole.user: 'USER',
+  MessageRole.assistant: 'ASSISTANT',
+  MessageRole.system: 'SYSTEM',
 };
 
 _SendMessageRequest _$SendMessageRequestFromJson(Map<String, dynamic> json) =>
