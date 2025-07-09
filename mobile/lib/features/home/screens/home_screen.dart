@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/design/design_tokens.dart';
+import '../../../core/navigation/navigation_service.dart';
 import '../../../core/widgets/care_circle_button.dart';
 import '../../auth/providers/auth_provider.dart';
 
@@ -40,18 +41,14 @@ class HomeScreen extends ConsumerWidget {
                 width: double.infinity,
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: CareCircleDesignTokens.primaryMedicalBlue.withValues(
-                    alpha: 0.1,
-                  ),
+                  color: CareCircleDesignTokens.primaryMedicalBlue.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      user?.isGuest == true
-                          ? 'Welcome, Guest!'
-                          : 'Welcome back!',
+                      user?.isGuest == true ? 'Welcome, Guest!' : 'Welcome back!',
                       style: theme.textTheme.headlineSmall?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: CareCircleDesignTokens.primaryMedicalBlue,
@@ -61,8 +58,7 @@ class HomeScreen extends ConsumerWidget {
                     Text(
                       profile?.displayName ?? 'Guest User',
                       style: theme.textTheme.titleLarge?.copyWith(
-                        color: CareCircleDesignTokens.primaryMedicalBlue
-                            .withValues(alpha: 0.8),
+                        color: CareCircleDesignTokens.primaryMedicalBlue.withValues(alpha: 0.8),
                       ),
                     ),
                     if (user?.isGuest == true) ...[
@@ -70,9 +66,7 @@ class HomeScreen extends ConsumerWidget {
                       Text(
                         'Create an account to save your health data and access all features.',
                         style: theme.textTheme.bodyMedium?.copyWith(
-                          color: theme.colorScheme.onSurface.withValues(
-                            alpha: 0.7,
-                          ),
+                          color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                         ),
                       ),
                       const SizedBox(height: 16),
@@ -92,12 +86,7 @@ class HomeScreen extends ConsumerWidget {
               const SizedBox(height: 32),
 
               // Quick actions
-              Text(
-                'Quick Actions',
-                style: theme.textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+              Text('Quick Actions', style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
 
               const SizedBox(height: 16),
 
@@ -113,11 +102,7 @@ class HomeScreen extends ConsumerWidget {
                       subtitle: 'Track vitals',
                       color: CareCircleDesignTokens.healthGreen,
                       onTap: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Health metrics coming soon'),
-                          ),
-                        );
+                        NavigationService.navigateToHealthData(context);
                       },
                     ),
                     _QuickActionCard(
@@ -126,11 +111,9 @@ class HomeScreen extends ConsumerWidget {
                       subtitle: 'Manage pills',
                       color: CareCircleDesignTokens.primaryMedicalBlue,
                       onTap: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Medications coming soon'),
-                          ),
-                        );
+                        ScaffoldMessenger.of(
+                          context,
+                        ).showSnackBar(const SnackBar(content: Text('Medications coming soon')));
                       },
                     ),
                     _QuickActionCard(
@@ -139,11 +122,9 @@ class HomeScreen extends ConsumerWidget {
                       subtitle: 'Family & caregivers',
                       color: Colors.purple,
                       onTap: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Care circle coming soon'),
-                          ),
-                        );
+                        ScaffoldMessenger.of(
+                          context,
+                        ).showSnackBar(const SnackBar(content: Text('Care circle coming soon')));
                       },
                     ),
                     _QuickActionCard(
@@ -152,11 +133,9 @@ class HomeScreen extends ConsumerWidget {
                       subtitle: 'Quick access',
                       color: Colors.red,
                       onTap: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Emergency features coming soon'),
-                          ),
-                        );
+                        ScaffoldMessenger.of(
+                          context,
+                        ).showSnackBar(const SnackBar(content: Text('Emergency features coming soon')));
                       },
                     ),
                   ],
@@ -203,26 +182,19 @@ class _QuickActionCard extends StatelessWidget {
               Container(
                 width: 48,
                 height: 48,
-                decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
+                decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
                 child: Icon(icon, color: color, size: 24),
               ),
               const SizedBox(height: 12),
               Text(
                 title,
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
+                style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 4),
               Text(
                 subtitle,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-                ),
+                style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurface.withValues(alpha: 0.6)),
                 textAlign: TextAlign.center,
               ),
             ],

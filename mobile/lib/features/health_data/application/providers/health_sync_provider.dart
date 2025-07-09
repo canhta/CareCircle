@@ -142,6 +142,9 @@ class HealthSyncStatus {
     );
   }
 
+  /// Check if there's an error in the last sync result
+  bool get hasError => lastSyncResult != null && !lastSyncResult!.success;
+
   @override
   String toString() {
     return 'HealthSyncStatus(isSyncing: $isSyncing, isReady: $isReady, lastSync: $lastSyncTime)';

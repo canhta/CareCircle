@@ -15,6 +15,7 @@ import 'features/auth/screens/convert_guest_screen.dart';
 import 'features/auth/screens/forgot_password_screen.dart';
 import 'features/home/screens/main_app_shell.dart';
 import 'features/onboarding/screens/onboarding_screen.dart';
+import 'features/health_data/presentation/screens/health_dashboard_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -101,6 +102,7 @@ class CareCircleApp extends ConsumerWidget {
         GoRoute(path: '/auth/forgot-password', builder: (context, state) => const ForgotPasswordScreen()),
         GoRoute(path: '/onboarding', builder: (context, state) => const OnboardingScreen()),
         GoRoute(path: '/home', builder: (context, state) => const MainAppShell()),
+        GoRoute(path: '/health-data', builder: (context, state) => const HealthDashboardScreen()),
       ],
     );
   }
