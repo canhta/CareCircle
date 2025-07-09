@@ -2,7 +2,7 @@
   "name": "carecircle",
   "version": "1.0.0",
   "description": "CareCircle is a comprehensive health management platform designed to facilitate family care coordination, medication management, and AI-powered health insights for elderly care and chronic condition management.",
-    "directories": {
+  "directories": {
     "doc": "docs"
   },
   "scripts": {
@@ -15,7 +15,7 @@
     "url": "git+https://github.com/canhta/CareCircle.git"
   },
   "keywords": [],
-  "author": "",
+  "author": "Canh Ta",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/canhta/CareCircle/issues"

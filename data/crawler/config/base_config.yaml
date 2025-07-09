@@ -1,0 +1,159 @@
+# CareCircle Vietnamese Healthcare Data Crawler - Base Configuration
+
+# Crawler identification
+crawler:
+  name: "carecircle-vietnam-healthcare-crawler"
+  version: "0.1.0"
+  user_agent: "CareCircle Healthcare Data Crawler/0.1.0 (+https://carecircle.health/bot.html)"
+  description: "Data collection for CareCircle Vietnamese healthcare knowledge base"
+
+# Request settings
+request:
+  timeout: 30 # seconds
+  max_retries: 3
+  retry_delay: 5 # seconds
+  max_redirects: 5
+  headers:
+    Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"
+    Accept-Language: "vi,en-US;q=0.7,en;q=0.3"
+    Accept-Encoding: "gzip, deflate, br"
+    DNT: "1"
+    Connection: "keep-alive"
+    Upgrade-Insecure-Requests: "1"
+    Cache-Control: "max-age=0"
+
+# Rate limiting
+rate_limits:
+  default:
+    requests_per_minute: 10
+    concurrent_requests: 2
+    download_delay: 5 # seconds between requests
+  domains:
+    "moh.gov.vn":
+      requests_per_minute: 5
+      concurrent_requests: 1
+      download_delay: 10
+    "baohiemxahoi.gov.vn":
+      requests_per_minute: 5
+      concurrent_requests: 1
+      download_delay: 10
+    "who.int":
+      requests_per_minute: 8
+      concurrent_requests: 2
+      download_delay: 6
+
+# Proxy configuration
+proxies:
+  enabled: false
+  rotation_policy: "round_robin" # round_robin, random, sticky_session
+  proxy_list: [] # To be populated in environment-specific configs
+
+# Crawl behavior
+crawl:
+  depth_limit: 3
+  max_items_per_site: 1000
+  follow_robots_txt: true
+  respect_meta_robots: true
+  allow_subdomains: true
+  url_filters:
+    include:
+      - ".*health.*"
+      - ".*medical.*"
+      - ".*medicine.*"
+      - ".*disease.*"
+      - ".*treatment.*"
+      - ".*healthcare.*"
+      - ".*hospital.*"
+      - ".*clinic.*"
+      - ".*doctor.*"
+      - ".*patient.*"
+    exclude:
+      - ".*login.*"
+      - ".*register.*"
+      - ".*signup.*"
+      - ".*account.*"
+      - ".*admin.*"
+      - ".*forum.*"
+      - ".*comment.*"
+      - ".*advertisement.*"
+
+# Content extraction
+extraction:
+  default_encoding: "utf-8"
+  min_content_length: 500 # characters
+  max_content_length: 500000 # characters
+  extract_metadata: true
+  extract_images: false
+  extract_links: true
+  extract_tables: true
+  content_selectors:
+    article: "article, .article, .post, .content, main, #content, #main"
+    title: "h1, .title, .headline, header h1"
+    date: ".date, .published, time, meta[property='article:published_time']"
+    author: ".author, .byline, meta[name='author']"
+    content: ".content, .article-content, .post-content, .entry-content, article"
+
+# Data processing
+processing:
+  language: "vi"
+  clean_html: true
+  normalize_whitespace: true
+  remove_boilerplate: true
+  extract_keywords: true
+  generate_summaries: true
+  vietnamese_processing:
+    normalize_diacritics: true
+    handle_loanwords: true
+    medical_term_extraction: true
+
+# Storage configuration
+storage:
+  raw_data:
+    type: "mongodb"
+    collection: "raw_crawl_data"
+    ttl_days: 30 # Time to live for raw data
+  processed_data:
+    type: "mongodb"
+    collections:
+      - "healthcare_system"
+      - "health_conditions"
+      - "medications"
+      - "cultural_practices"
+      - "elderly_care"
+      - "health_statistics"
+  vector_database:
+    type: "milvus"
+    collection_prefix: "vietnam_healthcare_"
+    dimension: 768 # For multilingual-MiniLM-L12-H384
+    metric_type: "COSINE"
+    index_type: "IVF_FLAT"
+    index_params:
+      nlist: 1024
+
+# Export configuration
+export:
+  formats:
+    - "json"
+    - "csv"
+    - "vector"
+  schedule: "daily" # daily, weekly, monthly
+  export_path: "../exports"
+  incremental: true
+
+# Monitoring and logging
+monitoring:
+  log_level: "INFO"
+  log_file: "../logs/crawler.log"
+  metrics_collection: true
+  health_check_interval: 300 # seconds
+  alert_on:
+    - "error_rate > 0.2"
+    - "success_rate < 0.8"
+    - "critical_source_unavailable"
+
+# Development settings
+development:
+  debug: false
+  mock_responses: false
+  limited_crawl_scope: true
+  max_urls_in_development: 100

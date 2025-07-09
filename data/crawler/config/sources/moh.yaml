@@ -1,0 +1,120 @@
+# Ministry of Health Vietnam (moh.gov.vn) Crawler Configuration
+
+# Source identification
+source:
+  id: "moh_vietnam"
+  name: "Ministry of Health of Vietnam"
+  base_url: "https://moh.gov.vn"
+  language: "vi"
+  priority: 1  # High priority source
+  category: "government"
+
+# Crawl settings
+crawl:
+  start_urls:
+    - "https://moh.gov.vn/tin-tong-hop"
+    - "https://moh.gov.vn/hoat-dong-cua-dia-phuong"
+    - "https://moh.gov.vn/tin-noi-bat"
+    - "https://moh.gov.vn/thong-tin-y-te"
+    - "https://moh.gov.vn/cong-khai-y-te"
+    - "https://moh.gov.vn/khoa-hoc-cong-nghe"
+    - "https://moh.gov.vn/thong-tin-chong-dich"
+  allowed_domains:
+    - "moh.gov.vn"
+  respect_robots: true
+  crawl_frequency: "weekly"
+  max_pages: 5000
+
+# Content extraction
+extraction:
+  article_selectors:
+    - ".journal-content-article"
+    - ".portlet-body"
+    - "#_118_INSTANCE_IrnE6R3I9b4W_fm"
+  title_selectors:
+    - ".portlet-title-text"
+    - "h1.title"
+    - ".journal-content-article h2"
+  date_selectors:
+    - ".taglib-asset-metadata-list span.metadata-entry:contains(Ngày)"
+    - ".date"
+  content_selectors:
+    - ".journal-content-article"
+    - ".content"
+  pagination_selectors:
+    - ".pagination"
+    - ".taglib-page-iterator"
+  next_page_selectors:
+    - ".next"
+    - ".pagination li:last-child a"
+
+# Data categorization
+categorization:
+  rules:
+    - pattern: ".*benh-truyen-nhiem.*|.*dich-benh.*"
+      category: "infectious_diseases"
+    - pattern: ".*tim-mach.*|.*huyet-ap.*"
+      category: "cardiovascular"
+    - pattern: ".*dai-thao-duong.*|.*tieu-duong.*"
+      category: "diabetes"
+    - pattern: ".*ung-thu.*|.*ung-buou.*"
+      category: "cancer"
+    - pattern: ".*dinh-duong.*"
+      category: "nutrition"
+    - pattern: ".*vac-xin.*|.*tiem-chung.*"
+      category: "vaccination"
+    - pattern: ".*covid.*|.*corona.*"
+      category: "covid19"
+    - pattern: ".*bao-hiem.*"
+      category: "health_insurance"
+    - pattern: ".*benh-vien.*|.*co-so-y-te.*"
+      category: "healthcare_facilities"
+    - pattern: ".*chinh-sach.*|.*quy-dinh.*"
+      category: "health_policy"
+
+# Data extraction patterns
+extraction_patterns:
+  statistics:
+    - pattern: "(\d+(?:[\.,]\d+)?)\s*%"
+      name: "percentage"
+    - pattern: "(\d+(?:[\.,]\d+)?)\s*(?:tỷ|triệu|nghìn|trăm)"
+      name: "large_number"
+    - pattern: "(?:tăng|giảm)\s+(\d+(?:[\.,]\d+)?)\s*%"
+      name: "change_percentage"
+  health_metrics:
+    - pattern: "(\d+(?:[\.,]\d+)?)\s*ca\s+(?:mắc|nhiễm|tử vong)"
+      name: "case_count"
+    - pattern: "(\d+(?:[\.,]\d+)?)\s*người\s+(?:mắc|nhiễm|tử vong)"
+      name: "person_count"
+    - pattern: "tỷ\s+lệ\s+(?:mắc|nhiễm|tử vong|tiêm chủng|bao phủ)\s+(\d+(?:[\.,]\d+)?)\s*%"
+      name: "rate_percentage"
+  organizations:
+    - pattern: "(?:Bệnh viện|BV)\s+([A-Za-z0-9\s]+)"
+      name: "hospital"
+    - pattern: "(?:Sở Y tế|SYT)\s+([A-Za-z0-9\s]+)"
+      name: "health_department"
+    - pattern: "(?:Trung tâm|TT)\s+([A-Za-z0-9\s]+)"
+      name: "health_center"
+
+# Post-processing
+post_processing:
+  remove_elements:
+    - ".portlet-header"
+    - ".portlet-topper"
+    - ".asset-actions"
+    - ".footer"
+    - ".comments"
+    - ".related-assets"
+    - "script"
+    - "style"
+    - "iframe"
+  clean_text: true
+  extract_tables: true
+  extract_lists: true
+
+# Error handling
+error_handling:
+  retry_status_codes: [500, 502, 503, 504]
+  max_retries: 3
+  backoff_factor: 2
+  respect_retry_after: true 
