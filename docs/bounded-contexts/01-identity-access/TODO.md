@@ -8,6 +8,16 @@
 
 ## Current Sprint
 
+### ✅ Completed
+- [x] **Authentication System Refactoring** - Refactored to use only Firebase authentication
+  - Removed custom JWT implementation and JwtAuthGuard
+  - Updated all controllers to use FirebaseAuthGuard exclusively
+  - Removed username/password login endpoints (now Firebase-only)
+  - Simplified AuthService by removing JWT token generation
+  - Updated AuthResponseDto to remove JWT token fields
+  - Removed JWT dependencies (@nestjs/jwt, passport-jwt, etc.)
+  - **Status**: All authentication now uses Firebase tokens exclusively
+
 ### In Progress
 - [ ] Setup Firebase Authentication project and configure settings
 

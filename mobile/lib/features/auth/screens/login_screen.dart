@@ -232,13 +232,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 .read(authNotifierProvider.notifier)
                                 .loginAsGuest();
                           } catch (e) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text('Failed to sign in as guest: $e'),
-                                backgroundColor:
-                                    CareCircleDesignTokens.criticalAlert,
-                              ),
-                            );
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    'Failed to sign in as guest: $e',
+                                  ),
+                                  backgroundColor:
+                                      CareCircleDesignTokens.criticalAlert,
+                                ),
+                              );
+                            }
                           }
                         },
                   text: 'Continue as Guest',

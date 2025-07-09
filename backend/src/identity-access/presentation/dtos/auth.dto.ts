@@ -3,52 +3,9 @@ import {
   IsString,
   IsOptional,
   IsBoolean,
-  MinLength,
   IsEnum,
 } from 'class-validator';
 import { Gender, Language } from '@prisma/client';
-
-export class RegisterDto {
-  @IsOptional()
-  @IsEmail()
-  email?: string;
-
-  @IsOptional()
-  @IsString()
-  phoneNumber?: string;
-
-  @IsString()
-  @MinLength(6)
-  password: string;
-
-  @IsString()
-  displayName: string;
-
-  @IsOptional()
-  @IsString()
-  firstName?: string;
-
-  @IsOptional()
-  @IsString()
-  lastName?: string;
-
-  @IsOptional()
-  @IsBoolean()
-  isGuest?: boolean;
-
-  @IsOptional()
-  @IsString()
-  deviceId?: string;
-}
-
-export class LoginDto {
-  @IsEmail()
-  email: string;
-
-  @IsString()
-  @MinLength(6)
-  password: string;
-}
 
 export class GuestLoginDto {
   @IsString()
@@ -66,17 +23,7 @@ export class ConvertGuestDto {
 
   @IsOptional()
   @IsString()
-  @MinLength(6)
-  password?: string;
-
-  @IsOptional()
-  @IsString()
   displayName?: string;
-}
-
-export class RefreshTokenDto {
-  @IsString()
-  refreshToken: string;
 }
 
 export class UpdateProfileDto {
@@ -154,9 +101,6 @@ export class AuthResponseDto {
     preferredUnits: any;
     emergencyContact?: any;
   };
-
-  accessToken: string;
-  refreshToken: string;
 }
 
 export class ProfileResponseDto {

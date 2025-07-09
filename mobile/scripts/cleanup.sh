@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# Flutter Project Cleanup and Reinstall Script
-# This script cleans up Flutter project dependencies and reinstalls everything fresh
-
 set -e  # Exit on any error
 
 # Colors for output
@@ -36,6 +33,11 @@ if [ ! -f "pubspec.yaml" ]; then
 fi
 
 print_status "Starting Flutter project cleanup and reinstall..."
+
+# Step 0: Verify Flutter installation
+print_status "Verifying Flutter installation..."
+flutter doctor
+
 
 # Step 1: Flutter clean
 print_status "Running flutter clean..."
@@ -90,33 +92,17 @@ rm -rf build/
 print_status "Getting Flutter dependencies..."
 flutter pub get
 
-# Step 7: Upgrade Flutter dependencies (optional - can be commented out)
-print_status "Upgrading Flutter dependencies..."
-flutter pub upgrade
-
-# Step 8: Install iOS pods (if iOS directory exists)
+# Step 7: Install iOS pods (if iOS directory exists)
 if [ -d "ios" ]; then
     print_status "Installing iOS CocoaPods dependencies..."
     cd ios
-    
-    # Update CocoaPods repo (optional, can be slow)
-    # pod repo update
-    
-    # Install pods
     pod install --repo-update
     cd ..
 fi
 
-# Step 9: Clean and rebuild (optional)
-print_status "Running flutter clean again after dependency installation..."
-flutter clean
-
-print_status "Getting dependencies one more time..."
-flutter pub get
-
-# Step 10: Verify installation
-print_status "Verifying Flutter installation..."
-flutter doctor
+# Step 8: Run build_runner to generate code
+print_status "Running build_runner to generate code..."
+dart run build_runner build --delete-conflicting-outputs
 
 print_success "Flutter project cleanup and reinstall completed successfully!"
 print_status "You can now run: ./scripts/debug.sh"

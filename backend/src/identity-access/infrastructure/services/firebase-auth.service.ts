@@ -186,7 +186,7 @@ export class FirebaseAuthService {
 
   signInWithEmailAndPassword(
     email: string,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
     _password: string,
   ): Promise<FirebaseUser> {
     // Note: Firebase Admin SDK doesn't have signInWithEmailAndPassword

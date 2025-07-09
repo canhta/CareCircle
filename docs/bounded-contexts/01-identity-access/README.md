@@ -149,51 +149,34 @@ interface EmergencyContact {
 
 ```typescript
 interface AuthenticationService {
-  // Email authentication
-  registerWithEmailAndPassword(
-    email: string,
-    password: string
-  ): Promise<UserCredential>;
-  signInWithEmailAndPassword(
-    email: string,
-    password: string
-  ): Promise<UserCredential>;
-
-  // Phone authentication
-  verifyPhoneNumber(
-    phoneNumber: string,
-    callbacks: PhoneAuthCallbacks
-  ): Promise<void>;
-  signInWithPhoneAuthCredential(
-    credential: PhoneAuthCredential
-  ): Promise<UserCredential>;
+  // Firebase token authentication
+  loginWithFirebaseToken(idToken: string): Promise<LoginResult>;
+  registerWithFirebaseToken(
+    idToken: string,
+    profileData: {
+      displayName: string;
+      firstName?: string;
+      lastName?: string;
+    }
+  ): Promise<LoginResult>;
 
   // Social authentication
-  signInWithGoogle(): Promise<UserCredential>;
-  signInWithApple(): Promise<UserCredential>;
+  signInWithGoogle(idToken: string): Promise<LoginResult>;
+  signInWithApple(idToken: string): Promise<LoginResult>;
 
   // Guest authentication
-  signInAnonymously(): Promise<UserCredential>;
-  convertAnonymousToRegistered(
-    credential: AuthCredential
-  ): Promise<UserCredential>;
+  loginAsGuest(deviceId: string): Promise<LoginResult>;
+  convertGuestToRegistered(
+    userId: string,
+    data: {
+      email?: string;
+      phoneNumber?: string;
+      displayName?: string;
+    }
+  ): Promise<LoginResult>;
 
-  // Session management
-  getCurrentUser(): User | null;
-  signOut(): Promise<void>;
-  refreshToken(): Promise<string>;
-
-  // Account recovery
-  sendPasswordResetEmail(email: string): Promise<void>;
-  confirmPasswordReset(code: string, newPassword: string): Promise<void>;
-
-  // Multi-factor authentication
-  enableMultiFactorAuth(user: User, phoneNumber: string): Promise<void>;
-  verifyMultiFactorCode(
-    user: User,
-    verificationId: string,
-    code: string
-  ): Promise<void>;
+  // Session management is handled entirely by Firebase
+  // No custom JWT tokens or refresh logic needed
 }
 ```
 

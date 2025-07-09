@@ -626,6 +626,9 @@ model Message {
   // Processing status
   processingStatus  ProcessingStatus  @default(COMPLETED)
 
+  // Visibility control
+  isHidden          Boolean           @default(false)
+
   timestamp         DateTime          @default(now())
 
   // Relationships
@@ -922,9 +925,9 @@ enum ConversationStatus {
 }
 
 enum MessageRole {
-  USER
-  ASSISTANT
-  SYSTEM
+  user
+  assistant
+  system
 }
 
 enum ProcessingStatus {

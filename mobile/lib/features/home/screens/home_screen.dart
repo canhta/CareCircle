@@ -147,14 +147,14 @@ class HomeScreen extends ConsumerWidget {
                       },
                     ),
                     _QuickActionCard(
-                      icon: Icons.smart_toy,
-                      title: 'AI Assistant',
-                      subtitle: 'Health insights',
-                      color: Colors.orange,
+                      icon: Icons.emergency,
+                      title: 'Emergency',
+                      subtitle: 'Quick access',
+                      color: Colors.red,
                       onTap: () {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                            content: Text('AI assistant coming soon'),
+                            content: Text('Emergency features coming soon'),
                           ),
                         );
                       },

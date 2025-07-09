@@ -7,7 +7,7 @@ import {
 import { FirebaseAuthService } from '../../infrastructure/services/firebase-auth.service';
 import { UserService } from '../../application/services/user.service';
 
-interface FirebaseUserPayload {
+export interface FirebaseUserPayload {
   id: string;
   email?: string;
   isGuest: boolean;

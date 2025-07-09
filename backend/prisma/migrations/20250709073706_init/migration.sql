@@ -86,7 +86,7 @@ CREATE TYPE "ContextType" AS ENUM ('MEDICATION', 'HEALTH_DATA', 'USER', 'CARE_GR
 CREATE TYPE "ConversationStatus" AS ENUM ('ACTIVE', 'ARCHIVED', 'DELETED');
 
 -- CreateEnum
-CREATE TYPE "MessageRole" AS ENUM ('USER', 'ASSISTANT', 'SYSTEM');
+CREATE TYPE "MessageRole" AS ENUM ('user', 'assistant', 'system');
 
 -- CreateEnum
 CREATE TYPE "ProcessingStatus" AS ENUM ('PENDING', 'PROCESSING', 'COMPLETED', 'FAILED');
@@ -501,6 +501,7 @@ CREATE TABLE "messages" (
     "references" JSONB NOT NULL DEFAULT '[]',
     "entities" JSONB NOT NULL DEFAULT '[]',
     "processingStatus" "ProcessingStatus" NOT NULL DEFAULT 'COMPLETED',
+    "isHidden" BOOLEAN NOT NULL DEFAULT false,
     "timestamp" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "messages_pkey" PRIMARY KEY ("id")

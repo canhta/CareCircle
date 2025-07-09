@@ -176,13 +176,14 @@ Similar structure to the User module but focused on health data management:
 
 ### 4.1 Authentication Strategy
 
-CareCircle uses Firebase Authentication with the following features:
+CareCircle uses Firebase Authentication exclusively with the following features:
 
-- JWT-based authentication with Firebase Auth tokens
-- Secure token storage and transmission
+- Firebase ID token-based authentication (no custom JWT tokens)
+- Secure token storage and transmission handled by Firebase SDK
 - Multi-factor authentication for sensitive operations
 - OAuth integration for social logins (Google, Apple)
 - Guest mode support with anonymous authentication
+- Token refresh and session management handled entirely by Firebase
 
 ### 4.2 Registration Flow
 

@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { JwtModule } from '@nestjs/jwt';
 
 // Domain Layer
 import { UserRepository } from './domain/repositories/user.repository';
@@ -23,19 +22,10 @@ import { AuthController } from './presentation/controllers/auth.controller';
 import { UserController } from './presentation/controllers/user.controller';
 
 // Guards and Middleware
-import { JwtAuthGuard } from './presentation/guards/jwt-auth.guard';
 import { FirebaseAuthGuard } from './presentation/guards/firebase-auth.guard';
 
 @Module({
-  imports: [
-    ConfigModule,
-    JwtModule.registerAsync({
-      useFactory: () => ({
-        secret: process.env.JWT_SECRET,
-        signOptions: { expiresIn: process.env.JWT_EXPIRES_IN || '7d' },
-      }),
-    }),
-  ],
+  imports: [ConfigModule],
   controllers: [AuthController, UserController],
   providers: [
     // Application Services
@@ -61,15 +51,14 @@ import { FirebaseAuthGuard } from './presentation/guards/firebase-auth.guard';
     },
 
     // Guards
-    JwtAuthGuard,
     FirebaseAuthGuard,
   ],
   exports: [
     AuthService,
     UserService,
     PermissionService,
-    JwtAuthGuard,
     FirebaseAuthGuard,
+    FirebaseAuthService,
   ],
 })
 export class IdentityAccessModule {}

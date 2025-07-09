@@ -10,10 +10,10 @@ import {
 } from '@nestjs/common';
 import { UserService } from '../../application/services/user.service';
 import { UpdateProfileDto, ProfileResponseDto } from '../dtos/auth.dto';
-import { JwtAuthGuard } from '../guards/jwt-auth.guard';
+import { FirebaseAuthGuard } from '../guards/firebase-auth.guard';
 
 @Controller('user')
-@UseGuards(JwtAuthGuard)
+@UseGuards(FirebaseAuthGuard)
 export class UserController {
   constructor(private readonly userService: UserService) {}
 

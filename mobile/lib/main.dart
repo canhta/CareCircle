@@ -11,7 +11,7 @@ import 'features/auth/screens/login_screen.dart';
 import 'features/auth/screens/register_screen.dart';
 import 'features/auth/screens/convert_guest_screen.dart';
 import 'features/auth/screens/forgot_password_screen.dart';
-import 'features/home/screens/home_screen.dart';
+import 'features/home/screens/main_app_shell.dart';
 import 'features/onboarding/screens/onboarding_screen.dart';
 
 void main() async {
@@ -104,7 +104,10 @@ class CareCircleApp extends ConsumerWidget {
           path: '/onboarding',
           builder: (context, state) => const OnboardingScreen(),
         ),
-        GoRoute(path: '/home', builder: (context, state) => const HomeScreen()),
+        GoRoute(
+          path: '/home',
+          builder: (context, state) => const MainAppShell(),
+        ),
       ],
     );
   }
