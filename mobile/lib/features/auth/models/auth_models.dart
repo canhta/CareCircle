@@ -47,8 +47,6 @@ abstract class AuthResponse with _$AuthResponse {
   const factory AuthResponse({
     required User user,
     UserProfile? profile,
-    required String accessToken,
-    required String refreshToken,
   }) = _AuthResponse;
 
   factory AuthResponse.fromJson(Map<String, dynamic> json) =>
@@ -62,8 +60,6 @@ abstract class AuthState with _$AuthState {
   const factory AuthState({
     User? user,
     UserProfile? profile,
-    String? accessToken,
-    String? refreshToken,
     @Default(false) bool isLoading,
     String? error,
     @Default(AuthStatus.unauthenticated) AuthStatus status,

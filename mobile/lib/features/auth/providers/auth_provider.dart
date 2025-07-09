@@ -26,18 +26,28 @@ class AuthNotifier extends _$AuthNotifier {
     // No need to set loading state again as it's already set in build()
     try {
       final authService = ref.read(authServiceProvider);
-      final user = await authService.getStoredUser();
-      final profile = await authService.getStoredProfile();
-      final token = await authService.getAccessToken();
+      final firebaseAuthService = ref.read(firebaseAuthServiceProvider);
 
-      if (user != null && token != null) {
-        state = state.copyWith(
-          user: user,
-          profile: profile,
-          accessToken: token,
-          status: user.isGuest ? AuthStatus.guest : AuthStatus.authenticated,
-          isLoading: false,
-        );
+      // Check if user is signed in to Firebase
+      if (firebaseAuthService.isSignedIn) {
+        final user = await authService.getStoredUser();
+        final profile = await authService.getStoredProfile();
+
+        if (user != null) {
+          state = state.copyWith(
+            user: user,
+            profile: profile,
+            status: user.isGuest ? AuthStatus.guest : AuthStatus.authenticated,
+            isLoading: false,
+          );
+        } else {
+          // Firebase user exists but no stored user data - sign out
+          await firebaseAuthService.signOut();
+          state = state.copyWith(
+            status: AuthStatus.unauthenticated,
+            isLoading: false,
+          );
+        }
       } else {
         state = state.copyWith(
           status: AuthStatus.unauthenticated,
@@ -76,8 +86,6 @@ class AuthNotifier extends _$AuthNotifier {
       state = state.copyWith(
         user: authResponse.user,
         profile: authResponse.profile,
-        accessToken: authResponse.accessToken,
-        refreshToken: authResponse.refreshToken,
         status: AuthStatus.authenticated,
         isLoading: false,
       );
@@ -115,8 +123,6 @@ class AuthNotifier extends _$AuthNotifier {
       state = state.copyWith(
         user: authResponse.user,
         profile: authResponse.profile,
-        accessToken: authResponse.accessToken,
-        refreshToken: authResponse.refreshToken,
         status: AuthStatus.authenticated,
         isLoading: false,
       );
@@ -141,8 +147,6 @@ class AuthNotifier extends _$AuthNotifier {
       state = state.copyWith(
         user: authResponse.user,
         profile: authResponse.profile,
-        accessToken: authResponse.accessToken,
-        refreshToken: authResponse.refreshToken,
         status: AuthStatus.guest,
         isLoading: false,
       );
@@ -173,8 +177,6 @@ class AuthNotifier extends _$AuthNotifier {
       state = state.copyWith(
         user: authResponse.user,
         profile: authResponse.profile,
-        accessToken: authResponse.accessToken,
-        refreshToken: authResponse.refreshToken,
         status: AuthStatus.authenticated,
         isLoading: false,
       );
@@ -205,8 +207,6 @@ class AuthNotifier extends _$AuthNotifier {
       state = state.copyWith(
         user: authResponse.user,
         profile: authResponse.profile,
-        accessToken: authResponse.accessToken,
-        refreshToken: authResponse.refreshToken,
         status: AuthStatus.authenticated,
         isLoading: false,
       );
@@ -240,8 +240,6 @@ class AuthNotifier extends _$AuthNotifier {
       state = state.copyWith(
         user: authResponse.user,
         profile: authResponse.profile,
-        accessToken: authResponse.accessToken,
-        refreshToken: authResponse.refreshToken,
         status: AuthStatus.authenticated,
         isLoading: false,
       );
@@ -306,8 +304,6 @@ class AuthNotifier extends _$AuthNotifier {
       state = state.copyWith(
         user: authResponse.user,
         profile: authResponse.profile,
-        accessToken: authResponse.accessToken,
-        refreshToken: authResponse.refreshToken,
         status: AuthStatus.authenticated,
         isLoading: false,
       );

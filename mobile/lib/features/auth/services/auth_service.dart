@@ -5,6 +5,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../models/auth_models.dart';
 import '../../../core/config/app_config.dart';
+import 'firebase_auth_service.dart';
 
 part 'auth_service.g.dart';
 
@@ -15,12 +16,11 @@ AuthService authService(Ref ref) {
 
 class AuthService {
   static const _storage = FlutterSecureStorage();
-  static const _accessTokenKey = 'access_token';
-  static const _refreshTokenKey = 'refresh_token';
   static const _userKey = 'user';
   static const _profileKey = 'profile';
 
   late final Dio _dio;
+  final FirebaseAuthService _firebaseAuthService = FirebaseAuthService();
 
   AuthService() {
     _dio = Dio(
@@ -32,32 +32,20 @@ class AuthService {
       ),
     );
 
-    // Add interceptor for automatic token attachment
+    // Add interceptor for automatic Firebase ID token attachment
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
-          final token = await getAccessToken();
-          if (token != null) {
-            options.headers['Authorization'] = 'Bearer $token';
+          final idToken = await _firebaseAuthService.getIdToken();
+          if (idToken != null) {
+            options.headers['Authorization'] = 'Bearer $idToken';
           }
           handler.next(options);
         },
         onError: (error, handler) async {
           if (error.response?.statusCode == 401) {
-            // Try to refresh token
-            final refreshed = await _refreshToken();
-            if (refreshed) {
-              // Retry the original request
-              final token = await getAccessToken();
-              if (token != null) {
-                error.requestOptions.headers['Authorization'] = 'Bearer $token';
-                final response = await _dio.fetch(error.requestOptions);
-                handler.resolve(response);
-                return;
-              }
-            }
-            // If refresh failed, clear tokens
-            await clearTokens();
+            // Clear stored user data on authentication failure
+            await clearStoredData();
           }
           handler.next(error);
         },
@@ -225,40 +213,19 @@ class AuthService {
 
   Future<void> logout() async {
     try {
-      await _dio.post('/auth/logout');
+      // Sign out from Firebase
+      await _firebaseAuthService.signOut();
     } catch (e) {
-      // Continue with local logout even if server logout fails
+      // Continue with local logout even if Firebase logout fails
     } finally {
-      await clearTokens();
+      await clearStoredData();
     }
   }
 
-  Future<bool> _refreshToken() async {
-    try {
-      final refreshToken = await getRefreshToken();
-      if (refreshToken == null) return false;
 
-      final response = await _dio.post(
-        '/auth/refresh',
-        data: {'refreshToken': refreshToken},
-      );
-
-      final newAccessToken = response.data['accessToken'] as String;
-      final newRefreshToken = response.data['refreshToken'] as String;
-
-      await _storage.write(key: _accessTokenKey, value: newAccessToken);
-      await _storage.write(key: _refreshTokenKey, value: newRefreshToken);
-
-      return true;
-    } catch (e) {
-      return false;
-    }
-  }
 
   Future<void> _saveAuthData(AuthResponse authResponse) async {
     await Future.wait([
-      _storage.write(key: _accessTokenKey, value: authResponse.accessToken),
-      _storage.write(key: _refreshTokenKey, value: authResponse.refreshToken),
       _storage.write(
         key: _userKey,
         value: jsonEncode(authResponse.user.toJson()),
@@ -275,12 +242,8 @@ class AuthService {
     await _storage.write(key: _profileKey, value: jsonEncode(profile.toJson()));
   }
 
-  Future<String?> getAccessToken() async {
-    return await _storage.read(key: _accessTokenKey);
-  }
-
-  Future<String?> getRefreshToken() async {
-    return await _storage.read(key: _refreshTokenKey);
+  Future<String?> getFirebaseIdToken() async {
+    return await _firebaseAuthService.getIdToken();
   }
 
   Future<User?> getStoredUser() async {
@@ -299,18 +262,15 @@ class AuthService {
     return null;
   }
 
-  Future<void> clearTokens() async {
+  Future<void> clearStoredData() async {
     await Future.wait([
-      _storage.delete(key: _accessTokenKey),
-      _storage.delete(key: _refreshTokenKey),
       _storage.delete(key: _userKey),
       _storage.delete(key: _profileKey),
     ]);
   }
 
   Future<bool> isLoggedIn() async {
-    final token = await getAccessToken();
-    return token != null;
+    return _firebaseAuthService.isSignedIn;
   }
 
   String _handleDioError(DioException e) {

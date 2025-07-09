@@ -81,17 +81,10 @@ _AuthResponse _$AuthResponseFromJson(Map<String, dynamic> json) =>
       profile: json['profile'] == null
           ? null
           : UserProfile.fromJson(json['profile'] as Map<String, dynamic>),
-      accessToken: json['accessToken'] as String,
-      refreshToken: json['refreshToken'] as String,
     );
 
 Map<String, dynamic> _$AuthResponseToJson(_AuthResponse instance) =>
-    <String, dynamic>{
-      'user': instance.user,
-      'profile': instance.profile,
-      'accessToken': instance.accessToken,
-      'refreshToken': instance.refreshToken,
-    };
+    <String, dynamic>{'user': instance.user, 'profile': instance.profile};
 
 _AuthState _$AuthStateFromJson(Map<String, dynamic> json) => _AuthState(
   user: json['user'] == null
@@ -100,8 +93,6 @@ _AuthState _$AuthStateFromJson(Map<String, dynamic> json) => _AuthState(
   profile: json['profile'] == null
       ? null
       : UserProfile.fromJson(json['profile'] as Map<String, dynamic>),
-  accessToken: json['accessToken'] as String?,
-  refreshToken: json['refreshToken'] as String?,
   isLoading: json['isLoading'] as bool? ?? false,
   error: json['error'] as String?,
   status:
@@ -113,8 +104,6 @@ Map<String, dynamic> _$AuthStateToJson(_AuthState instance) =>
     <String, dynamic>{
       'user': instance.user,
       'profile': instance.profile,
-      'accessToken': instance.accessToken,
-      'refreshToken': instance.refreshToken,
       'isLoading': instance.isLoading,
       'error': instance.error,
       'status': _$AuthStatusEnumMap[instance.status]!,
