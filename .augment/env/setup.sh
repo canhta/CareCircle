@@ -8,9 +8,9 @@ echo "🚀 Setting up CareCircle development environment..."
 # Update system packages
 sudo apt-get update
 
-# Install Node.js 18+ and npm
-echo "📦 Installing Node.js 18..."
-curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+# Install Node.js 22+ and npm
+echo "📦 Installing Node.js 22..."
+curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
 sudo apt-get install -y nodejs
 
 # Verify Node.js installation
@@ -21,13 +21,13 @@ npm --version
 echo "📱 Installing Flutter dependencies..."
 sudo apt-get install -y curl git unzip xz-utils zip libglu1-mesa
 
-# Download and install Flutter 3.8+
-echo "📱 Installing Flutter 3.8..."
+# Download and install Flutter 3.32.5
+echo "📱 Installing Flutter 3.32.5..."
 cd $HOME
 if [ ! -d "flutter" ]; then
-    wget -q https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.24.5-stable.tar.xz
-    tar xf flutter_linux_3.24.5-stable.tar.xz
-    rm flutter_linux_3.24.5-stable.tar.xz
+    wget -q https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.32.5-stable.tar.xz
+    tar xf flutter_linux_3.32.5-stable.tar.xz
+    rm flutter_linux_3.32.5-stable.tar.xz
 fi
 
 # Add Flutter to PATH in .profile
@@ -38,9 +38,7 @@ fi
 # Source the profile to make Flutter available immediately
 export PATH="$HOME/flutter/bin:$PATH"
 
-# Install Python 3.10+ and pip
-echo "🐍 Installing Python 3.10..."
-sudo apt-get install -y python3.10 python3.10-venv python3-pip
+
 
 # Install Docker and Docker Compose
 echo "🐳 Installing Docker..."
@@ -89,20 +87,7 @@ flutter doctor
 # Go back to workspace root
 cd ..
 
-# Install Python dependencies for data crawler
-echo "🐍 Installing Python crawler dependencies..."
-cd data/crawler
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
 
-# Add Python virtual environment activation to .profile
-if ! grep -q "source /mnt/persist/workspace/data/crawler/venv/bin/activate" $HOME/.profile; then
-    echo 'source /mnt/persist/workspace/data/crawler/venv/bin/activate' >> $HOME/.profile
-fi
-
-# Go back to workspace root
-cd ../..
 
 echo "✅ Development environment setup complete!"
 echo ""
@@ -110,7 +95,6 @@ echo "🔧 Available commands:"
 echo "  Backend: cd backend && npm run start:dev"
 echo "  Mobile: cd mobile && flutter run --flavor development"
 echo "  Docker: npm run docker:dev"
-echo "  Crawler: cd data/crawler && python src/main.py"
 echo ""
 echo "📋 Next steps:"
 echo "  1. Start Docker services: npm run docker:dev"
