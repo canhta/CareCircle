@@ -2,6 +2,33 @@
 
 ## In Progress
 
+### 🚨 CRITICAL: Mobile-Backend Authentication Alignment (PHASE 2 COMPLETION BLOCKER)
+
+- [ ] **CRITICAL**: Update AuthResponse model to match backend's Firebase-only response structure
+  - **Issue**: Mobile expects `accessToken` and `refreshToken` fields that backend no longer provides
+  - **Action**: Remove `accessToken` and `refreshToken` from `AuthResponse` model
+  - **Location**: `mobile/lib/features/auth/models/auth_models.dart`
+  - **Impact**: Blocks all authentication flows between mobile and backend
+
+- [ ] **CRITICAL**: Update API client authentication to use Firebase ID tokens directly
+  - **Issue**: Mobile API clients use stored access tokens instead of Firebase ID tokens
+  - **Action**: Modify Dio interceptors to get Firebase ID token from FirebaseAuth.currentUser
+  - **Location**: `mobile/lib/features/auth/services/auth_service.dart`, `mobile/lib/features/ai-assistant/providers/ai_assistant_providers.dart`
+  - **Impact**: Prevents authenticated API calls to backend
+
+- [ ] **CRITICAL**: Remove custom token refresh logic and use Firebase's automatic refresh
+  - **Issue**: Mobile has custom refresh token logic that conflicts with Firebase's automatic token refresh
+  - **Action**: Remove `_refreshToken()` method and related logic, rely on Firebase SDK
+  - **Location**: `mobile/lib/features/auth/services/auth_service.dart`
+  - **Impact**: Causes authentication failures and token conflicts
+
+- [ ] **HIGH**: Update authentication state management to work without JWT tokens
+  - **Action**: Modify `AuthState` to not store access/refresh tokens, use Firebase auth state
+  - **Location**: `mobile/lib/features/auth/providers/auth_provider.dart`
+  - **Impact**: Required for proper authentication state management
+
+### 🔄 Post-Authentication Alignment Tasks
+
 - [ ] Add comprehensive error handling and validation
 - [ ] Implement offline authentication capabilities
 - [ ] Add comprehensive testing for authentication flows
@@ -79,7 +106,7 @@
   - **Location**: mobile/lib/features/home/screens/main_app_shell.dart
   - **Status**: MainAppShell with AI assistant as central FAB, dedicated AIAssistantHomeScreen
 
-**Remaining**: End-to-end testing blocked by backend authentication integration issue (JwtService dependency injection)
+**Remaining**: End-to-end testing ready once mobile authentication is aligned with Firebase-only backend
 
 ## Known Issues & Troubleshooting
 

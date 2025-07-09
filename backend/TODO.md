@@ -53,12 +53,19 @@
 - [x] Mobile Health Context Integration - Backend automatically builds health context using user ID from JWT token
 - [x] AI Assistant Central Navigation - Implemented MainAppShell with AI assistant as central FAB, dedicated AIAssistantHomeScreen with health context indicators
 
-#### 🚧 Testing and Validation (IN PROGRESS - BLOCKER)
-- [ ] BLOCKER: Fix JwtService dependency injection in AiAssistantModule to enable proper authentication for AI assistant endpoints
+#### ✅ Authentication System Refactoring (COMPLETED)
+- [x] RESOLVED: Removed JwtService dependency - All modules now use FirebaseAuthGuard exclusively
+- [x] Updated AiAssistantModule to use Firebase authentication only
+- [x] Verified all authentication endpoints use Firebase ID tokens
+- [x] Confirmed AuthResponseDto returns only user and profile data (no JWT tokens)
+
+#### 🚧 Testing and Validation (READY - WAITING FOR MOBILE ALIGNMENT)
 - [ ] End-to-End AI Flow Testing - Test complete conversation flow from mobile to backend with health context and real OpenAI responses
+  - **Blocker**: Mobile authentication needs to be updated to match Firebase-only backend
+  - **Dependency**: Mobile app must use Firebase ID tokens for API calls
 - [ ] AI Service Unit Tests - Write comprehensive tests for conversation management, OpenAI integration, and health context building
 
-**Status**: AI Assistant infrastructure and mobile integration are complete. Authentication integration issue prevents final testing. Once resolved, Phase 3 will be fully functional with real AI responses using OpenAI with health context.
+**Status**: Backend AI Assistant infrastructure is complete and authentication is properly configured with Firebase. Testing is blocked by mobile authentication misalignment - mobile still expects JWT tokens that backend no longer provides.
 
 ### Type System Optimization - ✅ COMPLETE
 - [x] **Common Types Structure** - Created `src/common/types/` directory with shared API types, utility types, and proper Prisma type re-exports

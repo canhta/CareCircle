@@ -22,10 +22,15 @@
 - [x] Create AI assistant as central navigation element (MainAppShell with central FAB)
 - [x] Build dedicated AIAssistantHomeScreen with health context indicators
 
-### In Progress (Critical Blocker)
-- [ ] Fix JwtService dependency injection in AiAssistantModule (prevents authentication integration)
+### ✅ Authentication Integration (RESOLVED)
+- [x] Fixed authentication system - AiAssistantModule now uses FirebaseAuthGuard exclusively
+- [x] Removed JwtService dependency - all modules use consistent Firebase authentication
+- [x] Verified ConversationController properly uses @UseGuards(FirebaseAuthGuard)
 
-### Ready for Implementation
+### 🚧 Ready for Implementation (BLOCKED BY MOBILE AUTHENTICATION)
+- [ ] End-to-end AI conversation testing
+  - **Blocker**: Mobile authentication must be aligned with Firebase-only backend first
+  - **Dependency**: Mobile app needs to use Firebase ID tokens for API calls
 - [ ] Implement Milvus vector database integration
 - [ ] Create health insights generation algorithms
 

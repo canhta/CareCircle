@@ -107,7 +107,7 @@ This file tracks the high-level progress across all components of the CareCircle
 - [x] Error handling and validation
 - [x] Authentication routing and navigation
 
-## ⚠️ Phase 3: AI Assistant Foundation (85% COMPLETE - AUTHENTICATION BLOCKER)
+## 🚧 Phase 3: AI Assistant Foundation (90% COMPLETE - MOBILE AUTHENTICATION BLOCKER)
 
 ### ✅ Infrastructure Setup (COMPLETED)
 
@@ -129,13 +129,27 @@ This file tracks the high-level progress across all components of the CareCircle
   - **Location**: backend/prisma/schema.prisma
   - **Status**: Comprehensive schema with Conversation, Message, and Insight tables
 
-### � Critical Blocker (15% Remaining)
+### ✅ Backend Authentication Integration (COMPLETED)
 
 - [x] Backend: Authentication system refactored to Firebase-only (RESOLVED)
   - **Issue**: JwtAuthGuard dependency injection issues in AiAssistantModule
   - **Action**: Completely removed JWT authentication, now using only FirebaseAuthGuard
   - **Impact**: Simplified authentication system, eliminated dependency injection issues
   - **Status**: All modules now use consistent Firebase authentication
+- [x] Backend: AI Assistant endpoints properly secured with FirebaseAuthGuard
+  - **Location**: backend/src/ai-assistant/presentation/controllers/conversation.controller.ts
+  - **Status**: All endpoints use @UseGuards(FirebaseAuthGuard) and receive user context
+- [x] Backend: AuthResponseDto updated to Firebase-only structure (user + profile only)
+  - **Location**: backend/src/identity-access/presentation/dtos/auth.dto.ts
+  - **Status**: No longer returns JWT access/refresh tokens, only user and profile data
+
+### 🚨 Critical Mobile Authentication Blocker (10% Remaining)
+
+- [ ] **CRITICAL**: Mobile authentication alignment with Firebase-only backend
+  - **Issue**: Mobile expects JWT-style tokens (accessToken, refreshToken) that backend no longer provides
+  - **Impact**: Prevents all authenticated API calls from mobile to backend
+  - **Action Required**: Update mobile authentication to use Firebase ID tokens directly
+  - **Ref**: [Mobile TODO](./mobile/TODO.md) - Mobile-Backend Authentication Alignment section
 
 ### ✅ Completed Infrastructure Tasks
 
@@ -289,37 +303,39 @@ This file tracks the high-level progress across all components of the CareCircle
 
 ## 📊 Current Sprint Focus
 
-### This Week's Priorities (Phase 3: AI Assistant Foundation - Final 20%):
+### This Week's Priorities (Phase 3: AI Assistant Foundation - Final 10%):
 
-1. [ ] Backend: OpenAI API Key Configuration (CRITICAL BLOCKER)
+1. [ ] **CRITICAL**: Mobile Authentication Alignment with Firebase-Only Backend
 
-   - **Action**: Configure OPENAI_API_KEY environment variable to enable real AI responses
-   - **Status**: OpenAI service implemented, requires API key for production functionality
-   - **Impact**: Blocks all AI response generation and conversation functionality
+   - **Action**: Update mobile app to use Firebase ID tokens instead of JWT-style tokens
+   - **Priority**: CRITICAL BLOCKER - Prevents all authenticated API calls
+   - **Tasks**:
+     - Update `AuthResponse` model to match backend structure (remove accessToken/refreshToken)
+     - Modify API client interceptors to use Firebase ID tokens
+     - Remove custom token refresh logic, use Firebase's automatic refresh
+     - Update authentication state management
+   - **Ref**: [Mobile TODO](./mobile/TODO.md) - Mobile-Backend Authentication Alignment section
 
-2. [ ] Backend: Health Context Integration
-
-   - **Action**: Complete health context builder integration with Health Data, Medication, and Care Group contexts
-   - **Location**: backend/src/ai-assistant/application/services/conversation.service.ts (buildHealthContext method)
-   - **Dependencies**: Other bounded contexts for comprehensive health data
-
-3. [ ] Backend: Milvus Vector Database Integration
-
-   - **Action**: Implement vector storage and semantic search capabilities
-   - **Location**: backend/src/ai-assistant/infrastructure/services/
-   - **Dependencies**: Milvus running in Docker Compose (already configured)
-
-4. [ ] Mobile: Health Context Integration
-
-   - **Action**: Connect AI assistant with user health data for personalized responses
-   - **Location**: mobile/lib/features/ai-assistant/
-   - **Dependencies**: Backend health context completion
-
-5. [ ] Testing: End-to-End AI Flow Testing
+2. [ ] Testing: End-to-End AI Flow Testing
 
    - **Action**: Test complete conversation flow from mobile to backend with health context
    - **Priority**: Critical for Phase 3 completion
-   - **Dependencies**: OpenAI API key configuration
+   - **Dependencies**: Mobile authentication alignment (Task #1)
+   - **Status**: Backend ready, waiting for mobile authentication fix
+
+3. [ ] Backend: Health Context Integration Enhancement
+
+   - **Action**: Complete health context builder integration with Health Data, Medication, and Care Group contexts
+   - **Location**: backend/src/ai-assistant/application/services/conversation.service.ts (buildHealthContext method)
+   - **Priority**: High - Enhances AI response personalization
+   - **Dependencies**: Other bounded contexts for comprehensive health data
+
+4. [ ] Backend: Milvus Vector Database Integration
+
+   - **Action**: Implement vector storage and semantic search capabilities
+   - **Location**: backend/src/ai-assistant/infrastructure/services/
+   - **Priority**: Medium - Advanced AI features
+   - **Dependencies**: Milvus running in Docker Compose (already configured)
 
 ### Vietnamese Healthcare Data Crawler (RAG System):
 
@@ -351,12 +367,11 @@ This file tracks the high-level progress across all components of the CareCircle
 
 ### 🚫 Current Blockers:
 
-- **OpenAI API Key**: Required for AI assistant features (Phase 3 critical dependency)
-  - **Solution**: Obtain OpenAI API key and add to backend environment variables
-  - **Impact**: Blocks all AI response generation and conversation functionality
-- **Milvus Vector Database**: Required for semantic search capabilities
-  - **Solution**: Verify Milvus is running in Docker Compose and configure connection
-  - **Doc**: [Development Environment Setup](./docs/setup/development-environment.md)
+- **Mobile Authentication Alignment**: CRITICAL BLOCKER preventing Phase 3 completion
+  - **Issue**: Mobile expects JWT tokens that Firebase-only backend no longer provides
+  - **Solution**: Update mobile authentication to use Firebase ID tokens directly
+  - **Impact**: Blocks all authenticated API calls from mobile to backend
+  - **Ref**: [Mobile TODO](./mobile/TODO.md) - Mobile-Backend Authentication Alignment section
 
 ### 🎯 Next Week's Goals:
 
@@ -369,9 +384,9 @@ This file tracks the high-level progress across all components of the CareCircle
 ### 📈 Progress Metrics:
 
 - **Phase 1 (Foundation)**: ✅ 100% Complete
-- **Phase 2 (Authentication)**: ✅ 100% Complete (Core authentication & security implementation completed)
-- **Phase 3 (AI Assistant)**: 🚧 80% Complete (Core infrastructure and UI implemented, integration and testing remaining)
-- **Overall Project**: 🚧 75% Complete
+- **Phase 2 (Authentication)**: 🚧 95% Complete (Backend complete, mobile alignment needed)
+- **Phase 3 (AI Assistant)**: 🚧 90% Complete (Backend complete, mobile authentication alignment needed)
+- **Overall Project**: 🚧 80% Complete
 
 ### ✅ Recent Completions (2025-07-08):
 
