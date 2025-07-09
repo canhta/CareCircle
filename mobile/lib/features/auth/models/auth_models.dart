@@ -44,10 +44,8 @@ abstract class UserProfile with _$UserProfile {
 
 @freezed
 abstract class AuthResponse with _$AuthResponse {
-  const factory AuthResponse({
-    required User user,
-    UserProfile? profile,
-  }) = _AuthResponse;
+  const factory AuthResponse({required User user, UserProfile? profile}) =
+      _AuthResponse;
 
   factory AuthResponse.fromJson(Map<String, dynamic> json) =>
       _$AuthResponseFromJson(json);

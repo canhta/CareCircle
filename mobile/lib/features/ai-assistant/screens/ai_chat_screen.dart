@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
-import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import '../../../core/design/design_tokens.dart';
 import '../../../core/ai/ai_assistant_config.dart';
 import '../providers/ai_assistant_providers.dart';
 import '../models/conversation_models.dart' as models;
-import '../widgets/voice_input_button.dart';
-import '../widgets/typing_indicator.dart';
+
 import '../widgets/healthcare_chat_theme.dart';
 import '../widgets/emergency_detection_widget.dart';
 
@@ -21,15 +20,14 @@ class AiChatScreen extends ConsumerStatefulWidget {
 }
 
 class _AiChatScreenState extends ConsumerState<AiChatScreen> {
-  final List<types.Message> _messages = [];
-  late types.User _user;
-  late types.User _assistant;
+  final _chatController = InMemoryChatController();
   String? _currentConversationId;
+  final String _currentUserId = 'user';
+  final String _assistantId = 'assistant';
 
   @override
   void initState() {
     super.initState();
-    _initializeUsers();
     _currentConversationId = widget.conversationId;
 
     if (_currentConversationId != null) {
@@ -37,14 +35,18 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
     }
   }
 
-  void _initializeUsers() {
-    _user = const types.User(id: 'user', firstName: 'You');
+  @override
+  void dispose() {
+    _chatController.dispose();
+    super.dispose();
+  }
 
-    _assistant = const types.User(
-      id: 'assistant',
-      firstName: 'AI Assistant',
-      imageUrl: 'https://via.placeholder.com/40x40/4285F4/FFFFFF?text=AI',
-    );
+  Future<User> _resolveUser(String userId) async {
+    if (userId == _currentUserId) {
+      return const User(id: 'user', name: 'You');
+    } else {
+      return const User(id: 'assistant', name: 'AI Assistant');
+    }
   }
 
   Future<void> _loadMessages() async {
@@ -55,59 +57,51 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
         messagesProvider(_currentConversationId!).future,
       );
 
-      setState(() {
-        _messages.clear();
-        _messages.addAll(_convertToUIMessages(messages));
-      });
+      final chatMessages = messages
+          .map((msg) => _convertToChatMessage(msg))
+          .toList();
+      _chatController.setMessages(chatMessages.reversed.toList());
     } catch (e) {
       _showError('Failed to load messages: ${e.toString()}');
     }
   }
 
-  List<types.Message> _convertToUIMessages(List<models.Message> messages) {
-    return messages
-        .map((msg) {
-          final user = msg.role == models.MessageRole.user ? _user : _assistant;
+  TextMessage _convertToChatMessage(models.Message message) {
+    final authorId = message.role.name == 'USER'
+        ? _currentUserId
+        : _assistantId;
 
-          return types.TextMessage(
-            author: user,
-            createdAt: msg.timestamp.millisecondsSinceEpoch,
-            id: msg.id,
-            text: msg.content,
-            metadata: {
-              'role': msg.role.name,
-              'confidence': msg.metadata.confidence,
-              'tokensUsed': msg.metadata.tokensUsed,
-            },
-          );
-        })
-        .toList()
-        .reversed
-        .toList(); // Chat UI expects newest first
+    return TextMessage(
+      id: message.id,
+      authorId: authorId,
+      createdAt: message.timestamp.toUtc(),
+      text: message.content,
+    );
   }
 
-  Future<void> _handleSendPressed(types.PartialText message) async {
+  Future<void> _handleMessageSend(String text) async {
     // Check for emergency keywords
-    if (EmergencyDetectionService.detectEmergency(message.text)) {
-      _showEmergencyDialog(message.text);
+    if (EmergencyDetectionService.detectEmergency(text)) {
+      _showEmergencyDialog(text);
       return;
     }
 
-    final textMessage = types.TextMessage(
-      author: _user,
-      createdAt: DateTime.now().millisecondsSinceEpoch,
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
-      text: message.text,
+    // Add user message to chat controller
+    final userMessage = TextMessage(
+      id: 'temp_${DateTime.now().millisecondsSinceEpoch}',
+      authorId: _currentUserId,
+      createdAt: DateTime.now().toUtc(),
+      text: text,
     );
 
-    _addMessage(textMessage);
+    _chatController.insertMessage(userMessage);
 
     try {
       // Create conversation if needed
       if (_currentConversationId == null) {
         final conversation = await ref
             .read(aiAssistantNotifierProvider.notifier)
-            .createConversation(initialMessage: message.text);
+            .createConversation(title: 'AI Chat', initialMessage: text);
         _currentConversationId = conversation.id;
         return; // The initial message is handled by createConversation
       }
@@ -115,36 +109,17 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
       // Send message to existing conversation
       final response = await ref
           .read(aiAssistantNotifierProvider.notifier)
-          .sendMessage(_currentConversationId!, message.text);
+          .sendMessage(_currentConversationId!, text);
 
       // Add assistant response
-      final assistantMessage = types.TextMessage(
-        author: _assistant,
-        createdAt: response.assistantMessage.timestamp.millisecondsSinceEpoch,
-        id: response.assistantMessage.id,
-        text: response.assistantMessage.content,
-        metadata: {
-          'role': response.assistantMessage.role.name,
-          'confidence': response.assistantMessage.metadata.confidence,
-          'tokensUsed': response.assistantMessage.metadata.tokensUsed,
-        },
-      );
-
-      _addMessage(assistantMessage);
+      final assistantMessage = _convertToChatMessage(response.assistantMessage);
+      _chatController.insertMessage(assistantMessage);
     } catch (e) {
       _showError('Failed to send message: ${e.toString()}');
 
       // Remove the user message on error
-      setState(() {
-        _messages.removeWhere((msg) => msg.id == textMessage.id);
-      });
+      _chatController.removeMessage(userMessage);
     }
-  }
-
-  void _addMessage(types.Message message) {
-    setState(() {
-      _messages.insert(0, message);
-    });
   }
 
   void _showError(String message) {
@@ -157,7 +132,6 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isTyping = ref.watch(typingIndicatorProvider);
     final theme = Theme.of(context);
 
     return Scaffold(
@@ -202,68 +176,18 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
               ),
             ),
 
-          // Chat interface
+          // Chat interface with healthcare theming
           Expanded(
-            child: Chat(
-              messages: _messages,
-              onSendPressed: _handleSendPressed,
-              user: _user,
-              theme: HealthcareChatTheme.theme,
-              customBottomWidget: _buildCustomInput(),
-              showUserAvatars: false,
-              showUserNames: true,
-            ),
-          ),
-
-          // Typing indicator
-          if (isTyping) const TypingIndicatorWidget(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCustomInput() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border(top: BorderSide(color: Colors.grey[300]!)),
-      ),
-      child: Row(
-        children: [
-          // Voice input button
-          if (AIAssistantConfig.enableVoiceInput)
-            VoiceInputButton(
-              onVoiceInput: (text) {
-                if (text.isNotEmpty) {
-                  _handleSendPressed(types.PartialText(text: text));
-                }
-              },
-            ),
-
-          const SizedBox(width: 8),
-
-          // Text input
-          Expanded(
-            child: TextField(
-              decoration: InputDecoration(
-                hintText: 'Ask about your health...',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(24),
-                  borderSide: BorderSide.none,
-                ),
-                filled: true,
-                fillColor: Colors.grey[100],
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
-                ),
+            child: Container(
+              decoration: BoxDecoration(
+                color: HealthcareChatTheme.backgroundColor,
               ),
-              onSubmitted: (text) {
-                if (text.trim().isNotEmpty) {
-                  _handleSendPressed(types.PartialText(text: text.trim()));
-                }
-              },
+              child: Chat(
+                chatController: _chatController,
+                currentUserId: _currentUserId,
+                onMessageSend: _handleMessageSend,
+                resolveUser: _resolveUser,
+              ),
             ),
           ),
         ],
@@ -283,7 +207,7 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
         },
         onFalseAlarm: () {
           Navigator.of(context).pop();
-          _handleSendPressed(types.PartialText(text: message));
+          _handleMessageSend(message);
         },
       ),
     );
@@ -294,13 +218,14 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
     final emergencyAdvice = EmergencyDetectionService.getEmergencyAdvice(
       message,
     );
-    final systemMessage = types.SystemMessage(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
+    final systemMessage = TextMessage(
+      id: 'emergency_${DateTime.now().millisecondsSinceEpoch}',
+      authorId: 'system',
+      createdAt: DateTime.now().toUtc(),
       text: emergencyAdvice,
-      createdAt: DateTime.now().millisecondsSinceEpoch,
     );
 
-    _addMessage(systemMessage);
+    _chatController.insertMessage(systemMessage);
 
     // Show emergency services dialog
     _showEmergencyServicesDialog();

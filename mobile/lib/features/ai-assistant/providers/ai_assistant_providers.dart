@@ -165,6 +165,22 @@ class AiAssistantNotifier
     }
   }
 
+  Future<List<Conversation>> getUserConversations() async {
+    try {
+      return await _repository.getUserConversations();
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<List<Message>> getMessages(String conversationId) async {
+    try {
+      return await _repository.getMessages(conversationId);
+    } catch (error) {
+      rethrow;
+    }
+  }
+
   Future<void> deleteConversation(String id) async {
     try {
       await _repository.deleteConversation(id);

@@ -222,8 +222,6 @@ class AuthService {
     }
   }
 
-
-
   Future<void> _saveAuthData(AuthResponse authResponse) async {
     await Future.wait([
       _storage.write(

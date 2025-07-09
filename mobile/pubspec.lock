@@ -439,7 +439,7 @@ packages:
     source: hosted
     version: "3.4.1"
   flutter_chat_core:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: flutter_chat_core
       sha256: b41ba0395651631bf76fabe2c7635dfef919bbb542f1417fcb4399dc995c5541
@@ -1164,10 +1164,10 @@ packages:
     dependency: "direct dev"
     description:
       name: retrofit_generator
-      sha256: e48c5a7ac362621b74976c64c540500dc7a54b8b5b074616a96a4854a2e5bb5b
+      sha256: "9abcf21acb95bf7040546eafff87f60cf0aee20b05101d71f99876fc4df1f522"
       url: "https://pub.dev"
     source: hosted
-    version: "9.6.0"
+    version: "9.7.0"
   riverpod:
     dependency: transitive
     description:

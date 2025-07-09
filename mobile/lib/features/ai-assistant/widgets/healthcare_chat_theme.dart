@@ -1,63 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 import '../../../core/design/design_tokens.dart';
 
 class HealthcareChatTheme {
-  static ChatTheme get theme => DefaultChatTheme(
-    // Primary colors
-    primaryColor: CareCircleDesignTokens.primaryMedicalBlue,
-    secondaryColor: CareCircleDesignTokens.healthGreen.withValues(alpha: 0.1),
-    backgroundColor: Colors.white,
-
-    // Input styling
-    inputBackgroundColor: Colors.grey[50]!,
-    inputTextColor: Colors.black87,
-    inputBorderRadius: BorderRadius.circular(24),
-    inputPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-    inputMargin: const EdgeInsets.all(16),
-
-    // Message styling
-    messageBorderRadius: 16,
-    messageInsetsHorizontal: 16,
-    messageInsetsVertical: 12,
-
-    // Message text styling will be handled by custom widgets
-
-    // System message styling
-    systemMessageTheme: SystemMessageTheme(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      textStyle: TextStyle(
-        color: Colors.grey[600],
-        fontSize: 14,
-        fontStyle: FontStyle.italic,
-      ),
-    ),
-
-    // Typing indicator
-    typingIndicatorTheme: TypingIndicatorTheme(
-      animatedCirclesColor: CareCircleDesignTokens.primaryMedicalBlue,
-      animatedCircleSize: 6,
-      bubbleBorder: BorderRadius.circular(16),
-      bubbleColor: Colors.grey[100]!,
-      countAvatarColor: CareCircleDesignTokens.primaryMedicalBlue,
-      countTextColor: Colors.white,
-      multipleUserTextStyle: const TextStyle(
-        fontSize: 12,
-        fontWeight: FontWeight.w500,
-      ),
-    ),
-
-    // Error message styling
-    errorColor: Colors.red[600]!,
-
-    // Delivered/seen indicators
-    deliveredIcon: Icon(Icons.done, size: 16, color: Colors.grey[500]),
-    seenIcon: Icon(
-      Icons.done_all,
-      size: 16,
-      color: CareCircleDesignTokens.primaryMedicalBlue,
-    ),
-  );
+  // Healthcare colors for custom styling
+  static Color get primaryColor => CareCircleDesignTokens.primaryMedicalBlue;
+  static Color get secondaryColor => CareCircleDesignTokens.healthGreen;
+  static Color get backgroundColor => Colors.white;
+  static Color get surfaceColor => Colors.grey[50]!;
+  static Color get errorColor => Colors.red[600]!;
 
   // Healthcare-specific message decorations
   static BoxDecoration getUserMessageDecoration() {

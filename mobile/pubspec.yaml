@@ -48,6 +48,7 @@ dependencies:
   # AI Assistant Interface
   speech_to_text: ^7.1.0
   flutter_tts: ^4.2.3
+  flutter_chat_core: ^2.6.2
   flutter_chat_ui: ^2.6.2
   flutter_chat_types: ^3.6.2
 
