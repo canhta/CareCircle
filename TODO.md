@@ -27,6 +27,7 @@ This file tracks the high-level progress across all components of the CareCircle
 - [Medication](./docs/bounded-contexts/04-medication/) - Prescription and medication management
 - [Notification](./docs/bounded-contexts/05-notification/) - Multi-channel communication
 - [AI Assistant](./docs/bounded-contexts/06-ai-assistant/) - Conversational AI and insights
+- [Knowledge Management](./docs/bounded-contexts/07-knowledge-management/) - Vietnamese healthcare data crawler and RAG system
 
 ### Design & UX
 
@@ -375,33 +376,39 @@ This file tracks the high-level progress across all components of the CareCircle
    - **Priority**: High - Production readiness validation
    - **Status**: ✅ READY - All authentication and UI issues resolved
 
-### Vietnamese Healthcare Data Crawler (RAG System):
+### 🇻🇳 Vietnamese Healthcare Data Crawler System (RAG Enhancement):
 
-1. [x] End-to-End Demo Implementation
+**Status**: ✅ DESIGN COMPLETED - Ready for Implementation
+**Documentation**: [Vietnamese Healthcare Crawler System Design](./docs/planning/vietnamese-healthcare-crawler-system-design.md)
+**Bounded Context**: [Knowledge Management Context](./docs/bounded-contexts/07-knowledge-management/)
 
-   - **Action**: Create script demonstrating complete crawler workflow from extraction to search
-   - **Location**: data/crawler/src/end_to_end_demo.py
-   - **Status**: Complete implementation with Vietnamese-specific features
-   - **Features**: Crawling, Vietnamese text processing, chunking, vector embedding, semantic search
+1. [ ] **Phase 1: Foundation Setup (2-3 weeks)**
 
-2. [ ] Additional Vietnamese Healthcare Sources
+   - **Action**: Implement Knowledge Management bounded context with Milvus integration
+   - **Location**: backend/src/knowledge-management/
+   - **Components**: Domain models, vector database service, basic crawler infrastructure
+   - **Dependencies**: Milvus vector database, Vietnamese NLP libraries
+   - **Priority**: High - Foundation for Vietnamese market adaptation
 
-   - **Action**: Implement extractors for additional Vietnamese healthcare websites
-   - **Location**: data/crawler/src/extractors/
-   - **Priority**: Medium - Enhances knowledge base diversity
+2. [ ] **Phase 2: Core Crawling Implementation (3-4 weeks)**
 
-3. [ ] Advanced Vietnamese NLP Features
+   - **Action**: Build web scraping for Vietnamese healthcare sources with content processing
+   - **Location**: backend/src/knowledge-management/infrastructure/services/
+   - **Features**: Ministry of Health crawling, medical entity recognition, vector embedding
+   - **Priority**: High - Core functionality for Vietnamese medical knowledge
 
-   - **Action**: Enhance Vietnamese medical entity recognition and terminology extraction
-   - **Location**: data/crawler/src/data_processing/vietnamese_nlp.py
-   - **Priority**: Medium - Improves data quality
+3. [ ] **Phase 3: RAG Integration (2-3 weeks)**
 
-4. [ ] Integration with AI Assistant
+   - **Action**: Enhance AI Assistant with semantic search and Vietnamese medical knowledge
+   - **Location**: backend/src/ai-assistant/application/services/conversation.service.ts
+   - **Features**: Hybrid search, source citation, authority ranking, localized responses
+   - **Priority**: High - Direct AI Assistant enhancement
 
-   - **Action**: Connect RAG system with AI Assistant for Vietnamese healthcare context
-   - **Location**: backend/src/ai-assistant/infrastructure/services/
-   - **Dependencies**: Milvus vector database integration
-   - **Priority**: High - Required for Vietnam market adaptation
+4. [ ] **Phase 4: Optimization and Monitoring (2 weeks)**
+
+   - **Action**: Implement performance monitoring, administrative interfaces, and quality assurance
+   - **Features**: Content freshness tracking, crawler management, search optimization
+   - **Priority**: Medium - Production readiness and maintenance
 
 ### ✅ Recently Resolved:
 
