@@ -142,12 +142,22 @@ export interface OCRMedicationData {
 // Type Guards
 // =============================================================================
 
-export function isGoogleVisionResponse(obj: any): obj is GoogleVisionResponse {
-  return obj && Array.isArray(obj.responses);
+export function isGoogleVisionResponse(
+  obj: unknown,
+): obj is GoogleVisionResponse {
+  return (
+    obj !== null &&
+    typeof obj === 'object' &&
+    Array.isArray((obj as { responses?: unknown }).responses)
+  );
 }
 
-export function isTextAnnotation(obj: any): obj is TextAnnotation {
-  return obj && typeof obj.description === 'string';
+export function isTextAnnotation(obj: unknown): obj is TextAnnotation {
+  return (
+    obj !== null &&
+    typeof obj === 'object' &&
+    typeof (obj as { description?: unknown }).description === 'string'
+  );
 }
 
 export function hasTextAnnotations(

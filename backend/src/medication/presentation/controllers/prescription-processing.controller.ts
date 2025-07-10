@@ -212,7 +212,7 @@ export class PrescriptionProcessingController {
         success: true,
         data: {
           prescription: result.prescription.toJSON(),
-          ocrValidation: result.ocrValidation,
+          ocrValidation: result.ocrValidation as Record<string, unknown>,
           updatedMedications: result.updatedMedications,
         },
         message: 'Prescription reprocessed successfully',

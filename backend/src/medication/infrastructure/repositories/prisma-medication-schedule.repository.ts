@@ -4,11 +4,17 @@ import { MedicationSchedule } from '../../domain/entities/medication-schedule.en
 import {
   MedicationScheduleRepository,
   ScheduleQuery,
+  ScheduleStatistics,
 } from '../../domain/repositories/medication-schedule.repository';
 import {
   MedicationSchedule as PrismaMedicationSchedule,
   Prisma,
 } from '@prisma/client';
+import {
+  DosageSchedule,
+  Time,
+  ReminderSettings,
+} from '../../domain/entities/medication-schedule.entity';
 
 @Injectable()
 export class PrismaMedicationScheduleRepository extends MedicationScheduleRepository {
@@ -26,9 +32,11 @@ export class PrismaMedicationScheduleRepository extends MedicationScheduleReposi
         remindersEnabled: schedule.remindersEnabled,
         startDate: schedule.startDate,
         endDate: schedule.endDate,
-        schedule: schedule.schedule,
-        reminderTimes: schedule.reminderTimes,
-        reminderSettings: schedule.reminderSettings,
+        schedule: schedule.schedule as unknown as Prisma.InputJsonValue,
+        reminderTimes:
+          schedule.reminderTimes as unknown as Prisma.InputJsonValue,
+        reminderSettings:
+          schedule.reminderSettings as unknown as Prisma.InputJsonValue,
         createdAt: schedule.createdAt,
         updatedAt: schedule.updatedAt,
       },
@@ -49,9 +57,11 @@ export class PrismaMedicationScheduleRepository extends MedicationScheduleReposi
         remindersEnabled: schedule.remindersEnabled,
         startDate: schedule.startDate,
         endDate: schedule.endDate,
-        schedule: schedule.schedule,
-        reminderTimes: schedule.reminderTimes,
-        reminderSettings: schedule.reminderSettings,
+        schedule: schedule.schedule as unknown as Prisma.InputJsonValue,
+        reminderTimes:
+          schedule.reminderTimes as unknown as Prisma.InputJsonValue,
+        reminderSettings:
+          schedule.reminderSettings as unknown as Prisma.InputJsonValue,
         createdAt: schedule.createdAt,
         updatedAt: schedule.updatedAt,
       })),
@@ -123,9 +133,11 @@ export class PrismaMedicationScheduleRepository extends MedicationScheduleReposi
         instructions: updates.instructions,
         remindersEnabled: updates.remindersEnabled,
         endDate: updates.endDate,
-        schedule: updates.schedule,
-        reminderTimes: updates.reminderTimes,
-        reminderSettings: updates.reminderSettings,
+        schedule: updates.schedule as unknown as Prisma.InputJsonValue,
+        reminderTimes:
+          updates.reminderTimes as unknown as Prisma.InputJsonValue,
+        reminderSettings:
+          updates.reminderSettings as unknown as Prisma.InputJsonValue,
         updatedAt: new Date(),
       },
     });
@@ -276,11 +288,293 @@ export class PrismaMedicationScheduleRepository extends MedicationScheduleReposi
       data.remindersEnabled,
       data.startDate,
       data.endDate,
-      data.schedule,
-      data.reminderTimes,
-      data.reminderSettings,
+      data.schedule as unknown as DosageSchedule,
+      data.reminderTimes as unknown as Time[],
+      data.reminderSettings as unknown as ReminderSettings,
       data.createdAt,
       data.updatedAt,
     );
+  }
+
+  // Time-based queries
+  async findSchedulesForDate(
+    userId: string,
+    date: Date,
+  ): Promise<MedicationSchedule[]> {
+    const startOfDay = new Date(date);
+    startOfDay.setHours(0, 0, 0, 0);
+    const endOfDay = new Date(date);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    const data = await this.prisma.medicationSchedule.findMany({
+      where: {
+        userId,
+        startDate: { lte: endOfDay },
+        OR: [{ endDate: null }, { endDate: { gte: startOfDay } }],
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    return data.map((item) => this.mapToEntity(item));
+  }
+
+  async findSchedulesForDateRange(
+    userId: string,
+    startDate: Date,
+    endDate: Date,
+  ): Promise<MedicationSchedule[]> {
+    const data = await this.prisma.medicationSchedule.findMany({
+      where: {
+        userId,
+        startDate: { lte: endDate },
+        OR: [{ endDate: null }, { endDate: { gte: startDate } }],
+      },
+      orderBy: { startDate: 'asc' },
+    });
+
+    return data.map((item) => this.mapToEntity(item));
+  }
+
+  async findUpcomingSchedules(
+    userId: string,
+    withinHours: number,
+  ): Promise<MedicationSchedule[]> {
+    const now = new Date();
+    const futureTime = new Date(now.getTime() + withinHours * 60 * 60 * 1000);
+
+    const data = await this.prisma.medicationSchedule.findMany({
+      where: {
+        userId,
+        startDate: { lte: futureTime },
+        OR: [{ endDate: null }, { endDate: { gte: now } }],
+        remindersEnabled: true,
+      },
+      orderBy: { startDate: 'asc' },
+    });
+
+    return data.map((item) => this.mapToEntity(item));
+  }
+
+  // Frequency-based queries
+  async findDailySchedules(userId: string): Promise<MedicationSchedule[]> {
+    const data = await this.prisma.medicationSchedule.findMany({
+      where: {
+        userId,
+        // This would require checking the schedule JSON field for frequency
+        // For now, return all active schedules
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    return data.map((item) => this.mapToEntity(item));
+  }
+
+  async findWeeklySchedules(_userId: string): Promise<MedicationSchedule[]> {
+    // Placeholder implementation
+    return Promise.resolve([]);
+  }
+
+  async findMonthlySchedules(_userId: string): Promise<MedicationSchedule[]> {
+    // Placeholder implementation
+    return Promise.resolve([]);
+  }
+
+  async findAsNeededSchedules(_userId: string): Promise<MedicationSchedule[]> {
+    // Placeholder implementation
+    return Promise.resolve([]);
+  }
+
+  // Status queries
+  async findExpiredSchedules(userId: string): Promise<MedicationSchedule[]> {
+    const now = new Date();
+    const data = await this.prisma.medicationSchedule.findMany({
+      where: {
+        userId,
+        endDate: { lt: now },
+      },
+      orderBy: { endDate: 'desc' },
+    });
+
+    return data.map((item) => this.mapToEntity(item));
+  }
+
+  async findExpiringSchedules(
+    userId: string,
+    withinDays: number,
+  ): Promise<MedicationSchedule[]> {
+    const now = new Date();
+    const futureDate = new Date(
+      now.getTime() + withinDays * 24 * 60 * 60 * 1000,
+    );
+
+    const data = await this.prisma.medicationSchedule.findMany({
+      where: {
+        userId,
+        endDate: {
+          gte: now,
+          lte: futureDate,
+        },
+      },
+      orderBy: { endDate: 'asc' },
+    });
+
+    return data.map((item) => this.mapToEntity(item));
+  }
+
+  async findOverdueSchedules(_userId: string): Promise<MedicationSchedule[]> {
+    // This would require complex logic to determine overdue schedules
+    // For now, return empty array as placeholder
+    return Promise.resolve([]);
+  }
+
+  // Statistics and analytics
+  async getScheduleStatistics(userId: string): Promise<ScheduleStatistics> {
+    const [totalSchedules, activeSchedules, schedulesWithReminders] =
+      await Promise.all([
+        this.prisma.medicationSchedule.count({ where: { userId } }),
+        this.prisma.medicationSchedule.count({
+          where: {
+            userId,
+            OR: [{ endDate: null }, { endDate: { gte: new Date() } }],
+          },
+        }),
+        this.prisma.medicationSchedule.count({
+          where: { userId, remindersEnabled: true },
+        }),
+      ]);
+
+    return {
+      totalSchedules,
+      activeSchedules,
+      inactiveSchedules: totalSchedules - activeSchedules,
+      schedulesWithReminders,
+      schedulesByFrequency: {},
+      averageDurationDays: 0,
+      upcomingDoses: 0,
+    };
+  }
+
+  async getScheduleCount(userId: string, isActive?: boolean): Promise<number> {
+    const where: Prisma.MedicationScheduleWhereInput = { userId };
+
+    if (isActive !== undefined) {
+      if (isActive) {
+        where.OR = [{ endDate: null }, { endDate: { gte: new Date() } }];
+      } else {
+        where.endDate = { lt: new Date() };
+      }
+    }
+
+    return this.prisma.medicationSchedule.count({ where });
+  }
+
+  async getSchedulesByFrequencyCount(
+    _userId: string,
+  ): Promise<Record<string, number>> {
+    // This would require parsing the schedule JSON field
+    // For now, return empty object as placeholder
+    return Promise.resolve({});
+  }
+
+  // Adherence-related queries
+  async findSchedulesWithPoorAdherence(
+    _userId: string,
+    _adherenceThreshold: number,
+    _days: number,
+  ): Promise<MedicationSchedule[]> {
+    // This would require complex adherence calculation
+    // For now, return empty array as placeholder
+    return Promise.resolve([]);
+  }
+
+  async findMostAdherentSchedules(
+    _userId: string,
+    _limit?: number,
+  ): Promise<MedicationSchedule[]> {
+    // This would require complex adherence calculation
+    // For now, return empty array as placeholder
+    return Promise.resolve([]);
+  }
+
+  // Conflict detection
+  async findConflictingSchedules(
+    _userId: string,
+    _newSchedule: MedicationSchedule,
+  ): Promise<MedicationSchedule[]> {
+    // This would require complex schedule conflict detection
+    // For now, return empty array as placeholder
+    return Promise.resolve([]);
+  }
+
+  async findOverlappingSchedules(
+    _userId: string,
+  ): Promise<MedicationSchedule[][]> {
+    // This would require complex overlap detection
+    // For now, return empty array as placeholder
+    return Promise.resolve([]);
+  }
+
+  // Recent activity
+  async findRecentlyAdded(
+    userId: string,
+    days: number,
+    limit?: number,
+  ): Promise<MedicationSchedule[]> {
+    const cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - days);
+
+    const data = await this.prisma.medicationSchedule.findMany({
+      where: {
+        userId,
+        createdAt: { gte: cutoffDate },
+      },
+      orderBy: { createdAt: 'desc' },
+      take: limit,
+    });
+
+    return data.map((item) => this.mapToEntity(item));
+  }
+
+  async findRecentlyModified(
+    userId: string,
+    days: number,
+    limit?: number,
+  ): Promise<MedicationSchedule[]> {
+    const cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - days);
+
+    const data = await this.prisma.medicationSchedule.findMany({
+      where: {
+        userId,
+        updatedAt: { gte: cutoffDate },
+      },
+      orderBy: { updatedAt: 'desc' },
+      take: limit,
+    });
+
+    return data.map((item) => this.mapToEntity(item));
+  }
+
+  async findRecentlyDeactivated(
+    userId: string,
+    days: number,
+    limit?: number,
+  ): Promise<MedicationSchedule[]> {
+    const cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - days);
+
+    const data = await this.prisma.medicationSchedule.findMany({
+      where: {
+        userId,
+        endDate: {
+          gte: cutoffDate,
+          lt: new Date(),
+        },
+      },
+      orderBy: { endDate: 'desc' },
+      take: limit,
+    });
+
+    return data.map((item) => this.mapToEntity(item));
   }
 }

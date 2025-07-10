@@ -51,7 +51,7 @@ export class PrescriptionController {
         data: prescription.toJSON(),
         message: 'Prescription created successfully',
       };
-    } catch (error) {
+    } catch (error: unknown) {
       throw new HttpException(
         {
           success: false,
@@ -85,7 +85,7 @@ export class PrescriptionController {
         data: prescriptions.map((presc) => presc.toJSON()),
         message: `${prescriptions.length} prescriptions created successfully`,
       };
-    } catch (error) {
+    } catch (error: unknown) {
       throw new HttpException(
         {
           success: false,

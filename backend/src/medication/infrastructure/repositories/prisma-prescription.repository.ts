@@ -26,12 +26,13 @@ export class PrismaPrescriptionRepository extends PrescriptionRepository {
         prescribedBy: prescription.prescribedBy,
         prescribedDate: prescription.prescribedDate,
         pharmacy: prescription.pharmacy,
-        ocrData: prescription.ocrData,
+        ocrData: prescription.ocrData as unknown as Prisma.InputJsonValue,
         imageUrl: prescription.imageUrl,
         isVerified: prescription.isVerified,
         verifiedAt: prescription.verifiedAt,
         verifiedBy: prescription.verifiedBy,
-        medications: prescription.medications,
+        medications:
+          prescription.medications as unknown as Prisma.InputJsonValue,
         createdAt: prescription.createdAt,
         updatedAt: prescription.updatedAt,
       },
@@ -48,12 +49,13 @@ export class PrismaPrescriptionRepository extends PrescriptionRepository {
         prescribedBy: prescription.prescribedBy,
         prescribedDate: prescription.prescribedDate,
         pharmacy: prescription.pharmacy,
-        ocrData: prescription.ocrData,
+        ocrData: prescription.ocrData as unknown as Prisma.InputJsonValue,
         imageUrl: prescription.imageUrl,
         isVerified: prescription.isVerified,
         verifiedAt: prescription.verifiedAt,
         verifiedBy: prescription.verifiedBy,
-        medications: prescription.medications,
+        medications:
+          prescription.medications as unknown as Prisma.InputJsonValue,
         createdAt: prescription.createdAt,
         updatedAt: prescription.updatedAt,
       })),
@@ -98,7 +100,9 @@ export class PrismaPrescriptionRepository extends PrescriptionRepository {
     }
 
     if (query.hasOCRData !== undefined) {
-      where.ocrData = query.hasOCRData ? { not: null } : null;
+      where.ocrData = query.hasOCRData
+        ? { not: Prisma.JsonNull }
+        : { equals: Prisma.JsonNull };
     }
 
     if (query.hasImage !== undefined) {
@@ -138,12 +142,12 @@ export class PrismaPrescriptionRepository extends PrescriptionRepository {
         prescribedBy: updates.prescribedBy,
         prescribedDate: updates.prescribedDate,
         pharmacy: updates.pharmacy,
-        ocrData: updates.ocrData,
+        ocrData: updates.ocrData as unknown as Prisma.InputJsonValue,
         imageUrl: updates.imageUrl,
         isVerified: updates.isVerified,
         verifiedAt: updates.verifiedAt,
         verifiedBy: updates.verifiedBy,
-        medications: updates.medications,
+        medications: updates.medications as unknown as Prisma.InputJsonValue,
         updatedAt: new Date(),
       },
     });
@@ -226,7 +230,10 @@ export class PrismaPrescriptionRepository extends PrescriptionRepository {
       where: {
         userId,
         isVerified: false,
-        OR: [{ ocrData: { not: null } }, { imageUrl: { not: null } }],
+        OR: [
+          { ocrData: { not: Prisma.JsonNull } },
+          { imageUrl: { not: null } },
+        ],
       },
       orderBy: { createdAt: 'asc' },
     });
@@ -236,7 +243,7 @@ export class PrismaPrescriptionRepository extends PrescriptionRepository {
 
   async findWithOCRData(userId?: string): Promise<Prescription[]> {
     const where: Prisma.PrescriptionWhereInput = {
-      ocrData: { not: null },
+      ocrData: { not: Prisma.JsonNull },
     };
 
     if (userId) {
@@ -253,7 +260,7 @@ export class PrismaPrescriptionRepository extends PrescriptionRepository {
 
   async findWithoutOCRData(userId?: string): Promise<Prescription[]> {
     const where: Prisma.PrescriptionWhereInput = {
-      ocrData: null,
+      ocrData: { equals: Prisma.JsonNull },
     };
 
     if (userId) {
@@ -467,7 +474,7 @@ export class PrismaPrescriptionRepository extends PrescriptionRepository {
           where: { userId, isVerified: false },
         }),
         this.prisma.prescription.count({
-          where: { userId, ocrData: { not: null } },
+          where: { userId, ocrData: { not: Prisma.JsonNull } },
         }),
         this.prisma.prescription.count({
           where: { userId, imageUrl: { not: null } },
@@ -552,9 +559,164 @@ export class PrismaPrescriptionRepository extends PrescriptionRepository {
       data.isVerified,
       data.verifiedAt,
       data.verifiedBy,
-      data.medications as PrescriptionMedication[],
+      data.medications as unknown as PrescriptionMedication[],
       data.createdAt,
       data.updatedAt,
     );
+  }
+
+  async getPrescriptionCount(
+    userId: string,
+    isVerified?: boolean,
+  ): Promise<number> {
+    const where: Prisma.PrescriptionWhereInput = { userId };
+    if (isVerified !== undefined) {
+      where.isVerified = isVerified;
+    }
+    return this.prisma.prescription.count({ where });
+  }
+
+  async getProcessingTimeStatistics(userId: string): Promise<{
+    averageHours: number;
+    medianHours: number;
+    minHours: number;
+    maxHours: number;
+  }> {
+    const prescriptions = await this.prisma.prescription.findMany({
+      where: {
+        userId,
+        isVerified: true,
+        verifiedAt: { not: null },
+      },
+      select: {
+        createdAt: true,
+        verifiedAt: true,
+      },
+    });
+
+    if (prescriptions.length === 0) {
+      return {
+        averageHours: 0,
+        medianHours: 0,
+        minHours: 0,
+        maxHours: 0,
+      };
+    }
+
+    const processingTimes = prescriptions
+      .filter((p) => p.verifiedAt)
+      .map((p) => {
+        const diffMs = p.verifiedAt!.getTime() - p.createdAt.getTime();
+        return diffMs / (1000 * 60 * 60); // Convert to hours
+      })
+      .sort((a, b) => a - b);
+
+    const sum = processingTimes.reduce((acc, time) => acc + time, 0);
+    const average = sum / processingTimes.length;
+    const median = processingTimes[Math.floor(processingTimes.length / 2)];
+    const min = processingTimes[0];
+    const max = processingTimes[processingTimes.length - 1];
+
+    return {
+      averageHours: Number(average.toFixed(2)),
+      medianHours: Number(median.toFixed(2)),
+      minHours: Number(min.toFixed(2)),
+      maxHours: Number(max.toFixed(2)),
+    };
+  }
+
+  async findLowConfidenceOCR(
+    _userId: string,
+    _confidenceThreshold: number = 0.7,
+  ): Promise<Prescription[]> {
+    // This would require implementing confidence scoring in OCR data
+    // For now, return empty array as placeholder
+    return Promise.resolve([]);
+  }
+
+  async findIncompleteData(userId: string): Promise<Prescription[]> {
+    const data = await this.prisma.prescription.findMany({
+      where: {
+        userId,
+        OR: [
+          { prescribedBy: { equals: '' } },
+          { medications: { equals: [] } },
+          {
+            AND: [{ ocrData: { not: Prisma.JsonNull } }, { isVerified: false }],
+          },
+        ],
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    return data.map((item) => this.mapToEntity(item));
+  }
+
+  async findDuplicatePrescriptions(_userId: string): Promise<Prescription[][]> {
+    // This would require complex duplicate detection logic
+    // For now, return empty array as placeholder
+    return Promise.resolve([]);
+  }
+
+  async findRecentlyAdded(
+    userId: string,
+    days: number,
+    limit?: number,
+  ): Promise<Prescription[]> {
+    const cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - days);
+
+    const data = await this.prisma.prescription.findMany({
+      where: {
+        userId,
+        createdAt: { gte: cutoffDate },
+      },
+      orderBy: { createdAt: 'desc' },
+      take: limit,
+    });
+
+    return data.map((item) => this.mapToEntity(item));
+  }
+
+  async findRecentlyVerified(
+    userId: string,
+    days: number,
+    limit?: number,
+  ): Promise<Prescription[]> {
+    const cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - days);
+
+    const data = await this.prisma.prescription.findMany({
+      where: {
+        userId,
+        isVerified: true,
+        verifiedAt: { gte: cutoffDate },
+      },
+      orderBy: { verifiedAt: 'desc' },
+      take: limit,
+    });
+
+    return data.map((item) => this.mapToEntity(item));
+  }
+
+  async findRecentlyProcessed(
+    userId: string,
+    days: number,
+    limit?: number,
+  ): Promise<Prescription[]> {
+    const cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - days);
+
+    const data = await this.prisma.prescription.findMany({
+      where: {
+        userId,
+        updatedAt: { gte: cutoffDate },
+        OR: [{ ocrData: { not: Prisma.JsonNull } }, { isVerified: true }],
+      },
+      orderBy: { updatedAt: 'desc' },
+      take: limit,
+    });
+
+    return data.map((item) => this.mapToEntity(item));
   }
 }
