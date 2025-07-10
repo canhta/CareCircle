@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../core/design/design_tokens.dart';
+import '../../../../core/design/design_tokens.dart';
 import '../providers/ai_assistant_providers.dart';
-import '../models/conversation_models.dart';
+import '../../domain/models/conversation_models.dart';
 import 'ai_chat_screen.dart';
 
 class ConversationsScreen extends ConsumerWidget {

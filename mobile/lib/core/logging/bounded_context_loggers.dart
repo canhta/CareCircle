@@ -240,6 +240,11 @@ extension BoundedContextLogging on Talker {
     info('[CARE_GROUP] $activity', context);
   }
 
+  /// Log care group event
+  void logCareGroupEvent(String event, Map<String, dynamic> context) {
+    info('[CARE_GROUP] $event', context);
+  }
+
   /// Log notification event
   void logNotificationEvent(String event, Map<String, dynamic> context) {
     info('[NOTIFICATION] $event', context);

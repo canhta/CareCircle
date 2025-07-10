@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
-import '../../../core/design/design_tokens.dart';
+import '../../../../core/design/design_tokens.dart';
 import '../providers/ai_assistant_providers.dart';
 
 class VoiceInputButton extends ConsumerStatefulWidget {

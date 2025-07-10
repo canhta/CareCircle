@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../core/design/design_tokens.dart';
+import '../../../../core/design/design_tokens.dart';
 
 class HealthcareChatTheme {
   // Healthcare colors for custom styling
