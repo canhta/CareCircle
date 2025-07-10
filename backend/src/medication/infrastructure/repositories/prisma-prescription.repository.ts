@@ -1,6 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../common/database/prisma.service';
-import { Prescription } from '../../domain/entities/prescription.entity';
+import {
+  Prescription,
+  OCRData,
+  PrescriptionMedication,
+} from '../../domain/entities/prescription.entity';
 import {
   PrescriptionRepository,
   PrescriptionQuery,
@@ -22,12 +26,12 @@ export class PrismaPrescriptionRepository extends PrescriptionRepository {
         prescribedBy: prescription.prescribedBy,
         prescribedDate: prescription.prescribedDate,
         pharmacy: prescription.pharmacy,
-        ocrData: prescription.ocrData as Prisma.JsonValue,
+        ocrData: prescription.ocrData,
         imageUrl: prescription.imageUrl,
         isVerified: prescription.isVerified,
         verifiedAt: prescription.verifiedAt,
         verifiedBy: prescription.verifiedBy,
-        medications: prescription.medications as Prisma.JsonValue,
+        medications: prescription.medications,
         createdAt: prescription.createdAt,
         updatedAt: prescription.updatedAt,
       },
@@ -44,12 +48,12 @@ export class PrismaPrescriptionRepository extends PrescriptionRepository {
         prescribedBy: prescription.prescribedBy,
         prescribedDate: prescription.prescribedDate,
         pharmacy: prescription.pharmacy,
-        ocrData: prescription.ocrData as Prisma.JsonValue,
+        ocrData: prescription.ocrData,
         imageUrl: prescription.imageUrl,
         isVerified: prescription.isVerified,
         verifiedAt: prescription.verifiedAt,
         verifiedBy: prescription.verifiedBy,
-        medications: prescription.medications as Prisma.JsonValue,
+        medications: prescription.medications,
         createdAt: prescription.createdAt,
         updatedAt: prescription.updatedAt,
       })),
@@ -134,12 +138,12 @@ export class PrismaPrescriptionRepository extends PrescriptionRepository {
         prescribedBy: updates.prescribedBy,
         prescribedDate: updates.prescribedDate,
         pharmacy: updates.pharmacy,
-        ocrData: updates.ocrData as Prisma.JsonValue,
+        ocrData: updates.ocrData,
         imageUrl: updates.imageUrl,
         isVerified: updates.isVerified,
         verifiedAt: updates.verifiedAt,
         verifiedBy: updates.verifiedBy,
-        medications: updates.medications as Prisma.JsonValue,
+        medications: updates.medications,
         updatedAt: new Date(),
       },
     });
@@ -543,12 +547,12 @@ export class PrismaPrescriptionRepository extends PrescriptionRepository {
       data.prescribedBy,
       data.prescribedDate,
       data.pharmacy,
-      data.ocrData as any, // OCRData type
+      data.ocrData as OCRData | null,
       data.imageUrl,
       data.isVerified,
       data.verifiedAt,
       data.verifiedBy,
-      data.medications as any, // PrescriptionMedication[] type
+      data.medications as PrescriptionMedication[],
       data.createdAt,
       data.updatedAt,
     );

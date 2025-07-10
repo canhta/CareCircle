@@ -11,7 +11,10 @@ import {
   HttpStatus,
   HttpException,
 } from '@nestjs/common';
-import { FirebaseAuthGuard } from '../../../identity-access/presentation/guards/firebase-auth.guard';
+import {
+  FirebaseAuthGuard,
+  FirebaseUserPayload,
+} from '../../../identity-access/presentation/guards/firebase-auth.guard';
 import { DrugInteractionService } from '../../infrastructure/services/drug-interaction.service';
 import { RxNormService } from '../../infrastructure/services/rxnorm.service';
 
@@ -24,11 +27,13 @@ export class DrugInteractionController {
   ) {}
 
   @Get('check-user-medications')
-  async checkUserMedicationInteractions(@Request() req: any) {
+  async checkUserMedicationInteractions(
+    @Request() req: { user: FirebaseUserPayload },
+  ) {
     try {
       const analysis =
         await this.drugInteractionService.checkUserMedicationInteractions(
-          req.user.uid,
+          req.user.id,
         );
 
       return {
@@ -42,7 +47,10 @@ export class DrugInteractionController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to check medication interactions',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Failed to check medication interactions',
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -80,7 +88,9 @@ export class DrugInteractionController {
         {
           success: false,
           message:
-            error.message || 'Failed to check specific medication interactions',
+            error instanceof Error
+              ? error.message
+              : 'Failed to check specific medication interactions',
         },
         HttpStatus.BAD_REQUEST,
       );
@@ -90,7 +100,7 @@ export class DrugInteractionController {
   @Post('check-new-medication')
   async checkNewMedicationAgainstExisting(
     @Body() body: { medicationName: string },
-    @Request() req: any,
+    @Request() req: { user: FirebaseUserPayload },
   ) {
     try {
       if (!body.medicationName) {
@@ -105,7 +115,7 @@ export class DrugInteractionController {
 
       const analysis =
         await this.drugInteractionService.checkNewMedicationAgainstExisting(
-          req.user.uid,
+          req.user.id,
           body.medicationName,
         );
 
@@ -121,7 +131,9 @@ export class DrugInteractionController {
         {
           success: false,
           message:
-            error.message || 'Failed to check new medication interactions',
+            error instanceof Error
+              ? error.message
+              : 'Failed to check new medication interactions',
         },
         HttpStatus.BAD_REQUEST,
       );
@@ -154,7 +166,10 @@ export class DrugInteractionController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to search medication',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Failed to search medication',
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -189,7 +204,10 @@ export class DrugInteractionController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to get medication information',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Failed to get medication information',
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -223,7 +241,10 @@ export class DrugInteractionController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to validate medication name',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Failed to validate medication name',
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -256,7 +277,10 @@ export class DrugInteractionController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to get spelling suggestions',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Failed to get spelling suggestions',
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -294,7 +318,10 @@ export class DrugInteractionController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to get approximate matches',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Failed to get approximate matches',
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -333,7 +360,10 @@ export class DrugInteractionController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to enrich medication data',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Failed to enrich medication data',
         },
         HttpStatus.BAD_REQUEST,
       );
@@ -341,11 +371,13 @@ export class DrugInteractionController {
   }
 
   @Put('update-rxnorm-codes')
-  async updateUserMedicationRxNormCodes(@Request() req: any) {
+  async updateUserMedicationRxNormCodes(
+    @Request() req: { user: FirebaseUserPayload },
+  ) {
     try {
       const result =
         await this.drugInteractionService.updateMedicationRxNormCodes(
-          req.user.uid,
+          req.user.id,
         );
 
       return {
@@ -357,7 +389,10 @@ export class DrugInteractionController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to update RxNorm codes',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Failed to update RxNorm codes',
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );

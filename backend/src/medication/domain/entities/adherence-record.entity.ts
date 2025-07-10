@@ -66,7 +66,7 @@ export class AdherenceRecord {
 
     // Validate status-specific rules
     switch (this.status) {
-      case DoseStatus.TAKEN:
+      case DoseStatus.TAKEN: {
         if (!this.takenAt) return false;
         // Taken time should not be before scheduled time by more than 2 hours
         const minTakenTime = new Date(
@@ -74,6 +74,7 @@ export class AdherenceRecord {
         );
         if (this.takenAt < minTakenTime) return false;
         break;
+      }
       case DoseStatus.SKIPPED:
         if (!this.skippedReason || this.skippedReason.trim().length === 0)
           return false;

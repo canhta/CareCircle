@@ -12,7 +12,10 @@ import {
   HttpStatus,
   HttpException,
 } from '@nestjs/common';
-import { FirebaseAuthGuard } from '../../../identity-access/presentation/guards/firebase-auth.guard';
+import {
+  FirebaseAuthGuard,
+  FirebaseUserPayload,
+} from '../../../identity-access/presentation/guards/firebase-auth.guard';
 import { PrescriptionService } from '../../application/services/prescription.service';
 import {
   CreatePrescriptionDto,
@@ -31,12 +34,12 @@ export class PrescriptionController {
   @Post()
   async createPrescription(
     @Body() createPrescriptionDto: CreatePrescriptionDto,
-    @Request() req: any,
+    @Request() req: { user: FirebaseUserPayload },
   ) {
     try {
       const prescription = await this.prescriptionService.createPrescription({
         ...createPrescriptionDto,
-        userId: req.user.uid,
+        userId: req.user.id,
         prescribedDate: new Date(createPrescriptionDto.prescribedDate),
         verifiedAt: createPrescriptionDto.verifiedAt
           ? new Date(createPrescriptionDto.verifiedAt)
@@ -52,7 +55,10 @@ export class PrescriptionController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to create prescription',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Failed to create prescription',
         },
         HttpStatus.BAD_REQUEST,
       );
@@ -62,13 +68,13 @@ export class PrescriptionController {
   @Post('bulk')
   async createPrescriptions(
     @Body() createPrescriptionsDto: { prescriptions: CreatePrescriptionDto[] },
-    @Request() req: any,
+    @Request() req: { user: FirebaseUserPayload },
   ) {
     try {
       const prescriptions = await this.prescriptionService.createPrescriptions(
         createPrescriptionsDto.prescriptions.map((presc) => ({
           ...presc,
-          userId: req.user.uid,
+          userId: req.user.id,
           prescribedDate: new Date(presc.prescribedDate),
           verifiedAt: presc.verifiedAt ? new Date(presc.verifiedAt) : undefined,
         })),
@@ -83,7 +89,10 @@ export class PrescriptionController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to create prescriptions',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Failed to create prescriptions',
         },
         HttpStatus.BAD_REQUEST,
       );
@@ -93,11 +102,11 @@ export class PrescriptionController {
   @Get()
   async getUserPrescriptions(
     @Query() query: PrescriptionQueryDto,
-    @Request() req: any,
+    @Request() req: { user: FirebaseUserPayload },
   ) {
     try {
       const prescriptions = await this.prescriptionService.searchPrescriptions({
-        userId: req.user.uid,
+        userId: req.user.id,
         ...query,
         startDate: query.startDate ? new Date(query.startDate) : undefined,
         endDate: query.endDate ? new Date(query.endDate) : undefined,
@@ -112,7 +121,10 @@ export class PrescriptionController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to fetch prescriptions',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Failed to fetch prescriptions',
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -121,13 +133,13 @@ export class PrescriptionController {
 
   @Get('recent')
   async getRecentPrescriptions(
+    @Request() req: { user: FirebaseUserPayload },
     @Query('limit') limit?: number,
-    @Request() req: any,
   ) {
     try {
       const prescriptions =
         await this.prescriptionService.getRecentPrescriptions(
-          req.user.uid,
+          req.user.id,
           limit ? parseInt(limit.toString()) : undefined,
         );
 
@@ -140,7 +152,10 @@ export class PrescriptionController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to fetch recent prescriptions',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Failed to fetch recent prescriptions',
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -148,10 +163,12 @@ export class PrescriptionController {
   }
 
   @Get('unverified')
-  async getUnverifiedPrescriptions(@Request() req: any) {
+  async getUnverifiedPrescriptions(
+    @Request() req: { user: FirebaseUserPayload },
+  ) {
     try {
       const prescriptions =
-        await this.prescriptionService.getUnverifiedPrescriptions(req.user.uid);
+        await this.prescriptionService.getUnverifiedPrescriptions(req.user.id);
 
       return {
         success: true,
@@ -162,7 +179,10 @@ export class PrescriptionController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to fetch unverified prescriptions',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Failed to fetch unverified prescriptions',
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -170,10 +190,12 @@ export class PrescriptionController {
   }
 
   @Get('verified')
-  async getVerifiedPrescriptions(@Request() req: any) {
+  async getVerifiedPrescriptions(
+    @Request() req: { user: FirebaseUserPayload },
+  ) {
     try {
       const prescriptions =
-        await this.prescriptionService.getVerifiedPrescriptions(req.user.uid);
+        await this.prescriptionService.getVerifiedPrescriptions(req.user.id);
 
       return {
         success: true,
@@ -184,7 +206,10 @@ export class PrescriptionController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to fetch verified prescriptions',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Failed to fetch verified prescriptions',
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -192,11 +217,13 @@ export class PrescriptionController {
   }
 
   @Get('pending-verification')
-  async getPendingVerificationPrescriptions(@Request() req: any) {
+  async getPendingVerificationPrescriptions(
+    @Request() req: { user: FirebaseUserPayload },
+  ) {
     try {
       const prescriptions =
         await this.prescriptionService.getPendingVerificationPrescriptions(
-          req.user.uid,
+          req.user.id,
         );
 
       return {
@@ -209,8 +236,9 @@ export class PrescriptionController {
         {
           success: false,
           message:
-            error.message ||
-            'Failed to fetch pending verification prescriptions',
+            error instanceof Error
+              ? error.message
+              : 'Failed to fetch pending verification prescriptions',
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -218,10 +246,10 @@ export class PrescriptionController {
   }
 
   @Get('with-ocr')
-  async getPrescriptionsWithOCR(@Request() req: any) {
+  async getPrescriptionsWithOCR(@Request() req: { user: FirebaseUserPayload }) {
     try {
       const prescriptions =
-        await this.prescriptionService.getPrescriptionsWithOCR(req.user.uid);
+        await this.prescriptionService.getPrescriptionsWithOCR(req.user.id);
 
       return {
         success: true,
@@ -232,7 +260,10 @@ export class PrescriptionController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to fetch prescriptions with OCR',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Failed to fetch prescriptions with OCR',
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -240,10 +271,12 @@ export class PrescriptionController {
   }
 
   @Get('without-ocr')
-  async getPrescriptionsWithoutOCR(@Request() req: any) {
+  async getPrescriptionsWithoutOCR(
+    @Request() req: { user: FirebaseUserPayload },
+  ) {
     try {
       const prescriptions =
-        await this.prescriptionService.getPrescriptionsWithoutOCR(req.user.uid);
+        await this.prescriptionService.getPrescriptionsWithoutOCR(req.user.id);
 
       return {
         success: true,
@@ -254,7 +287,10 @@ export class PrescriptionController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to fetch prescriptions without OCR',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Failed to fetch prescriptions without OCR',
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -262,10 +298,10 @@ export class PrescriptionController {
   }
 
   @Get('prescribers')
-  async getUniquePrescribers(@Request() req: any) {
+  async getUniquePrescribers(@Request() req: { user: FirebaseUserPayload }) {
     try {
       const prescribers = await this.prescriptionService.getUniquePrescribers(
-        req.user.uid,
+        req.user.id,
       );
 
       return {
@@ -277,7 +313,10 @@ export class PrescriptionController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to fetch prescribers',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Failed to fetch prescribers',
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -285,10 +324,10 @@ export class PrescriptionController {
   }
 
   @Get('pharmacies')
-  async getUniquePharmacies(@Request() req: any) {
+  async getUniquePharmacies(@Request() req: { user: FirebaseUserPayload }) {
     try {
       const pharmacies = await this.prescriptionService.getUniquePharmacies(
-        req.user.uid,
+        req.user.id,
       );
 
       return {
@@ -300,7 +339,10 @@ export class PrescriptionController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to fetch pharmacies',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Failed to fetch pharmacies',
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -308,10 +350,12 @@ export class PrescriptionController {
   }
 
   @Get('statistics')
-  async getPrescriptionStatistics(@Request() req: any) {
+  async getPrescriptionStatistics(
+    @Request() req: { user: FirebaseUserPayload },
+  ) {
     try {
       const statistics =
-        await this.prescriptionService.getPrescriptionStatistics(req.user.uid);
+        await this.prescriptionService.getPrescriptionStatistics(req.user.id);
 
       return {
         success: true,
@@ -321,7 +365,10 @@ export class PrescriptionController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to fetch prescription statistics',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Failed to fetch prescription statistics',
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -330,14 +377,14 @@ export class PrescriptionController {
 
   @Get('search')
   async searchPrescriptions(
+    @Request() req: { user: FirebaseUserPayload },
     @Query('term') searchTerm: string,
     @Query('limit') limit?: number,
-    @Request() req: any,
   ) {
     try {
       const prescriptions =
         await this.prescriptionService.searchPrescriptionsByTerm(
-          req.user.uid,
+          req.user.id,
           searchTerm,
           limit ? parseInt(limit.toString()) : undefined,
         );
@@ -351,7 +398,10 @@ export class PrescriptionController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to search prescriptions',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Failed to search prescriptions',
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -385,7 +435,10 @@ export class PrescriptionController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to fetch prescription',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Failed to fetch prescription',
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -420,7 +473,10 @@ export class PrescriptionController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to update prescription',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Failed to update prescription',
         },
         HttpStatus.BAD_REQUEST,
       );
@@ -447,7 +503,10 @@ export class PrescriptionController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to verify prescription',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Failed to verify prescription',
         },
         HttpStatus.BAD_REQUEST,
       );
@@ -469,7 +528,10 @@ export class PrescriptionController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to unverify prescription',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Failed to unverify prescription',
         },
         HttpStatus.BAD_REQUEST,
       );
@@ -497,7 +559,10 @@ export class PrescriptionController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to add medication to prescription',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Failed to add medication to prescription',
         },
         HttpStatus.BAD_REQUEST,
       );
@@ -528,7 +593,9 @@ export class PrescriptionController {
         {
           success: false,
           message:
-            error.message || 'Failed to update medication in prescription',
+            error instanceof Error
+              ? error.message
+              : 'Failed to update medication in prescription',
         },
         HttpStatus.BAD_REQUEST,
       );
@@ -557,7 +624,9 @@ export class PrescriptionController {
         {
           success: false,
           message:
-            error.message || 'Failed to remove medication from prescription',
+            error instanceof Error
+              ? error.message
+              : 'Failed to remove medication from prescription',
         },
         HttpStatus.BAD_REQUEST,
       );
@@ -584,7 +653,8 @@ export class PrescriptionController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to set OCR data',
+          message:
+            error instanceof Error ? error.message : 'Failed to set OCR data',
         },
         HttpStatus.BAD_REQUEST,
       );
@@ -611,7 +681,8 @@ export class PrescriptionController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to set image URL',
+          message:
+            error instanceof Error ? error.message : 'Failed to set image URL',
         },
         HttpStatus.BAD_REQUEST,
       );
@@ -631,7 +702,10 @@ export class PrescriptionController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to delete prescription',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Failed to delete prescription',
         },
         HttpStatus.BAD_REQUEST,
       );

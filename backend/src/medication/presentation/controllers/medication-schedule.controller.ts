@@ -12,7 +12,10 @@ import {
   HttpStatus,
   HttpException,
 } from '@nestjs/common';
-import { FirebaseAuthGuard } from '../../../identity-access/presentation/guards/firebase-auth.guard';
+import {
+  FirebaseAuthGuard,
+  FirebaseUserPayload,
+} from '../../../identity-access/presentation/guards/firebase-auth.guard';
 import { MedicationScheduleService } from '../../application/services/medication-schedule.service';
 import {
   CreateScheduleDto,
@@ -29,12 +32,12 @@ export class MedicationScheduleController {
   @Post()
   async createSchedule(
     @Body() createScheduleDto: CreateScheduleDto,
-    @Request() req: any,
+    @Request() req: { user: FirebaseUserPayload },
   ) {
     try {
       const schedule = await this.scheduleService.createSchedule({
         ...createScheduleDto,
-        userId: req.user.uid,
+        userId: req.user.id,
         startDate: new Date(createScheduleDto.startDate),
         endDate: createScheduleDto.endDate
           ? new Date(createScheduleDto.endDate)
@@ -50,7 +53,10 @@ export class MedicationScheduleController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to create medication schedule',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Failed to create medication schedule',
         },
         HttpStatus.BAD_REQUEST,
       );
@@ -60,13 +66,13 @@ export class MedicationScheduleController {
   @Post('bulk')
   async createSchedules(
     @Body() createSchedulesDto: { schedules: CreateScheduleDto[] },
-    @Request() req: any,
+    @Request() req: { user: FirebaseUserPayload },
   ) {
     try {
       const schedules = await this.scheduleService.createSchedules(
         createSchedulesDto.schedules.map((sched) => ({
           ...sched,
-          userId: req.user.uid,
+          userId: req.user.id,
           startDate: new Date(sched.startDate),
           endDate: sched.endDate ? new Date(sched.endDate) : undefined,
         })),
@@ -81,7 +87,10 @@ export class MedicationScheduleController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to create medication schedules',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Failed to create medication schedules',
         },
         HttpStatus.BAD_REQUEST,
       );
@@ -91,11 +100,11 @@ export class MedicationScheduleController {
   @Get()
   async getUserSchedules(
     @Query() query: ScheduleQueryDto,
-    @Request() req: any,
+    @Request() req: { user: FirebaseUserPayload },
   ) {
     try {
       const schedules = await this.scheduleService.searchSchedules({
-        userId: req.user.uid,
+        userId: req.user.id,
         ...query,
         startDate: query.startDate ? new Date(query.startDate) : undefined,
         endDate: query.endDate ? new Date(query.endDate) : undefined,
@@ -110,7 +119,10 @@ export class MedicationScheduleController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to fetch medication schedules',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Failed to fetch medication schedules',
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -118,79 +130,10 @@ export class MedicationScheduleController {
   }
 
   @Get('active')
-  async getActiveSchedules(@Request() req: any) {
+  async getActiveSchedules(@Request() req: { user: FirebaseUserPayload }) {
     try {
       const schedules = await this.scheduleService.getActiveSchedules(
-        req.user.uid,
-      );
-
-      return {
-        success: true,
-        data: schedules.map((sched) => sched.toJSON()),
-        count: schedules.length,
-      };
-    } catch (error) {
-      throw new HttpException(
-        {
-          success: false,
-          message: error.message || 'Failed to fetch active schedules',
-        },
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-  }
-
-  @Get('inactive')
-  async getInactiveSchedules(@Request() req: any) {
-    try {
-      const schedules = await this.scheduleService.getInactiveSchedules(
-        req.user.uid,
-      );
-
-      return {
-        success: true,
-        data: schedules.map((sched) => sched.toJSON()),
-        count: schedules.length,
-      };
-    } catch (error) {
-      throw new HttpException(
-        {
-          success: false,
-          message: error.message || 'Failed to fetch inactive schedules',
-        },
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-  }
-
-  @Get('with-reminders')
-  async getSchedulesWithReminders(@Request() req: any) {
-    try {
-      const schedules = await this.scheduleService.getSchedulesWithReminders(
-        req.user.uid,
-      );
-
-      return {
-        success: true,
-        data: schedules.map((sched) => sched.toJSON()),
-        count: schedules.length,
-      };
-    } catch (error) {
-      throw new HttpException(
-        {
-          success: false,
-          message: error.message || 'Failed to fetch schedules with reminders',
-        },
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-  }
-
-  @Get('without-reminders')
-  async getSchedulesWithoutReminders(@Request() req: any) {
-    try {
-      const schedules = await this.scheduleService.getSchedulesWithoutReminders(
-        req.user.uid,
+        req.user.id,
       );
 
       return {
@@ -203,7 +146,91 @@ export class MedicationScheduleController {
         {
           success: false,
           message:
-            error.message || 'Failed to fetch schedules without reminders',
+            error instanceof Error
+              ? error.message
+              : 'Failed to fetch active schedules',
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  @Get('inactive')
+  async getInactiveSchedules(@Request() req: { user: FirebaseUserPayload }) {
+    try {
+      const schedules = await this.scheduleService.getInactiveSchedules(
+        req.user.id,
+      );
+
+      return {
+        success: true,
+        data: schedules.map((sched) => sched.toJSON()),
+        count: schedules.length,
+      };
+    } catch (error) {
+      throw new HttpException(
+        {
+          success: false,
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Failed to fetch inactive schedules',
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  @Get('with-reminders')
+  async getSchedulesWithReminders(
+    @Request() req: { user: FirebaseUserPayload },
+  ) {
+    try {
+      const schedules = await this.scheduleService.getSchedulesWithReminders(
+        req.user.id,
+      );
+
+      return {
+        success: true,
+        data: schedules.map((sched) => sched.toJSON()),
+        count: schedules.length,
+      };
+    } catch (error) {
+      throw new HttpException(
+        {
+          success: false,
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Failed to fetch schedules with reminders',
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  @Get('without-reminders')
+  async getSchedulesWithoutReminders(
+    @Request() req: { user: FirebaseUserPayload },
+  ) {
+    try {
+      const schedules = await this.scheduleService.getSchedulesWithoutReminders(
+        req.user.id,
+      );
+
+      return {
+        success: true,
+        data: schedules.map((sched) => sched.toJSON()),
+        count: schedules.length,
+      };
+    } catch (error) {
+      throw new HttpException(
+        {
+          success: false,
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Failed to fetch schedules without reminders',
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -213,11 +240,11 @@ export class MedicationScheduleController {
   @Get('frequency/:frequency')
   async getSchedulesByFrequency(
     @Param('frequency') frequency: 'daily' | 'weekly' | 'monthly' | 'as_needed',
-    @Request() req: any,
+    @Request() req: { user: FirebaseUserPayload },
   ) {
     try {
       const schedules = await this.scheduleService.getSchedulesByFrequency(
-        req.user.uid,
+        req.user.id,
         frequency,
       );
 
@@ -230,7 +257,10 @@ export class MedicationScheduleController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to fetch schedules by frequency',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Failed to fetch schedules by frequency',
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -240,11 +270,11 @@ export class MedicationScheduleController {
   @Get('upcoming')
   async getUpcomingSchedules(
     @Query('hours') hours: number = 24,
-    @Request() req: any,
+    @Request() req: { user: FirebaseUserPayload },
   ) {
     try {
       const schedules = await this.scheduleService.getUpcomingSchedules(
-        req.user.uid,
+        req.user.id,
         parseInt(hours.toString()),
       );
 
@@ -257,7 +287,10 @@ export class MedicationScheduleController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to fetch upcoming schedules',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Failed to fetch upcoming schedules',
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -265,10 +298,10 @@ export class MedicationScheduleController {
   }
 
   @Get('expired')
-  async getExpiredSchedules(@Request() req: any) {
+  async getExpiredSchedules(@Request() req: { user: FirebaseUserPayload }) {
     try {
       const schedules = await this.scheduleService.getExpiredSchedules(
-        req.user.uid,
+        req.user.id,
       );
 
       return {
@@ -280,7 +313,10 @@ export class MedicationScheduleController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to fetch expired schedules',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Failed to fetch expired schedules',
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -290,11 +326,11 @@ export class MedicationScheduleController {
   @Get('expiring')
   async getExpiringSchedules(
     @Query('days') days: number = 7,
-    @Request() req: any,
+    @Request() req: { user: FirebaseUserPayload },
   ) {
     try {
       const schedules = await this.scheduleService.getExpiringSchedules(
-        req.user.uid,
+        req.user.id,
         parseInt(days.toString()),
       );
 
@@ -307,7 +343,10 @@ export class MedicationScheduleController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to fetch expiring schedules',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Failed to fetch expiring schedules',
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -315,10 +354,10 @@ export class MedicationScheduleController {
   }
 
   @Get('statistics')
-  async getScheduleStatistics(@Request() req: any) {
+  async getScheduleStatistics(@Request() req: { user: FirebaseUserPayload }) {
     try {
       const statistics = await this.scheduleService.getScheduleStatistics(
-        req.user.uid,
+        req.user.id,
       );
 
       return {
@@ -329,7 +368,10 @@ export class MedicationScheduleController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to fetch schedule statistics',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Failed to fetch schedule statistics',
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -351,7 +393,10 @@ export class MedicationScheduleController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to fetch medication schedules',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Failed to fetch medication schedules',
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -376,7 +421,9 @@ export class MedicationScheduleController {
         {
           success: false,
           message:
-            error.message || 'Failed to fetch active medication schedules',
+            error instanceof Error
+              ? error.message
+              : 'Failed to fetch active medication schedules',
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -410,7 +457,10 @@ export class MedicationScheduleController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to fetch medication schedule',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Failed to fetch medication schedule',
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -439,7 +489,10 @@ export class MedicationScheduleController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to update medication schedule',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Failed to update medication schedule',
         },
         HttpStatus.BAD_REQUEST,
       );
@@ -466,7 +519,10 @@ export class MedicationScheduleController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to end medication schedule',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Failed to end medication schedule',
         },
         HttpStatus.BAD_REQUEST,
       );
@@ -487,7 +543,10 @@ export class MedicationScheduleController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to enable reminders',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Failed to enable reminders',
         },
         HttpStatus.BAD_REQUEST,
       );
@@ -508,7 +567,10 @@ export class MedicationScheduleController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to disable reminders',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Failed to disable reminders',
         },
         HttpStatus.BAD_REQUEST,
       );
@@ -535,7 +597,10 @@ export class MedicationScheduleController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to add reminder time',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Failed to add reminder time',
         },
         HttpStatus.BAD_REQUEST,
       );
@@ -562,7 +627,10 @@ export class MedicationScheduleController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to remove reminder time',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Failed to remove reminder time',
         },
         HttpStatus.BAD_REQUEST,
       );
@@ -582,7 +650,10 @@ export class MedicationScheduleController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to delete medication schedule',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Failed to delete medication schedule',
         },
         HttpStatus.BAD_REQUEST,
       );

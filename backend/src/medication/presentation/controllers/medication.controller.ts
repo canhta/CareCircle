@@ -12,7 +12,10 @@ import {
   HttpStatus,
   HttpException,
 } from '@nestjs/common';
-import { FirebaseAuthGuard } from '../../../identity-access/presentation/guards/firebase-auth.guard';
+import {
+  FirebaseAuthGuard,
+  FirebaseUserPayload,
+} from '../../../identity-access/presentation/guards/firebase-auth.guard';
 import { MedicationService } from '../../application/services/medication.service';
 import { MedicationForm } from '@prisma/client';
 import {
@@ -29,12 +32,12 @@ export class MedicationController {
   @Post()
   async createMedication(
     @Body() createMedicationDto: CreateMedicationDto,
-    @Request() req: any,
+    @Request() req: { user: FirebaseUserPayload },
   ) {
     try {
       const medication = await this.medicationService.createMedication({
         ...createMedicationDto,
-        userId: req.user.uid,
+        userId: req.user.id,
       });
 
       return {
@@ -43,10 +46,12 @@ export class MedicationController {
         message: 'Medication created successfully',
       };
     } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Failed to create medication';
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to create medication',
+          message: errorMessage,
         },
         HttpStatus.BAD_REQUEST,
       );
@@ -56,13 +61,13 @@ export class MedicationController {
   @Post('bulk')
   async createMedications(
     @Body() createMedicationsDto: { medications: CreateMedicationDto[] },
-    @Request() req: any,
+    @Request() req: { user: FirebaseUserPayload },
   ) {
     try {
       const medications = await this.medicationService.createMedications(
         createMedicationsDto.medications.map((med) => ({
           ...med,
-          userId: req.user.uid,
+          userId: req.user.id,
         })),
       );
 
@@ -85,11 +90,11 @@ export class MedicationController {
   @Get()
   async getUserMedications(
     @Query() query: MedicationQueryDto,
-    @Request() req: any,
+    @Request() req: { user: FirebaseUserPayload },
   ) {
     try {
       const medications = await this.medicationService.searchMedications({
-        userId: req.user.uid,
+        userId: req.user.id,
         ...query,
       });
 
@@ -110,10 +115,10 @@ export class MedicationController {
   }
 
   @Get('active')
-  async getActiveMedications(@Request() req: any) {
+  async getActiveMedications(@Request() req: { user: FirebaseUserPayload }) {
     try {
       const medications = await this.medicationService.getActiveMedications(
-        req.user.uid,
+        req.user.id,
       );
 
       return {
@@ -133,10 +138,10 @@ export class MedicationController {
   }
 
   @Get('inactive')
-  async getInactiveMedications(@Request() req: any) {
+  async getInactiveMedications(@Request() req: { user: FirebaseUserPayload }) {
     try {
       const medications = await this.medicationService.getInactiveMedications(
-        req.user.uid,
+        req.user.id,
       );
 
       return {
@@ -157,13 +162,13 @@ export class MedicationController {
 
   @Get('search')
   async searchMedications(
+    @Request() req: { user: FirebaseUserPayload },
     @Query('term') searchTerm: string,
     @Query('limit') limit?: number,
-    @Request() req: any,
   ) {
     try {
       const medications = await this.medicationService.searchMedicationsByName(
-        req.user.uid,
+        req.user.id,
         searchTerm,
         limit ? parseInt(limit.toString()) : undefined,
       );
@@ -187,11 +192,11 @@ export class MedicationController {
   @Get('form/:form')
   async getMedicationsByForm(
     @Param('form') form: MedicationForm,
-    @Request() req: any,
+    @Request() req: { user: FirebaseUserPayload },
   ) {
     try {
       const medications = await this.medicationService.getMedicationsByForm(
-        req.user.uid,
+        req.user.id,
         form,
       );
 
@@ -212,10 +217,10 @@ export class MedicationController {
   }
 
   @Get('expired')
-  async getExpiredMedications(@Request() req: any) {
+  async getExpiredMedications(@Request() req: { user: FirebaseUserPayload }) {
     try {
       const medications = await this.medicationService.getExpiredMedications(
-        req.user.uid,
+        req.user.id,
       );
 
       return {
@@ -237,11 +242,11 @@ export class MedicationController {
   @Get('expiring')
   async getExpiringMedications(
     @Query('days') days: number = 30,
-    @Request() req: any,
+    @Request() req: { user: FirebaseUserPayload },
   ) {
     try {
       const medications = await this.medicationService.getExpiringMedications(
-        req.user.uid,
+        req.user.id,
         parseInt(days.toString()),
       );
 
@@ -262,10 +267,10 @@ export class MedicationController {
   }
 
   @Get('statistics')
-  async getMedicationStatistics(@Request() req: any) {
+  async getMedicationStatistics(@Request() req: { user: FirebaseUserPayload }) {
     try {
       const statistics = await this.medicationService.getMedicationStatistics(
-        req.user.uid,
+        req.user.id,
       );
 
       return {
@@ -284,10 +289,10 @@ export class MedicationController {
   }
 
   @Get('duplicates')
-  async getDuplicateMedications(@Request() req: any) {
+  async getDuplicateMedications(@Request() req: { user: FirebaseUserPayload }) {
     try {
       const duplicates = await this.medicationService.findDuplicateMedications(
-        req.user.uid,
+        req.user.id,
       );
 
       return {
@@ -308,14 +313,14 @@ export class MedicationController {
 
   @Get('recent')
   async getRecentMedications(
+    @Request() req: { user: FirebaseUserPayload },
     @Query('days') days: number = 7,
     @Query('limit') limit?: number,
-    @Request() req: any,
   ) {
     try {
       const recentMedications =
         await this.medicationService.getRecentMedications(
-          req.user.uid,
+          req.user.id,
           parseInt(days.toString()),
           limit ? parseInt(limit.toString()) : undefined,
         );

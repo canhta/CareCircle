@@ -4,7 +4,6 @@ import {
   Put,
   Body,
   Param,
-  Query,
   UseGuards,
   Request,
   HttpStatus,
@@ -13,7 +12,10 @@ import {
   UploadedFile,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { FirebaseAuthGuard } from '../../../identity-access/presentation/guards/firebase-auth.guard';
+import {
+  FirebaseAuthGuard,
+  FirebaseUserPayload,
+} from '../../../identity-access/presentation/guards/firebase-auth.guard';
 import { PrescriptionProcessingService } from '../../application/services/prescription-processing.service';
 import { OCRProcessingOptions } from '../../infrastructure/services/ocr.service';
 
@@ -36,7 +38,7 @@ export class PrescriptionProcessingController {
       extractionMethod?: 'basic' | 'enhanced' | 'medical';
       confidenceThreshold?: number;
     },
-    @Request() req: any,
+    @Request() req: { user: FirebaseUserPayload },
   ) {
     try {
       if (!file) {
@@ -81,7 +83,7 @@ export class PrescriptionProcessingController {
 
       const result =
         await this.prescriptionProcessingService.processImagePrescription(
-          req.user.uid,
+          req.user.id,
           file.buffer,
           body.prescribedBy,
           body.prescribedDate ? new Date(body.prescribedDate) : undefined,
@@ -106,7 +108,10 @@ export class PrescriptionProcessingController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to process prescription image',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Failed to process prescription image',
         },
         HttpStatus.BAD_REQUEST,
       );
@@ -124,7 +129,7 @@ export class PrescriptionProcessingController {
       extractionMethod?: 'basic' | 'enhanced' | 'medical';
       confidenceThreshold?: number;
     },
-    @Request() req: any,
+    @Request() req: { user: FirebaseUserPayload },
   ) {
     try {
       if (!body.imageUrl) {
@@ -145,7 +150,7 @@ export class PrescriptionProcessingController {
 
       const result =
         await this.prescriptionProcessingService.processUrlPrescription(
-          req.user.uid,
+          req.user.id,
           body.imageUrl,
           body.prescribedBy,
           body.prescribedDate ? new Date(body.prescribedDate) : undefined,
@@ -170,7 +175,10 @@ export class PrescriptionProcessingController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to process prescription from URL',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Failed to process prescription from URL',
         },
         HttpStatus.BAD_REQUEST,
       );
@@ -213,7 +221,10 @@ export class PrescriptionProcessingController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to reprocess prescription',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Failed to reprocess prescription',
         },
         HttpStatus.BAD_REQUEST,
       );
@@ -241,7 +252,9 @@ export class PrescriptionProcessingController {
         {
           success: false,
           message:
-            error.message || 'Failed to enhance prescription with RxNorm data',
+            error instanceof Error
+              ? error.message
+              : 'Failed to enhance prescription with RxNorm data',
         },
         HttpStatus.BAD_REQUEST,
       );

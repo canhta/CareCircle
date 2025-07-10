@@ -4,8 +4,6 @@ import { AdherenceRecord } from '../../domain/entities/adherence-record.entity';
 import {
   AdherenceRecordRepository,
   AdherenceQuery,
-  AdherenceStatistics,
-  AdherenceTrend,
 } from '../../domain/repositories/adherence-record.repository';
 import {
   MedicationDose as PrismaMedicationDose,

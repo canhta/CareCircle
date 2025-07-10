@@ -4,7 +4,6 @@ import { MedicationSchedule } from '../../domain/entities/medication-schedule.en
 import {
   MedicationScheduleRepository,
   ScheduleQuery,
-  ScheduleStatistics,
 } from '../../domain/repositories/medication-schedule.repository';
 import {
   MedicationSchedule as PrismaMedicationSchedule,
@@ -27,9 +26,9 @@ export class PrismaMedicationScheduleRepository extends MedicationScheduleReposi
         remindersEnabled: schedule.remindersEnabled,
         startDate: schedule.startDate,
         endDate: schedule.endDate,
-        schedule: schedule.schedule as Prisma.JsonValue,
-        reminderTimes: schedule.reminderTimes as Prisma.JsonValue,
-        reminderSettings: schedule.reminderSettings as Prisma.JsonValue,
+        schedule: schedule.schedule,
+        reminderTimes: schedule.reminderTimes,
+        reminderSettings: schedule.reminderSettings,
         createdAt: schedule.createdAt,
         updatedAt: schedule.updatedAt,
       },
@@ -50,9 +49,9 @@ export class PrismaMedicationScheduleRepository extends MedicationScheduleReposi
         remindersEnabled: schedule.remindersEnabled,
         startDate: schedule.startDate,
         endDate: schedule.endDate,
-        schedule: schedule.schedule as Prisma.JsonValue,
-        reminderTimes: schedule.reminderTimes as Prisma.JsonValue,
-        reminderSettings: schedule.reminderSettings as Prisma.JsonValue,
+        schedule: schedule.schedule,
+        reminderTimes: schedule.reminderTimes,
+        reminderSettings: schedule.reminderSettings,
         createdAt: schedule.createdAt,
         updatedAt: schedule.updatedAt,
       })),
@@ -124,9 +123,9 @@ export class PrismaMedicationScheduleRepository extends MedicationScheduleReposi
         instructions: updates.instructions,
         remindersEnabled: updates.remindersEnabled,
         endDate: updates.endDate,
-        schedule: updates.schedule as Prisma.JsonValue,
-        reminderTimes: updates.reminderTimes as Prisma.JsonValue,
-        reminderSettings: updates.reminderSettings as Prisma.JsonValue,
+        schedule: updates.schedule,
+        reminderTimes: updates.reminderTimes,
+        reminderSettings: updates.reminderSettings,
         updatedAt: new Date(),
       },
     });
@@ -250,7 +249,7 @@ export class PrismaMedicationScheduleRepository extends MedicationScheduleReposi
 
   async findSchedulesNeedingReminders(
     userId: string,
-    withinMinutes: number,
+    _withinMinutes: number,
   ): Promise<MedicationSchedule[]> {
     // This is a complex query that would need to examine the schedule JSON
     // For now, return active schedules with reminders enabled
@@ -277,9 +276,9 @@ export class PrismaMedicationScheduleRepository extends MedicationScheduleReposi
       data.remindersEnabled,
       data.startDate,
       data.endDate,
-      data.schedule as any, // DosageSchedule type
-      data.reminderTimes as any, // Time[] type
-      data.reminderSettings as any, // ReminderSettings type
+      data.schedule,
+      data.reminderTimes,
+      data.reminderSettings,
       data.createdAt,
       data.updatedAt,
     );

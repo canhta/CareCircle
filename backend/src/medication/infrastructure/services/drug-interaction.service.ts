@@ -2,7 +2,7 @@ import { Injectable, Inject } from '@nestjs/common';
 import {
   RxNormService,
   DrugInteraction,
-  MedicationInfo,
+  MedicationInfo as _MedicationInfo,
 } from './rxnorm.service';
 import { MedicationRepository } from '../../domain/repositories/medication.repository';
 
@@ -55,13 +55,15 @@ export class DrugInteractionService {
       const medicationsForCheck = activeMedications.map((med) => ({
         id: med.id,
         name: med.name,
-        rxcui: med.rxNormCode,
+        rxcui: med.rxNormCode || undefined,
       }));
 
       return this.analyzeMedicationInteractions(medicationsForCheck);
     } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
       throw new Error(
-        `Failed to check user medication interactions: ${error.message}`,
+        `Failed to check user medication interactions: ${errorMessage}`,
       );
     }
   }
@@ -98,7 +100,7 @@ export class DrugInteractionService {
         ...activeMedications.map((med) => ({
           id: med.id,
           name: med.name,
-          rxcui: med.rxNormCode,
+          rxcui: med.rxNormCode || undefined,
         })),
         {
           id: 'new_medication',
@@ -109,8 +111,10 @@ export class DrugInteractionService {
 
       return this.analyzeMedicationInteractions(allMedications);
     } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
       throw new Error(
-        `Failed to check new medication interactions: ${error.message}`,
+        `Failed to check new medication interactions: ${errorMessage}`,
       );
     }
   }
@@ -143,8 +147,10 @@ export class DrugInteractionService {
         lastChecked: new Date(),
       };
     } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
       throw new Error(
-        `Failed to analyze medication interactions: ${error.message}`,
+        `Failed to analyze medication interactions: ${errorMessage}`,
       );
     }
   }
@@ -285,7 +291,7 @@ export class DrugInteractionService {
 
   async enrichMedicationWithRxNormData(
     medicationName: string,
-    strength?: string,
+    _strength?: string,
   ): Promise<{
     rxcui?: string;
     standardizedName?: string;
@@ -329,7 +335,9 @@ export class DrugInteractionService {
         suggestions: validation.suggestions,
       };
     } catch (error) {
-      throw new Error(`Failed to enrich medication data: ${error.message}`);
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
+      throw new Error(`Failed to enrich medication data: ${errorMessage}`);
     }
   }
 
@@ -400,7 +408,7 @@ export class DrugInteractionService {
             medicationId: medication.id,
             medicationName: medication.name,
             success: false,
-            error: error.message,
+            error: error instanceof Error ? error.message : 'Unknown error',
           });
 
           failed++;
@@ -409,7 +417,9 @@ export class DrugInteractionService {
 
       return { updated, failed, results };
     } catch (error) {
-      throw new Error(`Failed to update RxNorm codes: ${error.message}`);
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
+      throw new Error(`Failed to update RxNorm codes: ${errorMessage}`);
     }
   }
 }

@@ -1,11 +1,14 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrescriptionService } from './prescription.service';
 import { MedicationService } from './medication.service';
 import {
   OCRService,
   OCRProcessingOptions,
 } from '../../infrastructure/services/ocr.service';
-import { DrugInteractionService } from '../../infrastructure/services/drug-interaction.service';
+import {
+  DrugInteractionService,
+  InteractionAnalysis,
+} from '../../infrastructure/services/drug-interaction.service';
 import {
   Prescription,
   PrescriptionMedication,
@@ -61,7 +64,7 @@ export class PrescriptionProcessingService {
       const ocrProcessingTime = Date.now() - ocrStartTime;
 
       // Step 2: Validate OCR results
-      const ocrValidation = await this.ocrService.validateOCRResult(ocrData);
+      const ocrValidation = this.ocrService.validateOCRResult(ocrData);
 
       // Step 3: Create prescription with OCR data
       const prescription = await this.prescriptionService.createPrescription({
@@ -96,10 +99,11 @@ export class PrescriptionProcessingService {
 
       // Step 5: Check drug interactions
       const interactionStartTime = Date.now();
-      const interactionAnalysis = await this.checkInteractionsForNewMedications(
-        userId,
-        createdMedications,
-      );
+      const interactionAnalysis: InteractionAnalysis | null =
+        await this.checkInteractionsForNewMedications(
+          userId,
+          createdMedications,
+        );
       const interactionCheckTime = Date.now() - interactionStartTime;
 
       const totalProcessingTime = Date.now() - startTime;
@@ -117,7 +121,13 @@ export class PrescriptionProcessingService {
         })),
         createdMedications,
         ocrValidation,
-        interactionAnalysis,
+        interactionAnalysis: interactionAnalysis
+          ? {
+              hasInteractions: interactionAnalysis.hasInteractions,
+              alerts: interactionAnalysis.alerts,
+              recommendations: interactionAnalysis.recommendations,
+            }
+          : undefined,
         processingMetadata: {
           totalProcessingTime,
           ocrProcessingTime,
@@ -126,7 +136,9 @@ export class PrescriptionProcessingService {
         },
       };
     } catch (error) {
-      throw new Error(`Failed to process image prescription: ${error.message}`);
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
+      throw new Error(`Failed to process image prescription: ${errorMessage}`);
     }
   }
 
@@ -149,7 +161,7 @@ export class PrescriptionProcessingService {
       const ocrProcessingTime = Date.now() - ocrStartTime;
 
       // Step 2: Validate OCR results
-      const ocrValidation = await this.ocrService.validateOCRResult(ocrData);
+      const ocrValidation = this.ocrService.validateOCRResult(ocrData);
 
       // Step 3: Create prescription with OCR data
       const prescription = await this.prescriptionService.createPrescription({
@@ -203,10 +215,24 @@ export class PrescriptionProcessingService {
 
       return {
         prescription,
-        extractedMedications: ocrData.fields.medications || [],
+        extractedMedications: (ocrData.fields.medications || []).map((med) => ({
+          name: med.name || '',
+          strength: med.strength || '',
+          form: 'Unknown',
+          dosage: med.instructions || '',
+          quantity: parseInt(med.quantity || '1', 10) || 1,
+          instructions: med.instructions || '',
+          confidence: med.confidence,
+        })),
         createdMedications,
         ocrValidation,
-        interactionAnalysis,
+        interactionAnalysis: interactionAnalysis
+          ? {
+              hasInteractions: interactionAnalysis.hasInteractions,
+              alerts: interactionAnalysis.alerts,
+              recommendations: interactionAnalysis.recommendations,
+            }
+          : undefined,
         processingMetadata: {
           totalProcessingTime,
           ocrProcessingTime,
@@ -215,7 +241,9 @@ export class PrescriptionProcessingService {
         },
       };
     } catch (error) {
-      throw new Error(`Failed to process URL prescription: ${error.message}`);
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
+      throw new Error(`Failed to process URL prescription: ${errorMessage}`);
     }
   }
 
@@ -243,7 +271,7 @@ export class PrescriptionProcessingService {
         prescription.imageUrl,
         options,
       );
-      const ocrValidation = await this.ocrService.validateOCRResult(ocrData);
+      const ocrValidation = this.ocrService.validateOCRResult(ocrData);
 
       // Update prescription with new OCR data
       const updatedPrescription = await this.prescriptionService.setOCRData(
@@ -265,14 +293,22 @@ export class PrescriptionProcessingService {
         })),
       };
     } catch (error) {
-      throw new Error(`Failed to reprocess prescription OCR: ${error.message}`);
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
+      throw new Error(`Failed to reprocess prescription OCR: ${errorMessage}`);
     }
   }
 
   private async createMedicationsFromPrescription(
     userId: string,
     prescription: Prescription,
-    extractedMedications: any[],
+    extractedMedications: Array<{
+      name?: string;
+      strength?: string;
+      form?: string;
+      instructions?: string;
+      confidence: number;
+    }>,
   ): Promise<Medication[]> {
     const createdMedications: Medication[] = [];
 
@@ -285,12 +321,12 @@ export class PrescriptionProcessingService {
 
         // Determine medication form
         const form = this.determineMedicationForm(
-          extractedMed.form || extractedMed.instructions,
+          extractedMed.form || extractedMed.instructions || 'Unknown',
         );
 
         const medication = await this.medicationService.createMedication({
           userId,
-          name: extractedMed.name,
+          name: extractedMed.name || 'Unknown Medication',
           strength: extractedMed.strength || 'Unknown',
           form,
           startDate: prescription.prescribedDate,
@@ -303,7 +339,7 @@ export class PrescriptionProcessingService {
         // Link medication to prescription
         await this.prescriptionService.updateMedicationInPrescription(
           prescription.id,
-          extractedMed.name,
+          extractedMed.name || 'Unknown Medication',
           {
             ...extractedMed,
             linkedMedicationId: medication.id,
@@ -311,9 +347,11 @@ export class PrescriptionProcessingService {
         );
       } catch (error) {
         // Log error but continue with other medications
+        const errorMessage =
+          error instanceof Error ? error.message : 'Unknown error';
         console.error(
           `Failed to create medication ${extractedMed.name}:`,
-          error.message,
+          errorMessage,
         );
       }
     }
@@ -350,7 +388,7 @@ export class PrescriptionProcessingService {
   private async checkInteractionsForNewMedications(
     userId: string,
     newMedications: Medication[],
-  ): Promise<any> {
+  ): Promise<InteractionAnalysis | null> {
     try {
       if (newMedications.length === 0) {
         return null;
@@ -364,7 +402,9 @@ export class PrescriptionProcessingService {
       );
     } catch (error) {
       // Don't fail the entire process if interaction checking fails
-      console.error('Failed to check drug interactions:', error.message);
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
+      console.error('Failed to check drug interactions:', errorMessage);
       return null;
     }
   }
@@ -431,10 +471,12 @@ export class PrescriptionProcessingService {
             });
           }
         } catch (error) {
+          const errorMessage =
+            error instanceof Error ? error.message : 'Unknown error';
           enhancedMedications.push({
             originalName: medication.name,
             success: false,
-            error: error.message,
+            error: errorMessage,
           });
         }
       }
@@ -448,8 +490,10 @@ export class PrescriptionProcessingService {
         enhancedMedications,
       };
     } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
       throw new Error(
-        `Failed to enhance prescription with RxNorm data: ${error.message}`,
+        `Failed to enhance prescription with RxNorm data: ${errorMessage}`,
       );
     }
   }

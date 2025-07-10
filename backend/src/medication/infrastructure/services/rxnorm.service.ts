@@ -98,8 +98,10 @@ export class RxNormService {
 
       return concepts;
     } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
       throw new HttpException(
-        `Failed to search medication: ${error.message}`,
+        `Failed to search medication: ${errorMessage}`,
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }

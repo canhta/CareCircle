@@ -6,7 +6,7 @@ import {
   IsEnum,
   Min,
 } from 'class-validator';
-import { Transform, Type } from 'class-transformer';
+import { Type } from 'class-transformer';
 import { DoseStatus } from '@prisma/client';
 
 export class CreateAdherenceRecordDto {

@@ -1,6 +1,16 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ImageAnnotatorClient } from '@google-cloud/vision';
+import {
+  GoogleVisionResponse as _GoogleVisionResponse,
+  GoogleVisionAnnotateResponse as _GoogleVisionAnnotateResponse,
+  OCRProcessingResult as _OCRProcessingResult,
+  OCRStructuredData as _OCRStructuredData,
+  OCRMedicationData as _OCRMedicationData,
+  isGoogleVisionResponse as _isGoogleVisionResponse,
+  hasTextAnnotations as _hasTextAnnotations,
+  hasFullTextAnnotation as _hasFullTextAnnotation,
+} from '../types/google-vision.types';
 import { OCRData } from '../../domain/entities/prescription.entity';
 
 export interface OCRProcessingOptions {
@@ -66,7 +76,12 @@ export class OCRService {
         },
       };
     } catch (error) {
-      throw new Error(`OCR processing failed: ${error.message}`);
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
+      throw new HttpException(
+        `OCR processing failed: ${errorMessage}`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
@@ -107,7 +122,12 @@ export class OCRService {
         },
       };
     } catch (error) {
-      throw new Error(`OCR processing from URL failed: ${error.message}`);
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
+      throw new HttpException(
+        `OCR processing from URL failed: ${errorMessage}`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
@@ -125,7 +145,7 @@ export class OCRService {
     return Math.min(1, totalConfidence / wordDetections.length);
   }
 
-  private extractMedicalFields(fullText: string, detections: any[]): any {
+  private extractMedicalFields(fullText: string, _detections: any[]): any {
     const fields: any = {
       medications: [],
     };
@@ -288,12 +308,12 @@ export class OCRService {
     return Math.min(1, quality);
   }
 
-  async validateOCRResult(ocrData: OCRData): Promise<{
+  validateOCRResult(ocrData: OCRData): {
     isValid: boolean;
     confidence: number;
     issues: string[];
     suggestions: string[];
-  }> {
+  } {
     const issues: string[] = [];
     const suggestions: string[] = [];
 

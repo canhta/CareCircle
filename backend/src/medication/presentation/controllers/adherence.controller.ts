@@ -12,7 +12,10 @@ import {
   HttpStatus,
   HttpException,
 } from '@nestjs/common';
-import { FirebaseAuthGuard } from '../../../identity-access/presentation/guards/firebase-auth.guard';
+import {
+  FirebaseAuthGuard,
+  FirebaseUserPayload,
+} from '../../../identity-access/presentation/guards/firebase-auth.guard';
 import { AdherenceService } from '../../application/services/adherence.service';
 import { DoseStatus } from '@prisma/client';
 import {
@@ -30,12 +33,12 @@ export class AdherenceController {
   @Post()
   async createAdherenceRecord(
     @Body() createAdherenceRecordDto: CreateAdherenceRecordDto,
-    @Request() req: any,
+    @Request() req: { user: FirebaseUserPayload },
   ) {
     try {
       const record = await this.adherenceService.createAdherenceRecord({
         ...createAdherenceRecordDto,
-        userId: req.user.uid,
+        userId: req.user.id,
         scheduledTime: new Date(createAdherenceRecordDto.scheduledTime),
         takenAt: createAdherenceRecordDto.takenAt
           ? new Date(createAdherenceRecordDto.takenAt)
@@ -51,7 +54,10 @@ export class AdherenceController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to create adherence record',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Failed to create adherence record',
         },
         HttpStatus.BAD_REQUEST,
       );
@@ -61,13 +67,13 @@ export class AdherenceController {
   @Post('bulk')
   async createAdherenceRecords(
     @Body() createAdherenceRecordsDto: { records: CreateAdherenceRecordDto[] },
-    @Request() req: any,
+    @Request() req: { user: FirebaseUserPayload },
   ) {
     try {
       const records = await this.adherenceService.createAdherenceRecords(
         createAdherenceRecordsDto.records.map((record) => ({
           ...record,
-          userId: req.user.uid,
+          userId: req.user.id,
           scheduledTime: new Date(record.scheduledTime),
           takenAt: record.takenAt ? new Date(record.takenAt) : undefined,
         })),
@@ -82,7 +88,10 @@ export class AdherenceController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to create adherence records',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Failed to create adherence records',
         },
         HttpStatus.BAD_REQUEST,
       );
@@ -92,11 +101,11 @@ export class AdherenceController {
   @Get()
   async getUserAdherenceRecords(
     @Query() query: AdherenceQueryDto,
-    @Request() req: any,
+    @Request() req: { user: FirebaseUserPayload },
   ) {
     try {
       const records = await this.adherenceService.searchAdherenceRecords({
-        userId: req.user.uid,
+        userId: req.user.id,
         ...query,
         startDate: query.startDate ? new Date(query.startDate) : undefined,
         endDate: query.endDate ? new Date(query.endDate) : undefined,
@@ -111,7 +120,10 @@ export class AdherenceController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to fetch adherence records',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Failed to fetch adherence records',
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -121,11 +133,11 @@ export class AdherenceController {
   @Get('status/:status')
   async getAdherenceByStatus(
     @Param('status') status: DoseStatus,
-    @Request() req: any,
+    @Request() req: { user: FirebaseUserPayload },
   ) {
     try {
       const records = await this.adherenceService.getAdherenceByStatus(
-        req.user.uid,
+        req.user.id,
         status,
       );
 
@@ -139,7 +151,9 @@ export class AdherenceController {
         {
           success: false,
           message:
-            error.message || 'Failed to fetch adherence records by status',
+            error instanceof Error
+              ? error.message
+              : 'Failed to fetch adherence records by status',
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -148,13 +162,13 @@ export class AdherenceController {
 
   @Get('taken')
   async getTakenDoses(
+    @Request() req: { user: FirebaseUserPayload },
     @Query('startDate') startDate?: string,
     @Query('endDate') endDate?: string,
-    @Request() req: any,
   ) {
     try {
       const records = await this.adherenceService.getTakenDoses(
-        req.user.uid,
+        req.user.id,
         startDate ? new Date(startDate) : undefined,
         endDate ? new Date(endDate) : undefined,
       );
@@ -168,7 +182,10 @@ export class AdherenceController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to fetch taken doses',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Failed to fetch taken doses',
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -177,13 +194,13 @@ export class AdherenceController {
 
   @Get('missed')
   async getMissedDoses(
+    @Request() req: { user: FirebaseUserPayload },
     @Query('startDate') startDate?: string,
     @Query('endDate') endDate?: string,
-    @Request() req: any,
   ) {
     try {
       const records = await this.adherenceService.getMissedDoses(
-        req.user.uid,
+        req.user.id,
         startDate ? new Date(startDate) : undefined,
         endDate ? new Date(endDate) : undefined,
       );
@@ -197,7 +214,10 @@ export class AdherenceController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to fetch missed doses',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Failed to fetch missed doses',
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -206,13 +226,13 @@ export class AdherenceController {
 
   @Get('skipped')
   async getSkippedDoses(
+    @Request() req: { user: FirebaseUserPayload },
     @Query('startDate') startDate?: string,
     @Query('endDate') endDate?: string,
-    @Request() req: any,
   ) {
     try {
       const records = await this.adherenceService.getSkippedDoses(
-        req.user.uid,
+        req.user.id,
         startDate ? new Date(startDate) : undefined,
         endDate ? new Date(endDate) : undefined,
       );
@@ -226,7 +246,10 @@ export class AdherenceController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to fetch skipped doses',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Failed to fetch skipped doses',
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -234,10 +257,10 @@ export class AdherenceController {
   }
 
   @Get('scheduled')
-  async getScheduledDoses(@Request() req: any) {
+  async getScheduledDoses(@Request() req: { user: FirebaseUserPayload }) {
     try {
       const records = await this.adherenceService.getScheduledDoses(
-        req.user.uid,
+        req.user.id,
       );
 
       return {
@@ -249,7 +272,10 @@ export class AdherenceController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to fetch scheduled doses',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Failed to fetch scheduled doses',
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -257,9 +283,9 @@ export class AdherenceController {
   }
 
   @Get('overdue')
-  async getOverdueDoses(@Request() req: any) {
+  async getOverdueDoses(@Request() req: { user: FirebaseUserPayload }) {
     try {
-      const records = await this.adherenceService.getOverdueDoses(req.user.uid);
+      const records = await this.adherenceService.getOverdueDoses(req.user.id);
 
       return {
         success: true,
@@ -270,7 +296,10 @@ export class AdherenceController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to fetch overdue doses',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Failed to fetch overdue doses',
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -278,9 +307,9 @@ export class AdherenceController {
   }
 
   @Get('due-now')
-  async getDueNow(@Request() req: any) {
+  async getDueNow(@Request() req: { user: FirebaseUserPayload }) {
     try {
-      const records = await this.adherenceService.getDueNow(req.user.uid);
+      const records = await this.adherenceService.getDueNow(req.user.id);
 
       return {
         success: true,
@@ -291,7 +320,10 @@ export class AdherenceController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to fetch doses due now',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Failed to fetch doses due now',
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -301,11 +333,11 @@ export class AdherenceController {
   @Get('upcoming')
   async getUpcomingDoses(
     @Query('hours') hours: number = 24,
-    @Request() req: any,
+    @Request() req: { user: FirebaseUserPayload },
   ) {
     try {
       const records = await this.adherenceService.getUpcomingDoses(
-        req.user.uid,
+        req.user.id,
         parseInt(hours.toString()),
       );
 
@@ -318,7 +350,10 @@ export class AdherenceController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to fetch upcoming doses',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Failed to fetch upcoming doses',
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -326,9 +361,9 @@ export class AdherenceController {
   }
 
   @Get('today')
-  async getTodaysDoses(@Request() req: any) {
+  async getTodaysDoses(@Request() req: { user: FirebaseUserPayload }) {
     try {
-      const records = await this.adherenceService.getTodaysDoses(req.user.uid);
+      const records = await this.adherenceService.getTodaysDoses(req.user.id);
 
       return {
         success: true,
@@ -339,7 +374,10 @@ export class AdherenceController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || "Failed to fetch today's doses",
+          message:
+            error instanceof Error
+              ? error.message
+              : "Failed to fetch today's doses",
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -348,13 +386,13 @@ export class AdherenceController {
 
   @Get('statistics')
   async getAdherenceStatistics(
+    @Request() req: { user: FirebaseUserPayload },
     @Query('startDate') startDate?: string,
     @Query('endDate') endDate?: string,
-    @Request() req: any,
   ) {
     try {
       const statistics = await this.adherenceService.getAdherenceStatistics(
-        req.user.uid,
+        req.user.id,
         startDate ? new Date(startDate) : undefined,
         endDate ? new Date(endDate) : undefined,
       );
@@ -367,7 +405,10 @@ export class AdherenceController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to fetch adherence statistics',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Failed to fetch adherence statistics',
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -376,14 +417,14 @@ export class AdherenceController {
 
   @Get('rate')
   async getAdherenceRate(
+    @Request() req: { user: FirebaseUserPayload },
     @Query('medicationId') medicationId?: string,
     @Query('startDate') startDate?: string,
     @Query('endDate') endDate?: string,
-    @Request() req: any,
   ) {
     try {
       const rate = await this.adherenceService.getAdherenceRate(
-        req.user.uid,
+        req.user.id,
         medicationId,
         startDate ? new Date(startDate) : undefined,
         endDate ? new Date(endDate) : undefined,
@@ -397,7 +438,10 @@ export class AdherenceController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to fetch adherence rate',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Failed to fetch adherence rate',
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -406,13 +450,13 @@ export class AdherenceController {
 
   @Get('trend')
   async getAdherenceTrend(
+    @Request() req: { user: FirebaseUserPayload },
     @Query('days') days: number = 30,
     @Query('medicationId') medicationId?: string,
-    @Request() req: any,
   ) {
     try {
       const trend = await this.adherenceService.getAdherenceTrend(
-        req.user.uid,
+        req.user.id,
         parseInt(days.toString()),
         medicationId,
       );
@@ -425,7 +469,10 @@ export class AdherenceController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to fetch adherence trend',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Failed to fetch adherence trend',
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -434,12 +481,12 @@ export class AdherenceController {
 
   @Get('streak/current')
   async getCurrentAdherenceStreak(
+    @Request() req: { user: FirebaseUserPayload },
     @Query('medicationId') medicationId?: string,
-    @Request() req: any,
   ) {
     try {
       const streak = await this.adherenceService.getCurrentAdherenceStreak(
-        req.user.uid,
+        req.user.id,
         medicationId,
       );
 
@@ -451,7 +498,10 @@ export class AdherenceController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to fetch current adherence streak',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Failed to fetch current adherence streak',
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -460,12 +510,12 @@ export class AdherenceController {
 
   @Get('streak/longest')
   async getLongestAdherenceStreak(
+    @Request() req: { user: FirebaseUserPayload },
     @Query('medicationId') medicationId?: string,
-    @Request() req: any,
   ) {
     try {
       const streak = await this.adherenceService.getLongestAdherenceStreak(
-        req.user.uid,
+        req.user.id,
         medicationId,
       );
 
@@ -477,7 +527,10 @@ export class AdherenceController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to fetch longest adherence streak',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Failed to fetch longest adherence streak',
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -485,10 +538,12 @@ export class AdherenceController {
   }
 
   @Get('ranking')
-  async getMedicationAdherenceRanking(@Request() req: any) {
+  async getMedicationAdherenceRanking(
+    @Request() req: { user: FirebaseUserPayload },
+  ) {
     try {
       const ranking = await this.adherenceService.getMedicationAdherenceRanking(
-        req.user.uid,
+        req.user.id,
       );
 
       return {
@@ -500,7 +555,9 @@ export class AdherenceController {
         {
           success: false,
           message:
-            error.message || 'Failed to fetch medication adherence ranking',
+            error instanceof Error
+              ? error.message
+              : 'Failed to fetch medication adherence ranking',
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -510,12 +567,12 @@ export class AdherenceController {
   @Get('poor-adherence')
   async getPoorAdherenceMedications(
     @Query('threshold') threshold: number = 0.8,
-    @Request() req: any,
+    @Request() req: { user: FirebaseUserPayload },
   ) {
     try {
       const medications =
         await this.adherenceService.getPoorAdherenceMedications(
-          req.user.uid,
+          req.user.id,
           parseFloat(threshold.toString()),
         );
 
@@ -529,7 +586,9 @@ export class AdherenceController {
         {
           success: false,
           message:
-            error.message || 'Failed to fetch poor adherence medications',
+            error instanceof Error
+              ? error.message
+              : 'Failed to fetch poor adherence medications',
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -538,13 +597,13 @@ export class AdherenceController {
 
   @Get('recent')
   async getRecentAdherenceActivity(
+    @Request() req: { user: FirebaseUserPayload },
     @Query('days') days: number = 7,
     @Query('limit') limit?: number,
-    @Request() req: any,
   ) {
     try {
       const records = await this.adherenceService.getRecentAdherenceActivity(
-        req.user.uid,
+        req.user.id,
         parseInt(days.toString()),
         limit ? parseInt(limit.toString()) : undefined,
       );
@@ -558,7 +617,10 @@ export class AdherenceController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to fetch recent adherence activity',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Failed to fetch recent adherence activity',
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -580,7 +642,10 @@ export class AdherenceController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to fetch medication adherence',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Failed to fetch medication adherence',
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -602,7 +667,10 @@ export class AdherenceController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to fetch schedule adherence',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Failed to fetch schedule adherence',
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -636,7 +704,10 @@ export class AdherenceController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to fetch adherence record',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Failed to fetch adherence record',
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -665,7 +736,10 @@ export class AdherenceController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to update adherence record',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Failed to update adherence record',
         },
         HttpStatus.BAD_REQUEST,
       );
@@ -693,7 +767,10 @@ export class AdherenceController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to mark dose as taken',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Failed to mark dose as taken',
         },
         HttpStatus.BAD_REQUEST,
       );
@@ -721,7 +798,10 @@ export class AdherenceController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to mark dose as skipped',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Failed to mark dose as skipped',
         },
         HttpStatus.BAD_REQUEST,
       );
@@ -748,7 +828,10 @@ export class AdherenceController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to mark dose as missed',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Failed to mark dose as missed',
         },
         HttpStatus.BAD_REQUEST,
       );
@@ -776,7 +859,10 @@ export class AdherenceController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to reschedule dose',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Failed to reschedule dose',
         },
         HttpStatus.BAD_REQUEST,
       );
@@ -784,10 +870,10 @@ export class AdherenceController {
   }
 
   @Post('process-overdue')
-  async processOverdueDoses(@Request() req: any) {
+  async processOverdueDoses(@Request() req: { user: FirebaseUserPayload }) {
     try {
       const result = await this.adherenceService.processOverdueDoses(
-        req.user.uid,
+        req.user.id,
       );
 
       return {
@@ -804,7 +890,10 @@ export class AdherenceController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to process overdue doses',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Failed to process overdue doses',
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -824,7 +913,10 @@ export class AdherenceController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to delete adherence record',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Failed to delete adherence record',
         },
         HttpStatus.BAD_REQUEST,
       );

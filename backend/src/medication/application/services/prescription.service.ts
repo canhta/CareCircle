@@ -328,11 +328,11 @@ export class PrescriptionService {
     return this.prescriptionRepository.getPrescriptionStatistics(userId);
   }
 
-  async validatePrescriptionData(prescription: Prescription): Promise<{
+  validatePrescriptionData(prescription: Prescription): {
     isValid: boolean;
     errors: string[];
     warnings: string[];
-  }> {
+  } {
     const errors: string[] = [];
     const warnings: string[] = [];
 

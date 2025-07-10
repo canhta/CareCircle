@@ -382,11 +382,11 @@ export class AdherenceService {
     };
   }
 
-  async validateAdherenceRecord(record: AdherenceRecord): Promise<{
+  validateAdherenceRecord(record: AdherenceRecord): {
     isValid: boolean;
     errors: string[];
     warnings: string[];
-  }> {
+  } {
     const errors: string[] = [];
     const warnings: string[] = [];
 
