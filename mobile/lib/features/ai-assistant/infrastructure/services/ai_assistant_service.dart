@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
-import '../../../core/config/app_config.dart';
-import '../../../core/logging/logging.dart';
-import '../models/conversation_models.dart';
+import '../../../../core/config/app_config.dart';
+import '../../../../core/logging/logging.dart';
+import '../../domain/models/conversation_models.dart';
 
 part 'ai_assistant_service.g.dart';
 

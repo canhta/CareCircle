@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
-import '../../../core/design/design_tokens.dart';
-import '../../../core/ai/ai_assistant_config.dart';
+import '../../../../core/design/design_tokens.dart';
+import '../../../../core/ai/ai_assistant_config.dart';
 import '../providers/ai_assistant_providers.dart';
-import '../models/conversation_models.dart' as models;
+import '../../domain/models/conversation_models.dart' as models;
 
 import '../widgets/healthcare_chat_theme.dart';
 import '../widgets/emergency_detection_widget.dart';

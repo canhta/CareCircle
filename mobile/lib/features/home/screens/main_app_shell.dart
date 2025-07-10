@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/design/design_tokens.dart';
 
 import '../../../core/navigation/navigation_service.dart';
-import '../../ai-assistant/screens/ai_assistant_home_screen.dart';
+import '../../ai-assistant/presentation/screens/ai_assistant_home_screen.dart';
 import 'home_screen.dart';
 
 class MainAppShell extends ConsumerStatefulWidget {
