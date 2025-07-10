@@ -125,6 +125,20 @@ _Prescription _$PrescriptionFromJson(Map<String, dynamic> json) =>
           const [],
       createdAt: DateTime.parse(json['createdAt'] as String),
       updatedAt: DateTime.parse(json['updatedAt'] as String),
+      verificationStatus:
+          $enumDecodeNullable(
+            _$VerificationStatusEnumMap,
+            json['verificationStatus'],
+          ) ??
+          VerificationStatus.pending,
+      dateIssued: json['dateIssued'] == null
+          ? null
+          : DateTime.parse(json['dateIssued'] as String),
+      extractedMedications:
+          (json['extractedMedications'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          const [],
     );
 
 Map<String, dynamic> _$PrescriptionToJson(_Prescription instance) =>
@@ -142,7 +156,18 @@ Map<String, dynamic> _$PrescriptionToJson(_Prescription instance) =>
       'medications': instance.medications,
       'createdAt': instance.createdAt.toIso8601String(),
       'updatedAt': instance.updatedAt.toIso8601String(),
+      'verificationStatus':
+          _$VerificationStatusEnumMap[instance.verificationStatus]!,
+      'dateIssued': instance.dateIssued?.toIso8601String(),
+      'extractedMedications': instance.extractedMedications,
     };
+
+const _$VerificationStatusEnumMap = {
+  VerificationStatus.pending: 'PENDING',
+  VerificationStatus.verified: 'VERIFIED',
+  VerificationStatus.rejected: 'REJECTED',
+  VerificationStatus.needsReview: 'NEEDS_REVIEW',
+};
 
 _CreatePrescriptionRequest _$CreatePrescriptionRequestFromJson(
   Map<String, dynamic> json,
@@ -179,6 +204,40 @@ Map<String, dynamic> _$CreatePrescriptionRequestToJson(
   'isVerified': instance.isVerified,
   'verifiedAt': instance.verifiedAt?.toIso8601String(),
   'verifiedBy': instance.verifiedBy,
+  'medications': instance.medications,
+};
+
+_PrescriptionOCRResult _$PrescriptionOCRResultFromJson(
+  Map<String, dynamic> json,
+) => _PrescriptionOCRResult(
+  extractedText: json['extractedText'] as String,
+  confidence: (json['confidence'] as num).toDouble(),
+  extractedMedications:
+      (json['extractedMedications'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList() ??
+      const [],
+  prescribedBy: json['prescribedBy'] as String?,
+  prescribedDate: json['prescribedDate'] == null
+      ? null
+      : DateTime.parse(json['prescribedDate'] as String),
+  pharmacy: json['pharmacy'] as String?,
+  medications:
+      (json['medications'] as List<dynamic>?)
+          ?.map((e) => OCRMedicationData.fromJson(e as Map<String, dynamic>))
+          .toList() ??
+      const [],
+);
+
+Map<String, dynamic> _$PrescriptionOCRResultToJson(
+  _PrescriptionOCRResult instance,
+) => <String, dynamic>{
+  'extractedText': instance.extractedText,
+  'confidence': instance.confidence,
+  'extractedMedications': instance.extractedMedications,
+  'prescribedBy': instance.prescribedBy,
+  'prescribedDate': instance.prescribedDate?.toIso8601String(),
+  'pharmacy': instance.pharmacy,
   'medications': instance.medications,
 };
 

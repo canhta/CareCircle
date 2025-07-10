@@ -28,6 +28,28 @@ enum MedicationForm {
   other,
 }
 
+/// Medication categories for organization and statistics
+enum MedicationCategory {
+  @JsonValue('CARDIOVASCULAR')
+  cardiovascular,
+  @JsonValue('DIABETES')
+  diabetes,
+  @JsonValue('PAIN_RELIEF')
+  painRelief,
+  @JsonValue('ANTIBIOTICS')
+  antibiotics,
+  @JsonValue('MENTAL_HEALTH')
+  mentalHealth,
+  @JsonValue('RESPIRATORY')
+  respiratory,
+  @JsonValue('GASTROINTESTINAL')
+  gastrointestinal,
+  @JsonValue('VITAMINS_SUPPLEMENTS')
+  vitaminsSupplements,
+  @JsonValue('OTHER')
+  other,
+}
+
 /// Extension for MedicationForm display names
 extension MedicationFormExtension on MedicationForm {
   String get displayName {
@@ -95,6 +117,7 @@ abstract class Medication with _$Medication {
     String? rxNormCode,
     String? ndcCode,
     String? classification,
+    @Default(MedicationCategory.other) MedicationCategory category,
     @Default(true) bool isActive,
     required DateTime startDate,
     DateTime? endDate,

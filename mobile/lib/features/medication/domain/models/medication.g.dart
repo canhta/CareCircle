@@ -17,6 +17,9 @@ _Medication _$MedicationFromJson(Map<String, dynamic> json) => _Medication(
   rxNormCode: json['rxNormCode'] as String?,
   ndcCode: json['ndcCode'] as String?,
   classification: json['classification'] as String?,
+  category:
+      $enumDecodeNullable(_$MedicationCategoryEnumMap, json['category']) ??
+      MedicationCategory.other,
   isActive: json['isActive'] as bool? ?? true,
   startDate: DateTime.parse(json['startDate'] as String),
   endDate: json['endDate'] == null
@@ -40,6 +43,7 @@ Map<String, dynamic> _$MedicationToJson(_Medication instance) =>
       'rxNormCode': instance.rxNormCode,
       'ndcCode': instance.ndcCode,
       'classification': instance.classification,
+      'category': _$MedicationCategoryEnumMap[instance.category]!,
       'isActive': instance.isActive,
       'startDate': instance.startDate.toIso8601String(),
       'endDate': instance.endDate?.toIso8601String(),
@@ -60,6 +64,18 @@ const _$MedicationFormEnumMap = {
   MedicationForm.drops: 'DROPS',
   MedicationForm.suppository: 'SUPPOSITORY',
   MedicationForm.other: 'OTHER',
+};
+
+const _$MedicationCategoryEnumMap = {
+  MedicationCategory.cardiovascular: 'CARDIOVASCULAR',
+  MedicationCategory.diabetes: 'DIABETES',
+  MedicationCategory.painRelief: 'PAIN_RELIEF',
+  MedicationCategory.antibiotics: 'ANTIBIOTICS',
+  MedicationCategory.mentalHealth: 'MENTAL_HEALTH',
+  MedicationCategory.respiratory: 'RESPIRATORY',
+  MedicationCategory.gastrointestinal: 'GASTROINTESTINAL',
+  MedicationCategory.vitaminsSupplements: 'VITAMINS_SUPPLEMENTS',
+  MedicationCategory.other: 'OTHER',
 };
 
 _CreateMedicationRequest _$CreateMedicationRequestFromJson(

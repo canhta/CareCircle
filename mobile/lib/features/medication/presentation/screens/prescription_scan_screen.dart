@@ -31,7 +31,7 @@ class _PrescriptionScanScreenState
 
   XFile? _selectedImage;
   bool _isProcessing = false;
-  PrescriptionOCRResult? _ocrResult;
+  OCRProcessingResult? _ocrResult;
   String? _errorMessage;
 
   @override
@@ -313,7 +313,7 @@ class _PrescriptionScanScreenState
                 ),
               ),
               const SizedBox(height: 8),
-              ..._ocrResult!.medications.map(
+              ..._ocrResult!.extractedMedications.map(
                 (med) => _buildMedicationCard(med, theme),
               ),
             ] else ...[
@@ -340,7 +340,7 @@ class _PrescriptionScanScreenState
                 ),
               ),
             ],
-            if (_ocrResult!.confidence < 0.8) ...[
+            if ((_ocrResult!.ocrData?.confidence ?? 1.0) < 0.8) ...[
               const SizedBox(height: 12),
               Container(
                 padding: const EdgeInsets.all(12),
@@ -357,7 +357,7 @@ class _PrescriptionScanScreenState
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        'Low confidence (${(_ocrResult!.confidence * 100).toInt()}%). Please verify the extracted information.',
+                        'Low confidence (${((_ocrResult!.ocrData?.confidence ?? 0.0) * 100).toInt()}%). Please verify the extracted information.',
                         style: theme.textTheme.bodySmall,
                       ),
                     ),
@@ -371,7 +371,7 @@ class _PrescriptionScanScreenState
     );
   }
 
-  Widget _buildMedicationCard(String medication, ThemeData theme) {
+  Widget _buildMedicationCard(PrescriptionMedication medication, ThemeData theme) {
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(12),
@@ -398,13 +398,11 @@ class _PrescriptionScanScreenState
               style: theme.textTheme.bodySmall,
             ),
           ],
-          if (medication.dosage.isNotEmpty) ...[
-            const SizedBox(height: 4),
-            Text(
-              'Dosage: ${medication.dosage}',
-              style: theme.textTheme.bodySmall,
-            ),
-          ],
+          const SizedBox(height: 4),
+          Text(
+            'Quantity: ${medication.quantity}',
+            style: theme.textTheme.bodySmall,
+          ),
           if (medication.instructions.isNotEmpty) ...[
             const SizedBox(height: 4),
             Text(
@@ -601,20 +599,21 @@ class _PrescriptionScanScreenState
         'timestamp': DateTime.now().toIso8601String(),
       });
 
-      final result = await ref
+      await ref
           .read(prescriptionOCRProvider.notifier)
-          .processImage(_selectedImage!);
+          .processImageFile(File(_selectedImage!.path));
 
       if (mounted) {
+        final ocrState = ref.read(prescriptionOCRProvider);
         setState(() {
-          _ocrResult = result;
+          _ocrResult = ocrState.value;
           _isProcessing = false;
         });
 
         _logger.info('Image processed successfully', {
           'operation': 'processImage',
-          'medicationsFound': result.extractedMedications.length,
-          'confidence': result.confidence,
+          'medicationsFound': _ocrResult?.extractedMedications.length ?? 0,
+          'confidence': _ocrResult?.ocrData?.confidence ?? 0.0,
           'timestamp': DateTime.now().toIso8601String(),
         });
       }
@@ -644,17 +643,16 @@ class _PrescriptionScanScreenState
         'timestamp': DateTime.now().toIso8601String(),
       });
 
-      final prescriptionRequest = CreatePrescriptionRequest(
-        imageFile: File(_selectedImage!.path),
-        ocrResult: _ocrResult!,
-        prescribedBy: _ocrResult!.prescribedBy,
-        prescribedDate: _ocrResult!.prescribedDate ?? DateTime.now(),
-        notes: '',
-      );
-
       await ref
           .read(prescriptionCreateProvider.notifier)
-          .createPrescription(prescriptionRequest);
+          .createFromOCR(
+            prescribedBy: _ocrResult!.ocrData?.fields.prescribedBy ?? 'Unknown Doctor',
+            prescribedDate: _ocrResult!.ocrData?.fields.prescribedDate != null
+                ? DateTime.tryParse(_ocrResult!.ocrData!.fields.prescribedDate!) ?? DateTime.now()
+                : DateTime.now(),
+            pharmacy: _ocrResult!.ocrData?.fields.pharmacy,
+            imageUrl: _selectedImage!.path,
+          );
 
       if (mounted) {
         _logger.info('Prescription saved successfully', {

@@ -39,17 +39,17 @@ class _ScheduleManagementScreenState
   bool _remindersEnabled = true;
   DateTime? _startDate;
   DateTime? _endDate;
-  String _frequency = 'daily';
+  DosageFrequency _frequency = DosageFrequency.daily;
   int _timesPerDay = 1;
   List<int> _selectedDaysOfWeek = [];
   List<TimeOfDay> _reminderTimes = [];
-  String _mealRelation = 'independent';
+  MealRelation? _mealRelation = MealRelation.independent;
 
   // Reminder settings
   int _advanceMinutes = 15;
   bool _soundEnabled = true;
   bool _vibrationEnabled = true;
-  String _criticalityLevel = 'medium';
+  CriticalityLevel _criticalityLevel = CriticalityLevel.medium;
 
   bool _isLoading = false;
 
@@ -74,8 +74,8 @@ class _ScheduleManagementScreenState
       _endDate = schedule.endDate;
       _frequency = schedule.schedule.frequency;
       _timesPerDay = schedule.schedule.times;
-      _selectedDaysOfWeek = schedule.schedule.daysOfWeek ?? [];
-      _mealRelation = schedule.schedule.mealRelation ?? 'independent';
+      _selectedDaysOfWeek = schedule.schedule.daysOfWeek;
+      _mealRelation = schedule.schedule.mealRelation;
 
       // Convert reminder times
       _reminderTimes = schedule.reminderTimes
@@ -274,32 +274,35 @@ class _ScheduleManagementScreenState
               ),
             ),
             const SizedBox(height: 16),
-            DropdownButtonFormField<String>(
+            DropdownButtonFormField<DosageFrequency>(
               value: _frequency,
               decoration: const InputDecoration(
                 labelText: 'Frequency *',
                 border: OutlineInputBorder(),
               ),
               items: const [
-                DropdownMenuItem(value: 'daily', child: Text('Daily')),
-                DropdownMenuItem(value: 'weekly', child: Text('Weekly')),
-                DropdownMenuItem(value: 'monthly', child: Text('Monthly')),
-                DropdownMenuItem(value: 'as_needed', child: Text('As Needed')),
+                DropdownMenuItem(value: DosageFrequency.daily, child: Text('Daily')),
+                DropdownMenuItem(value: DosageFrequency.weekly, child: Text('Weekly')),
+                DropdownMenuItem(value: DosageFrequency.monthly, child: Text('Monthly')),
+                DropdownMenuItem(value: DosageFrequency.asNeeded, child: Text('As Needed')),
               ],
               onChanged: (value) {
                 if (value != null) {
                   setState(() {
                     _frequency = value;
+                    if (_frequency == DosageFrequency.weekly) {
+                      // Show day selection for weekly frequency
+                    }
                   });
                 }
               },
             ),
             const SizedBox(height: 16),
-            if (_frequency != 'as_needed') ...[
+            if (_frequency != DosageFrequency.asNeeded) ...[
               TextFormField(
                 initialValue: _timesPerDay.toString(),
                 decoration: InputDecoration(
-                  labelText: 'Times per ${_frequency.replaceAll('_', ' ')} *',
+                  labelText: 'Times per ${_getFrequencyDisplayName(_frequency)} *',
                   border: const OutlineInputBorder(),
                 ),
                 keyboardType: TextInputType.number,
@@ -324,7 +327,7 @@ class _ScheduleManagementScreenState
               ),
               const SizedBox(height: 16),
             ],
-            DropdownButtonFormField<String>(
+            DropdownButtonFormField<MealRelation?>(
               value: _mealRelation,
               decoration: const InputDecoration(
                 labelText: 'Meal Relation',
@@ -332,16 +335,16 @@ class _ScheduleManagementScreenState
               ),
               items: const [
                 DropdownMenuItem(
-                  value: 'independent',
+                  value: MealRelation.independent,
                   child: Text('Independent of meals'),
                 ),
                 DropdownMenuItem(
-                  value: 'before_meal',
+                  value: MealRelation.beforeMeal,
                   child: Text('Before meals'),
                 ),
-                DropdownMenuItem(value: 'with_meal', child: Text('With meals')),
+                DropdownMenuItem(value: MealRelation.withMeal, child: Text('With meals')),
                 DropdownMenuItem(
-                  value: 'after_meal',
+                  value: MealRelation.afterMeal,
                   child: Text('After meals'),
                 ),
               ],
@@ -481,19 +484,19 @@ class _ScheduleManagementScreenState
                 },
               ),
               const SizedBox(height: 16),
-              DropdownButtonFormField<String>(
+              DropdownButtonFormField<CriticalityLevel>(
                 value: _criticalityLevel,
                 decoration: const InputDecoration(
                   labelText: 'Priority Level',
                   border: OutlineInputBorder(),
                 ),
                 items: const [
-                  DropdownMenuItem(value: 'low', child: Text('Low Priority')),
+                  DropdownMenuItem(value: CriticalityLevel.low, child: Text('Low Priority')),
                   DropdownMenuItem(
-                    value: 'medium',
+                    value: CriticalityLevel.medium,
                     child: Text('Medium Priority'),
                   ),
-                  DropdownMenuItem(value: 'high', child: Text('High Priority')),
+                  DropdownMenuItem(value: CriticalityLevel.high, child: Text('High Priority')),
                 ],
                 onChanged: (value) {
                   if (value != null) {
@@ -630,7 +633,7 @@ class _ScheduleManagementScreenState
         schedule: DosageSchedule(
           frequency: _frequency,
           times: _timesPerDay,
-          daysOfWeek: _frequency == 'weekly' ? _selectedDaysOfWeek : null,
+          daysOfWeek: _frequency == DosageFrequency.weekly ? _selectedDaysOfWeek : [],
           specificTimes: _reminderTimes
               .map((time) => Time(hour: time.hour, minute: time.minute))
               .toList(),
@@ -650,9 +653,18 @@ class _ScheduleManagementScreenState
       );
 
       if (isEditing) {
+        final updateRequest = UpdateScheduleRequest(
+          instructions: scheduleRequest.instructions,
+          remindersEnabled: scheduleRequest.remindersEnabled,
+          startDate: scheduleRequest.startDate,
+          endDate: scheduleRequest.endDate,
+          schedule: scheduleRequest.schedule,
+          reminderTimes: scheduleRequest.reminderTimes,
+          reminderSettings: scheduleRequest.reminderSettings,
+        );
         await ref
             .read(scheduleUpdateProvider.notifier)
-            .updateSchedule(widget.schedule!.id, scheduleRequest);
+            .updateSchedule(widget.schedule!.id, updateRequest);
       } else {
         await ref
             .read(scheduleCreateProvider.notifier)
@@ -778,6 +790,19 @@ class _ScheduleManagementScreenState
           );
         }
       }
+    }
+  }
+
+  String _getFrequencyDisplayName(DosageFrequency frequency) {
+    switch (frequency) {
+      case DosageFrequency.daily:
+        return 'day';
+      case DosageFrequency.weekly:
+        return 'week';
+      case DosageFrequency.monthly:
+        return 'month';
+      case DosageFrequency.asNeeded:
+        return 'as needed';
     }
   }
 }

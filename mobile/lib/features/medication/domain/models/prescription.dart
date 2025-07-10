@@ -4,6 +4,18 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'prescription.freezed.dart';
 part 'prescription.g.dart';
 
+/// Verification status for prescriptions
+enum VerificationStatus {
+  @JsonValue('PENDING')
+  pending,
+  @JsonValue('VERIFIED')
+  verified,
+  @JsonValue('REJECTED')
+  rejected,
+  @JsonValue('NEEDS_REVIEW')
+  needsReview,
+}
+
 /// OCR extracted medication data
 @freezed
 abstract class OCRMedicationData with _$OCRMedicationData {
@@ -95,6 +107,10 @@ abstract class Prescription with _$Prescription {
     @Default([]) List<PrescriptionMedication> medications,
     required DateTime createdAt,
     required DateTime updatedAt,
+    // Additional properties expected by screens
+    @Default(VerificationStatus.pending) VerificationStatus verificationStatus,
+    DateTime? dateIssued, // Alias for prescribedDate
+    @Default([]) List<String> extractedMedications, // Simplified medication names
   }) = _Prescription;
 
   factory Prescription.fromJson(Map<String, dynamic> json) =>
@@ -118,6 +134,23 @@ abstract class CreatePrescriptionRequest with _$CreatePrescriptionRequest {
 
   factory CreatePrescriptionRequest.fromJson(Map<String, dynamic> json) =>
       _$CreatePrescriptionRequestFromJson(json);
+}
+
+/// OCR result for prescription scanning
+@freezed
+abstract class PrescriptionOCRResult with _$PrescriptionOCRResult {
+  const factory PrescriptionOCRResult({
+    required String extractedText,
+    required double confidence,
+    @Default([]) List<String> extractedMedications,
+    String? prescribedBy,
+    DateTime? prescribedDate,
+    String? pharmacy,
+    @Default([]) List<OCRMedicationData> medications,
+  }) = _PrescriptionOCRResult;
+
+  factory PrescriptionOCRResult.fromJson(Map<String, dynamic> json) =>
+      _$PrescriptionOCRResultFromJson(json);
 }
 
 /// Prescription update request DTO

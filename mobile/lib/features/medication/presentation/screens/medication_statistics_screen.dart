@@ -6,7 +6,7 @@ import '../../../../core/design/design_tokens.dart';
 import '../../../../core/logging/bounded_context_loggers.dart';
 import '../../domain/models/models.dart';
 import '../providers/medication_providers.dart';
-import '../providers/adherence_providers.dart';
+
 
 /// Medication Statistics Screen for analytics and insights interface
 ///
@@ -34,7 +34,7 @@ class _MedicationStatisticsScreenState
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final medicationsAsync = ref.watch(medicationsProvider);
-    final statisticsAsync = ref.watch(adherenceStatisticsProvider('all'));
+    final statisticsAsync = ref.watch(medicationStatisticsProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -84,7 +84,7 @@ class _MedicationStatisticsScreenState
 
   Widget _buildOverviewCards(
     AsyncValue<List<Medication>> medicationsAsync,
-    AsyncValue<AdherenceStatistics> statisticsAsync,
+    AsyncValue<Map<String, dynamic>> statisticsAsync,
     ThemeData theme,
   ) {
     return Row(
@@ -107,7 +107,7 @@ class _MedicationStatisticsScreenState
           child: _buildOverviewCard(
             'Avg Adherence',
             statisticsAsync.when(
-              data: (stats) => '${stats.adherencePercentage.toInt()}%',
+              data: (stats) => '${((stats['adherencePercentage'] as double?) ?? 0.0).toInt()}%',
               loading: () => '...',
               error: (_, __) => '0%',
             ),
@@ -121,7 +121,7 @@ class _MedicationStatisticsScreenState
           child: _buildOverviewCard(
             'Active Schedules',
             statisticsAsync.when(
-              data: (stats) => '${stats.takenDoses + stats.missedDoses}',
+              data: (stats) => '${((stats['active'] as int?) ?? 0)}',
               loading: () => '...',
               error: (_, __) => '0',
             ),
@@ -220,7 +220,7 @@ class _MedicationStatisticsScreenState
   }
 
   Widget _buildMainChart(
-    AsyncValue<AdherenceStatistics> statisticsAsync,
+    AsyncValue<Map<String, dynamic>> statisticsAsync,
     ThemeData theme,
   ) {
     return Card(
@@ -265,7 +265,7 @@ class _MedicationStatisticsScreenState
     );
   }
 
-  Widget _buildChart(AdherenceStatistics statistics, ThemeData theme) {
+  Widget _buildChart(Map<String, dynamic> statistics, ThemeData theme) {
     switch (_selectedMetric) {
       case 'adherence':
         return _buildAdherenceChart(statistics, theme);
@@ -646,9 +646,7 @@ class _MedicationStatisticsScreenState
   ) {
     final categoryData = <String, int>{};
     for (final medication in medications) {
-      final category = medication.category.isNotEmpty
-          ? medication.category
-          : 'Other';
+      final category = _getCategoryDisplayName(medication.category);
       categoryData[category] = (categoryData[category] ?? 0) + 1;
     }
 
@@ -731,7 +729,7 @@ class _MedicationStatisticsScreenState
   }
 
   Widget _buildInsightsSection(
-    AsyncValue<AdherenceStatistics> statisticsAsync,
+    AsyncValue<Map<String, dynamic>> statisticsAsync,
     ThemeData theme,
   ) {
     return Card(
@@ -763,7 +761,7 @@ class _MedicationStatisticsScreenState
   }
 
   Widget _buildInsightsContent(
-    AdherenceStatistics statistics,
+    Map<String, dynamic> statistics,
     ThemeData theme,
   ) {
     final insights = _generateInsights(statistics);
@@ -932,26 +930,27 @@ class _MedicationStatisticsScreenState
     }
   }
 
-  List<StatisticsInsight> _generateInsights(AdherenceStatistics statistics) {
+  List<StatisticsInsight> _generateInsights(Map<String, dynamic> statistics) {
     final insights = <StatisticsInsight>[];
 
     // Adherence insights
-    if (statistics.adherencePercentage >= 90) {
+    final adherencePercentage = (statistics['adherencePercentage'] as double?) ?? 0.0;
+    if (adherencePercentage >= 90) {
       insights.add(
         StatisticsInsight(
           title: 'Excellent Adherence!',
           description:
-              'Your adherence of ${statistics.adherencePercentage.toInt()}% is excellent. Keep up the great work!',
+              'Your adherence of ${adherencePercentage.toInt()}% is excellent. Keep up the great work!',
           type: InsightType.positive,
           icon: Icons.celebration,
         ),
       );
-    } else if (statistics.adherencePercentage >= 70) {
+    } else if (adherencePercentage >= 70) {
       insights.add(
         StatisticsInsight(
           title: 'Good Progress',
           description:
-              'Your adherence is good at ${statistics.adherencePercentage.toInt()}%, but there\'s room for improvement.',
+              'Your adherence is good at ${adherencePercentage.toInt()}%, but there\'s room for improvement.',
           type: InsightType.warning,
           icon: Icons.trending_up,
         ),
@@ -961,7 +960,7 @@ class _MedicationStatisticsScreenState
         StatisticsInsight(
           title: 'Needs Attention',
           description:
-              'Your adherence of ${statistics.adherencePercentage.toInt()}% could be improved. Consider setting more reminders.',
+              'Your adherence of ${adherencePercentage.toInt()}% could be improved. Consider setting more reminders.',
           type: InsightType.critical,
           icon: Icons.warning,
         ),
@@ -996,6 +995,29 @@ class _MedicationStatisticsScreenState
     }
 
     return insights;
+  }
+
+  String _getCategoryDisplayName(MedicationCategory category) {
+    switch (category) {
+      case MedicationCategory.cardiovascular:
+        return 'Cardiovascular';
+      case MedicationCategory.diabetes:
+        return 'Diabetes';
+      case MedicationCategory.painRelief:
+        return 'Pain Relief';
+      case MedicationCategory.antibiotics:
+        return 'Antibiotics';
+      case MedicationCategory.mentalHealth:
+        return 'Mental Health';
+      case MedicationCategory.respiratory:
+        return 'Respiratory';
+      case MedicationCategory.gastrointestinal:
+        return 'Gastrointestinal';
+      case MedicationCategory.vitaminsSupplements:
+        return 'Vitamins & Supplements';
+      case MedicationCategory.other:
+        return 'Other';
+    }
   }
 }
 

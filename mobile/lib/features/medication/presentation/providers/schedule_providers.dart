@@ -238,3 +238,8 @@ class ScheduleManagementNotifier extends StateNotifier<AsyncValue<void>> {
 // - schedule.schedule.times
 // - schedule.schedule.specificTimes
 // - schedule.reminderTimes
+
+/// Aliases for screen compatibility
+final scheduleCreateProvider = scheduleManagementProvider;
+final scheduleUpdateProvider = scheduleManagementProvider;
+final scheduleDeleteProvider = scheduleManagementProvider;

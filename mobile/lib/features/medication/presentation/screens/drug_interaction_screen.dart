@@ -31,7 +31,7 @@ class _DrugInteractionScreenState extends ConsumerState<DrugInteractionScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final medicationsAsync = ref.watch(medicationsProvider);
-    final interactionAnalysisAsync = ref.watch(medicationInteractionsProvider);
+    final interactionAnalysisAsync = ref.watch(userMedicationInteractionsProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -109,14 +109,17 @@ class _DrugInteractionScreenState extends ConsumerState<DrugInteractionScreen> {
 
   Widget _buildOverviewContent(InteractionAnalysis analysis, ThemeData theme) {
     final totalInteractions = analysis.interactions.length;
-    final highSeverity = analysis.interactions
-        .where((i) => i.severity == InteractionSeverity.high)
+    final contraindicated = analysis.interactions
+        .where((i) => i.severity == InteractionSeverity.contraindicated)
         .length;
-    final mediumSeverity = analysis.interactions
-        .where((i) => i.severity == InteractionSeverity.medium)
+    final majorSeverity = analysis.interactions
+        .where((i) => i.severity == InteractionSeverity.major)
         .length;
-    final lowSeverity = analysis.interactions
-        .where((i) => i.severity == InteractionSeverity.low)
+    final moderateSeverity = analysis.interactions
+        .where((i) => i.severity == InteractionSeverity.moderate)
+        .length;
+    final minorSeverity = analysis.interactions
+        .where((i) => i.severity == InteractionSeverity.minor)
         .length;
 
     return Column(
@@ -166,33 +169,44 @@ class _DrugInteractionScreenState extends ConsumerState<DrugInteractionScreen> {
           const SizedBox(height: 16),
           Row(
             children: [
-              if (highSeverity > 0)
+              if (contraindicated > 0)
                 Expanded(
                   child: _buildSeverityCard(
-                    'High',
-                    highSeverity,
+                    'Contraindicated',
+                    contraindicated,
                     CareCircleDesignTokens.criticalAlert,
                     theme,
                   ),
                 ),
-              if (highSeverity > 0 && (mediumSeverity > 0 || lowSeverity > 0))
+              if (contraindicated > 0 && (majorSeverity > 0 || moderateSeverity > 0 || minorSeverity > 0))
                 const SizedBox(width: 8),
-              if (mediumSeverity > 0)
+              if (majorSeverity > 0)
                 Expanded(
                   child: _buildSeverityCard(
-                    'Medium',
-                    mediumSeverity,
+                    'Major',
+                    majorSeverity,
+                    Colors.red.shade700,
+                    theme,
+                  ),
+                ),
+              if (majorSeverity > 0 && (moderateSeverity > 0 || minorSeverity > 0))
+                const SizedBox(width: 8),
+              if (moderateSeverity > 0)
+                Expanded(
+                  child: _buildSeverityCard(
+                    'Moderate',
+                    moderateSeverity,
                     Colors.orange,
                     theme,
                   ),
                 ),
-              if (mediumSeverity > 0 && lowSeverity > 0)
+              if (moderateSeverity > 0 && minorSeverity > 0)
                 const SizedBox(width: 8),
-              if (lowSeverity > 0)
+              if (minorSeverity > 0)
                 Expanded(
                   child: _buildSeverityCard(
-                    'Low',
-                    lowSeverity,
+                    'Minor',
+                    minorSeverity,
                     Colors.blue,
                     theme,
                   ),
@@ -402,7 +416,7 @@ class _DrugInteractionScreenState extends ConsumerState<DrugInteractionScreen> {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  '${interaction.drugA} + ${interaction.drugB}',
+                  '${interaction.primaryMedication}${interaction.secondaryMedication != null ? ' + ${interaction.secondaryMedication}' : ''}${interaction.interactingSubstance != null ? ' + ${interaction.interactingSubstance}' : ''}',
                   style: theme.textTheme.titleSmall?.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
@@ -608,33 +622,41 @@ class _DrugInteractionScreenState extends ConsumerState<DrugInteractionScreen> {
 
   Color _getSeverityColor(InteractionSeverity severity) {
     switch (severity) {
-      case InteractionSeverity.high:
+      case InteractionSeverity.contraindicated:
         return CareCircleDesignTokens.criticalAlert;
-      case InteractionSeverity.medium:
+      case InteractionSeverity.major:
+        return Colors.red.shade700;
+      case InteractionSeverity.moderate:
         return Colors.orange;
-      case InteractionSeverity.low:
+      case InteractionSeverity.minor:
         return Colors.blue;
     }
   }
 
   IconData _getSeverityIcon(InteractionSeverity severity) {
     switch (severity) {
-      case InteractionSeverity.high:
+      case InteractionSeverity.contraindicated:
         return Icons.dangerous;
-      case InteractionSeverity.medium:
+      case InteractionSeverity.major:
+        return Icons.warning_amber;
+      case InteractionSeverity.moderate:
         return Icons.warning;
-      case InteractionSeverity.low:
+      case InteractionSeverity.minor:
         return Icons.info;
     }
   }
 
   Color _getOverallSeverityColor(InteractionAnalysis analysis) {
     if (analysis.interactions.any(
-      (i) => i.severity == InteractionSeverity.high,
+      (i) => i.severity == InteractionSeverity.contraindicated,
     )) {
       return CareCircleDesignTokens.criticalAlert;
     } else if (analysis.interactions.any(
-      (i) => i.severity == InteractionSeverity.medium,
+      (i) => i.severity == InteractionSeverity.major,
+    )) {
+      return Colors.red.shade700;
+    } else if (analysis.interactions.any(
+      (i) => i.severity == InteractionSeverity.moderate,
     )) {
       return Colors.orange;
     } else if (analysis.interactions.isNotEmpty) {
@@ -646,11 +668,15 @@ class _DrugInteractionScreenState extends ConsumerState<DrugInteractionScreen> {
 
   IconData _getOverallSeverityIcon(InteractionAnalysis analysis) {
     if (analysis.interactions.any(
-      (i) => i.severity == InteractionSeverity.high,
+      (i) => i.severity == InteractionSeverity.contraindicated,
     )) {
       return Icons.dangerous;
     } else if (analysis.interactions.any(
-      (i) => i.severity == InteractionSeverity.medium,
+      (i) => i.severity == InteractionSeverity.major,
+    )) {
+      return Icons.warning_amber;
+    } else if (analysis.interactions.any(
+      (i) => i.severity == InteractionSeverity.moderate,
     )) {
       return Icons.warning;
     } else if (analysis.interactions.isNotEmpty) {
@@ -662,15 +688,19 @@ class _DrugInteractionScreenState extends ConsumerState<DrugInteractionScreen> {
 
   String _getOverallStatusText(InteractionAnalysis analysis) {
     if (analysis.interactions.any(
-      (i) => i.severity == InteractionSeverity.high,
+      (i) => i.severity == InteractionSeverity.contraindicated,
     )) {
-      return 'High Risk Interactions';
+      return 'Contraindicated Interactions';
     } else if (analysis.interactions.any(
-      (i) => i.severity == InteractionSeverity.medium,
+      (i) => i.severity == InteractionSeverity.major,
+    )) {
+      return 'Major Risk Interactions';
+    } else if (analysis.interactions.any(
+      (i) => i.severity == InteractionSeverity.moderate,
     )) {
       return 'Moderate Risk Interactions';
     } else if (analysis.interactions.isNotEmpty) {
-      return 'Low Risk Interactions';
+      return 'Minor Risk Interactions';
     } else {
       return 'No Interactions Detected';
     }
@@ -680,7 +710,7 @@ class _DrugInteractionScreenState extends ConsumerState<DrugInteractionScreen> {
     final recommendations = <Recommendation>[];
 
     if (analysis.interactions.any(
-      (i) => i.severity == InteractionSeverity.high,
+      (i) => i.severity == InteractionSeverity.contraindicated || i.severity == InteractionSeverity.major,
     )) {
       recommendations.add(
         Recommendation(
@@ -732,7 +762,7 @@ class _DrugInteractionScreenState extends ConsumerState<DrugInteractionScreen> {
       });
 
       // Refresh interaction analysis
-      ref.invalidate(medicationInteractionsProvider);
+      ref.invalidate(userMedicationInteractionsProvider);
 
       if (mounted) {
         _logger.info('Interaction check completed successfully', {
@@ -781,7 +811,7 @@ class _DrugInteractionScreenState extends ConsumerState<DrugInteractionScreen> {
       });
 
       // Check interactions for specific medication
-      ref.invalidate(medicationInteractionsProvider);
+      ref.invalidate(userMedicationInteractionsProvider);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
