@@ -1,0 +1,72 @@
+---
+type: "always_apply"
+---
+
+## Production Code Only
+
+- Always create production-ready code only
+- No example, demo or sample code should be included
+- All modules and components must be fully implemented
+- Keep code and comments concise and focused on functionality
+- Fix all lint issues before submitting code
+
+## Documentation and Planning
+
+- **ALWAYS look at the docs before implementing any code**
+- **MANDATORY**: Start with `docs/README.md` to understand project structure
+
+## Documentation Structure Awareness
+
+**CareCircle Documentation Location**: All documentation is in `docs/` directory
+
+- `docs/architecture/` - Backend (NestJS), Mobile (Flutter), System design
+- `docs/bounded-contexts/` - 6 DDD contexts: Identity, Care Group, Health Data, Medication, Notification, AI Assistant
+- `docs/design/` - AI-first UI/UX, accessibility, user journeys, design system
+- `docs/features/` - Feature specifications and requirements
+- `docs/planning/` - Implementation roadmap and project planning
+- `docs/setup/` - Development environment setup (Prisma + PostgreSQL + Flutter)
+
+**Key Documentation Files to Know**:
+
+- `docs/README.md` - Main navigation and project overview
+- `docs/architecture/backend-architecture.md` - NestJS + Prisma + PostgreSQL patterns
+- `docs/architecture/mobile-architecture.md` - Flutter + healthcare mobile patterns
+- `docs/design/ai-assistant-interface.md` - AI as central conversational interface
+- `docs/design/accessibility-guidelines.md` - WCAG 2.1 AA healthcare compliance
+- `docs/setup/development-environment.md` - Complete setup guide
+
+## Task Management
+
+- Before starting any implementation work, AI agents must first append corresponding to-do items in the format [ ] within a @TODO.md file located in the relevant module folder
+- **DOCUMENTATION FIRST**: Always read relevant documentation before creating TODO items
+- **CONTEXT AWARENESS**: Identify which bounded context(s) your task affects and review those specifications
+
+## Testing Policy
+
+- Skip unit tests and end-to-end tests for this project
+- Focus on manual testing and code quality instead
+
+## Library Usage
+
+- Always use Context7 for documentation and reference
+- Before implementing any new library, check if it exists in the codebase
+- Follow existing code conventions and patterns
+
+**Technology Stack Constraints**:
+
+- Backend: NestJS + Prisma + PostgreSQL + TimescaleDB + Redis + Milvus
+- Mobile: Flutter with platform-specific health integrations (HealthKit/Health Connect)
+- AI: OpenAI integration with vector database for health pattern recognition
+- Authentication: Firebase Auth with healthcare-specific user management
+
+## Code Implementation
+
+- Follow Domain-Driven Design principles
+- Implement proper error handling throughout the codebase
+- Ensure all code is production-ready before committing
+
+## Installation and Setup
+
+- Always using the command to install the dependencies
+- Use npm for backend
+- Use flutter pub for mobile
