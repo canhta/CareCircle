@@ -8,6 +8,26 @@
 // API and Request/Response types
 export * from './api.types';
 
+// Job Queue types
+export type {
+  CriticalAlertJobData,
+  ValidationMetricsJobData,
+  HealthcareProviderNotificationData,
+  ValidationResult,
+} from './api.types';
+
+// Health Profile DTOs
+export type {
+  CreateHealthProfileDto,
+  UpdateHealthProfileDto,
+  BaselineMetricsDto,
+  HealthConditionDto,
+  AllergyDto,
+  RiskFactorDto,
+  HealthGoalDto,
+  UpdateHealthGoalDto,
+} from './api.types';
+
 // Domain value objects (JSON-compatible interfaces)
 export type {
   MessageMetadata,
@@ -25,7 +45,6 @@ export type {
   Attachment,
   Source,
   VerificationLevel,
-  ValidationResult,
 } from '../../ai-assistant/domain/value-objects/shared.value-objects';
 
 export type {

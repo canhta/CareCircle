@@ -12,6 +12,11 @@ import { QueueService } from '../../../common/queue/queue.service';
 
 import { MetricType, DataSource, ValidationStatus } from '@prisma/client';
 import { HealthMetric } from '../../domain/entities/health-metric.entity';
+import { CriticalAlert } from '../services/critical-alert.service';
+import {
+  CriticalAlertJobData,
+  HealthcareProviderNotificationData,
+} from '../../../common/types';
 
 export interface HealthDataProcessingJob {
   userId: string;
@@ -136,10 +141,10 @@ export class HealthDataProcessingProcessor {
   /**
    * Process critical alert by sending appropriate notifications
    */
-  private async processCriticalAlert(alert: any): Promise<void> {
+  private async processCriticalAlert(alert: CriticalAlert): Promise<void> {
     try {
       // Add critical alert notification to queue
-      await this.queueService.addCriticalAlertNotification({
+      const criticalAlertData: CriticalAlertJobData = {
         userId: alert.userId,
         alertId: alert.id,
         alertType: alert.type,
@@ -148,24 +153,30 @@ export class HealthDataProcessingProcessor {
         healthcareProviderAlert: alert.healthcareProviderAlert,
         emergencyServicesAlert: alert.emergencyServicesAlert,
         immediateActions: alert.immediateActions,
-      });
+      };
+
+      await this.queueService.addCriticalAlertNotification(criticalAlertData);
 
       // If healthcare provider alert is required, add to provider notification queue
       if (alert.healthcareProviderAlert) {
-        await this.queueService.addHealthcareProviderNotification({
+        const providerNotificationData: HealthcareProviderNotificationData = {
           userId: alert.userId,
           alertType: alert.type,
           message: alert.message,
           urgency: alert.priority,
           patientData: {
-            metricType: alert.metricType,
+            metricType: alert.metricType.toString(),
             value: alert.value,
             unit: alert.unit,
             timestamp: alert.timestamp,
             medicalGuidance: alert.medicalGuidance,
             immediateActions: alert.immediateActions,
           },
-        });
+        };
+
+        await this.queueService.addHealthcareProviderNotification(
+          providerNotificationData,
+        );
       }
 
       this.logger.log(

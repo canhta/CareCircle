@@ -227,6 +227,128 @@ export interface UserHealthPreferences {
 }
 
 // =============================================================================
+// Job Queue Types
+// =============================================================================
+
+export interface CriticalAlertJobData {
+  userId: string;
+  alertId: string;
+  alertType: string;
+  priority: string;
+  message: string;
+  healthcareProviderAlert: boolean;
+  emergencyServicesAlert: boolean;
+  immediateActions: string[];
+}
+
+export interface ValidationMetricsJobData {
+  userId: string;
+  metricType: string;
+  validationResult: ValidationResult;
+}
+
+export interface HealthcareProviderNotificationData {
+  userId: string;
+  providerId?: string;
+  alertType: string;
+  message: string;
+  urgency: string;
+  patientData: {
+    metricType: string;
+    value: number;
+    unit: string;
+    timestamp: Date;
+    medicalGuidance: string;
+    immediateActions: string[];
+  };
+}
+
+// Re-export ValidationResult from health-data validation service
+export interface ValidationResult {
+  isValid: boolean;
+  warnings: string[];
+  errors: string[];
+  suggestions: string[];
+  confidence: number;
+  normalizedValue?: number;
+  qualityScore: number;
+  severity: 'info' | 'warning' | 'error' | 'critical';
+  emergencyAlert?: boolean;
+  complianceFlags: string[];
+  medicalReferences: string[];
+}
+
+// =============================================================================
+// Health Profile DTOs
+// =============================================================================
+
+export interface CreateHealthProfileDto {
+  baselineMetrics?: Partial<BaselineMetricsDto>;
+  healthConditions?: HealthConditionDto[];
+  allergies?: AllergyDto[];
+  riskFactors?: RiskFactorDto[];
+}
+
+export interface UpdateHealthProfileDto {
+  baselineMetrics?: Partial<BaselineMetricsDto>;
+  healthConditions?: HealthConditionDto[];
+  allergies?: AllergyDto[];
+  riskFactors?: RiskFactorDto[];
+}
+
+export interface BaselineMetricsDto {
+  height: number;
+  weight: number;
+  bmi: number;
+  restingHeartRate: number;
+  bloodPressure: {
+    systolic: number;
+    diastolic: number;
+  };
+  bloodGlucose: number;
+}
+
+export interface HealthConditionDto {
+  name: string;
+  diagnosisDate?: string | Date;
+  isCurrent: boolean;
+  severity: 'mild' | 'moderate' | 'severe';
+  medications?: string[];
+  notes?: string;
+}
+
+export interface AllergyDto {
+  allergen: string;
+  reactionType: string;
+  severity: 'mild' | 'moderate' | 'severe';
+}
+
+export interface RiskFactorDto {
+  type: string;
+  description: string;
+  riskLevel: 'low' | 'medium' | 'high';
+}
+
+export interface HealthGoalDto {
+  metricType: string;
+  targetValue: number;
+  unit: string;
+  startDate: string | Date;
+  targetDate: string | Date;
+  recurrence: 'once' | 'daily' | 'weekly' | 'monthly';
+}
+
+export interface UpdateHealthGoalDto {
+  targetValue?: number;
+  unit?: string;
+  targetDate?: string | Date;
+  currentValue?: number;
+  progress?: number;
+  status?: 'active' | 'achieved' | 'behind' | 'abandoned';
+  recurrence?: 'once' | 'daily' | 'weekly' | 'monthly';
+}
+
+// =============================================================================
 // Export all types
 // =============================================================================
 

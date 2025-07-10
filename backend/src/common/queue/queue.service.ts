@@ -1,6 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
+import {
+  CriticalAlertJobData,
+  ValidationMetricsJobData,
+  HealthcareProviderNotificationData,
+} from '../types';
 
 export interface QueueJobOptions {
   delay?: number;
@@ -166,16 +171,7 @@ export class QueueService {
    * Add critical alert notification job to queue
    */
   async addCriticalAlertNotification(
-    data: {
-      userId: string;
-      alertId: string;
-      alertType: string;
-      priority: string;
-      message: string;
-      healthcareProviderAlert: boolean;
-      emergencyServicesAlert: boolean;
-      immediateActions: string[];
-    },
+    data: CriticalAlertJobData,
     options?: QueueJobOptions,
   ) {
     try {
@@ -205,11 +201,7 @@ export class QueueService {
    * Add validation metrics tracking job to queue
    */
   async addValidationMetricsTracking(
-    data: {
-      userId: string;
-      metricType: string;
-      validationResult: any;
-    },
+    data: ValidationMetricsJobData,
     options?: QueueJobOptions,
   ) {
     try {
@@ -243,14 +235,7 @@ export class QueueService {
    * Add healthcare provider notification job to queue
    */
   async addHealthcareProviderNotification(
-    data: {
-      userId: string;
-      providerId?: string;
-      alertType: string;
-      message: string;
-      urgency: string;
-      patientData: any;
-    },
+    data: HealthcareProviderNotificationData,
     options?: QueueJobOptions,
   ) {
     try {

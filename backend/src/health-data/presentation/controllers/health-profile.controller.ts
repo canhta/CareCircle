@@ -11,7 +11,17 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { HealthProfileService } from '../../application/services/health-profile.service';
-import { AuthenticatedRequest } from '../../../common/types/api.types';
+import {
+  AuthenticatedRequest,
+  CreateHealthProfileDto,
+  UpdateHealthProfileDto,
+  BaselineMetricsDto,
+  HealthConditionDto,
+  AllergyDto,
+  RiskFactorDto,
+  HealthGoalDto,
+  UpdateHealthGoalDto,
+} from '../../../common/types';
 
 @Controller('health-data/profiles')
 export class HealthProfileController {
@@ -20,21 +30,26 @@ export class HealthProfileController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   async createProfile(
-    @Body()
-    createProfileDto: {
-      baselineMetrics?: any;
-      healthConditions?: any[];
-      allergies?: any[];
-      riskFactors?: any[];
-    },
+    @Body() createProfileDto: CreateHealthProfileDto,
     @Request() req: AuthenticatedRequest,
   ) {
     const userId = req.user?.id || 'test-user-id'; // Temporary for testing
 
-    return this.healthProfileService.createProfile({
+    // Convert DTO to domain entity format
+    const profileData = {
       userId,
-      ...createProfileDto,
-    });
+      baselineMetrics: createProfileDto.baselineMetrics,
+      healthConditions: createProfileDto.healthConditions?.map((condition) => ({
+        ...condition,
+        diagnosisDate: condition.diagnosisDate
+          ? new Date(condition.diagnosisDate)
+          : undefined,
+      })),
+      allergies: createProfileDto.allergies,
+      riskFactors: createProfileDto.riskFactors,
+    };
+
+    return this.healthProfileService.createProfile(profileData);
   }
 
   @Get('me')
@@ -51,20 +66,27 @@ export class HealthProfileController {
   @Put(':id')
   async updateProfile(
     @Param('id') id: string,
-    @Body()
-    updateProfileDto: {
-      baselineMetrics?: any;
-      healthConditions?: any[];
-      allergies?: any[];
-      riskFactors?: any[];
-    },
+    @Body() updateProfileDto: UpdateHealthProfileDto,
   ) {
-    return this.healthProfileService.updateProfile(id, updateProfileDto);
+    // Convert DTO to domain entity format
+    const updateData = {
+      baselineMetrics: updateProfileDto.baselineMetrics,
+      healthConditions: updateProfileDto.healthConditions?.map((condition) => ({
+        ...condition,
+        diagnosisDate: condition.diagnosisDate
+          ? new Date(condition.diagnosisDate)
+          : undefined,
+      })),
+      allergies: updateProfileDto.allergies,
+      riskFactors: updateProfileDto.riskFactors,
+    };
+
+    return this.healthProfileService.updateProfile(id, updateData);
   }
 
   @Put('me/baseline')
   async updateMyBaseline(
-    @Body() baselineDto: any,
+    @Body() baselineDto: Partial<BaselineMetricsDto>,
     @Request() req: AuthenticatedRequest,
   ) {
     const userId = req.user?.id || 'test-user-id'; // Temporary for testing
@@ -73,16 +95,25 @@ export class HealthProfileController {
 
   @Post('me/conditions')
   async addHealthCondition(
-    @Body() conditionDto: any,
+    @Body() conditionDto: HealthConditionDto,
     @Request() req: AuthenticatedRequest,
   ) {
     const userId = req.user?.id || 'test-user-id'; // Temporary for testing
-    return this.healthProfileService.addHealthCondition(userId, conditionDto);
+
+    // Convert DTO to domain entity format
+    const condition = {
+      ...conditionDto,
+      diagnosisDate: conditionDto.diagnosisDate
+        ? new Date(conditionDto.diagnosisDate)
+        : undefined,
+    };
+
+    return this.healthProfileService.addHealthCondition(userId, condition);
   }
 
   @Post('me/allergies')
   async addAllergy(
-    @Body() allergyDto: any,
+    @Body() allergyDto: AllergyDto,
     @Request() req: AuthenticatedRequest,
   ) {
     const userId = req.user?.id || 'test-user-id'; // Temporary for testing
@@ -91,7 +122,7 @@ export class HealthProfileController {
 
   @Post('me/risk-factors')
   async addRiskFactor(
-    @Body() riskFactorDto: any,
+    @Body() riskFactorDto: RiskFactorDto,
     @Request() req: AuthenticatedRequest,
   ) {
     const userId = req.user?.id || 'test-user-id'; // Temporary for testing
@@ -100,15 +131,7 @@ export class HealthProfileController {
 
   @Post('me/goals')
   async addHealthGoal(
-    @Body()
-    goalDto: {
-      metricType: string;
-      targetValue: number;
-      unit: string;
-      startDate: string;
-      targetDate: string;
-      recurrence: string;
-    },
+    @Body() goalDto: HealthGoalDto,
     @Request() req: AuthenticatedRequest,
   ) {
     const userId = req.user?.id || 'test-user-id'; // Temporary for testing
@@ -120,7 +143,7 @@ export class HealthProfileController {
       currentValue: 0,
       progress: 0,
       status: 'active' as const,
-      recurrence: goalDto.recurrence as 'once' | 'daily' | 'weekly' | 'monthly',
+      recurrence: goalDto.recurrence,
     };
 
     return this.healthProfileService.addHealthGoal(userId, goal);
@@ -129,14 +152,23 @@ export class HealthProfileController {
   @Put('me/goals/:goalId')
   async updateHealthGoal(
     @Param('goalId') goalId: string,
-    @Body() updateDto: any,
+    @Body() updateDto: UpdateHealthGoalDto,
     @Request() req: AuthenticatedRequest,
   ) {
     const userId = req.user?.id || 'test-user-id'; // Temporary for testing
+
+    // Convert DTO to domain entity format
+    const goalUpdates = {
+      ...updateDto,
+      targetDate: updateDto.targetDate
+        ? new Date(updateDto.targetDate)
+        : undefined,
+    };
+
     return this.healthProfileService.updateHealthGoal(
       userId,
       goalId,
-      updateDto,
+      goalUpdates,
     );
   }
 

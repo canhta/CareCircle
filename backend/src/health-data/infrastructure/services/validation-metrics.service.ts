@@ -5,6 +5,13 @@ import {
   ValidationSeverity,
 } from './health-data-validation.service';
 
+// Extended validation result with tracking metadata
+interface ValidationResultWithMetadata extends ValidationResult {
+  metricType: MetricType;
+  timestamp: Date;
+  userId: string;
+}
+
 export interface ValidationMetrics {
   totalValidations: number;
   successfulValidations: number;
@@ -79,7 +86,8 @@ export interface ValidationAlert {
 @Injectable()
 export class ValidationMetricsService {
   private readonly logger = new Logger(ValidationMetricsService.name);
-  private validationHistory: Map<string, ValidationResult[]> = new Map();
+  private validationHistory: Map<string, ValidationResultWithMetadata[]> =
+    new Map();
   private alertHistory: Map<string, ValidationAlert[]> = new Map();
 
   /**
@@ -91,14 +99,14 @@ export class ValidationMetricsService {
     result: ValidationResult,
   ): void {
     const userHistory = this.validationHistory.get(userId) || [];
-    const validationRecord = {
+    const validationRecord: ValidationResultWithMetadata = {
       ...result,
       metricType,
       timestamp: new Date(),
       userId,
     };
 
-    userHistory.push(validationRecord as any);
+    userHistory.push(validationRecord);
     this.validationHistory.set(userId, userHistory);
 
     // Generate alerts if necessary
@@ -119,7 +127,7 @@ export class ValidationMetricsService {
   ): ValidationMetrics {
     const userHistory = this.validationHistory.get(userId) || [];
     const periodHistory = userHistory.filter(
-      (record: any) =>
+      (record: ValidationResultWithMetadata) =>
         record.timestamp >= startDate && record.timestamp <= endDate,
     );
 
@@ -301,12 +309,12 @@ export class ValidationMetricsService {
   }
 
   private calculateMetricTypeBreakdown(
-    history: ValidationResult[],
+    history: ValidationResultWithMetadata[],
   ): Record<string, ValidationTypeMetrics> {
     const breakdown: Record<string, ValidationTypeMetrics> = {};
 
     for (const record of history) {
-      const metricType = (record as any).metricType;
+      const metricType = record.metricType;
       if (!breakdown[metricType]) {
         breakdown[metricType] = {
           metricType,
@@ -338,7 +346,7 @@ export class ValidationMetricsService {
       metrics.successRate = (metrics.successCount / metrics.totalCount) * 100;
 
       const typeRecords = history.filter(
-        (r: any) => r.metricType === metricType,
+        (r: ValidationResultWithMetadata) => r.metricType === metricType,
       );
       metrics.averageQualityScore =
         typeRecords.reduce((sum, r) => sum + r.qualityScore, 0) /
@@ -349,7 +357,7 @@ export class ValidationMetricsService {
   }
 
   private calculateSeverityBreakdown(
-    history: ValidationResult[],
+    history: ValidationResultWithMetadata[],
   ): Record<ValidationSeverity, number> {
     const breakdown = {
       [ValidationSeverity.INFO]: 0,
@@ -365,7 +373,9 @@ export class ValidationMetricsService {
     return breakdown;
   }
 
-  private analyzeCommonIssues(history: ValidationResult[]): ValidationIssue[] {
+  private analyzeCommonIssues(
+    history: ValidationResultWithMetadata[],
+  ): ValidationIssue[] {
     const issueMap = new Map<string, ValidationIssue>();
 
     for (const record of history) {
@@ -383,7 +393,7 @@ export class ValidationMetricsService {
         const issueRecord = issueMap.get(issue)!;
         issueRecord.frequency++;
 
-        const metricType = (record as any).metricType;
+        const metricType = record.metricType;
         if (!issueRecord.affectedMetricTypes.includes(metricType)) {
           issueRecord.affectedMetricTypes.push(metricType);
         }
@@ -426,7 +436,7 @@ export class ValidationMetricsService {
   ): ValidationSummary['healthcareCompliance'] {
     const userHistory = this.validationHistory.get(userId) || [];
     const periodHistory = userHistory.filter(
-      (record: any) =>
+      (record: ValidationResultWithMetadata) =>
         record.timestamp >= startDate && record.timestamp <= endDate,
     );
 

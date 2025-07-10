@@ -1,4 +1,4 @@
-import { HealthProfile } from '../entities/health-profile.entity';
+import { HealthProfile, HealthGoal } from '../entities/health-profile.entity';
 
 export abstract class HealthProfileRepository {
   abstract create(profile: HealthProfile): Promise<HealthProfile>;
@@ -11,11 +11,14 @@ export abstract class HealthProfileRepository {
   abstract delete(id: string): Promise<void>;
 
   // Health goals operations
-  abstract addHealthGoal(profileId: string, goal: any): Promise<HealthProfile>;
+  abstract addHealthGoal(
+    profileId: string,
+    goal: HealthGoal,
+  ): Promise<HealthProfile>;
   abstract updateHealthGoal(
     profileId: string,
     goalId: string,
-    updates: any,
+    updates: Partial<HealthGoal>,
   ): Promise<HealthProfile>;
   abstract removeHealthGoal(
     profileId: string,

@@ -86,7 +86,10 @@ export class PrismaHealthProfileRepository extends HealthProfileRepository {
     });
   }
 
-  async addHealthGoal(profileId: string, goal: any): Promise<HealthProfile> {
+  async addHealthGoal(
+    profileId: string,
+    goal: HealthGoal,
+  ): Promise<HealthProfile> {
     const profile = await this.findById(profileId);
     if (!profile) {
       throw new Error('Profile not found');
@@ -99,7 +102,7 @@ export class PrismaHealthProfileRepository extends HealthProfileRepository {
   async updateHealthGoal(
     profileId: string,
     goalId: string,
-    updates: any,
+    updates: Partial<HealthGoal>,
   ): Promise<HealthProfile> {
     const profile = await this.findById(profileId);
     if (!profile) {
