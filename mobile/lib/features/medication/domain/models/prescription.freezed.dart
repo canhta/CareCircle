@@ -1429,7 +1429,9 @@ as String?,
 /// @nodoc
 mixin _$Prescription {
 
- String get id; String get userId; String get prescribedBy; DateTime get prescribedDate; String? get pharmacy; OCRData? get ocrData; String? get imageUrl; bool get isVerified; DateTime? get verifiedAt; String? get verifiedBy; List<PrescriptionMedication> get medications; DateTime get createdAt; DateTime get updatedAt;
+ String get id; String get userId; String get prescribedBy; DateTime get prescribedDate; String? get pharmacy; OCRData? get ocrData; String? get imageUrl; bool get isVerified; DateTime? get verifiedAt; String? get verifiedBy; List<PrescriptionMedication> get medications; DateTime get createdAt; DateTime get updatedAt;// Additional properties expected by screens
+ VerificationStatus get verificationStatus; DateTime? get dateIssued;// Alias for prescribedDate
+ List<String> get extractedMedications;
 /// Create a copy of Prescription
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -1442,16 +1444,16 @@ $PrescriptionCopyWith<Prescription> get copyWith => _$PrescriptionCopyWithImpl<P
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Prescription&&(identical(other.id, id) || other.id == id)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.prescribedBy, prescribedBy) || other.prescribedBy == prescribedBy)&&(identical(other.prescribedDate, prescribedDate) || other.prescribedDate == prescribedDate)&&(identical(other.pharmacy, pharmacy) || other.pharmacy == pharmacy)&&(identical(other.ocrData, ocrData) || other.ocrData == ocrData)&&(identical(other.imageUrl, imageUrl) || other.imageUrl == imageUrl)&&(identical(other.isVerified, isVerified) || other.isVerified == isVerified)&&(identical(other.verifiedAt, verifiedAt) || other.verifiedAt == verifiedAt)&&(identical(other.verifiedBy, verifiedBy) || other.verifiedBy == verifiedBy)&&const DeepCollectionEquality().equals(other.medications, medications)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Prescription&&(identical(other.id, id) || other.id == id)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.prescribedBy, prescribedBy) || other.prescribedBy == prescribedBy)&&(identical(other.prescribedDate, prescribedDate) || other.prescribedDate == prescribedDate)&&(identical(other.pharmacy, pharmacy) || other.pharmacy == pharmacy)&&(identical(other.ocrData, ocrData) || other.ocrData == ocrData)&&(identical(other.imageUrl, imageUrl) || other.imageUrl == imageUrl)&&(identical(other.isVerified, isVerified) || other.isVerified == isVerified)&&(identical(other.verifiedAt, verifiedAt) || other.verifiedAt == verifiedAt)&&(identical(other.verifiedBy, verifiedBy) || other.verifiedBy == verifiedBy)&&const DeepCollectionEquality().equals(other.medications, medications)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.verificationStatus, verificationStatus) || other.verificationStatus == verificationStatus)&&(identical(other.dateIssued, dateIssued) || other.dateIssued == dateIssued)&&const DeepCollectionEquality().equals(other.extractedMedications, extractedMedications));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,userId,prescribedBy,prescribedDate,pharmacy,ocrData,imageUrl,isVerified,verifiedAt,verifiedBy,const DeepCollectionEquality().hash(medications),createdAt,updatedAt);
+int get hashCode => Object.hash(runtimeType,id,userId,prescribedBy,prescribedDate,pharmacy,ocrData,imageUrl,isVerified,verifiedAt,verifiedBy,const DeepCollectionEquality().hash(medications),createdAt,updatedAt,verificationStatus,dateIssued,const DeepCollectionEquality().hash(extractedMedications));
 
 @override
 String toString() {
-  return 'Prescription(id: $id, userId: $userId, prescribedBy: $prescribedBy, prescribedDate: $prescribedDate, pharmacy: $pharmacy, ocrData: $ocrData, imageUrl: $imageUrl, isVerified: $isVerified, verifiedAt: $verifiedAt, verifiedBy: $verifiedBy, medications: $medications, createdAt: $createdAt, updatedAt: $updatedAt)';
+  return 'Prescription(id: $id, userId: $userId, prescribedBy: $prescribedBy, prescribedDate: $prescribedDate, pharmacy: $pharmacy, ocrData: $ocrData, imageUrl: $imageUrl, isVerified: $isVerified, verifiedAt: $verifiedAt, verifiedBy: $verifiedBy, medications: $medications, createdAt: $createdAt, updatedAt: $updatedAt, verificationStatus: $verificationStatus, dateIssued: $dateIssued, extractedMedications: $extractedMedications)';
 }
 
 
@@ -1462,7 +1464,7 @@ abstract mixin class $PrescriptionCopyWith<$Res>  {
   factory $PrescriptionCopyWith(Prescription value, $Res Function(Prescription) _then) = _$PrescriptionCopyWithImpl;
 @useResult
 $Res call({
- String id, String userId, String prescribedBy, DateTime prescribedDate, String? pharmacy, OCRData? ocrData, String? imageUrl, bool isVerified, DateTime? verifiedAt, String? verifiedBy, List<PrescriptionMedication> medications, DateTime createdAt, DateTime updatedAt
+ String id, String userId, String prescribedBy, DateTime prescribedDate, String? pharmacy, OCRData? ocrData, String? imageUrl, bool isVerified, DateTime? verifiedAt, String? verifiedBy, List<PrescriptionMedication> medications, DateTime createdAt, DateTime updatedAt, VerificationStatus verificationStatus, DateTime? dateIssued, List<String> extractedMedications
 });
 
 
@@ -1479,7 +1481,7 @@ class _$PrescriptionCopyWithImpl<$Res>
 
 /// Create a copy of Prescription
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? userId = null,Object? prescribedBy = null,Object? prescribedDate = null,Object? pharmacy = freezed,Object? ocrData = freezed,Object? imageUrl = freezed,Object? isVerified = null,Object? verifiedAt = freezed,Object? verifiedBy = freezed,Object? medications = null,Object? createdAt = null,Object? updatedAt = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? userId = null,Object? prescribedBy = null,Object? prescribedDate = null,Object? pharmacy = freezed,Object? ocrData = freezed,Object? imageUrl = freezed,Object? isVerified = null,Object? verifiedAt = freezed,Object? verifiedBy = freezed,Object? medications = null,Object? createdAt = null,Object? updatedAt = null,Object? verificationStatus = null,Object? dateIssued = freezed,Object? extractedMedications = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
@@ -1494,7 +1496,10 @@ as DateTime?,verifiedBy: freezed == verifiedBy ? _self.verifiedBy : verifiedBy /
 as String?,medications: null == medications ? _self.medications : medications // ignore: cast_nullable_to_non_nullable
 as List<PrescriptionMedication>,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as DateTime,updatedAt: null == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
-as DateTime,
+as DateTime,verificationStatus: null == verificationStatus ? _self.verificationStatus : verificationStatus // ignore: cast_nullable_to_non_nullable
+as VerificationStatus,dateIssued: freezed == dateIssued ? _self.dateIssued : dateIssued // ignore: cast_nullable_to_non_nullable
+as DateTime?,extractedMedications: null == extractedMedications ? _self.extractedMedications : extractedMedications // ignore: cast_nullable_to_non_nullable
+as List<String>,
   ));
 }
 /// Create a copy of Prescription
@@ -1591,10 +1596,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String userId,  String prescribedBy,  DateTime prescribedDate,  String? pharmacy,  OCRData? ocrData,  String? imageUrl,  bool isVerified,  DateTime? verifiedAt,  String? verifiedBy,  List<PrescriptionMedication> medications,  DateTime createdAt,  DateTime updatedAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String userId,  String prescribedBy,  DateTime prescribedDate,  String? pharmacy,  OCRData? ocrData,  String? imageUrl,  bool isVerified,  DateTime? verifiedAt,  String? verifiedBy,  List<PrescriptionMedication> medications,  DateTime createdAt,  DateTime updatedAt,  VerificationStatus verificationStatus,  DateTime? dateIssued,  List<String> extractedMedications)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Prescription() when $default != null:
-return $default(_that.id,_that.userId,_that.prescribedBy,_that.prescribedDate,_that.pharmacy,_that.ocrData,_that.imageUrl,_that.isVerified,_that.verifiedAt,_that.verifiedBy,_that.medications,_that.createdAt,_that.updatedAt);case _:
+return $default(_that.id,_that.userId,_that.prescribedBy,_that.prescribedDate,_that.pharmacy,_that.ocrData,_that.imageUrl,_that.isVerified,_that.verifiedAt,_that.verifiedBy,_that.medications,_that.createdAt,_that.updatedAt,_that.verificationStatus,_that.dateIssued,_that.extractedMedications);case _:
   return orElse();
 
 }
@@ -1612,10 +1617,10 @@ return $default(_that.id,_that.userId,_that.prescribedBy,_that.prescribedDate,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String userId,  String prescribedBy,  DateTime prescribedDate,  String? pharmacy,  OCRData? ocrData,  String? imageUrl,  bool isVerified,  DateTime? verifiedAt,  String? verifiedBy,  List<PrescriptionMedication> medications,  DateTime createdAt,  DateTime updatedAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String userId,  String prescribedBy,  DateTime prescribedDate,  String? pharmacy,  OCRData? ocrData,  String? imageUrl,  bool isVerified,  DateTime? verifiedAt,  String? verifiedBy,  List<PrescriptionMedication> medications,  DateTime createdAt,  DateTime updatedAt,  VerificationStatus verificationStatus,  DateTime? dateIssued,  List<String> extractedMedications)  $default,) {final _that = this;
 switch (_that) {
 case _Prescription():
-return $default(_that.id,_that.userId,_that.prescribedBy,_that.prescribedDate,_that.pharmacy,_that.ocrData,_that.imageUrl,_that.isVerified,_that.verifiedAt,_that.verifiedBy,_that.medications,_that.createdAt,_that.updatedAt);case _:
+return $default(_that.id,_that.userId,_that.prescribedBy,_that.prescribedDate,_that.pharmacy,_that.ocrData,_that.imageUrl,_that.isVerified,_that.verifiedAt,_that.verifiedBy,_that.medications,_that.createdAt,_that.updatedAt,_that.verificationStatus,_that.dateIssued,_that.extractedMedications);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -1632,10 +1637,10 @@ return $default(_that.id,_that.userId,_that.prescribedBy,_that.prescribedDate,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String userId,  String prescribedBy,  DateTime prescribedDate,  String? pharmacy,  OCRData? ocrData,  String? imageUrl,  bool isVerified,  DateTime? verifiedAt,  String? verifiedBy,  List<PrescriptionMedication> medications,  DateTime createdAt,  DateTime updatedAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String userId,  String prescribedBy,  DateTime prescribedDate,  String? pharmacy,  OCRData? ocrData,  String? imageUrl,  bool isVerified,  DateTime? verifiedAt,  String? verifiedBy,  List<PrescriptionMedication> medications,  DateTime createdAt,  DateTime updatedAt,  VerificationStatus verificationStatus,  DateTime? dateIssued,  List<String> extractedMedications)?  $default,) {final _that = this;
 switch (_that) {
 case _Prescription() when $default != null:
-return $default(_that.id,_that.userId,_that.prescribedBy,_that.prescribedDate,_that.pharmacy,_that.ocrData,_that.imageUrl,_that.isVerified,_that.verifiedAt,_that.verifiedBy,_that.medications,_that.createdAt,_that.updatedAt);case _:
+return $default(_that.id,_that.userId,_that.prescribedBy,_that.prescribedDate,_that.pharmacy,_that.ocrData,_that.imageUrl,_that.isVerified,_that.verifiedAt,_that.verifiedBy,_that.medications,_that.createdAt,_that.updatedAt,_that.verificationStatus,_that.dateIssued,_that.extractedMedications);case _:
   return null;
 
 }
@@ -1647,7 +1652,7 @@ return $default(_that.id,_that.userId,_that.prescribedBy,_that.prescribedDate,_t
 @JsonSerializable()
 
 class _Prescription implements Prescription {
-  const _Prescription({required this.id, required this.userId, required this.prescribedBy, required this.prescribedDate, this.pharmacy, this.ocrData, this.imageUrl, this.isVerified = false, this.verifiedAt, this.verifiedBy, final  List<PrescriptionMedication> medications = const [], required this.createdAt, required this.updatedAt}): _medications = medications;
+  const _Prescription({required this.id, required this.userId, required this.prescribedBy, required this.prescribedDate, this.pharmacy, this.ocrData, this.imageUrl, this.isVerified = false, this.verifiedAt, this.verifiedBy, final  List<PrescriptionMedication> medications = const [], required this.createdAt, required this.updatedAt, this.verificationStatus = VerificationStatus.pending, this.dateIssued, final  List<String> extractedMedications = const []}): _medications = medications,_extractedMedications = extractedMedications;
   factory _Prescription.fromJson(Map<String, dynamic> json) => _$PrescriptionFromJson(json);
 
 @override final  String id;
@@ -1669,6 +1674,18 @@ class _Prescription implements Prescription {
 
 @override final  DateTime createdAt;
 @override final  DateTime updatedAt;
+// Additional properties expected by screens
+@override@JsonKey() final  VerificationStatus verificationStatus;
+@override final  DateTime? dateIssued;
+// Alias for prescribedDate
+ final  List<String> _extractedMedications;
+// Alias for prescribedDate
+@override@JsonKey() List<String> get extractedMedications {
+  if (_extractedMedications is EqualUnmodifiableListView) return _extractedMedications;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_extractedMedications);
+}
+
 
 /// Create a copy of Prescription
 /// with the given fields replaced by the non-null parameter values.
@@ -1683,16 +1700,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Prescription&&(identical(other.id, id) || other.id == id)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.prescribedBy, prescribedBy) || other.prescribedBy == prescribedBy)&&(identical(other.prescribedDate, prescribedDate) || other.prescribedDate == prescribedDate)&&(identical(other.pharmacy, pharmacy) || other.pharmacy == pharmacy)&&(identical(other.ocrData, ocrData) || other.ocrData == ocrData)&&(identical(other.imageUrl, imageUrl) || other.imageUrl == imageUrl)&&(identical(other.isVerified, isVerified) || other.isVerified == isVerified)&&(identical(other.verifiedAt, verifiedAt) || other.verifiedAt == verifiedAt)&&(identical(other.verifiedBy, verifiedBy) || other.verifiedBy == verifiedBy)&&const DeepCollectionEquality().equals(other._medications, _medications)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Prescription&&(identical(other.id, id) || other.id == id)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.prescribedBy, prescribedBy) || other.prescribedBy == prescribedBy)&&(identical(other.prescribedDate, prescribedDate) || other.prescribedDate == prescribedDate)&&(identical(other.pharmacy, pharmacy) || other.pharmacy == pharmacy)&&(identical(other.ocrData, ocrData) || other.ocrData == ocrData)&&(identical(other.imageUrl, imageUrl) || other.imageUrl == imageUrl)&&(identical(other.isVerified, isVerified) || other.isVerified == isVerified)&&(identical(other.verifiedAt, verifiedAt) || other.verifiedAt == verifiedAt)&&(identical(other.verifiedBy, verifiedBy) || other.verifiedBy == verifiedBy)&&const DeepCollectionEquality().equals(other._medications, _medications)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.verificationStatus, verificationStatus) || other.verificationStatus == verificationStatus)&&(identical(other.dateIssued, dateIssued) || other.dateIssued == dateIssued)&&const DeepCollectionEquality().equals(other._extractedMedications, _extractedMedications));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,userId,prescribedBy,prescribedDate,pharmacy,ocrData,imageUrl,isVerified,verifiedAt,verifiedBy,const DeepCollectionEquality().hash(_medications),createdAt,updatedAt);
+int get hashCode => Object.hash(runtimeType,id,userId,prescribedBy,prescribedDate,pharmacy,ocrData,imageUrl,isVerified,verifiedAt,verifiedBy,const DeepCollectionEquality().hash(_medications),createdAt,updatedAt,verificationStatus,dateIssued,const DeepCollectionEquality().hash(_extractedMedications));
 
 @override
 String toString() {
-  return 'Prescription(id: $id, userId: $userId, prescribedBy: $prescribedBy, prescribedDate: $prescribedDate, pharmacy: $pharmacy, ocrData: $ocrData, imageUrl: $imageUrl, isVerified: $isVerified, verifiedAt: $verifiedAt, verifiedBy: $verifiedBy, medications: $medications, createdAt: $createdAt, updatedAt: $updatedAt)';
+  return 'Prescription(id: $id, userId: $userId, prescribedBy: $prescribedBy, prescribedDate: $prescribedDate, pharmacy: $pharmacy, ocrData: $ocrData, imageUrl: $imageUrl, isVerified: $isVerified, verifiedAt: $verifiedAt, verifiedBy: $verifiedBy, medications: $medications, createdAt: $createdAt, updatedAt: $updatedAt, verificationStatus: $verificationStatus, dateIssued: $dateIssued, extractedMedications: $extractedMedications)';
 }
 
 
@@ -1703,7 +1720,7 @@ abstract mixin class _$PrescriptionCopyWith<$Res> implements $PrescriptionCopyWi
   factory _$PrescriptionCopyWith(_Prescription value, $Res Function(_Prescription) _then) = __$PrescriptionCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String userId, String prescribedBy, DateTime prescribedDate, String? pharmacy, OCRData? ocrData, String? imageUrl, bool isVerified, DateTime? verifiedAt, String? verifiedBy, List<PrescriptionMedication> medications, DateTime createdAt, DateTime updatedAt
+ String id, String userId, String prescribedBy, DateTime prescribedDate, String? pharmacy, OCRData? ocrData, String? imageUrl, bool isVerified, DateTime? verifiedAt, String? verifiedBy, List<PrescriptionMedication> medications, DateTime createdAt, DateTime updatedAt, VerificationStatus verificationStatus, DateTime? dateIssued, List<String> extractedMedications
 });
 
 
@@ -1720,7 +1737,7 @@ class __$PrescriptionCopyWithImpl<$Res>
 
 /// Create a copy of Prescription
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? userId = null,Object? prescribedBy = null,Object? prescribedDate = null,Object? pharmacy = freezed,Object? ocrData = freezed,Object? imageUrl = freezed,Object? isVerified = null,Object? verifiedAt = freezed,Object? verifiedBy = freezed,Object? medications = null,Object? createdAt = null,Object? updatedAt = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? userId = null,Object? prescribedBy = null,Object? prescribedDate = null,Object? pharmacy = freezed,Object? ocrData = freezed,Object? imageUrl = freezed,Object? isVerified = null,Object? verifiedAt = freezed,Object? verifiedBy = freezed,Object? medications = null,Object? createdAt = null,Object? updatedAt = null,Object? verificationStatus = null,Object? dateIssued = freezed,Object? extractedMedications = null,}) {
   return _then(_Prescription(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
@@ -1735,7 +1752,10 @@ as DateTime?,verifiedBy: freezed == verifiedBy ? _self.verifiedBy : verifiedBy /
 as String?,medications: null == medications ? _self._medications : medications // ignore: cast_nullable_to_non_nullable
 as List<PrescriptionMedication>,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as DateTime,updatedAt: null == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
-as DateTime,
+as DateTime,verificationStatus: null == verificationStatus ? _self.verificationStatus : verificationStatus // ignore: cast_nullable_to_non_nullable
+as VerificationStatus,dateIssued: freezed == dateIssued ? _self.dateIssued : dateIssued // ignore: cast_nullable_to_non_nullable
+as DateTime?,extractedMedications: null == extractedMedications ? _self._extractedMedications : extractedMedications // ignore: cast_nullable_to_non_nullable
+as List<String>,
   ));
 }
 
@@ -2069,6 +2089,299 @@ $OCRDataCopyWith<$Res>? get ocrData {
     return _then(_self.copyWith(ocrData: value));
   });
 }
+}
+
+
+/// @nodoc
+mixin _$PrescriptionOCRResult {
+
+ String get extractedText; double get confidence; List<String> get extractedMedications; String? get prescribedBy; DateTime? get prescribedDate; String? get pharmacy; List<OCRMedicationData> get medications;
+/// Create a copy of PrescriptionOCRResult
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$PrescriptionOCRResultCopyWith<PrescriptionOCRResult> get copyWith => _$PrescriptionOCRResultCopyWithImpl<PrescriptionOCRResult>(this as PrescriptionOCRResult, _$identity);
+
+  /// Serializes this PrescriptionOCRResult to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is PrescriptionOCRResult&&(identical(other.extractedText, extractedText) || other.extractedText == extractedText)&&(identical(other.confidence, confidence) || other.confidence == confidence)&&const DeepCollectionEquality().equals(other.extractedMedications, extractedMedications)&&(identical(other.prescribedBy, prescribedBy) || other.prescribedBy == prescribedBy)&&(identical(other.prescribedDate, prescribedDate) || other.prescribedDate == prescribedDate)&&(identical(other.pharmacy, pharmacy) || other.pharmacy == pharmacy)&&const DeepCollectionEquality().equals(other.medications, medications));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,extractedText,confidence,const DeepCollectionEquality().hash(extractedMedications),prescribedBy,prescribedDate,pharmacy,const DeepCollectionEquality().hash(medications));
+
+@override
+String toString() {
+  return 'PrescriptionOCRResult(extractedText: $extractedText, confidence: $confidence, extractedMedications: $extractedMedications, prescribedBy: $prescribedBy, prescribedDate: $prescribedDate, pharmacy: $pharmacy, medications: $medications)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $PrescriptionOCRResultCopyWith<$Res>  {
+  factory $PrescriptionOCRResultCopyWith(PrescriptionOCRResult value, $Res Function(PrescriptionOCRResult) _then) = _$PrescriptionOCRResultCopyWithImpl;
+@useResult
+$Res call({
+ String extractedText, double confidence, List<String> extractedMedications, String? prescribedBy, DateTime? prescribedDate, String? pharmacy, List<OCRMedicationData> medications
+});
+
+
+
+
+}
+/// @nodoc
+class _$PrescriptionOCRResultCopyWithImpl<$Res>
+    implements $PrescriptionOCRResultCopyWith<$Res> {
+  _$PrescriptionOCRResultCopyWithImpl(this._self, this._then);
+
+  final PrescriptionOCRResult _self;
+  final $Res Function(PrescriptionOCRResult) _then;
+
+/// Create a copy of PrescriptionOCRResult
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? extractedText = null,Object? confidence = null,Object? extractedMedications = null,Object? prescribedBy = freezed,Object? prescribedDate = freezed,Object? pharmacy = freezed,Object? medications = null,}) {
+  return _then(_self.copyWith(
+extractedText: null == extractedText ? _self.extractedText : extractedText // ignore: cast_nullable_to_non_nullable
+as String,confidence: null == confidence ? _self.confidence : confidence // ignore: cast_nullable_to_non_nullable
+as double,extractedMedications: null == extractedMedications ? _self.extractedMedications : extractedMedications // ignore: cast_nullable_to_non_nullable
+as List<String>,prescribedBy: freezed == prescribedBy ? _self.prescribedBy : prescribedBy // ignore: cast_nullable_to_non_nullable
+as String?,prescribedDate: freezed == prescribedDate ? _self.prescribedDate : prescribedDate // ignore: cast_nullable_to_non_nullable
+as DateTime?,pharmacy: freezed == pharmacy ? _self.pharmacy : pharmacy // ignore: cast_nullable_to_non_nullable
+as String?,medications: null == medications ? _self.medications : medications // ignore: cast_nullable_to_non_nullable
+as List<OCRMedicationData>,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [PrescriptionOCRResult].
+extension PrescriptionOCRResultPatterns on PrescriptionOCRResult {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _PrescriptionOCRResult value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _PrescriptionOCRResult() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _PrescriptionOCRResult value)  $default,){
+final _that = this;
+switch (_that) {
+case _PrescriptionOCRResult():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _PrescriptionOCRResult value)?  $default,){
+final _that = this;
+switch (_that) {
+case _PrescriptionOCRResult() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String extractedText,  double confidence,  List<String> extractedMedications,  String? prescribedBy,  DateTime? prescribedDate,  String? pharmacy,  List<OCRMedicationData> medications)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _PrescriptionOCRResult() when $default != null:
+return $default(_that.extractedText,_that.confidence,_that.extractedMedications,_that.prescribedBy,_that.prescribedDate,_that.pharmacy,_that.medications);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String extractedText,  double confidence,  List<String> extractedMedications,  String? prescribedBy,  DateTime? prescribedDate,  String? pharmacy,  List<OCRMedicationData> medications)  $default,) {final _that = this;
+switch (_that) {
+case _PrescriptionOCRResult():
+return $default(_that.extractedText,_that.confidence,_that.extractedMedications,_that.prescribedBy,_that.prescribedDate,_that.pharmacy,_that.medications);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String extractedText,  double confidence,  List<String> extractedMedications,  String? prescribedBy,  DateTime? prescribedDate,  String? pharmacy,  List<OCRMedicationData> medications)?  $default,) {final _that = this;
+switch (_that) {
+case _PrescriptionOCRResult() when $default != null:
+return $default(_that.extractedText,_that.confidence,_that.extractedMedications,_that.prescribedBy,_that.prescribedDate,_that.pharmacy,_that.medications);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _PrescriptionOCRResult implements PrescriptionOCRResult {
+  const _PrescriptionOCRResult({required this.extractedText, required this.confidence, final  List<String> extractedMedications = const [], this.prescribedBy, this.prescribedDate, this.pharmacy, final  List<OCRMedicationData> medications = const []}): _extractedMedications = extractedMedications,_medications = medications;
+  factory _PrescriptionOCRResult.fromJson(Map<String, dynamic> json) => _$PrescriptionOCRResultFromJson(json);
+
+@override final  String extractedText;
+@override final  double confidence;
+ final  List<String> _extractedMedications;
+@override@JsonKey() List<String> get extractedMedications {
+  if (_extractedMedications is EqualUnmodifiableListView) return _extractedMedications;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_extractedMedications);
+}
+
+@override final  String? prescribedBy;
+@override final  DateTime? prescribedDate;
+@override final  String? pharmacy;
+ final  List<OCRMedicationData> _medications;
+@override@JsonKey() List<OCRMedicationData> get medications {
+  if (_medications is EqualUnmodifiableListView) return _medications;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_medications);
+}
+
+
+/// Create a copy of PrescriptionOCRResult
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$PrescriptionOCRResultCopyWith<_PrescriptionOCRResult> get copyWith => __$PrescriptionOCRResultCopyWithImpl<_PrescriptionOCRResult>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$PrescriptionOCRResultToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _PrescriptionOCRResult&&(identical(other.extractedText, extractedText) || other.extractedText == extractedText)&&(identical(other.confidence, confidence) || other.confidence == confidence)&&const DeepCollectionEquality().equals(other._extractedMedications, _extractedMedications)&&(identical(other.prescribedBy, prescribedBy) || other.prescribedBy == prescribedBy)&&(identical(other.prescribedDate, prescribedDate) || other.prescribedDate == prescribedDate)&&(identical(other.pharmacy, pharmacy) || other.pharmacy == pharmacy)&&const DeepCollectionEquality().equals(other._medications, _medications));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,extractedText,confidence,const DeepCollectionEquality().hash(_extractedMedications),prescribedBy,prescribedDate,pharmacy,const DeepCollectionEquality().hash(_medications));
+
+@override
+String toString() {
+  return 'PrescriptionOCRResult(extractedText: $extractedText, confidence: $confidence, extractedMedications: $extractedMedications, prescribedBy: $prescribedBy, prescribedDate: $prescribedDate, pharmacy: $pharmacy, medications: $medications)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$PrescriptionOCRResultCopyWith<$Res> implements $PrescriptionOCRResultCopyWith<$Res> {
+  factory _$PrescriptionOCRResultCopyWith(_PrescriptionOCRResult value, $Res Function(_PrescriptionOCRResult) _then) = __$PrescriptionOCRResultCopyWithImpl;
+@override @useResult
+$Res call({
+ String extractedText, double confidence, List<String> extractedMedications, String? prescribedBy, DateTime? prescribedDate, String? pharmacy, List<OCRMedicationData> medications
+});
+
+
+
+
+}
+/// @nodoc
+class __$PrescriptionOCRResultCopyWithImpl<$Res>
+    implements _$PrescriptionOCRResultCopyWith<$Res> {
+  __$PrescriptionOCRResultCopyWithImpl(this._self, this._then);
+
+  final _PrescriptionOCRResult _self;
+  final $Res Function(_PrescriptionOCRResult) _then;
+
+/// Create a copy of PrescriptionOCRResult
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? extractedText = null,Object? confidence = null,Object? extractedMedications = null,Object? prescribedBy = freezed,Object? prescribedDate = freezed,Object? pharmacy = freezed,Object? medications = null,}) {
+  return _then(_PrescriptionOCRResult(
+extractedText: null == extractedText ? _self.extractedText : extractedText // ignore: cast_nullable_to_non_nullable
+as String,confidence: null == confidence ? _self.confidence : confidence // ignore: cast_nullable_to_non_nullable
+as double,extractedMedications: null == extractedMedications ? _self._extractedMedications : extractedMedications // ignore: cast_nullable_to_non_nullable
+as List<String>,prescribedBy: freezed == prescribedBy ? _self.prescribedBy : prescribedBy // ignore: cast_nullable_to_non_nullable
+as String?,prescribedDate: freezed == prescribedDate ? _self.prescribedDate : prescribedDate // ignore: cast_nullable_to_non_nullable
+as DateTime?,pharmacy: freezed == pharmacy ? _self.pharmacy : pharmacy // ignore: cast_nullable_to_non_nullable
+as String?,medications: null == medications ? _self._medications : medications // ignore: cast_nullable_to_non_nullable
+as List<OCRMedicationData>,
+  ));
+}
+
+
 }
 
 

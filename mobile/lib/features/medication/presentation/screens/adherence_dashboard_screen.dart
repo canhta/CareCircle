@@ -31,8 +31,8 @@ class _AdherenceDashboardScreenState
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final statisticsAsync = ref.watch(adherenceStatisticsProvider('all'));
-    final trendsAsync = ref.watch(adherenceStatisticsProvider('all'));
+    final statisticsAsync = ref.watch(adherenceStatisticsProvider);
+    final trendsAsync = ref.watch(adherenceTrendsProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -257,7 +257,7 @@ class _AdherenceDashboardScreenState
   }
 
   Widget _buildTrendsChartSection(
-    AsyncValue<AdherenceStatistics> trendsAsync,
+    AsyncValue<List<AdherenceTrendPoint>> trendsAsync,
     ThemeData theme,
   ) {
     return Card(
@@ -302,12 +302,9 @@ class _AdherenceDashboardScreenState
     );
   }
 
-  Widget _buildTrendsChart(AdherenceStatistics statistics, ThemeData theme) {
-    // Create mock trend data from statistics
-    final trends = List.generate(
-      7,
-      (index) => statistics.adherencePercentage + (index * 2.0 - 6.0),
-    );
+  Widget _buildTrendsChart(List<AdherenceTrendPoint> trends, ThemeData theme) {
+    // Use the actual trend data
+    final trendValues = trends.map((point) => point.adherenceRate).toList();
     return SizedBox(
       height: 200,
       child: LineChart(
@@ -340,7 +337,7 @@ class _AdherenceDashboardScreenState
                   final index = value.toInt();
                   if (index >= 0 && index < trends.length) {
                     final date = DateTime.now().subtract(
-                      Duration(days: trends.length - index - 1),
+                      Duration(days: trendValues.length - index - 1),
                     );
                     return Text(
                       '${date.day}/${date.month}',
@@ -372,12 +369,12 @@ class _AdherenceDashboardScreenState
             ),
           ),
           minX: 0,
-          maxX: (trends.length - 1).toDouble(),
+          maxX: (trendValues.length - 1).toDouble(),
           minY: 0,
           maxY: 100,
           lineBarsData: [
             LineChartBarData(
-              spots: trends.asMap().entries.map((entry) {
+              spots: trendValues.asMap().entries.map((entry) {
                 return FlSpot(entry.key.toDouble(), entry.value);
               }).toList(),
               isCurved: true,

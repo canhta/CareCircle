@@ -266,7 +266,7 @@ class _PrescriptionManagementScreenState
                           ),
                         ),
                         Text(
-                          '${prescription.dateIssued.day}/${prescription.dateIssued.month}/${prescription.dateIssued.year}',
+                          '${(prescription.dateIssued ?? prescription.prescribedDate).day}/${(prescription.dateIssued ?? prescription.prescribedDate).month}/${(prescription.dateIssued ?? prescription.prescribedDate).year}',
                           style: theme.textTheme.bodyMedium?.copyWith(
                             color: theme.colorScheme.onSurfaceVariant,
                           ),
@@ -528,6 +528,8 @@ class _PrescriptionManagementScreenState
         return Colors.orange;
       case VerificationStatus.needsReview:
         return CareCircleDesignTokens.criticalAlert;
+      case VerificationStatus.rejected:
+        return Colors.red;
     }
   }
 
@@ -539,6 +541,8 @@ class _PrescriptionManagementScreenState
         return Icons.pending;
       case VerificationStatus.needsReview:
         return Icons.warning;
+      case VerificationStatus.rejected:
+        return Icons.cancel;
     }
   }
 
@@ -550,6 +554,8 @@ class _PrescriptionManagementScreenState
         return 'PENDING';
       case VerificationStatus.needsReview:
         return 'REVIEW';
+      case VerificationStatus.rejected:
+        return 'REJECTED';
     }
   }
 

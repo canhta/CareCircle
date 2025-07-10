@@ -5,7 +5,7 @@ import '../../../../core/design/design_tokens.dart';
 import '../../../../core/logging/bounded_context_loggers.dart';
 import '../../domain/models/models.dart';
 import '../providers/adherence_providers.dart';
-import '../providers/schedule_providers.dart';
+
 
 /// Adherence Tracking Screen for dose management interface
 ///
@@ -36,9 +36,7 @@ class _AdherenceTrackingScreenState
     final adherenceAsync = ref.watch(
       medicationAdherenceProvider(widget.medicationId),
     );
-    final statisticsAsync = ref.watch(
-      adherenceStatisticsProvider(widget.medicationId),
-    );
+    final statisticsAsync = ref.watch(adherenceStatisticsProvider);
     final todayDosesAsync = ref.watch(
       medicationAdherenceProvider(widget.medicationId),
     );
@@ -649,7 +647,7 @@ class _AdherenceTrackingScreenState
 
         // Refresh data
         ref.invalidate(medicationAdherenceProvider(widget.medicationId));
-        ref.invalidate(adherenceStatisticsProvider(widget.medicationId));
+        ref.invalidate(adherenceStatisticsProvider);
       }
     } catch (e) {
       _logger.error('Failed to record dose status', {

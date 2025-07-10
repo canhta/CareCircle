@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Medication {
 
- String get id; String get userId; String get name; String? get genericName; String get strength; MedicationForm get form; String? get manufacturer; String? get rxNormCode; String? get ndcCode; String? get classification; bool get isActive; DateTime get startDate; DateTime? get endDate; String? get prescriptionId; String? get notes; DateTime get createdAt; DateTime get updatedAt;
+ String get id; String get userId; String get name; String? get genericName; String get strength; MedicationForm get form; String? get manufacturer; String? get rxNormCode; String? get ndcCode; String? get classification; MedicationCategory get category; bool get isActive; DateTime get startDate; DateTime? get endDate; String? get prescriptionId; String? get notes; DateTime get createdAt; DateTime get updatedAt;
 /// Create a copy of Medication
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $MedicationCopyWith<Medication> get copyWith => _$MedicationCopyWithImpl<Medicat
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Medication&&(identical(other.id, id) || other.id == id)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.name, name) || other.name == name)&&(identical(other.genericName, genericName) || other.genericName == genericName)&&(identical(other.strength, strength) || other.strength == strength)&&(identical(other.form, form) || other.form == form)&&(identical(other.manufacturer, manufacturer) || other.manufacturer == manufacturer)&&(identical(other.rxNormCode, rxNormCode) || other.rxNormCode == rxNormCode)&&(identical(other.ndcCode, ndcCode) || other.ndcCode == ndcCode)&&(identical(other.classification, classification) || other.classification == classification)&&(identical(other.isActive, isActive) || other.isActive == isActive)&&(identical(other.startDate, startDate) || other.startDate == startDate)&&(identical(other.endDate, endDate) || other.endDate == endDate)&&(identical(other.prescriptionId, prescriptionId) || other.prescriptionId == prescriptionId)&&(identical(other.notes, notes) || other.notes == notes)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Medication&&(identical(other.id, id) || other.id == id)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.name, name) || other.name == name)&&(identical(other.genericName, genericName) || other.genericName == genericName)&&(identical(other.strength, strength) || other.strength == strength)&&(identical(other.form, form) || other.form == form)&&(identical(other.manufacturer, manufacturer) || other.manufacturer == manufacturer)&&(identical(other.rxNormCode, rxNormCode) || other.rxNormCode == rxNormCode)&&(identical(other.ndcCode, ndcCode) || other.ndcCode == ndcCode)&&(identical(other.classification, classification) || other.classification == classification)&&(identical(other.category, category) || other.category == category)&&(identical(other.isActive, isActive) || other.isActive == isActive)&&(identical(other.startDate, startDate) || other.startDate == startDate)&&(identical(other.endDate, endDate) || other.endDate == endDate)&&(identical(other.prescriptionId, prescriptionId) || other.prescriptionId == prescriptionId)&&(identical(other.notes, notes) || other.notes == notes)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,userId,name,genericName,strength,form,manufacturer,rxNormCode,ndcCode,classification,isActive,startDate,endDate,prescriptionId,notes,createdAt,updatedAt);
+int get hashCode => Object.hash(runtimeType,id,userId,name,genericName,strength,form,manufacturer,rxNormCode,ndcCode,classification,category,isActive,startDate,endDate,prescriptionId,notes,createdAt,updatedAt);
 
 @override
 String toString() {
-  return 'Medication(id: $id, userId: $userId, name: $name, genericName: $genericName, strength: $strength, form: $form, manufacturer: $manufacturer, rxNormCode: $rxNormCode, ndcCode: $ndcCode, classification: $classification, isActive: $isActive, startDate: $startDate, endDate: $endDate, prescriptionId: $prescriptionId, notes: $notes, createdAt: $createdAt, updatedAt: $updatedAt)';
+  return 'Medication(id: $id, userId: $userId, name: $name, genericName: $genericName, strength: $strength, form: $form, manufacturer: $manufacturer, rxNormCode: $rxNormCode, ndcCode: $ndcCode, classification: $classification, category: $category, isActive: $isActive, startDate: $startDate, endDate: $endDate, prescriptionId: $prescriptionId, notes: $notes, createdAt: $createdAt, updatedAt: $updatedAt)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $MedicationCopyWith<$Res>  {
   factory $MedicationCopyWith(Medication value, $Res Function(Medication) _then) = _$MedicationCopyWithImpl;
 @useResult
 $Res call({
- String id, String userId, String name, String? genericName, String strength, MedicationForm form, String? manufacturer, String? rxNormCode, String? ndcCode, String? classification, bool isActive, DateTime startDate, DateTime? endDate, String? prescriptionId, String? notes, DateTime createdAt, DateTime updatedAt
+ String id, String userId, String name, String? genericName, String strength, MedicationForm form, String? manufacturer, String? rxNormCode, String? ndcCode, String? classification, MedicationCategory category, bool isActive, DateTime startDate, DateTime? endDate, String? prescriptionId, String? notes, DateTime createdAt, DateTime updatedAt
 });
 
 
@@ -65,7 +65,7 @@ class _$MedicationCopyWithImpl<$Res>
 
 /// Create a copy of Medication
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? userId = null,Object? name = null,Object? genericName = freezed,Object? strength = null,Object? form = null,Object? manufacturer = freezed,Object? rxNormCode = freezed,Object? ndcCode = freezed,Object? classification = freezed,Object? isActive = null,Object? startDate = null,Object? endDate = freezed,Object? prescriptionId = freezed,Object? notes = freezed,Object? createdAt = null,Object? updatedAt = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? userId = null,Object? name = null,Object? genericName = freezed,Object? strength = null,Object? form = null,Object? manufacturer = freezed,Object? rxNormCode = freezed,Object? ndcCode = freezed,Object? classification = freezed,Object? category = null,Object? isActive = null,Object? startDate = null,Object? endDate = freezed,Object? prescriptionId = freezed,Object? notes = freezed,Object? createdAt = null,Object? updatedAt = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
@@ -77,7 +77,8 @@ as MedicationForm,manufacturer: freezed == manufacturer ? _self.manufacturer : m
 as String?,rxNormCode: freezed == rxNormCode ? _self.rxNormCode : rxNormCode // ignore: cast_nullable_to_non_nullable
 as String?,ndcCode: freezed == ndcCode ? _self.ndcCode : ndcCode // ignore: cast_nullable_to_non_nullable
 as String?,classification: freezed == classification ? _self.classification : classification // ignore: cast_nullable_to_non_nullable
-as String?,isActive: null == isActive ? _self.isActive : isActive // ignore: cast_nullable_to_non_nullable
+as String?,category: null == category ? _self.category : category // ignore: cast_nullable_to_non_nullable
+as MedicationCategory,isActive: null == isActive ? _self.isActive : isActive // ignore: cast_nullable_to_non_nullable
 as bool,startDate: null == startDate ? _self.startDate : startDate // ignore: cast_nullable_to_non_nullable
 as DateTime,endDate: freezed == endDate ? _self.endDate : endDate // ignore: cast_nullable_to_non_nullable
 as DateTime?,prescriptionId: freezed == prescriptionId ? _self.prescriptionId : prescriptionId // ignore: cast_nullable_to_non_nullable
@@ -169,10 +170,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String userId,  String name,  String? genericName,  String strength,  MedicationForm form,  String? manufacturer,  String? rxNormCode,  String? ndcCode,  String? classification,  bool isActive,  DateTime startDate,  DateTime? endDate,  String? prescriptionId,  String? notes,  DateTime createdAt,  DateTime updatedAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String userId,  String name,  String? genericName,  String strength,  MedicationForm form,  String? manufacturer,  String? rxNormCode,  String? ndcCode,  String? classification,  MedicationCategory category,  bool isActive,  DateTime startDate,  DateTime? endDate,  String? prescriptionId,  String? notes,  DateTime createdAt,  DateTime updatedAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Medication() when $default != null:
-return $default(_that.id,_that.userId,_that.name,_that.genericName,_that.strength,_that.form,_that.manufacturer,_that.rxNormCode,_that.ndcCode,_that.classification,_that.isActive,_that.startDate,_that.endDate,_that.prescriptionId,_that.notes,_that.createdAt,_that.updatedAt);case _:
+return $default(_that.id,_that.userId,_that.name,_that.genericName,_that.strength,_that.form,_that.manufacturer,_that.rxNormCode,_that.ndcCode,_that.classification,_that.category,_that.isActive,_that.startDate,_that.endDate,_that.prescriptionId,_that.notes,_that.createdAt,_that.updatedAt);case _:
   return orElse();
 
 }
@@ -190,10 +191,10 @@ return $default(_that.id,_that.userId,_that.name,_that.genericName,_that.strengt
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String userId,  String name,  String? genericName,  String strength,  MedicationForm form,  String? manufacturer,  String? rxNormCode,  String? ndcCode,  String? classification,  bool isActive,  DateTime startDate,  DateTime? endDate,  String? prescriptionId,  String? notes,  DateTime createdAt,  DateTime updatedAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String userId,  String name,  String? genericName,  String strength,  MedicationForm form,  String? manufacturer,  String? rxNormCode,  String? ndcCode,  String? classification,  MedicationCategory category,  bool isActive,  DateTime startDate,  DateTime? endDate,  String? prescriptionId,  String? notes,  DateTime createdAt,  DateTime updatedAt)  $default,) {final _that = this;
 switch (_that) {
 case _Medication():
-return $default(_that.id,_that.userId,_that.name,_that.genericName,_that.strength,_that.form,_that.manufacturer,_that.rxNormCode,_that.ndcCode,_that.classification,_that.isActive,_that.startDate,_that.endDate,_that.prescriptionId,_that.notes,_that.createdAt,_that.updatedAt);case _:
+return $default(_that.id,_that.userId,_that.name,_that.genericName,_that.strength,_that.form,_that.manufacturer,_that.rxNormCode,_that.ndcCode,_that.classification,_that.category,_that.isActive,_that.startDate,_that.endDate,_that.prescriptionId,_that.notes,_that.createdAt,_that.updatedAt);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -210,10 +211,10 @@ return $default(_that.id,_that.userId,_that.name,_that.genericName,_that.strengt
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String userId,  String name,  String? genericName,  String strength,  MedicationForm form,  String? manufacturer,  String? rxNormCode,  String? ndcCode,  String? classification,  bool isActive,  DateTime startDate,  DateTime? endDate,  String? prescriptionId,  String? notes,  DateTime createdAt,  DateTime updatedAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String userId,  String name,  String? genericName,  String strength,  MedicationForm form,  String? manufacturer,  String? rxNormCode,  String? ndcCode,  String? classification,  MedicationCategory category,  bool isActive,  DateTime startDate,  DateTime? endDate,  String? prescriptionId,  String? notes,  DateTime createdAt,  DateTime updatedAt)?  $default,) {final _that = this;
 switch (_that) {
 case _Medication() when $default != null:
-return $default(_that.id,_that.userId,_that.name,_that.genericName,_that.strength,_that.form,_that.manufacturer,_that.rxNormCode,_that.ndcCode,_that.classification,_that.isActive,_that.startDate,_that.endDate,_that.prescriptionId,_that.notes,_that.createdAt,_that.updatedAt);case _:
+return $default(_that.id,_that.userId,_that.name,_that.genericName,_that.strength,_that.form,_that.manufacturer,_that.rxNormCode,_that.ndcCode,_that.classification,_that.category,_that.isActive,_that.startDate,_that.endDate,_that.prescriptionId,_that.notes,_that.createdAt,_that.updatedAt);case _:
   return null;
 
 }
@@ -225,7 +226,7 @@ return $default(_that.id,_that.userId,_that.name,_that.genericName,_that.strengt
 @JsonSerializable()
 
 class _Medication implements Medication {
-  const _Medication({required this.id, required this.userId, required this.name, this.genericName, required this.strength, required this.form, this.manufacturer, this.rxNormCode, this.ndcCode, this.classification, this.isActive = true, required this.startDate, this.endDate, this.prescriptionId, this.notes, required this.createdAt, required this.updatedAt});
+  const _Medication({required this.id, required this.userId, required this.name, this.genericName, required this.strength, required this.form, this.manufacturer, this.rxNormCode, this.ndcCode, this.classification, this.category = MedicationCategory.other, this.isActive = true, required this.startDate, this.endDate, this.prescriptionId, this.notes, required this.createdAt, required this.updatedAt});
   factory _Medication.fromJson(Map<String, dynamic> json) => _$MedicationFromJson(json);
 
 @override final  String id;
@@ -238,6 +239,7 @@ class _Medication implements Medication {
 @override final  String? rxNormCode;
 @override final  String? ndcCode;
 @override final  String? classification;
+@override@JsonKey() final  MedicationCategory category;
 @override@JsonKey() final  bool isActive;
 @override final  DateTime startDate;
 @override final  DateTime? endDate;
@@ -259,16 +261,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Medication&&(identical(other.id, id) || other.id == id)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.name, name) || other.name == name)&&(identical(other.genericName, genericName) || other.genericName == genericName)&&(identical(other.strength, strength) || other.strength == strength)&&(identical(other.form, form) || other.form == form)&&(identical(other.manufacturer, manufacturer) || other.manufacturer == manufacturer)&&(identical(other.rxNormCode, rxNormCode) || other.rxNormCode == rxNormCode)&&(identical(other.ndcCode, ndcCode) || other.ndcCode == ndcCode)&&(identical(other.classification, classification) || other.classification == classification)&&(identical(other.isActive, isActive) || other.isActive == isActive)&&(identical(other.startDate, startDate) || other.startDate == startDate)&&(identical(other.endDate, endDate) || other.endDate == endDate)&&(identical(other.prescriptionId, prescriptionId) || other.prescriptionId == prescriptionId)&&(identical(other.notes, notes) || other.notes == notes)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Medication&&(identical(other.id, id) || other.id == id)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.name, name) || other.name == name)&&(identical(other.genericName, genericName) || other.genericName == genericName)&&(identical(other.strength, strength) || other.strength == strength)&&(identical(other.form, form) || other.form == form)&&(identical(other.manufacturer, manufacturer) || other.manufacturer == manufacturer)&&(identical(other.rxNormCode, rxNormCode) || other.rxNormCode == rxNormCode)&&(identical(other.ndcCode, ndcCode) || other.ndcCode == ndcCode)&&(identical(other.classification, classification) || other.classification == classification)&&(identical(other.category, category) || other.category == category)&&(identical(other.isActive, isActive) || other.isActive == isActive)&&(identical(other.startDate, startDate) || other.startDate == startDate)&&(identical(other.endDate, endDate) || other.endDate == endDate)&&(identical(other.prescriptionId, prescriptionId) || other.prescriptionId == prescriptionId)&&(identical(other.notes, notes) || other.notes == notes)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,userId,name,genericName,strength,form,manufacturer,rxNormCode,ndcCode,classification,isActive,startDate,endDate,prescriptionId,notes,createdAt,updatedAt);
+int get hashCode => Object.hash(runtimeType,id,userId,name,genericName,strength,form,manufacturer,rxNormCode,ndcCode,classification,category,isActive,startDate,endDate,prescriptionId,notes,createdAt,updatedAt);
 
 @override
 String toString() {
-  return 'Medication(id: $id, userId: $userId, name: $name, genericName: $genericName, strength: $strength, form: $form, manufacturer: $manufacturer, rxNormCode: $rxNormCode, ndcCode: $ndcCode, classification: $classification, isActive: $isActive, startDate: $startDate, endDate: $endDate, prescriptionId: $prescriptionId, notes: $notes, createdAt: $createdAt, updatedAt: $updatedAt)';
+  return 'Medication(id: $id, userId: $userId, name: $name, genericName: $genericName, strength: $strength, form: $form, manufacturer: $manufacturer, rxNormCode: $rxNormCode, ndcCode: $ndcCode, classification: $classification, category: $category, isActive: $isActive, startDate: $startDate, endDate: $endDate, prescriptionId: $prescriptionId, notes: $notes, createdAt: $createdAt, updatedAt: $updatedAt)';
 }
 
 
@@ -279,7 +281,7 @@ abstract mixin class _$MedicationCopyWith<$Res> implements $MedicationCopyWith<$
   factory _$MedicationCopyWith(_Medication value, $Res Function(_Medication) _then) = __$MedicationCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String userId, String name, String? genericName, String strength, MedicationForm form, String? manufacturer, String? rxNormCode, String? ndcCode, String? classification, bool isActive, DateTime startDate, DateTime? endDate, String? prescriptionId, String? notes, DateTime createdAt, DateTime updatedAt
+ String id, String userId, String name, String? genericName, String strength, MedicationForm form, String? manufacturer, String? rxNormCode, String? ndcCode, String? classification, MedicationCategory category, bool isActive, DateTime startDate, DateTime? endDate, String? prescriptionId, String? notes, DateTime createdAt, DateTime updatedAt
 });
 
 
@@ -296,7 +298,7 @@ class __$MedicationCopyWithImpl<$Res>
 
 /// Create a copy of Medication
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? userId = null,Object? name = null,Object? genericName = freezed,Object? strength = null,Object? form = null,Object? manufacturer = freezed,Object? rxNormCode = freezed,Object? ndcCode = freezed,Object? classification = freezed,Object? isActive = null,Object? startDate = null,Object? endDate = freezed,Object? prescriptionId = freezed,Object? notes = freezed,Object? createdAt = null,Object? updatedAt = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? userId = null,Object? name = null,Object? genericName = freezed,Object? strength = null,Object? form = null,Object? manufacturer = freezed,Object? rxNormCode = freezed,Object? ndcCode = freezed,Object? classification = freezed,Object? category = null,Object? isActive = null,Object? startDate = null,Object? endDate = freezed,Object? prescriptionId = freezed,Object? notes = freezed,Object? createdAt = null,Object? updatedAt = null,}) {
   return _then(_Medication(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
@@ -308,7 +310,8 @@ as MedicationForm,manufacturer: freezed == manufacturer ? _self.manufacturer : m
 as String?,rxNormCode: freezed == rxNormCode ? _self.rxNormCode : rxNormCode // ignore: cast_nullable_to_non_nullable
 as String?,ndcCode: freezed == ndcCode ? _self.ndcCode : ndcCode // ignore: cast_nullable_to_non_nullable
 as String?,classification: freezed == classification ? _self.classification : classification // ignore: cast_nullable_to_non_nullable
-as String?,isActive: null == isActive ? _self.isActive : isActive // ignore: cast_nullable_to_non_nullable
+as String?,category: null == category ? _self.category : category // ignore: cast_nullable_to_non_nullable
+as MedicationCategory,isActive: null == isActive ? _self.isActive : isActive // ignore: cast_nullable_to_non_nullable
 as bool,startDate: null == startDate ? _self.startDate : startDate // ignore: cast_nullable_to_non_nullable
 as DateTime,endDate: freezed == endDate ? _self.endDate : endDate // ignore: cast_nullable_to_non_nullable
 as DateTime?,prescriptionId: freezed == prescriptionId ? _self.prescriptionId : prescriptionId // ignore: cast_nullable_to_non_nullable
