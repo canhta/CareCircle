@@ -261,7 +261,7 @@ class _DevicePermissionsWidgetState extends ConsumerState<DevicePermissionsWidge
         width: double.infinity,
         child: ElevatedButton(onPressed: null, child: Text('Loading...')),
       ),
-      error: (_, __) => SizedBox(
+      error: (_, _) => SizedBox(
         width: double.infinity,
         child: ElevatedButton.icon(
           onPressed: () => _retryPermissionCheck(),

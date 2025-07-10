@@ -233,7 +233,7 @@ class _DeviceConnectionCardState extends ConsumerState<DeviceConnectionCard> {
         width: double.infinity,
         child: ElevatedButton(onPressed: null, child: Text('Loading...')),
       ),
-      error: (_, __) => SizedBox(
+      error: (_, _) => SizedBox(
         width: double.infinity,
         child: ElevatedButton.icon(
           onPressed: () => _retryConnection(),

@@ -11,6 +11,7 @@ class BoundedContextLoggers {
   static bool _initialized = false;
 
   // Context-specific logger instances
+  static late final Talker _core;
   static late final Talker _auth;
   static late final Talker _aiAssistant;
   static late final Talker _healthData;
@@ -30,6 +31,7 @@ class BoundedContextLoggers {
     await AppLogger.initialize();
 
     // Create context-specific loggers
+    _core = _createContextLogger('CORE');
     _auth = _createContextLogger('AUTH');
     _aiAssistant = _createContextLogger('AI_ASSISTANT');
     _healthData = _createContextLogger('HEALTH_DATA');
@@ -46,6 +48,7 @@ class BoundedContextLoggers {
     // Log successful initialization
     AppLogger.info('Bounded context loggers initialized', {
       'contexts': [
+        'CORE',
         'AUTH',
         'AI_ASSISTANT',
         'HEALTH_DATA',
@@ -57,8 +60,14 @@ class BoundedContextLoggers {
         'SECURITY',
         'COMPLIANCE',
       ],
-      'totalContexts': 10,
+      'totalContexts': 11,
     });
+  }
+
+  /// Core infrastructure logger
+  static Talker get core {
+    _ensureInitialized();
+    return _core;
   }
 
   /// Authentication context logger
@@ -144,6 +153,7 @@ class BoundedContextLoggers {
   static Map<String, Talker> getAllContexts() {
     _ensureInitialized();
     return {
+      'CORE': _core,
       'AUTH': _auth,
       'AI_ASSISTANT': _aiAssistant,
       'HEALTH_DATA': _healthData,
