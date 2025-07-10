@@ -21,13 +21,13 @@ npm --version
 echo "📱 Installing Flutter dependencies..."
 sudo apt-get install -y curl git unzip xz-utils zip libglu1-mesa
 
-# Download and install Flutter 3.32.5
-echo "📱 Installing Flutter 3.32.5..."
+# Download and install Flutter 3.32.6
+echo "📱 Installing Flutter 3.32.6..."
 cd $HOME
 if [ ! -d "flutter" ]; then
-    wget -q https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.32.5-stable.tar.xz
-    tar xf flutter_linux_3.32.5-stable.tar.xz
-    rm flutter_linux_3.32.5-stable.tar.xz
+    wget -q https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.32.6-stable.tar.xz
+    tar xf flutter_linux_3.32.6-stable.tar.xz
+    rm flutter_linux_3.32.6-stable.tar.xz
 fi
 
 # Add Flutter to PATH in .profile
