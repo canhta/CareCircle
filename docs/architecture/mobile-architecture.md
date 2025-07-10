@@ -4,6 +4,8 @@ This document outlines the architecture for the CareCircle mobile application bu
 
 > **Note:** For more detailed specifications of major features, please refer to the corresponding files in the [features directory](../features/).
 
+**Cross-Cutting Concerns:** For shared architectural patterns including authentication, error handling, logging, and validation, see [Cross-Cutting Concerns Architecture](./cross-cutting-concerns.md).
+
 ## 1. Architecture Pattern
 
 CareCircle mobile app adopts a **Feature-First MVVM Architecture** with the following components:

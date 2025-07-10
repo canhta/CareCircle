@@ -33,28 +33,14 @@ The CareCircle platform follows DDD principles with clear bounded contexts:
 
 ### Technology Stack
 
-#### Backend
+*For detailed technology stack information, see [System Overview](./system-overview.md#technology-stack)*
 
-- **Framework**: NestJS with TypeScript
-- **Database**: PostgreSQL with TimescaleDB extension
+**Key Technologies:**
+- **Backend**: NestJS with TypeScript, PostgreSQL with TimescaleDB
+- **Mobile**: Flutter with Riverpod state management
 - **Authentication**: Firebase Authentication
-- **Caching**: Redis
-- **Message Queue**: BullMQ
-- **API Documentation**: OpenAPI/Swagger
-
-#### Mobile
-
-- **Framework**: Flutter
-- **State Management**: Riverpod
-- **Architecture**: Feature-first with clean architecture
-- **Platform Integration**: Native iOS/Android APIs
-
-#### Infrastructure
-
-- **Cloud Provider**: Google Cloud Platform
-- **Container Orchestration**: Kubernetes
-- **CI/CD**: GitHub Actions
-- **Monitoring**: Prometheus + Grafana
+- **AI**: OpenAI API with Milvus vector database
+- **Infrastructure**: Google Cloud Platform with Docker containers
 
 ## Design Patterns
 

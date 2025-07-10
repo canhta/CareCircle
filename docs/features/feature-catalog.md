@@ -6,6 +6,7 @@ This document provides a comprehensive list of features for the CareCircle appli
 >
 > 1. **Feature Specifications**: See the corresponding files in this directory following the naming convention `[id]-[name].md` (e.g., `aha-001-ai-health-chat.md` for AI Health Chat)
 > 2. **Implementation Details**: See the corresponding bounded context documentation in the `../bounded-contexts/` directory for technical implementation guidelines
+> 3. **Healthcare Compliance**: All features must adhere to requirements in [Healthcare Compliance Architecture](../architecture/healthcare-compliance.md)
 
 ## User Management (UM)
 

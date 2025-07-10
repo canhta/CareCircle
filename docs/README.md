@@ -19,10 +19,13 @@ The documentation is organized into four main categories following DDD principle
 
 System-level architecture, design patterns, and technical decisions
 
-- [System Overview](./architecture/system-overview.md) - High-level platform architecture
+- [System Overview](./architecture/system-overview.md) - High-level platform architecture and **technology stack** (single source of truth)
 - [Backend Architecture](./architecture/backend-architecture.md) - Backend service structure
 - [Mobile Architecture](./architecture/mobile-architecture.md) - Mobile app architecture
 - [Bounded Context Communication](./architecture/bounded-context-communication.md) - Inter-context patterns
+- [Healthcare Compliance](./architecture/healthcare-compliance.md) - **Regulatory compliance requirements** (single source of truth)
+- [Cross-Cutting Concerns](./architecture/cross-cutting-concerns.md) - **Shared architectural patterns** (single source of truth)
+- [Logging Architecture](./architecture/logging-architecture.md) - Healthcare-compliant logging system
 - [Legacy Migration Decisions](./architecture/legacy-migration-decisions.md) - Historical decisions
 
 ### 2. Bounded Contexts (`./bounded-contexts/`)
@@ -57,7 +60,7 @@ Implementation roadmaps and project planning
 
 Development environment setup and configuration guides
 
-- [Development Environment Setup](./setup/development-environment.md) - Complete setup guide for backend and mobile
+- [Development Environment Setup](./setup/development-environment.md) - **Complete setup guide** including Firebase, mobile-backend connectivity, and all development tools (single comprehensive guide)
 
 ### 6. Design (`./design/`)
 

@@ -22,6 +22,8 @@ The Identity & Access Context (IAC) is the foundational module for the CareCircl
 
 This context is a prerequisite for all other contexts, providing the core identity services that other contexts depend on. It establishes the security boundary for the application and ensures that only authorized users can access sensitive health information and functionality.
 
+**Healthcare Compliance:** All authentication and authorization implementations must follow the healthcare compliance requirements detailed in [Healthcare Compliance Architecture](../../architecture/healthcare-compliance.md).
+
 ## Technical Specification
 
 ### Key Data Models and Interfaces

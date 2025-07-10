@@ -744,3 +744,150 @@ After completing this setup:
 7. **Start Development**: Begin with the [Implementation Roadmap](../planning/implementation-roadmap.md)
 
 For any setup issues not covered in this guide, please check the project's GitHub issues or create a new issue with detailed error information.
+
+## Firebase Setup
+
+*Complete Firebase Authentication setup for CareCircle backend and mobile applications.*
+
+### Create Firebase Project
+
+1. Go to [Firebase Console](https://console.firebase.google.com/)
+2. Click "Create a project"
+3. Enter project name: `carecircle-dev` (or your preferred name)
+4. Enable Google Analytics (optional)
+5. Click "Create project"
+
+### Enable Authentication
+
+1. In your Firebase project, go to "Authentication" in the left sidebar
+2. Click "Get started"
+3. Go to "Sign-in method" tab
+4. Enable the following providers:
+   - **Email/Password**: Enable
+   - **Anonymous**: Enable (for guest mode)
+   - **Google**: Enable (optional, for social login)
+   - **Phone**: Enable (optional, for phone authentication)
+
+### Create Service Account
+
+1. Go to Project Settings (gear icon)
+2. Go to "Service accounts" tab
+3. Click "Generate new private key"
+4. Download the JSON file
+5. Rename it to `firebase-service-account.json`
+6. Place it in `backend/config/`
+
+### Configure Backend
+
+Add Firebase configuration to your `.env` file:
+
+```env
+FIREBASE_PROJECT_ID=your-project-id
+FIREBASE_PRIVATE_KEY_ID=your-private-key-id
+FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
+FIREBASE_CLIENT_EMAIL=your-service-account-email
+FIREBASE_CLIENT_ID=your-client-id
+FIREBASE_AUTH_URI=https://accounts.google.com/o/oauth2/auth
+FIREBASE_TOKEN_URI=https://oauth2.googleapis.com/token
+```
+
+### Configure Mobile Apps
+
+1. **Android Configuration:**
+   - In Firebase Console, click "Add app" and select Android
+   - Enter package name: `com.carecircle.app`
+   - Download `google-services.json`
+   - Place it in `mobile/android/app/`
+
+2. **iOS Configuration:**
+   - In Firebase Console, click "Add app" and select iOS
+   - Enter bundle ID: `com.carecircle.app`
+   - Download `GoogleService-Info.plist`
+   - Place it in `mobile/ios/Runner/`
+
+### Test Firebase Connection
+
+1. Start the backend server
+2. Check logs for Firebase initialization success
+3. Test authentication endpoints using Postman
+4. Verify mobile app can authenticate with Firebase
+
+## Mobile-Backend Connectivity
+
+*Configure mobile app to connect to backend API during development.*
+
+### Automatic Setup (Recommended)
+
+Run the automated setup script:
+
+```bash
+# From the project root
+./scripts/setup-mobile-env.sh
+
+# Or specify a custom port if backend runs on different port
+./scripts/setup-mobile-env.sh 3001
+```
+
+This script will:
+1. Detect your local IP address automatically
+2. Update the mobile environment configuration
+3. Provide next steps for running the apps
+
+### Manual Setup
+
+If you prefer manual configuration:
+
+1. **Find Your Local IP Address:**
+   ```bash
+   # On macOS/Linux
+   ifconfig | grep "inet " | grep -v 127.0.0.1
+
+   # On Windows
+   ipconfig | findstr "IPv4"
+   ```
+
+2. **Update Mobile Configuration:**
+   Edit `mobile/lib/core/config/environment_config.dart`:
+   ```dart
+   static const String baseUrl = 'http://YOUR_IP_ADDRESS:3000';
+   ```
+
+3. **Test Connection:**
+   ```bash
+   # Test from mobile device/simulator
+   curl http://YOUR_IP_ADDRESS:3000/health
+   ```
+
+### Network Troubleshooting
+
+**Common Issues:**
+- Firewall blocking connections
+- Backend not binding to all interfaces (0.0.0.0)
+- Mobile device on different network
+- Port conflicts
+
+**Solutions:**
+- Configure firewall to allow port 3000
+- Ensure backend listens on 0.0.0.0:3000
+- Connect mobile device to same WiFi network
+- Check for port conflicts with other services
+
+## Additional Resources
+
+- [Backend Architecture](../architecture/backend-architecture.md) - NestJS architecture patterns
+- [Mobile Architecture](../architecture/mobile-architecture.md) - Flutter architecture patterns
+- [Bounded Contexts](../bounded-contexts/README.md) - Domain-driven design implementation
+- [Implementation Roadmap](../planning/implementation-roadmap.md) - Development priorities
+- [Healthcare Compliance](../architecture/healthcare-compliance.md) - Regulatory requirements
+- [Cross-Cutting Concerns](../architecture/cross-cutting-concerns.md) - Shared architectural patterns
+
+## Support
+
+For setup issues:
+
+1. Check the troubleshooting sections above
+2. Review the project's GitHub issues
+3. Create a new issue with detailed error information
+4. Include relevant logs and system specifications
+
+The development environment is designed to be consistent across all team members and provide a solid foundation for healthcare application development with proper compliance and security measures.

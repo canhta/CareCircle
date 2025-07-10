@@ -2,10 +2,12 @@
 
 This directory contains comprehensive setup and configuration guides for the CareCircle healthcare platform.
 
-## Setup Guides
+## Complete Setup Guide
 
 ### [Development Environment Setup](./development-environment.md)
-Complete guide for setting up the CareCircle development environment, including:
+*Single comprehensive guide for complete CareCircle development environment setup*
+
+**Includes:**
 
 **Backend Setup (NestJS):**
 - Node.js and package manager installation
@@ -20,15 +22,28 @@ Complete guide for setting up the CareCircle development environment, including:
 - Required dependencies and packages
 - Build flavors and environment configuration
 - Build scripts and automation
-- **Design System Integration**: Healthcare-optimized UI components and AI-first interface setup
-- **Accessibility Configuration**: WCAG 2.1 AA compliance setup for healthcare applications
+- Design System Integration: Healthcare-optimized UI components and AI-first interface setup
+- Accessibility Configuration: WCAG 2.1 AA compliance setup for healthcare applications
+
+**Firebase Authentication Setup:**
+- Firebase project creation and configuration
+- Authentication provider setup (Email/Password, Anonymous, Google, Phone)
+- Service account creation and backend configuration
+- Mobile app configuration for Android and iOS
+- Connection testing and troubleshooting
+
+**Mobile-Backend Connectivity:**
+- Automatic setup scripts for local development
+- Manual configuration for custom setups
+- Network troubleshooting and common issues
+- IP address detection and configuration
 
 **Key Features:**
 - Step-by-step installation instructions
 - Complete Docker Compose setup for all services
 - Environment file templates with all required variables
-- **Design System Integration**: Setup for AI-first conversational interface and healthcare-optimized components
-- **Accessibility Setup**: WCAG 2.1 AA compliance configuration for healthcare applications
+- Design System Integration: Setup for AI-first conversational interface and healthcare-optimized components
+- Accessibility Setup: WCAG 2.1 AA compliance configuration for healthcare applications
 - Troubleshooting guide for common issues
 - Development workflow and daily commands
 - VS Code extensions and tool recommendations

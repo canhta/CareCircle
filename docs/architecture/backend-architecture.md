@@ -4,6 +4,8 @@ This document outlines the backend architecture for the CareCircle platform, fol
 
 > **Note:** For more detailed specifications of major features, please refer to the corresponding files in the `./docs/details/` directory.
 
+**Cross-Cutting Concerns:** For shared architectural patterns including authentication, error handling, logging, and validation, see [Cross-Cutting Concerns Architecture](./cross-cutting-concerns.md).
+
 ## 1. Technology Stack
 
 ### Core Technologies

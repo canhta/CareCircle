@@ -59,25 +59,108 @@ The system is organized into 6 bounded contexts:
 
 ## Technology Stack
 
-### Backend Services
-- **Framework**: NestJS with TypeScript
-- **Database**: PostgreSQL with TimescaleDB extension
-- **Authentication**: Firebase Authentication
-- **Caching**: Redis for session management
-- **Message Queue**: BullMQ for background processing
-- **API Documentation**: OpenAPI/Swagger
+*This section serves as the single source of truth for all technology stack information across the CareCircle platform.*
 
-### Mobile Application
-- **Framework**: Flutter for cross-platform development
-- **State Management**: Riverpod for reactive state
-- **Architecture**: Feature-first with clean architecture
-- **Platform APIs**: HealthKit (iOS), Health Connect (Android)
+### Backend Technologies
 
-### External Services
-- **Firebase**: Authentication, Cloud Messaging
-- **OpenAI**: AI-powered health assistance
-- **Twilio**: SMS and voice notifications
-- **Google Cloud**: Infrastructure and services
+**Core Framework:**
+- **NestJS** (v10+) with TypeScript - Enterprise-grade Node.js framework
+- **Node.js** (v18+) - JavaScript runtime environment
+
+**Database Layer:**
+- **PostgreSQL** (v15+) - Primary relational database
+- **TimescaleDB** - Time-series extension for health metrics
+- **Prisma** (v5+) - Type-safe database ORM and query builder
+- **Redis** (v7+) - Caching and session management
+
+**Authentication & Security:**
+- **Firebase Authentication** - User identity management
+- **Firebase Admin SDK** - Server-side authentication validation
+- **Passport.js** - Authentication middleware
+- **Helmet.js** - Security headers and protection
+
+**AI & Machine Learning:**
+- **OpenAI API** (GPT-4) - Conversational AI and health insights
+- **Milvus** - Vector database for semantic search and embeddings
+- **LangChain** - AI application framework for complex workflows
+
+**Background Processing:**
+- **BullMQ** - Redis-based job queue for background tasks
+- **Node-cron** - Scheduled task management
+
+**External Integrations:**
+- **Google Vision API** - OCR for prescription scanning
+- **RxNorm API** - Medication database and drug interactions
+- **Twilio** - SMS notifications and communication
+- **SendGrid** - Email delivery service
+
+### Mobile Technologies
+
+**Core Framework:**
+- **Flutter** (v3.16+) - Cross-platform mobile development
+- **Dart** (v3.2+) - Programming language for Flutter
+
+**State Management:**
+- **Riverpod** (v2.4+) - Reactive state management
+- **Flutter Hooks** - Widget lifecycle management
+
+**Authentication & Security:**
+- **Firebase Auth** - Mobile authentication SDK
+- **Flutter Secure Storage** - Encrypted local storage
+- **Local Auth** - Biometric authentication
+
+**Health Platform Integration:**
+- **HealthKit** (iOS) - Apple health data integration
+- **Health Connect** (Android) - Google health platform
+- **Flutter Blue Plus** - Bluetooth device connectivity
+
+**UI & User Experience:**
+- **Material Design 3** - Modern design system
+- **Flutter Chat UI** - Conversational interface components
+- **FL Chart** - Data visualization and health metrics charts
+- **Image Picker** - Camera and gallery integration
+
+**Local Data & Offline:**
+- **Hive** - Lightweight local database
+- **Shared Preferences** - Simple key-value storage
+- **Path Provider** - File system access
+
+**Communication:**
+- **Firebase Cloud Messaging** - Push notifications
+- **Dio** - HTTP client for API communication
+- **Retrofit** - Type-safe API client generation
+
+### Infrastructure & DevOps
+
+**Development Environment:**
+- **Docker** & **Docker Compose** - Containerized development
+- **VS Code** - Primary development IDE
+- **Postman** - API testing and documentation
+
+**Cloud Platform (Production):**
+- **Google Cloud Platform** - Primary cloud provider
+- **Cloud Run** - Serverless container deployment
+- **Cloud SQL** - Managed PostgreSQL database
+- **Cloud Storage** - File and media storage
+- **Cloud Functions** - Serverless background processing
+
+**Monitoring & Observability:**
+- **Google Cloud Monitoring** - Application performance monitoring
+- **Google Cloud Logging** - Centralized log management
+- **Sentry** - Error tracking and performance monitoring
+- **Prometheus** - Metrics collection and alerting
+
+**CI/CD & Automation:**
+- **GitHub Actions** - Continuous integration and deployment
+- **Docker Hub** - Container image registry
+- **Fastlane** - Mobile app deployment automation
+- **CodeMagic** - Flutter-specific CI/CD platform
+
+**Security & Compliance:**
+- **Google Cloud Security** - Infrastructure security
+- **HTTPS/TLS 1.3** - Secure communication protocols
+- **OAuth 2.0** - Secure authorization framework
+- **HIPAA-compliant infrastructure** - Healthcare data protection
 
 ## Key Features
 
