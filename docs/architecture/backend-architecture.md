@@ -18,10 +18,10 @@ This document outlines the backend architecture for the CareCircle platform, fol
 ### Supporting Technologies
 
 - **Cache**: Redis for session management and performance optimization
-- **Queue**: BullMQ for background processing and scheduled tasks
-- **Vector Database**: Milvus for AI feature vector storage and similarity search
+- **Queue**: BullMQ for background processing and scheduled tasks _(planned - not yet implemented)_
+- **Vector Database**: Milvus for AI feature vector storage and similarity search _(planned - not yet implemented)_
 - **Storage**: Firebase Storage for medical documents and images
-- **Containerization**: Docker and Kubernetes for deployment
+- **Containerization**: Docker and Kubernetes for deployment _(development Docker Compose available)_
 
 ### AI & ML Services
 
@@ -33,12 +33,12 @@ This document outlines the backend architecture for the CareCircle platform, fol
 
 ```
 backend/
-├── .github/                 # CI/CD workflows
-├── config/                  # Configuration files
-│   ├── env/                 # Environment-specific configurations
-│   ├── security/            # Security policies and configurations
-│   └── validation/          # Configuration validation schemas
+├── .github/                 # CI/CD workflows (not yet implemented)
 ├── prisma/                  # Database schema and migrations
+│   ├── migrations/          # Database migration files
+│   └── schema.prisma        # Prisma schema definition
+├── scripts/                 # Database and utility scripts
+│   └── timescaledb-setup.sql # TimescaleDB initialization script
 ├── src/
 │   ├── main.ts              # Application entry point
 │   ├── app.module.ts        # Root module
@@ -46,131 +46,134 @@ backend/
 │   │   ├── constants/       # Application constants
 │   │   ├── decorators/      # Custom decorators
 │   │   ├── dtos/            # Shared DTOs
-│   │   ├── enums/           # Enumerations
+│   │   ├── enums/           # Enumerations (re-exported from Prisma)
 │   │   ├── exceptions/      # Custom exceptions
 │   │   ├── filters/         # Exception filters
-│   │   ├── guards/          # Guards for route protection
+│   │   ├── guards/          # Guards for route protection (Firebase Auth)
 │   │   ├── interceptors/    # HTTP interceptors
 │   │   ├── interfaces/      # Shared interfaces
 │   │   ├── middleware/      # HTTP middleware
 │   │   ├── pipes/           # Validation pipes
+│   │   ├── types/           # Common types and Prisma type re-exports
 │   │   └── utils/           # Utility functions
-│   ├── config/              # Application configuration
-│   │   ├── app.config.ts    # App configuration
-│   │   ├── database.config.ts # Database configuration
-│   │   └── ai.config.ts     # AI services configuration
-│   ├── modules/             # Feature modules (organized by domain)
-│   │   ├── auth/            # Authentication domain
-│   │   ├── health/          # Health data domain
-│   │   ├── medication/      # Medication management domain
-│   │   ├── users/           # User management domain
-│   │   ├── caregroups/      # Care group coordination domain
-│   │   ├── notifications/   # Notification system domain
-│   │   ├── ai-assistant/    # AI assistant domain
-│   │   └── subscriptions/   # Subscription and payment domain
-│   └── providers/           # Global providers
-│       ├── database/        # Database connection providers
-│       ├── cache/           # Caching providers
-│       ├── queue/           # Queue providers
-│       ├── vector/          # Vector database providers
-│       ├── ai/              # AI service providers
-│       └── storage/         # Storage providers
-├── test/                    # Test files
-│   ├── e2e/                 # End-to-end tests
-│   └── unit/                # Unit tests
-├── scripts/                 # Utility scripts
-├── docs/                    # API documentation
-├── docker/                  # Docker configuration
-│   ├── development/         # Development environment
-│   └── production/          # Production environment
-├── .dockerignore            # Docker ignore file
+│   ├── identity-access/     # Identity & Access bounded context
+│   │   ├── application/     # Use cases and application services
+│   │   ├── domain/          # Domain entities and value objects
+│   │   ├── infrastructure/  # External integrations (Firebase, repositories)
+│   │   └── presentation/    # Controllers and DTOs
+│   ├── health-data/         # Health Data bounded context
+│   │   ├── application/     # Health analytics and validation services
+│   │   ├── domain/          # Health metric entities and value objects
+│   │   ├── infrastructure/  # TimescaleDB repositories and external services
+│   │   └── presentation/    # Health data controllers and DTOs
+│   ├── ai-assistant/        # AI Assistant bounded context
+│   │   ├── application/     # Conversation and context management services
+│   │   ├── domain/          # Conversation entities and message objects
+│   │   ├── infrastructure/  # OpenAI integration and conversation repositories
+│   │   └── presentation/    # AI chat controllers and DTOs
+├── dist/                    # Compiled TypeScript output
+├── node_modules/            # Node.js dependencies
+├── .env                     # Environment variables (not in git)
 ├── .env.example             # Example environment file
-├── .eslintrc.js             # ESLint configuration
-├── .prettierrc              # Prettier configuration
-├── docker-compose.yml       # Docker Compose configuration
-├── jest.config.js           # Jest configuration
+├── eslint.config.mjs        # ESLint configuration
+├── firebase-adminsdk.json   # Firebase service account key
 ├── nest-cli.json            # NestJS CLI configuration
 ├── package.json             # Project dependencies
+├── package-lock.json        # Dependency lock file
 ├── tsconfig.json            # TypeScript configuration
-└── README.md                # Project README
+├── tsconfig.build.json      # Build-specific TypeScript configuration
+└── TODO.md                  # Backend development tasks
 ```
+
+**Note**: The actual implementation uses bounded context directories directly under `src/` rather than a `modules/` subdirectory. Currently implemented bounded contexts are:
+
+- `identity-access/` - Authentication and user management
+- `health-data/` - Health metrics and TimescaleDB integration
+- `ai-assistant/` - OpenAI integration and conversation management
+
+**Missing bounded contexts** (schema exists but services not implemented):
+
+- `care-group/` - Care group coordination
+- `medication/` - Medication management
+- `notification/` - Notification system
 
 ## 3. Core Module Breakdown
 
 Each domain module follows Clean Architecture principles with layers that separate concerns:
 
-### 3.1 User Domain Module Example (`src/modules/users/`)
+### 3.1 Identity & Access Bounded Context (`src/identity-access/`)
 
 ```
-users/
+identity-access/
 ├── domain/                  # Domain layer (core business rules)
 │   ├── entities/            # Enterprise business rules
 │   │   ├── user.entity.ts   # User domain entity
-│   │   └── profile.entity.ts # User profile entity
+│   │   └── user-profile.entity.ts # User profile entity
 │   ├── value-objects/       # Value objects
-│   │   ├── address.vo.ts    # Address value object
-│   │   └── contact-info.vo.ts # Contact information value object
-│   ├── events/              # Domain events
-│   │   └── user-created.event.ts # Event triggered when user is created
+│   │   ├── email.vo.ts      # Email value object
+│   │   └── phone-number.vo.ts # Phone number value object
 │   └── repositories/        # Repository interfaces
-│       └── user-repository.interface.ts # User repository contract
+│       ├── user.repository.interface.ts # User repository contract
+│       └── user-profile.repository.interface.ts # Profile repository contract
 ├── application/             # Application layer (use cases)
-│   ├── commands/            # Command handlers
-│   │   ├── create-user/     # Create user command
-│   │   ├── update-profile/  # Update profile command
-│   │   └── delete-user/     # Delete user command
-│   ├── queries/             # Query handlers
-│   │   ├── get-user/        # Get user query
-│   │   └── find-users/      # Find users query
 │   └── services/            # Application services
-│       └── user.service.ts  # User application service
+│       ├── auth.service.ts  # Authentication service
+│       ├── user.service.ts  # User management service
+│       └── user-profile.service.ts # Profile management service
 ├── infrastructure/          # Infrastructure layer (external concerns)
-│   ├── persistence/         # Data persistence
-│   │   ├── prisma/          # Prisma-specific implementation
-│   │   │   ├── schemas/     # Prisma schema definitions
-│   │   │   └── repositories/ # Repository implementations
-│   │   └── mappers/         # Entity to model mappers
-│   └── external/            # External services integration
-│       └── firebase/        # Firebase integration
-├── presentation/            # Presentation layer (controllers, resolvers)
-│   ├── rest/                # REST controllers
-│   │   ├── users.controller.ts # User REST controller
-│   │   └── dtos/            # Data transfer objects
-│   └── graphql/             # GraphQL resolvers (if used)
-│       ├── users.resolver.ts # User GraphQL resolver
-│       └── types/           # GraphQL types
-└── users.module.ts          # Users module definition
+│   ├── repositories/        # Data persistence implementations
+│   │   ├── prisma-user.repository.ts # Prisma user repository
+│   │   └── prisma-user-profile.repository.ts # Prisma profile repository
+│   └── services/            # External services integration
+│       └── firebase-auth.service.ts # Firebase authentication service
+├── presentation/            # Presentation layer (controllers, DTOs)
+│   ├── controllers/         # REST controllers
+│   │   ├── auth.controller.ts # Authentication controller
+│   │   └── user-profile.controller.ts # Profile controller
+│   └── dtos/                # Data transfer objects
+│       ├── auth-request.dto.ts # Authentication DTOs
+│       ├── auth-response.dto.ts # Authentication response DTOs
+│       └── user-profile.dto.ts # Profile DTOs
+└── identity-access.module.ts # Module definition
 ```
 
-### 3.2 Health Data Module
+### 3.2 Health Data Bounded Context (`src/health-data/`)
 
-Similar structure to the User module but focused on health data management:
+**Implemented** - Focused on health data management with TimescaleDB integration:
 
 - **Domain**: Health metrics, vitals, and measurements as entities and value objects
-- **Application**: Services for health data analysis, trend detection
-- **Infrastructure**: Time-series database interactions, health device API integrations
+- **Application**: Services for health data analysis, trend detection, and validation
+- **Infrastructure**: TimescaleDB repositories with continuous aggregates, statistical functions
 - **Presentation**: Controllers for health data input and querying
 
-### 3.3 Medication Management Module
+**Key Features**:
 
-- **Domain**: Medications, prescriptions, schedules, and adherence records
-- **Application**: Medication scheduling, reminders, adherence tracking
-- **Infrastructure**: OCR service integration, medication database
-- **Presentation**: Controllers for medication management
+- TimescaleDB hypertables for time-series optimization
+- Continuous aggregates for daily/weekly/monthly analytics
+- Advanced anomaly detection and trend analysis
+- Healthcare-specific validation with quality scoring
 
-### 3.4 Care Group Module
+### 3.3 AI Assistant Bounded Context (`src/ai-assistant/`)
 
-- **Domain**: Care groups, member roles, permissions, and shared health data policies
-- **Application**: Care coordination, task assignment, alert management
-- **Infrastructure**: Real-time updates, push notification services
-- **Presentation**: Controllers for care group management
-
-### 3.5 AI Assistant Module
+**Implemented** - Conversational AI with health context integration:
 
 - **Domain**: Conversation contexts, health queries, and user preferences
-- **Application**: Natural language processing, context management, response generation
+- **Application**: Context management, health insight generation
 - **Infrastructure**: OpenAI API integration, conversation history storage
-- **Presentation**: Controllers for chat interactions and voice processing
+- **Presentation**: Controllers for chat interactions and health insights
+
+**Key Features**:
+
+- OpenAI GPT-4 integration with healthcare-focused prompts
+- Health context building from user data
+- Conversation management and history
+- Firebase authentication integration
+
+### 3.4 Missing Bounded Contexts (Schema Exists, Services Not Implemented)
+
+**Medication Management Context** - Prescription and medication tracking
+**Care Group Context** - Family care coordination and sharing
+**Notification Context** - Multi-channel communication system
 
 ## 4. Authentication and Authorization Flow
 
@@ -756,6 +759,7 @@ describe("UserService", () => {
 ### 11.1 Health Monitoring and Observability
 
 **Implementation Guide for AI Agents:**
+
 - Use @nestjs/terminus for comprehensive health checks
 - Monitor database connectivity, external services, memory usage, and disk space
 - Implement detailed health endpoints for different monitoring levels
@@ -763,6 +767,7 @@ describe("UserService", () => {
 - Include Firebase Auth and external API health checks
 
 **Key Components to Implement:**
+
 - HealthController with multiple check endpoints
 - Memory and disk monitoring with configurable thresholds
 - External service dependency checks
@@ -771,6 +776,7 @@ describe("UserService", () => {
 ### 11.2 Multi-Tenant Architecture for Healthcare Organizations
 
 **Implementation Guide for AI Agents:**
+
 - Implement tenant isolation using NestJS durable provider contexts
 - Use x-tenant-id header for tenant identification
 - Create tenant-specific dependency injection sub-trees
@@ -778,6 +784,7 @@ describe("UserService", () => {
 - Implement tenant validation and authorization
 
 **Key Components to Implement:**
+
 - HealthcareTenantContextIdStrategy class
 - Tenant ID validation middleware
 - Tenant-scoped services and repositories
@@ -787,6 +794,7 @@ describe("UserService", () => {
 ### 11.3 HIPAA-Compliant Audit Logging
 
 **Implementation Guide for AI Agents:**
+
 - Log all PHI access with comprehensive audit trails
 - Include user ID, patient ID, action type, IP address, timestamp
 - Implement both local and external audit logging
@@ -794,6 +802,7 @@ describe("UserService", () => {
 - Generate unique session IDs for audit correlation
 
 **Key Components to Implement:**
+
 - HIPAAAuditLogger service
 - Audit data models with required HIPAA fields
 - Controller-level audit logging integration
@@ -803,12 +812,14 @@ describe("UserService", () => {
 ### 11.4 Robust Data Validation
 
 **Implementation Guide for AI Agents:**
+
 - Implement domain-specific validation rules (vital signs, medications)
 - Add business logic validation beyond schema validation
 - Create reusable validation DTOs
 - Implement critical value alerting for health data
 
 **Key Components to Implement:**
+
 - Business logic validation in services
 - Critical value detection and alerting
 - Validation error handling and user feedback
@@ -816,6 +827,7 @@ describe("UserService", () => {
 ### 11.5 Security Best Practices
 
 **Implementation Guide for AI Agents:**
+
 - Implement rate limiting for API protection
 - Use helmet for security headers
 - Configure CORS for healthcare applications
@@ -823,6 +835,7 @@ describe("UserService", () => {
 - Add input sanitization and XSS protection
 
 **Key Components to Implement:**
+
 - Security middleware configuration
 - Rate limiting by user and endpoint
 - CORS configuration for healthcare domains
@@ -832,6 +845,7 @@ describe("UserService", () => {
 ### 11.6 Performance Optimization
 
 **Implementation Guide for AI Agents:**
+
 - Implement Redis caching for frequently accessed data
 - Use database connection pooling
 - Add request/response compression
@@ -839,6 +853,7 @@ describe("UserService", () => {
 - Use pagination for list endpoints
 
 **Key Components to Implement:**
+
 - Redis cache service with TTL management
 - Database connection pool configuration
 - Compression middleware
@@ -848,6 +863,7 @@ describe("UserService", () => {
 ### 11.7 Recommended Libraries for Healthcare Applications
 
 **Essential Libraries for AI Agents to Include:**
+
 - @nestjs/terminus - Health checks and monitoring
 - @nestjs/cqrs - Command Query Responsibility Segregation
 - @nestjs/bull - Queue management for background tasks
@@ -857,6 +873,7 @@ describe("UserService", () => {
 - @nestjs/throttler - Rate limiting and API protection
 
 **Integration Guidelines:**
+
 - Configure each library according to healthcare compliance requirements
 - Implement proper error handling and logging for all integrations
 - Use environment-specific configurations

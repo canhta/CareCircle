@@ -1,0 +1,168 @@
+import { Processor, Process } from '@nestjs/bull';
+import { Logger } from '@nestjs/common';
+import { Job } from 'bull';
+import { HealthDataValidationService } from '../services/health-data-validation.service';
+import { HealthAnalyticsService } from '../../application/services/health-analytics.service';
+
+import { MetricType, DataSource, ValidationStatus } from '@prisma/client';
+import { HealthMetric } from '../../domain/entities/health-metric.entity';
+
+export interface HealthDataProcessingJob {
+  userId: string;
+  metricId: string;
+  metricType: MetricType;
+  value: number;
+  timestamp: Date;
+}
+
+export interface HealthAnalyticsJob {
+  userId: string;
+  metricType?: string;
+  startDate?: Date;
+  endDate?: Date;
+}
+
+@Processor('health-data-processing')
+export class HealthDataProcessingProcessor {
+  private readonly logger = new Logger(HealthDataProcessingProcessor.name);
+
+  constructor(
+    private readonly validationService: HealthDataValidationService,
+    private readonly analyticsService: HealthAnalyticsService,
+  ) {}
+
+  @Process('validate-metric')
+  async validateHealthMetric(job: Job<HealthDataProcessingJob>) {
+    const { userId, metricId, metricType, value, timestamp } = job.data;
+
+    this.logger.log(
+      `Processing health metric validation for user ${userId}, metric ${metricId}`,
+    );
+
+    try {
+      // Create a health metric entity for validation
+      const healthMetric = HealthMetric.create({
+        id: metricId,
+        userId,
+        metricType,
+        value,
+        unit: this.getDefaultUnit(metricType),
+        timestamp,
+        source: DataSource.MANUAL_ENTRY,
+        deviceId: undefined,
+        notes: undefined,
+        isManualEntry: true,
+        validationStatus: ValidationStatus.PENDING,
+        metadata: {},
+      });
+
+      // Validate the health metric (synchronous method)
+      const validationResult =
+        this.validationService.validateMetric(healthMetric);
+
+      this.logger.log(
+        `Health metric validation completed for ${metricId}: ${validationResult.isValid ? 'VALID' : 'INVALID'}`,
+      );
+
+      // If validation fails, we might want to trigger alerts or notifications
+      if (!validationResult.isValid) {
+        // Add to notification queue for invalid data alert
+        // This would be implemented when notification system is ready
+        this.logger.warn(
+          `Invalid health metric detected for user ${userId}: ${validationResult.errors.join(', ')}`,
+        );
+      }
+
+      return validationResult;
+    } catch (error) {
+      this.logger.error(
+        `Failed to validate health metric ${metricId}:`,
+        (error as Error).stack,
+      );
+      throw error;
+    }
+  }
+
+  @Process('generate-insights')
+  async generateHealthInsights(job: Job<HealthAnalyticsJob>) {
+    const { userId } = job.data;
+
+    this.logger.log(`Generating health insights for user ${userId}`);
+
+    try {
+      // Generate analytics and insights using the available method
+      const insights =
+        await this.analyticsService.generateHealthInsights(userId);
+
+      this.logger.log(
+        `Generated ${insights.length} health insights for user ${userId}`,
+      );
+
+      return insights;
+    } catch (error) {
+      this.logger.error(
+        `Failed to generate health insights for user ${userId}:`,
+        (error as Error).stack,
+      );
+      throw error;
+    }
+  }
+
+  @Process('generate-health-report')
+  async generateHealthReport(job: Job<HealthAnalyticsJob>) {
+    const { userId, startDate, endDate } = job.data;
+
+    this.logger.log(`Generating health report for user ${userId}`);
+
+    try {
+      // Generate health report using the available method
+      const report = await this.analyticsService.generateHealthReport(
+        userId,
+        startDate || new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), // Default to 30 days ago
+        endDate || new Date(),
+      );
+
+      this.logger.log(`Generated health report for user ${userId}`);
+
+      return report;
+    } catch (error) {
+      this.logger.error(
+        `Failed to generate health report for user ${userId}:`,
+        (error as Error).stack,
+      );
+      throw error;
+    }
+  }
+
+  /**
+   * Get default unit for a metric type
+   */
+  private getDefaultUnit(metricType: MetricType): string {
+    switch (metricType) {
+      case MetricType.BLOOD_PRESSURE:
+        return 'mmHg';
+      case MetricType.HEART_RATE:
+        return 'bpm';
+      case MetricType.BLOOD_GLUCOSE:
+        return 'mg/dL';
+      case MetricType.TEMPERATURE:
+        return '°C';
+      case MetricType.WEIGHT:
+        return 'kg';
+      case MetricType.OXYGEN_SATURATION:
+        return '%';
+      case MetricType.STEPS:
+        return 'steps';
+      case MetricType.SLEEP_DURATION:
+        return 'hours';
+      case MetricType.EXERCISE_MINUTES:
+        return 'minutes';
+      case MetricType.MOOD:
+        return 'scale';
+      case MetricType.PAIN_LEVEL:
+        return 'scale';
+      default:
+        return 'unit';
+    }
+  }
+}

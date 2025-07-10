@@ -184,34 +184,16 @@ export class FirebaseAuthService {
     }
   }
 
-  signInWithEmailAndPassword(
-    email: string,
-
-    _password: string,
-  ): Promise<FirebaseUser> {
-    // Note: Firebase Admin SDK doesn't have signInWithEmailAndPassword
-    // This would typically be handled on the client side
-    // For server-side validation, we would verify the ID token sent from client
-    console.warn('signInWithEmailAndPassword should be handled on client side');
-
-    // For development without proper Firebase setup, return a mock user
-    if (!this.isFirebaseConfigured()) {
-      console.warn('Using mock Firebase user for development');
-      return Promise.resolve(this.createMockUser(email));
-    }
-
-    throw new Error(
-      'signInWithEmailAndPassword should be handled on client side',
-    );
-  }
-
+  /**
+   * Creates an anonymous user for guest mode functionality.
+   * This is used for server-side anonymous user creation when needed.
+   */
   async signInAnonymously(): Promise<FirebaseUser> {
-    // Note: Anonymous sign-in is also typically handled on client side
-    // For server-side, we create an anonymous user record
     try {
       if (!this.isFirebaseConfigured()) {
-        console.warn('Using mock Firebase user for development');
-        return this.createMockUser();
+        throw new Error(
+          'Firebase is not properly configured. Please check your environment variables.',
+        );
       }
 
       const userRecord = await this.auth.createUser({
@@ -262,28 +244,92 @@ export class FirebaseAuthService {
     };
   }
 
+  /**
+   * Checks if Firebase is properly configured with valid credentials.
+   * Throws an error if configuration is missing or invalid.
+   */
   private isFirebaseConfigured(): boolean {
     const projectId = this.configService.get<string>('FIREBASE_PROJECT_ID');
     const privateKey = this.configService.get<string>('FIREBASE_PRIVATE_KEY');
     const clientEmail = this.configService.get<string>('FIREBASE_CLIENT_EMAIL');
 
-    return !(
-      !projectId ||
-      projectId === 'your-firebase-project-id' ||
-      !privateKey ||
-      privateKey.includes('YOUR_PRIVATE_KEY') ||
-      !clientEmail ||
-      clientEmail.includes('your-service-account')
+    const isConfigured = !!(
+      projectId &&
+      projectId !== 'your-firebase-project-id' &&
+      privateKey &&
+      !privateKey.includes('YOUR_PRIVATE_KEY') &&
+      clientEmail &&
+      !clientEmail.includes('your-service-account')
     );
+
+    if (!isConfigured) {
+      console.error('Firebase configuration is missing or invalid:', {
+        hasProjectId: !!projectId,
+        hasPrivateKey: !!privateKey,
+        hasClientEmail: !!clientEmail,
+      });
+    }
+
+    return isConfigured;
   }
 
-  private createMockUser(email?: string): FirebaseUser {
-    return {
-      uid: `mock-${Date.now()}`,
-      email: email || 'guest@carecircle.dev',
-      displayName: email ? 'Mock User' : 'Guest User',
-      emailVerified: false,
-      disabled: false,
-    };
+  /**
+   * Adds OAuth provider information to a user account.
+   * This method links OAuth providers (Google, Apple) to existing Firebase users.
+   */
+  async linkOAuthProvider(
+    uid: string,
+    providerId: string,
+    providerData: {
+      uid: string;
+      email?: string;
+      displayName?: string;
+      photoURL?: string;
+    },
+  ): Promise<void> {
+    try {
+      const updateRequest: admin.auth.UpdateRequest = {
+        providerToLink: {
+          uid: providerData.uid,
+          providerId,
+          email: providerData.email,
+          displayName: providerData.displayName,
+          photoURL: providerData.photoURL,
+        },
+      };
+
+      await this.auth.updateUser(uid, updateRequest);
+    } catch (error) {
+      throw new UnauthorizedException(
+        `Failed to link OAuth provider: ${(error as Error).message}`,
+      );
+    }
+  }
+
+  /**
+   * Converts an anonymous user to a permanent user account.
+   * This is used when a guest user decides to create a full account.
+   */
+  async convertAnonymousUser(
+    uid: string,
+    email: string,
+    password: string,
+    displayName?: string,
+  ): Promise<FirebaseUser> {
+    try {
+      const updateRequest: admin.auth.UpdateRequest = {
+        email,
+        password,
+        displayName,
+        emailVerified: false, // User will need to verify email
+      };
+
+      const userRecord = await this.auth.updateUser(uid, updateRequest);
+      return this.mapUserRecord(userRecord);
+    } catch (error) {
+      throw new UnauthorizedException(
+        `Failed to convert anonymous user: ${(error as Error).message}`,
+      );
+    }
   }
 }

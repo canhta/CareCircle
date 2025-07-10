@@ -7,11 +7,16 @@ import {
   UseGuards,
   Request,
 } from '@nestjs/common';
-import { AuthService } from '../../application/services/auth.service';
+import {
+  AuthService,
+  LoginResult,
+} from '../../application/services/auth.service';
 import {
   GuestLoginDto,
   ConvertGuestDto,
   AuthResponseDto,
+  OAuthLoginDto,
+  LinkOAuthProviderDto,
 } from '../dtos/auth.dto';
 import { FirebaseAuthGuard } from '../guards/firebase-auth.guard';
 
@@ -181,49 +186,53 @@ export class AuthController {
     };
   }
 
-  @Post('social/google')
+  @Post('oauth/google')
   @HttpCode(HttpStatus.OK)
   async googleSignIn(
-    @Body() body: { idToken: string },
+    @Body() oauthLoginDto: OAuthLoginDto,
   ): Promise<AuthResponseDto> {
-    const result = await this.authService.signInWithGoogle(body.idToken);
+    const result = await this.authService.signInWithGoogle(
+      oauthLoginDto.idToken,
+    );
+
+    return this.formatAuthResponse(result);
+  }
+
+  @Post('oauth/apple')
+  @HttpCode(HttpStatus.OK)
+  async appleSignIn(
+    @Body() oauthLoginDto: OAuthLoginDto,
+  ): Promise<AuthResponseDto> {
+    const result = await this.authService.signInWithApple(
+      oauthLoginDto.idToken,
+    );
+
+    return this.formatAuthResponse(result);
+  }
+
+  @Post('oauth/link')
+  @UseGuards(FirebaseAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async linkOAuthProvider(
+    @Request() req: { user: { id: string } },
+    @Body() linkOAuthDto: LinkOAuthProviderDto,
+  ): Promise<{ success: boolean; message: string }> {
+    await this.authService.linkOAuthProvider(
+      req.user.id,
+      linkOAuthDto.providerId,
+      linkOAuthDto.providerData,
+    );
 
     return {
-      user: {
-        id: result.user.id,
-        email: result.user.email,
-        phoneNumber: result.user.phoneNumber,
-        isEmailVerified: result.user.isEmailVerified,
-        isPhoneVerified: result.user.isPhoneVerified,
-        isGuest: result.user.isGuest,
-        createdAt: result.user.createdAt,
-        lastLoginAt: result.user.lastLoginAt,
-      },
-      profile: result.profile
-        ? {
-            id: result.profile.id,
-            displayName: result.profile.displayName,
-            firstName: result.profile.firstName,
-            lastName: result.profile.lastName,
-            dateOfBirth: result.profile.dateOfBirth,
-            gender: result.profile.gender,
-            language: result.profile.language,
-            photoUrl: result.profile.photoUrl,
-            useElderMode: result.profile.useElderMode,
-            preferredUnits: result.profile.preferredUnits,
-            emergencyContact: result.profile.emergencyContact,
-          }
-        : undefined,
+      success: true,
+      message: `Successfully linked ${linkOAuthDto.providerId} account`,
     };
   }
 
-  @Post('social/apple')
-  @HttpCode(HttpStatus.OK)
-  async appleSignIn(
-    @Body() body: { idToken: string },
-  ): Promise<AuthResponseDto> {
-    const result = await this.authService.signInWithApple(body.idToken);
-
+  /**
+   * Helper method to format authentication responses consistently
+   */
+  private formatAuthResponse(result: LoginResult): AuthResponseDto {
     return {
       user: {
         id: result.user.id,

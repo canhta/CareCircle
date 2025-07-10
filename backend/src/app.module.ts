@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from './common/database/prisma.module';
+import { QueueModule } from './common/queue/queue.module';
 import { IdentityAccessModule } from './identity-access/identity-access.module';
 import { AiAssistantModule } from './ai-assistant/ai-assistant.module';
 import { HealthDataModule } from './health-data/health-data.module';
@@ -12,6 +13,7 @@ import { HealthDataModule } from './health-data/health-data.module';
       envFilePath: '.env',
     }),
     PrismaModule,
+    QueueModule,
     IdentityAccessModule,
     AiAssistantModule,
     HealthDataModule,

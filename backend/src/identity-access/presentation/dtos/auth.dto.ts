@@ -118,3 +118,31 @@ export class ProfileResponseDto {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export class OAuthLoginDto {
+  @IsString()
+  idToken: string;
+
+  @IsOptional()
+  @IsString()
+  accessToken?: string;
+
+  @IsOptional()
+  @IsString()
+  providerId?: string; // 'google.com' or 'apple.com'
+}
+
+export class LinkOAuthProviderDto {
+  @IsString()
+  providerId: string; // 'google.com' or 'apple.com'
+
+  @IsString()
+  idToken: string;
+
+  providerData: {
+    uid: string;
+    email?: string;
+    displayName?: string;
+    photoURL?: string;
+  };
+}

@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from '../common/database/prisma.module';
+import { QueueModule } from '../common/queue/queue.module';
 
 // Controllers
 import { HealthProfileController } from './presentation/controllers/health-profile.controller';
@@ -21,8 +22,14 @@ import { PrismaHealthProfileRepository } from './infrastructure/repositories/pri
 import { PrismaHealthMetricRepository } from './infrastructure/repositories/prisma-health-metric.repository';
 import { PrismaHealthDeviceRepository } from './infrastructure/repositories/prisma-health-device.repository';
 
+// Queue processors
+import { HealthDataProcessingProcessor } from './infrastructure/jobs/health-data-processing.processor';
+
+// Queue service
+import { QueueService } from '../common/queue/queue.service';
+
 @Module({
-  imports: [ConfigModule, PrismaModule],
+  imports: [ConfigModule, PrismaModule, QueueModule],
   controllers: [
     HealthProfileController,
     HealthMetricController,
@@ -34,6 +41,8 @@ import { PrismaHealthDeviceRepository } from './infrastructure/repositories/pris
     HealthDeviceService,
     HealthAnalyticsService,
     HealthDataValidationService,
+    QueueService,
+    HealthDataProcessingProcessor,
     {
       provide: 'HealthProfileRepository',
       useClass: PrismaHealthProfileRepository,

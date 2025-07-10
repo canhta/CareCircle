@@ -444,4 +444,68 @@ export class AuthService {
       );
     }
   }
+
+  /**
+   * Links an OAuth provider to an existing user account
+   */
+  async linkOAuthProvider(
+    userId: string,
+    providerId: string,
+    providerData: {
+      uid: string;
+      email?: string;
+      displayName?: string;
+      photoURL?: string;
+    },
+  ): Promise<void> {
+    try {
+      // Get the user's existing Firebase auth method to get the Firebase UID
+      const user = await this.userRepository.findById(userId);
+      if (!user) {
+        throw new UnauthorizedException('User not found');
+      }
+
+      // Find the user's Firebase auth method to get their Firebase UID
+      const existingAuthMethods =
+        await this.authMethodRepository.findByUserId(userId);
+      const firebaseAuthMethod = existingAuthMethods.find(
+        (method) =>
+          method.type === AuthMethodType.EMAIL ||
+          method.type === AuthMethodType.GOOGLE ||
+          method.type === AuthMethodType.APPLE,
+      );
+
+      if (!firebaseAuthMethod) {
+        throw new UnauthorizedException(
+          'User does not have a Firebase authentication method',
+        );
+      }
+
+      // Link the OAuth provider to the Firebase user using the Firebase UID from auth method
+      await this.firebaseAuthService.linkOAuthProvider(
+        firebaseAuthMethod.identifier, // This should be the Firebase UID
+        providerId,
+        providerData,
+      );
+
+      // Create auth method record in database
+      const authMethod = new AuthMethod(
+        '', // ID will be generated
+        userId,
+        providerId === 'google.com'
+          ? AuthMethodType.GOOGLE
+          : AuthMethodType.APPLE,
+        providerData.uid,
+        true, // isVerified
+        new Date(),
+        new Date(),
+      );
+
+      await this.authMethodRepository.create(authMethod);
+    } catch (error) {
+      throw new UnauthorizedException(
+        `Failed to link OAuth provider: ${(error as Error).message}`,
+      );
+    }
+  }
 }
