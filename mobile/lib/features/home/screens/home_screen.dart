@@ -123,11 +123,7 @@ class HomeScreen extends ConsumerWidget {
                       subtitle: 'Manage pills',
                       color: CareCircleDesignTokens.primaryMedicalBlue,
                       onTap: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Medications coming soon'),
-                          ),
-                        );
+                        NavigationService.navigateToMedications(context);
                       },
                     ),
                     _QuickActionCard(

@@ -7,6 +7,7 @@ import { AiAssistantModule } from './ai-assistant/ai-assistant.module';
 import { HealthDataModule } from './health-data/health-data.module';
 import { MedicationModule } from './medication/medication.module';
 import { NotificationModule } from './notification/notification.module';
+import { CareGroupModule } from './care-group/care-group.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { NotificationModule } from './notification/notification.module';
     HealthDataModule,
     MedicationModule,
     NotificationModule,
+    CareGroupModule,
   ],
   controllers: [],
   providers: [],
