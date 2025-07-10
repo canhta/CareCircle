@@ -3,12 +3,12 @@ import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:health/health.dart';
 
-import '../../../health-data/models/health_metric.dart' show HealthMetric, MetricType, DataSource, ValidationStatus;
+import '../../domain/models/health_metric.dart';
 import '../../domain/models/health_metric_type.dart';
 import '../../../../core/logging/bounded_context_loggers.dart';
 import '../../../../core/config/app_config.dart';
 import 'device_health_service.dart';
-import '../../../health-data/services/health_data_service.dart';
+import 'health_data_api_service.dart';
 
 /// Service for synchronizing health data between device and backend
 class HealthDataSyncService {
@@ -17,7 +17,7 @@ class HealthDataSyncService {
   HealthDataSyncService._internal();
 
   final DeviceHealthService _deviceHealthService = DeviceHealthService();
-  late final HealthDataService _healthDataService;
+  late final HealthDataApiService _healthDataService;
 
   // Healthcare-compliant logger for health data context
   static final _logger = BoundedContextLoggers.healthData;
@@ -38,7 +38,7 @@ class HealthDataSyncService {
           receiveTimeout: const Duration(seconds: 30),
         ),
       );
-      _healthDataService = HealthDataService(dio);
+      _healthDataService = HealthDataApiService(dio);
 
       final deviceInitialized = await _deviceHealthService.initialize();
       if (!deviceInitialized) {
@@ -170,7 +170,7 @@ class HealthDataSyncService {
       // Upload to backend
       for (final metric in healthMetrics) {
         try {
-          await _healthDataService.recordHealthMetric('', metric); // TODO: Get actual userId
+          await _healthDataService.addHealthMetric('', metric); // TODO: Get actual userId
           syncedCount++;
         } catch (e) {
           _logger.error('Failed to upload health metric: $e', e);
@@ -272,30 +272,9 @@ class HealthDataSyncService {
     return metrics;
   }
 
-  /// Convert HealthMetricType to MetricType enum
-  MetricType _convertToMetricType(HealthMetricType healthMetricType) {
-    switch (healthMetricType) {
-      case HealthMetricType.heartRate:
-        return MetricType.heartRate;
-      case HealthMetricType.bloodPressure:
-        return MetricType.bloodPressure;
-      case HealthMetricType.bloodGlucose:
-        return MetricType.bloodGlucose;
-      case HealthMetricType.bodyTemperature:
-        return MetricType.bodyTemperature;
-      case HealthMetricType.weight:
-        return MetricType.weight;
-      case HealthMetricType.steps:
-        return MetricType.steps;
-      case HealthMetricType.oxygenSaturation:
-        return MetricType.bloodOxygen;
-      case HealthMetricType.sleep:
-        return MetricType.sleep;
-      case HealthMetricType.exercise:
-        return MetricType.activity;
-      case HealthMetricType.height:
-        return MetricType.weight; // Fallback to weight for height
-    }
+  /// Convert HealthMetricType to the same type (no conversion needed)
+  HealthMetricType _convertToMetricType(HealthMetricType healthMetricType) {
+    return healthMetricType;
   }
 
   /// Extract numeric value from HealthValue

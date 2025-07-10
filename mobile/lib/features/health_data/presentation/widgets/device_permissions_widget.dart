@@ -289,12 +289,18 @@ class _DevicePermissionsWidgetState extends ConsumerState<DevicePermissionsWidge
         return Icons.height;
       case HealthMetricType.steps:
         return Icons.directions_walk;
-      case HealthMetricType.oxygenSaturation:
+      case HealthMetricType.bloodOxygen:
         return Icons.air;
       case HealthMetricType.sleep:
         return Icons.bedtime;
       case HealthMetricType.exercise:
         return Icons.fitness_center;
+      case HealthMetricType.respiratoryRate:
+        return Icons.air;
+      case HealthMetricType.activity:
+        return Icons.directions_run;
+      case HealthMetricType.mood:
+        return Icons.mood;
     }
   }
 
@@ -314,12 +320,18 @@ class _DevicePermissionsWidgetState extends ConsumerState<DevicePermissionsWidge
         return Colors.teal[600]!;
       case HealthMetricType.steps:
         return Colors.purple[600]!;
-      case HealthMetricType.oxygenSaturation:
+      case HealthMetricType.bloodOxygen:
         return Colors.cyan[600]!;
       case HealthMetricType.sleep:
         return Colors.indigo[600]!;
       case HealthMetricType.exercise:
         return Colors.deepOrange[600]!;
+      case HealthMetricType.respiratoryRate:
+        return Colors.lightBlue[600]!;
+      case HealthMetricType.activity:
+        return Colors.lime[600]!;
+      case HealthMetricType.mood:
+        return Colors.pink[600]!;
     }
   }
 

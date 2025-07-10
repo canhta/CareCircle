@@ -161,7 +161,7 @@ class NavigationService {
 
   /// Navigate to health data section
   static void navigateToHealthData(BuildContext context, {String? section}) {
-    final route = section != null ? '/health-data/$section' : '/health-data';
+    final route = section != null ? '/health_data/$section' : '/health_data';
     
     _logger.logNavigationEvent('Health data navigation initiated', {
       'route': route,

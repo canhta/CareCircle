@@ -3,9 +3,9 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import '../models/auth_models.dart';
-import '../../../core/config/app_config.dart';
-import '../../../core/logging/logging.dart';
+import '../../domain/models/auth_models.dart';
+import '../../../../core/config/app_config.dart';
+import '../../../../core/logging/logging.dart';
 import 'firebase_auth_service.dart';
 
 part 'auth_service.g.dart';

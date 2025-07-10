@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../core/design/design_tokens.dart';
-import '../../../core/widgets/care_circle_button.dart';
-import '../../../core/widgets/care_circle_text_field.dart';
-import '../services/firebase_auth_service.dart';
+import '../../../../core/design/design_tokens.dart';
+import '../../../../core/widgets/care_circle_button.dart';
+import '../../../../core/widgets/care_circle_text_field.dart';
+import '../../infrastructure/services/firebase_auth_service.dart';
 
 class ForgotPasswordScreen extends ConsumerStatefulWidget {
   const ForgotPasswordScreen({super.key});

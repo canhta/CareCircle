@@ -1,17 +1,34 @@
 import 'package:health/health.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 /// Health metric types supported by CareCircle
 /// Maps to backend MetricType enum and Health plugin HealthDataType
 enum HealthMetricType {
+  @JsonValue('heart_rate')
   heartRate,
+  @JsonValue('blood_pressure')
   bloodPressure,
+  @JsonValue('blood_glucose')
   bloodGlucose,
+  @JsonValue('body_temperature')
   bodyTemperature,
+  @JsonValue('blood_oxygen')
+  bloodOxygen,
+  @JsonValue('weight')
   weight,
+  @JsonValue('height')
   height,
+  @JsonValue('steps')
   steps,
-  oxygenSaturation,
+  @JsonValue('sleep')
   sleep,
+  @JsonValue('respiratory_rate')
+  respiratoryRate,
+  @JsonValue('activity')
+  activity,
+  @JsonValue('mood')
+  mood,
+  @JsonValue('exercise')
   exercise;
 
   /// Convert to Health plugin HealthDataType
@@ -25,16 +42,22 @@ enum HealthMetricType {
         return HealthDataType.BLOOD_GLUCOSE;
       case HealthMetricType.bodyTemperature:
         return HealthDataType.BODY_TEMPERATURE;
+      case HealthMetricType.bloodOxygen:
+        return HealthDataType.BLOOD_OXYGEN;
       case HealthMetricType.weight:
         return HealthDataType.WEIGHT;
       case HealthMetricType.height:
         return HealthDataType.HEIGHT;
       case HealthMetricType.steps:
         return HealthDataType.STEPS;
-      case HealthMetricType.oxygenSaturation:
-        return HealthDataType.BLOOD_OXYGEN;
       case HealthMetricType.sleep:
         return HealthDataType.SLEEP_IN_BED;
+      case HealthMetricType.respiratoryRate:
+        return HealthDataType.RESPIRATORY_RATE;
+      case HealthMetricType.activity:
+        return HealthDataType.WORKOUT;
+      case HealthMetricType.mood:
+        return HealthDataType.HEART_RATE; // Fallback for mood tracking
       case HealthMetricType.exercise:
         return HealthDataType.WORKOUT;
     }
@@ -59,13 +82,15 @@ enum HealthMetricType {
       case HealthDataType.STEPS:
         return HealthMetricType.steps;
       case HealthDataType.BLOOD_OXYGEN:
-        return HealthMetricType.oxygenSaturation;
+        return HealthMetricType.bloodOxygen;
       case HealthDataType.SLEEP_IN_BED:
       case HealthDataType.SLEEP_ASLEEP:
       case HealthDataType.SLEEP_AWAKE:
         return HealthMetricType.sleep;
       case HealthDataType.WORKOUT:
         return HealthMetricType.exercise;
+      case HealthDataType.RESPIRATORY_RATE:
+        return HealthMetricType.respiratoryRate;
       default:
         return null;
     }
@@ -88,12 +113,18 @@ enum HealthMetricType {
         return 'HEIGHT';
       case HealthMetricType.steps:
         return 'STEPS';
-      case HealthMetricType.oxygenSaturation:
-        return 'OXYGEN_SATURATION';
+      case HealthMetricType.bloodOxygen:
+        return 'BLOOD_OXYGEN';
       case HealthMetricType.sleep:
         return 'SLEEP';
       case HealthMetricType.exercise:
         return 'EXERCISE';
+      case HealthMetricType.respiratoryRate:
+        return 'RESPIRATORY_RATE';
+      case HealthMetricType.activity:
+        return 'ACTIVITY';
+      case HealthMetricType.mood:
+        return 'MOOD';
     }
   }
 
@@ -114,12 +145,18 @@ enum HealthMetricType {
         return HealthMetricType.height;
       case 'STEPS':
         return HealthMetricType.steps;
-      case 'OXYGEN_SATURATION':
-        return HealthMetricType.oxygenSaturation;
+      case 'BLOOD_OXYGEN':
+        return HealthMetricType.bloodOxygen;
       case 'SLEEP':
         return HealthMetricType.sleep;
       case 'EXERCISE':
         return HealthMetricType.exercise;
+      case 'RESPIRATORY_RATE':
+        return HealthMetricType.respiratoryRate;
+      case 'ACTIVITY':
+        return HealthMetricType.activity;
+      case 'MOOD':
+        return HealthMetricType.mood;
       default:
         return null;
     }
@@ -142,12 +179,18 @@ enum HealthMetricType {
         return 'Height';
       case HealthMetricType.steps:
         return 'Steps';
-      case HealthMetricType.oxygenSaturation:
-        return 'Oxygen Saturation';
+      case HealthMetricType.bloodOxygen:
+        return 'Blood Oxygen';
       case HealthMetricType.sleep:
         return 'Sleep';
       case HealthMetricType.exercise:
         return 'Exercise';
+      case HealthMetricType.respiratoryRate:
+        return 'Respiratory Rate';
+      case HealthMetricType.activity:
+        return 'Activity';
+      case HealthMetricType.mood:
+        return 'Mood';
     }
   }
 
@@ -168,12 +211,18 @@ enum HealthMetricType {
         return 'in';
       case HealthMetricType.steps:
         return 'steps';
-      case HealthMetricType.oxygenSaturation:
+      case HealthMetricType.bloodOxygen:
         return '%';
       case HealthMetricType.sleep:
         return 'hours';
       case HealthMetricType.exercise:
         return 'minutes';
+      case HealthMetricType.respiratoryRate:
+        return 'breaths/min';
+      case HealthMetricType.activity:
+        return 'minutes';
+      case HealthMetricType.mood:
+        return 'score';
     }
   }
 
@@ -194,12 +243,18 @@ enum HealthMetricType {
         return '📏';
       case HealthMetricType.steps:
         return '👣';
-      case HealthMetricType.oxygenSaturation:
+      case HealthMetricType.bloodOxygen:
         return '🫁';
       case HealthMetricType.sleep:
         return '😴';
       case HealthMetricType.exercise:
         return '🏃';
+      case HealthMetricType.respiratoryRate:
+        return '🫁';
+      case HealthMetricType.activity:
+        return '🏃';
+      case HealthMetricType.mood:
+        return '😊';
     }
   }
 

@@ -2,11 +2,11 @@ import 'dart:io';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import '../models/auth_models.dart';
-import '../services/auth_service.dart';
-import '../services/firebase_auth_service.dart';
-import '../../../core/logging/logging.dart';
-import '../services/biometric_auth_service.dart';
+import '../../domain/models/auth_models.dart';
+import '../../infrastructure/services/auth_service.dart';
+import '../../infrastructure/services/firebase_auth_service.dart';
+import '../../../../core/logging/logging.dart';
+import '../../infrastructure/services/biometric_auth_service.dart';
 
 part 'auth_provider.g.dart';
 

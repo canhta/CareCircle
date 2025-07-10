@@ -1,31 +1,7 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'health_metric_type.dart';
 
 part 'health_metric.g.dart';
-
-enum MetricType {
-  @JsonValue('heart_rate')
-  heartRate,
-  @JsonValue('blood_pressure')
-  bloodPressure,
-  @JsonValue('blood_glucose')
-  bloodGlucose,
-  @JsonValue('body_temperature')
-  bodyTemperature,
-  @JsonValue('blood_oxygen')
-  bloodOxygen,
-  @JsonValue('weight')
-  weight,
-  @JsonValue('steps')
-  steps,
-  @JsonValue('sleep')
-  sleep,
-  @JsonValue('respiratory_rate')
-  respiratoryRate,
-  @JsonValue('activity')
-  activity,
-  @JsonValue('mood')
-  mood,
-}
 
 enum DataSource {
   @JsonValue('manual')
@@ -57,7 +33,7 @@ enum ValidationStatus {
 class HealthMetric {
   final String id;
   final String userId;
-  final MetricType metricType;
+  final HealthMetricType metricType;
   final double value;
   final String unit;
   final DateTime timestamp;
@@ -93,7 +69,7 @@ class HealthMetric {
   HealthMetric copyWith({
     String? id,
     String? userId,
-    MetricType? metricType,
+    HealthMetricType? metricType,
     double? value,
     String? unit,
     DateTime? timestamp,
@@ -124,7 +100,7 @@ class HealthMetric {
 
   String get displayValue {
     switch (metricType) {
-      case MetricType.bloodPressure:
+      case HealthMetricType.bloodPressure:
         final diastolic = metadata['diastolic'] ?? 0;
         return '$value/$diastolic $unit';
       default:
@@ -154,30 +130,5 @@ class HealthMetric {
         timestamp.day == date.day;
   }
 
-  String get metricTypeDisplayName {
-    switch (metricType) {
-      case MetricType.heartRate:
-        return 'Heart Rate';
-      case MetricType.bloodPressure:
-        return 'Blood Pressure';
-      case MetricType.bloodGlucose:
-        return 'Blood Glucose';
-      case MetricType.bodyTemperature:
-        return 'Body Temperature';
-      case MetricType.bloodOxygen:
-        return 'Blood Oxygen';
-      case MetricType.weight:
-        return 'Weight';
-      case MetricType.steps:
-        return 'Steps';
-      case MetricType.sleep:
-        return 'Sleep';
-      case MetricType.respiratoryRate:
-        return 'Respiratory Rate';
-      case MetricType.activity:
-        return 'Activity';
-      case MetricType.mood:
-        return 'Mood';
-    }
-  }
+  String get metricTypeDisplayName => metricType.displayName;
 }

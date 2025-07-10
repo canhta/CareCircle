@@ -18,6 +18,9 @@ final healthDataSyncServiceProvider = Provider<HealthDataSyncService>((ref) {
   return HealthDataSyncService();
 });
 
+/// Provider for health data API service (imported from infrastructure)
+/// This provider is defined in health_data_api_service.dart
+
 /// Provider for health sync permissions status
 final healthSyncPermissionsProvider = FutureProvider<bool>((ref) async {
   final deviceService = ref.read(deviceHealthServiceProvider);

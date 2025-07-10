@@ -7,13 +7,13 @@ import 'core/logging/logging.dart';
 import 'core/logging/error_tracker.dart';
 import 'core/storage/storage.dart';
 import 'core/design/design_tokens.dart';
-import 'features/auth/models/auth_models.dart';
-import 'features/auth/providers/auth_provider.dart';
-import 'features/auth/screens/welcome_screen.dart';
-import 'features/auth/screens/login_screen.dart';
-import 'features/auth/screens/register_screen.dart';
-import 'features/auth/screens/convert_guest_screen.dart';
-import 'features/auth/screens/forgot_password_screen.dart';
+import 'features/auth/domain/models/auth_models.dart';
+import 'features/auth/presentation/providers/auth_provider.dart';
+import 'features/auth/presentation/screens/welcome_screen.dart';
+import 'features/auth/presentation/screens/login_screen.dart';
+import 'features/auth/presentation/screens/register_screen.dart';
+import 'features/auth/presentation/screens/convert_guest_screen.dart';
+import 'features/auth/presentation/screens/forgot_password_screen.dart';
 import 'features/home/screens/main_app_shell.dart';
 import 'features/onboarding/screens/onboarding_screen.dart';
 import 'features/health_data/presentation/screens/health_dashboard_screen.dart';
@@ -106,7 +106,7 @@ class CareCircleApp extends ConsumerWidget {
         GoRoute(path: '/auth/forgot-password', builder: (context, state) => const ForgotPasswordScreen()),
         GoRoute(path: '/onboarding', builder: (context, state) => const OnboardingScreen()),
         GoRoute(path: '/home', builder: (context, state) => const MainAppShell()),
-        GoRoute(path: '/health-data', builder: (context, state) => const HealthDashboardScreen()),
+        GoRoute(path: '/health_data', builder: (context, state) => const HealthDashboardScreen()),
       ],
     );
   }
