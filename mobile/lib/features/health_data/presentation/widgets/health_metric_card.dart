@@ -112,12 +112,18 @@ class HealthMetricCard extends ConsumerWidget {
         return Icons.height;
       case HealthMetricType.steps:
         return Icons.directions_walk;
-      case HealthMetricType.oxygenSaturation:
+      case HealthMetricType.bloodOxygen:
         return Icons.air;
       case HealthMetricType.sleep:
         return Icons.bedtime;
       case HealthMetricType.exercise:
         return Icons.fitness_center;
+      case HealthMetricType.respiratoryRate:
+        return Icons.air;
+      case HealthMetricType.activity:
+        return Icons.directions_run;
+      case HealthMetricType.mood:
+        return Icons.mood;
     }
   }
 
@@ -137,12 +143,18 @@ class HealthMetricCard extends ConsumerWidget {
         return Colors.teal[600]!;
       case HealthMetricType.steps:
         return Colors.purple[600]!;
-      case HealthMetricType.oxygenSaturation:
+      case HealthMetricType.bloodOxygen:
         return Colors.cyan[600]!;
       case HealthMetricType.sleep:
         return Colors.indigo[600]!;
       case HealthMetricType.exercise:
         return Colors.deepOrange[600]!;
+      case HealthMetricType.respiratoryRate:
+        return Colors.lightBlue[600]!;
+      case HealthMetricType.activity:
+        return Colors.lime[600]!;
+      case HealthMetricType.mood:
+        return Colors.pink[600]!;
     }
   }
 
@@ -162,12 +174,18 @@ class HealthMetricCard extends ConsumerWidget {
         return '175';
       case HealthMetricType.steps:
         return '8,432';
-      case HealthMetricType.oxygenSaturation:
+      case HealthMetricType.bloodOxygen:
         return '98';
       case HealthMetricType.sleep:
         return '7.5';
       case HealthMetricType.exercise:
         return '45';
+      case HealthMetricType.respiratoryRate:
+        return '16';
+      case HealthMetricType.activity:
+        return '30';
+      case HealthMetricType.mood:
+        return '8';
     }
   }
 
@@ -187,12 +205,18 @@ class HealthMetricCard extends ConsumerWidget {
         return 'cm';
       case HealthMetricType.steps:
         return 'steps';
-      case HealthMetricType.oxygenSaturation:
+      case HealthMetricType.bloodOxygen:
         return '%';
       case HealthMetricType.sleep:
         return 'hours';
       case HealthMetricType.exercise:
         return 'min';
+      case HealthMetricType.respiratoryRate:
+        return 'breaths/min';
+      case HealthMetricType.activity:
+        return 'min';
+      case HealthMetricType.mood:
+        return 'score';
     }
   }
 }

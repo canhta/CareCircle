@@ -9,7 +9,7 @@ part of 'health_metric.dart';
 HealthMetric _$HealthMetricFromJson(Map<String, dynamic> json) => HealthMetric(
   id: json['id'] as String,
   userId: json['userId'] as String,
-  metricType: $enumDecode(_$MetricTypeEnumMap, json['metricType']),
+  metricType: $enumDecode(_$HealthMetricTypeEnumMap, json['metricType']),
   value: (json['value'] as num).toDouble(),
   unit: json['unit'] as String,
   timestamp: DateTime.parse(json['timestamp'] as String),
@@ -29,7 +29,7 @@ Map<String, dynamic> _$HealthMetricToJson(HealthMetric instance) =>
     <String, dynamic>{
       'id': instance.id,
       'userId': instance.userId,
-      'metricType': _$MetricTypeEnumMap[instance.metricType]!,
+      'metricType': _$HealthMetricTypeEnumMap[instance.metricType]!,
       'value': instance.value,
       'unit': instance.unit,
       'timestamp': instance.timestamp.toIso8601String(),
@@ -42,18 +42,20 @@ Map<String, dynamic> _$HealthMetricToJson(HealthMetric instance) =>
       'createdAt': instance.createdAt.toIso8601String(),
     };
 
-const _$MetricTypeEnumMap = {
-  MetricType.heartRate: 'heart_rate',
-  MetricType.bloodPressure: 'blood_pressure',
-  MetricType.bloodGlucose: 'blood_glucose',
-  MetricType.bodyTemperature: 'body_temperature',
-  MetricType.bloodOxygen: 'blood_oxygen',
-  MetricType.weight: 'weight',
-  MetricType.steps: 'steps',
-  MetricType.sleep: 'sleep',
-  MetricType.respiratoryRate: 'respiratory_rate',
-  MetricType.activity: 'activity',
-  MetricType.mood: 'mood',
+const _$HealthMetricTypeEnumMap = {
+  HealthMetricType.heartRate: 'heart_rate',
+  HealthMetricType.bloodPressure: 'blood_pressure',
+  HealthMetricType.bloodGlucose: 'blood_glucose',
+  HealthMetricType.bodyTemperature: 'body_temperature',
+  HealthMetricType.bloodOxygen: 'blood_oxygen',
+  HealthMetricType.weight: 'weight',
+  HealthMetricType.height: 'height',
+  HealthMetricType.steps: 'steps',
+  HealthMetricType.sleep: 'sleep',
+  HealthMetricType.respiratoryRate: 'respiratory_rate',
+  HealthMetricType.activity: 'activity',
+  HealthMetricType.mood: 'mood',
+  HealthMetricType.exercise: 'exercise',
 };
 
 const _$DataSourceEnumMap = {

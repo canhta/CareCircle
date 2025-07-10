@@ -197,12 +197,18 @@ class HealthBarChart extends BaseHealthChart {
         return Colors.teal[600]!;
       case HealthMetricType.steps:
         return Colors.purple[600]!;
-      case HealthMetricType.oxygenSaturation:
+      case HealthMetricType.bloodOxygen:
         return Colors.cyan[600]!;
       case HealthMetricType.sleep:
         return Colors.indigo[600]!;
       case HealthMetricType.exercise:
         return Colors.deepOrange[600]!;
+      case HealthMetricType.respiratoryRate:
+        return Colors.lightBlue[600]!;
+      case HealthMetricType.activity:
+        return Colors.lime[600]!;
+      case HealthMetricType.mood:
+        return Colors.pink[600]!;
     }
   }
 

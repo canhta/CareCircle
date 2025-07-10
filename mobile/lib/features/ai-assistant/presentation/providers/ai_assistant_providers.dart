@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/config/app_config.dart';
 
-import '../../auth/services/firebase_auth_service.dart';
+import '../../auth/infrastructure/services/firebase_auth_service.dart';
 import '../models/conversation_models.dart';
 import '../services/ai_assistant_service.dart';
 

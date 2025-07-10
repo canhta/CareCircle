@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../core/design/design_tokens.dart';
-import '../../../core/widgets/care_circle_button.dart';
-import '../../../core/widgets/care_circle_text_field.dart';
+import '../../../../core/design/design_tokens.dart';
+import '../../../../core/widgets/care_circle_button.dart';
+import '../../../../core/widgets/care_circle_text_field.dart';
 import '../providers/auth_provider.dart';
-import '../models/auth_models.dart';
+import '../../domain/models/auth_models.dart';
 
 class ConvertGuestScreen extends ConsumerStatefulWidget {
   const ConvertGuestScreen({super.key});
