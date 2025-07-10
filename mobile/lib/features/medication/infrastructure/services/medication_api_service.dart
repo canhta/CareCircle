@@ -1,4 +1,6 @@
+import 'dart:io';
 import 'package:dio/dio.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:retrofit/retrofit.dart';
 import '../../../../core/config/app_config.dart';
 import '../../../../core/logging/bounded_context_loggers.dart';
@@ -34,20 +36,14 @@ abstract class MedicationApiService {
   Future<MedicationResponse> getMedication(@Path('id') String id);
 
   @PUT('/medications/{id}')
-  Future<MedicationResponse> updateMedication(
-    @Path('id') String id,
-    @Body() UpdateMedicationRequest request,
-  );
+  Future<MedicationResponse> updateMedication(@Path('id') String id, @Body() UpdateMedicationRequest request);
 
   @DELETE('/medications/{id}')
   Future<MedicationResponse> deleteMedication(@Path('id') String id);
 
   // Medication Search and Statistics
   @GET('/medications/search')
-  Future<MedicationListResponse> searchMedications(
-    @Query('term') String searchTerm,
-    @Query('limit') int? limit,
-  );
+  Future<MedicationListResponse> searchMedications(@Query('term') String searchTerm, @Query('limit') int? limit);
 
   @GET('/medications/statistics')
   Future<Map<String, dynamic>> getMedicationStatistics();
@@ -85,10 +81,7 @@ abstract class MedicationApiService {
   Future<PrescriptionResponse> getPrescription(@Path('id') String id);
 
   @PUT('/prescriptions/{id}')
-  Future<PrescriptionResponse> updatePrescription(
-    @Path('id') String id,
-    @Body() UpdatePrescriptionRequest request,
-  );
+  Future<PrescriptionResponse> updatePrescription(@Path('id') String id, @Body() UpdatePrescriptionRequest request);
 
   @DELETE('/prescriptions/{id}')
   Future<PrescriptionResponse> deletePrescription(@Path('id') String id);
@@ -126,10 +119,7 @@ abstract class MedicationApiService {
   Future<ScheduleResponse> getSchedule(@Path('id') String id);
 
   @PUT('/medication-schedules/{id}')
-  Future<ScheduleResponse> updateSchedule(
-    @Path('id') String id,
-    @Body() UpdateScheduleRequest request,
-  );
+  Future<ScheduleResponse> updateSchedule(@Path('id') String id, @Body() UpdateScheduleRequest request);
 
   @DELETE('/medication-schedules/{id}')
   Future<ScheduleResponse> deleteSchedule(@Path('id') String id);
@@ -414,9 +404,7 @@ class MedicationRepository {
   // Prescription Operations
   Future<List<Prescription>> getUserPrescriptions() async {
     try {
-      _logger.logMedicationEvent('Fetching user prescriptions', {
-        'timestamp': DateTime.now().toIso8601String(),
-      });
+      _logger.logMedicationEvent('Fetching user prescriptions', {'timestamp': DateTime.now().toIso8601String()});
 
       final response = await _service.getUserPrescriptions(null, null, null, null, null);
 
@@ -505,3 +493,16 @@ class MedicationRepository {
     }
   }
 }
+
+/// Provider for medication API service
+final medicationApiServiceProvider = Provider<MedicationApiService>((ref) {
+  final dio = Dio(
+    BaseOptions(
+      baseUrl: AppConfig.apiBaseUrl,
+      connectTimeout: const Duration(seconds: 30),
+      receiveTimeout: const Duration(seconds: 30),
+    ),
+  );
+
+  return MedicationApiService(dio);
+});

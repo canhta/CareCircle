@@ -38,7 +38,9 @@ export class PrismaMedicationScheduleRepository extends MedicationScheduleReposi
     return this.mapToEntity(data);
   }
 
-  async createMany(schedules: MedicationSchedule[]): Promise<MedicationSchedule[]> {
+  async createMany(
+    schedules: MedicationSchedule[],
+  ): Promise<MedicationSchedule[]> {
     await this.prisma.medicationSchedule.createMany({
       data: schedules.map((schedule) => ({
         id: schedule.id,
@@ -96,10 +98,7 @@ export class PrismaMedicationScheduleRepository extends MedicationScheduleReposi
     // Filter by active status (schedules that haven't ended)
     if (query.isActive !== undefined) {
       if (query.isActive) {
-        where.OR = [
-          { endDate: null },
-          { endDate: { gt: new Date() } },
-        ];
+        where.OR = [{ endDate: null }, { endDate: { gt: new Date() } }];
       } else {
         where.endDate = { lte: new Date() };
       }
@@ -115,7 +114,10 @@ export class PrismaMedicationScheduleRepository extends MedicationScheduleReposi
     return data.map((item) => this.mapToEntity(item));
   }
 
-  async update(id: string, updates: Partial<MedicationSchedule>): Promise<MedicationSchedule> {
+  async update(
+    id: string,
+    updates: Partial<MedicationSchedule>,
+  ): Promise<MedicationSchedule> {
     const data = await this.prisma.medicationSchedule.update({
       where: { id },
       data: {
@@ -146,14 +148,14 @@ export class PrismaMedicationScheduleRepository extends MedicationScheduleReposi
     });
   }
 
-  async findByUserId(userId: string, includeInactive?: boolean): Promise<MedicationSchedule[]> {
+  async findByUserId(
+    userId: string,
+    includeInactive?: boolean,
+  ): Promise<MedicationSchedule[]> {
     const where: Prisma.MedicationScheduleWhereInput = { userId };
-    
+
     if (!includeInactive) {
-      where.OR = [
-        { endDate: null },
-        { endDate: { gt: new Date() } },
-      ];
+      where.OR = [{ endDate: null }, { endDate: { gt: new Date() } }];
     }
 
     const data = await this.prisma.medicationSchedule.findMany({
@@ -170,10 +172,7 @@ export class PrismaMedicationScheduleRepository extends MedicationScheduleReposi
       where: {
         userId,
         startDate: { lte: now },
-        OR: [
-          { endDate: null },
-          { endDate: { gt: now } },
-        ],
+        OR: [{ endDate: null }, { endDate: { gt: now } }],
       },
       orderBy: { createdAt: 'desc' },
     });
@@ -194,7 +193,9 @@ export class PrismaMedicationScheduleRepository extends MedicationScheduleReposi
     return data.map((item) => this.mapToEntity(item));
   }
 
-  async findByMedicationId(medicationId: string): Promise<MedicationSchedule[]> {
+  async findByMedicationId(
+    medicationId: string,
+  ): Promise<MedicationSchedule[]> {
     const data = await this.prisma.medicationSchedule.findMany({
       where: { medicationId },
       orderBy: { createdAt: 'desc' },
@@ -203,16 +204,15 @@ export class PrismaMedicationScheduleRepository extends MedicationScheduleReposi
     return data.map((item) => this.mapToEntity(item));
   }
 
-  async findActiveMedicationSchedules(medicationId: string): Promise<MedicationSchedule[]> {
+  async findActiveMedicationSchedules(
+    medicationId: string,
+  ): Promise<MedicationSchedule[]> {
     const now = new Date();
     const data = await this.prisma.medicationSchedule.findMany({
       where: {
         medicationId,
         startDate: { lte: now },
-        OR: [
-          { endDate: null },
-          { endDate: { gt: now } },
-        ],
+        OR: [{ endDate: null }, { endDate: { gt: now } }],
       },
       orderBy: { createdAt: 'desc' },
     });
@@ -220,7 +220,9 @@ export class PrismaMedicationScheduleRepository extends MedicationScheduleReposi
     return data.map((item) => this.mapToEntity(item));
   }
 
-  async findWithRemindersEnabled(userId: string): Promise<MedicationSchedule[]> {
+  async findWithRemindersEnabled(
+    userId: string,
+  ): Promise<MedicationSchedule[]> {
     const data = await this.prisma.medicationSchedule.findMany({
       where: {
         userId,
@@ -232,7 +234,9 @@ export class PrismaMedicationScheduleRepository extends MedicationScheduleReposi
     return data.map((item) => this.mapToEntity(item));
   }
 
-  async findWithRemindersDisabled(userId: string): Promise<MedicationSchedule[]> {
+  async findWithRemindersDisabled(
+    userId: string,
+  ): Promise<MedicationSchedule[]> {
     const data = await this.prisma.medicationSchedule.findMany({
       where: {
         userId,
@@ -244,7 +248,10 @@ export class PrismaMedicationScheduleRepository extends MedicationScheduleReposi
     return data.map((item) => this.mapToEntity(item));
   }
 
-  async findSchedulesNeedingReminders(userId: string, withinMinutes: number): Promise<MedicationSchedule[]> {
+  async findSchedulesNeedingReminders(
+    userId: string,
+    withinMinutes: number,
+  ): Promise<MedicationSchedule[]> {
     // This is a complex query that would need to examine the schedule JSON
     // For now, return active schedules with reminders enabled
     const now = new Date();
@@ -253,10 +260,7 @@ export class PrismaMedicationScheduleRepository extends MedicationScheduleReposi
         userId,
         remindersEnabled: true,
         startDate: { lte: now },
-        OR: [
-          { endDate: null },
-          { endDate: { gt: now } },
-        ],
+        OR: [{ endDate: null }, { endDate: { gt: now } }],
       },
       orderBy: { createdAt: 'desc' },
     });

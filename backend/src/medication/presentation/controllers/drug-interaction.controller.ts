@@ -26,12 +26,15 @@ export class DrugInteractionController {
   @Get('check-user-medications')
   async checkUserMedicationInteractions(@Request() req: any) {
     try {
-      const analysis = await this.drugInteractionService.checkUserMedicationInteractions(req.user.uid);
+      const analysis =
+        await this.drugInteractionService.checkUserMedicationInteractions(
+          req.user.uid,
+        );
 
       return {
         success: true,
         data: analysis,
-        message: analysis.hasInteractions 
+        message: analysis.hasInteractions
           ? `Found ${analysis.totalInteractions} potential interaction(s)`
           : 'No interactions detected',
       };
@@ -47,28 +50,28 @@ export class DrugInteractionController {
   }
 
   @Post('check-specific')
-  async checkSpecificMedications(
-    @Body() body: { medications: string[] },
-  ) {
+  async checkSpecificMedications(@Body() body: { medications: string[] }) {
     try {
       if (!body.medications || body.medications.length < 2) {
         throw new HttpException(
           {
             success: false,
-            message: 'At least 2 medications are required for interaction checking',
+            message:
+              'At least 2 medications are required for interaction checking',
           },
           HttpStatus.BAD_REQUEST,
         );
       }
 
-      const analysis = await this.drugInteractionService.checkSpecificMedicationInteractions(
-        body.medications,
-      );
+      const analysis =
+        await this.drugInteractionService.checkSpecificMedicationInteractions(
+          body.medications,
+        );
 
       return {
         success: true,
         data: analysis,
-        message: analysis.hasInteractions 
+        message: analysis.hasInteractions
           ? `Found ${analysis.totalInteractions} potential interaction(s)`
           : 'No interactions detected',
       };
@@ -76,7 +79,8 @@ export class DrugInteractionController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to check specific medication interactions',
+          message:
+            error.message || 'Failed to check specific medication interactions',
         },
         HttpStatus.BAD_REQUEST,
       );
@@ -99,15 +103,16 @@ export class DrugInteractionController {
         );
       }
 
-      const analysis = await this.drugInteractionService.checkNewMedicationAgainstExisting(
-        req.user.uid,
-        body.medicationName,
-      );
+      const analysis =
+        await this.drugInteractionService.checkNewMedicationAgainstExisting(
+          req.user.uid,
+          body.medicationName,
+        );
 
       return {
         success: true,
         data: analysis,
-        message: analysis.hasInteractions 
+        message: analysis.hasInteractions
           ? `Found ${analysis.totalInteractions} potential interaction(s) with existing medications`
           : 'No interactions detected with existing medications',
       };
@@ -115,7 +120,8 @@ export class DrugInteractionController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to check new medication interactions',
+          message:
+            error.message || 'Failed to check new medication interactions',
         },
         HttpStatus.BAD_REQUEST,
       );
@@ -135,7 +141,8 @@ export class DrugInteractionController {
         );
       }
 
-      const concepts = await this.rxNormService.searchMedication(medicationName);
+      const concepts =
+        await this.rxNormService.searchMedication(medicationName);
 
       return {
         success: true,
@@ -202,12 +209,13 @@ export class DrugInteractionController {
         );
       }
 
-      const validation = await this.rxNormService.validateMedicationName(medicationName);
+      const validation =
+        await this.rxNormService.validateMedicationName(medicationName);
 
       return {
         success: true,
         data: validation,
-        message: validation.isValid 
+        message: validation.isValid
           ? 'Medication name is valid'
           : 'Medication name validation failed',
       };
@@ -235,7 +243,8 @@ export class DrugInteractionController {
         );
       }
 
-      const suggestions = await this.rxNormService.getSpellingCorrections(medicationName);
+      const suggestions =
+        await this.rxNormService.getSpellingCorrections(medicationName);
 
       return {
         success: true,
@@ -307,15 +316,16 @@ export class DrugInteractionController {
         );
       }
 
-      const enrichedData = await this.drugInteractionService.enrichMedicationWithRxNormData(
-        body.medicationName,
-        body.strength,
-      );
+      const enrichedData =
+        await this.drugInteractionService.enrichMedicationWithRxNormData(
+          body.medicationName,
+          body.strength,
+        );
 
       return {
         success: true,
         data: enrichedData,
-        message: enrichedData.isValid 
+        message: enrichedData.isValid
           ? 'Medication data enriched successfully'
           : 'Medication data enrichment failed',
       };
@@ -333,7 +343,10 @@ export class DrugInteractionController {
   @Put('update-rxnorm-codes')
   async updateUserMedicationRxNormCodes(@Request() req: any) {
     try {
-      const result = await this.drugInteractionService.updateMedicationRxNormCodes(req.user.uid);
+      const result =
+        await this.drugInteractionService.updateMedicationRxNormCodes(
+          req.user.uid,
+        );
 
       return {
         success: true,

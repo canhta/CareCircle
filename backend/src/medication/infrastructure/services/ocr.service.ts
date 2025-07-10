@@ -217,7 +217,7 @@ export class OCRService {
     const medications: any[] = [];
 
     // Split text into lines for better parsing
-    const lines = text.split('\n').filter(line => line.trim().length > 0);
+    const lines = text.split('\n').filter((line) => line.trim().length > 0);
 
     for (const line of lines) {
       const medication = this.parseMedicationLine(line);
@@ -254,7 +254,9 @@ export class OCRService {
     }
 
     // Fallback: Look for medication-like words
-    const medicationWords = line.match(/[A-Z][a-z]+(?:in|ol|ex|ide|ine|ate)\b/g);
+    const medicationWords = line.match(
+      /[A-Z][a-z]+(?:in|ol|ex|ide|ine|ate)\b/g,
+    );
     if (medicationWords && medicationWords.length > 0) {
       return {
         name: medicationWords[0],
@@ -271,18 +273,18 @@ export class OCRService {
   private assessImageQuality(result: any): number {
     // Assess image quality based on detection confidence and text clarity
     const detections = result.textAnnotations || [];
-    
+
     if (detections.length === 0) return 0.1;
 
     const avgConfidence = this.calculateConfidence(detections);
     const textLength = detections[0]?.description?.length || 0;
-    
+
     // Quality score based on confidence and text amount
     let quality = avgConfidence;
-    
+
     if (textLength > 100) quality += 0.1;
     if (textLength > 500) quality += 0.1;
-    
+
     return Math.min(1, quality);
   }
 
@@ -312,9 +314,14 @@ export class OCRService {
       suggestions.push('Ensure date is clearly visible and not obscured');
     }
 
-    if (!ocrData.fields.medications || ocrData.fields.medications.length === 0) {
+    if (
+      !ocrData.fields.medications ||
+      ocrData.fields.medications.length === 0
+    ) {
       issues.push('No medications detected');
-      suggestions.push('Ensure medication names and dosages are clearly visible');
+      suggestions.push(
+        'Ensure medication names and dosages are clearly visible',
+      );
     }
 
     // Validate image quality

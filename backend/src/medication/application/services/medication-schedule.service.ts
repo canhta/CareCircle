@@ -1,5 +1,10 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { MedicationSchedule, DosageSchedule, Time, ReminderSettings } from '../../domain/entities/medication-schedule.entity';
+import {
+  MedicationSchedule,
+  DosageSchedule,
+  Time,
+  ReminderSettings,
+} from '../../domain/entities/medication-schedule.entity';
 import {
   MedicationScheduleRepository,
   ScheduleQuery,
@@ -57,7 +62,9 @@ export class MedicationScheduleService {
       });
 
       if (!schedule.validate()) {
-        throw new Error(`Invalid schedule data for medication ${data.medicationId}`);
+        throw new Error(
+          `Invalid schedule data for medication ${data.medicationId}`,
+        );
       }
 
       return schedule;
@@ -173,7 +180,10 @@ export class MedicationScheduleService {
     });
   }
 
-  async removeReminderTime(id: string, time: Time): Promise<MedicationSchedule> {
+  async removeReminderTime(
+    id: string,
+    time: Time,
+  ): Promise<MedicationSchedule> {
     const schedule = await this.scheduleRepository.findById(id);
     if (!schedule) {
       throw new Error('Medication schedule not found');
@@ -200,11 +210,15 @@ export class MedicationScheduleService {
     return this.scheduleRepository.findInactiveByUserId(userId);
   }
 
-  async getMedicationSchedules(medicationId: string): Promise<MedicationSchedule[]> {
+  async getMedicationSchedules(
+    medicationId: string,
+  ): Promise<MedicationSchedule[]> {
     return this.scheduleRepository.findByMedicationId(medicationId);
   }
 
-  async getActiveMedicationSchedules(medicationId: string): Promise<MedicationSchedule[]> {
+  async getActiveMedicationSchedules(
+    medicationId: string,
+  ): Promise<MedicationSchedule[]> {
     return this.scheduleRepository.findActiveMedicationSchedules(medicationId);
   }
 
@@ -212,11 +226,15 @@ export class MedicationScheduleService {
     return this.scheduleRepository.findMany(query);
   }
 
-  async getSchedulesWithReminders(userId: string): Promise<MedicationSchedule[]> {
+  async getSchedulesWithReminders(
+    userId: string,
+  ): Promise<MedicationSchedule[]> {
     return this.scheduleRepository.findWithRemindersEnabled(userId);
   }
 
-  async getSchedulesWithoutReminders(userId: string): Promise<MedicationSchedule[]> {
+  async getSchedulesWithoutReminders(
+    userId: string,
+  ): Promise<MedicationSchedule[]> {
     return this.scheduleRepository.findWithRemindersDisabled(userId);
   }
 
@@ -224,7 +242,10 @@ export class MedicationScheduleService {
     userId: string,
     withinMinutes: number,
   ): Promise<MedicationSchedule[]> {
-    return this.scheduleRepository.findSchedulesNeedingReminders(userId, withinMinutes);
+    return this.scheduleRepository.findSchedulesNeedingReminders(
+      userId,
+      withinMinutes,
+    );
   }
 
   async getSchedulesForDate(
@@ -239,7 +260,11 @@ export class MedicationScheduleService {
     startDate: Date,
     endDate: Date,
   ): Promise<MedicationSchedule[]> {
-    return this.scheduleRepository.findSchedulesForDateRange(userId, startDate, endDate);
+    return this.scheduleRepository.findSchedulesForDateRange(
+      userId,
+      startDate,
+      endDate,
+    );
   }
 
   async getUpcomingSchedules(
@@ -282,10 +307,7 @@ export class MedicationScheduleService {
     return this.scheduleRepository.getScheduleStatistics(userId);
   }
 
-  async getScheduleCount(
-    userId: string,
-    isActive?: boolean,
-  ): Promise<number> {
+  async getScheduleCount(userId: string, isActive?: boolean): Promise<number> {
     return this.scheduleRepository.getScheduleCount(userId, isActive);
   }
 
@@ -293,7 +315,10 @@ export class MedicationScheduleService {
     userId: string,
     newSchedule: MedicationSchedule,
   ): Promise<MedicationSchedule[]> {
-    return this.scheduleRepository.findConflictingSchedules(userId, newSchedule);
+    return this.scheduleRepository.findConflictingSchedules(
+      userId,
+      newSchedule,
+    );
   }
 
   async validateScheduleData(schedule: MedicationSchedule): Promise<{
@@ -315,9 +340,14 @@ export class MedicationScheduleService {
     }
 
     // Check for conflicting schedules
-    const conflicts = await this.findConflictingSchedules(schedule.userId, schedule);
+    const conflicts = await this.findConflictingSchedules(
+      schedule.userId,
+      schedule,
+    );
     if (conflicts.length > 0) {
-      warnings.push(`Found ${conflicts.length} potentially conflicting schedule(s)`);
+      warnings.push(
+        `Found ${conflicts.length} potentially conflicting schedule(s)`,
+      );
     }
 
     // Check reminder configuration

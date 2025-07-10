@@ -6,10 +6,7 @@ import {
   PrescriptionQuery,
   PrescriptionStatistics,
 } from '../../domain/repositories/prescription.repository';
-import {
-  Prescription as PrismaPrescription,
-  Prisma,
-} from '@prisma/client';
+import { Prescription as PrismaPrescription, Prisma } from '@prisma/client';
 
 @Injectable()
 export class PrismaPrescriptionRepository extends PrescriptionRepository {
@@ -82,7 +79,10 @@ export class PrismaPrescriptionRepository extends PrescriptionRepository {
     };
 
     if (query.prescribedBy) {
-      where.prescribedBy = { contains: query.prescribedBy, mode: 'insensitive' };
+      where.prescribedBy = {
+        contains: query.prescribedBy,
+        mode: 'insensitive',
+      };
     }
 
     if (query.pharmacy) {
@@ -124,7 +124,10 @@ export class PrismaPrescriptionRepository extends PrescriptionRepository {
     return data.map((item) => this.mapToEntity(item));
   }
 
-  async update(id: string, updates: Partial<Prescription>): Promise<Prescription> {
+  async update(
+    id: string,
+    updates: Partial<Prescription>,
+  ): Promise<Prescription> {
     const data = await this.prisma.prescription.update({
       where: { id },
       data: {
@@ -167,7 +170,10 @@ export class PrismaPrescriptionRepository extends PrescriptionRepository {
     return data.map((item) => this.mapToEntity(item));
   }
 
-  async findRecentByUserId(userId: string, limit?: number): Promise<Prescription[]> {
+  async findRecentByUserId(
+    userId: string,
+    limit?: number,
+  ): Promise<Prescription[]> {
     const data = await this.prisma.prescription.findMany({
       where: { userId },
       orderBy: { createdAt: 'desc' },
@@ -216,10 +222,7 @@ export class PrismaPrescriptionRepository extends PrescriptionRepository {
       where: {
         userId,
         isVerified: false,
-        OR: [
-          { ocrData: { not: null } },
-          { imageUrl: { not: null } },
-        ],
+        OR: [{ ocrData: { not: null } }, { imageUrl: { not: null } }],
       },
       orderBy: { createdAt: 'asc' },
     });
@@ -295,7 +298,10 @@ export class PrismaPrescriptionRepository extends PrescriptionRepository {
     return data.map((item) => this.mapToEntity(item));
   }
 
-  async findByPrescriber(userId: string, prescriberName: string): Promise<Prescription[]> {
+  async findByPrescriber(
+    userId: string,
+    prescriberName: string,
+  ): Promise<Prescription[]> {
     const data = await this.prisma.prescription.findMany({
       where: {
         userId,
@@ -307,7 +313,10 @@ export class PrismaPrescriptionRepository extends PrescriptionRepository {
     return data.map((item) => this.mapToEntity(item));
   }
 
-  async findByPharmacy(userId: string, pharmacyName: string): Promise<Prescription[]> {
+  async findByPharmacy(
+    userId: string,
+    pharmacyName: string,
+  ): Promise<Prescription[]> {
     const data = await this.prisma.prescription.findMany({
       where: {
         userId,
@@ -327,7 +336,7 @@ export class PrismaPrescriptionRepository extends PrescriptionRepository {
       orderBy: { prescribedBy: 'asc' },
     });
 
-    return result.map(item => item.prescribedBy);
+    return result.map((item) => item.prescribedBy);
   }
 
   async getUniquePharmacies(userId: string): Promise<string[]> {
@@ -341,7 +350,7 @@ export class PrismaPrescriptionRepository extends PrescriptionRepository {
       orderBy: { pharmacy: 'asc' },
     });
 
-    return result.map(item => item.pharmacy!);
+    return result.map((item) => item.pharmacy!);
   }
 
   async findByDateRange(
@@ -363,7 +372,10 @@ export class PrismaPrescriptionRepository extends PrescriptionRepository {
     return data.map((item) => this.mapToEntity(item));
   }
 
-  async findExpired(userId: string, expirationMonths: number = 12): Promise<Prescription[]> {
+  async findExpired(
+    userId: string,
+    expirationMonths: number = 12,
+  ): Promise<Prescription[]> {
     const expirationDate = new Date();
     expirationDate.setMonth(expirationDate.getMonth() - expirationMonths);
 
@@ -378,7 +390,10 @@ export class PrismaPrescriptionRepository extends PrescriptionRepository {
     return data.map((item) => this.mapToEntity(item));
   }
 
-  async findExpiringMedications(userId: string, withinMonths: number): Promise<Prescription[]> {
+  async findExpiringMedications(
+    userId: string,
+    withinMonths: number,
+  ): Promise<Prescription[]> {
     const now = new Date();
     const futureDate = new Date();
     futureDate.setMonth(futureDate.getMonth() + withinMonths);
@@ -401,7 +416,11 @@ export class PrismaPrescriptionRepository extends PrescriptionRepository {
     return data.map((item) => this.mapToEntity(item));
   }
 
-  async searchPrescriptions(userId: string, searchTerm: string, limit?: number): Promise<Prescription[]> {
+  async searchPrescriptions(
+    userId: string,
+    searchTerm: string,
+    limit?: number,
+  ): Promise<Prescription[]> {
     const data = await this.prisma.prescription.findMany({
       where: {
         userId,
@@ -418,26 +437,38 @@ export class PrismaPrescriptionRepository extends PrescriptionRepository {
     return data.map((item) => this.mapToEntity(item));
   }
 
-  async findByMedicationName(userId: string, medicationName: string): Promise<Prescription[]> {
+  async findByMedicationName(
+    userId: string,
+    medicationName: string,
+  ): Promise<Prescription[]> {
     // This requires a more complex query to search within the JSON medications array
     // For now, we'll use a simple approach and filter in memory
     const allPrescriptions = await this.findByUserId(userId);
 
-    return allPrescriptions.filter(prescription =>
-      prescription.medications.some(med =>
-        med.name.toLowerCase().includes(medicationName.toLowerCase())
-      )
+    return allPrescriptions.filter((prescription) =>
+      prescription.medications.some((med) =>
+        med.name.toLowerCase().includes(medicationName.toLowerCase()),
+      ),
     );
   }
 
-  async getPrescriptionStatistics(userId: string): Promise<PrescriptionStatistics> {
-    const [total, verified, unverified, withOCR, withImages] = await Promise.all([
-      this.prisma.prescription.count({ where: { userId } }),
-      this.prisma.prescription.count({ where: { userId, isVerified: true } }),
-      this.prisma.prescription.count({ where: { userId, isVerified: false } }),
-      this.prisma.prescription.count({ where: { userId, ocrData: { not: null } } }),
-      this.prisma.prescription.count({ where: { userId, imageUrl: { not: null } } }),
-    ]);
+  async getPrescriptionStatistics(
+    userId: string,
+  ): Promise<PrescriptionStatistics> {
+    const [total, verified, unverified, withOCR, withImages] =
+      await Promise.all([
+        this.prisma.prescription.count({ where: { userId } }),
+        this.prisma.prescription.count({ where: { userId, isVerified: true } }),
+        this.prisma.prescription.count({
+          where: { userId, isVerified: false },
+        }),
+        this.prisma.prescription.count({
+          where: { userId, ocrData: { not: null } },
+        }),
+        this.prisma.prescription.count({
+          where: { userId, imageUrl: { not: null } },
+        }),
+      ]);
 
     // Calculate average processing time for verified prescriptions
     const verifiedPrescriptions = await this.prisma.prescription.findMany({
@@ -452,12 +483,15 @@ export class PrismaPrescriptionRepository extends PrescriptionRepository {
       },
     });
 
-    const averageProcessingTime = verifiedPrescriptions.length > 0
-      ? verifiedPrescriptions.reduce((sum, prescription) => {
-          const processingTime = prescription.verifiedAt!.getTime() - prescription.createdAt.getTime();
-          return sum + processingTime / (1000 * 60 * 60); // Convert to hours
-        }, 0) / verifiedPrescriptions.length
-      : 0;
+    const averageProcessingTime =
+      verifiedPrescriptions.length > 0
+        ? verifiedPrescriptions.reduce((sum, prescription) => {
+            const processingTime =
+              prescription.verifiedAt!.getTime() -
+              prescription.createdAt.getTime();
+            return sum + processingTime / (1000 * 60 * 60); // Convert to hours
+          }, 0) / verifiedPrescriptions.length
+        : 0;
 
     // Get top prescribers
     const prescriberCounts = await this.prisma.prescription.groupBy({
@@ -468,7 +502,7 @@ export class PrismaPrescriptionRepository extends PrescriptionRepository {
       take: 5,
     });
 
-    const topPrescribers = prescriberCounts.map(item => ({
+    const topPrescribers = prescriberCounts.map((item) => ({
       name: item.prescribedBy,
       count: item._count.prescribedBy,
     }));
@@ -485,7 +519,7 @@ export class PrismaPrescriptionRepository extends PrescriptionRepository {
       take: 5,
     });
 
-    const topPharmacies = pharmacyCounts.map(item => ({
+    const topPharmacies = pharmacyCounts.map((item) => ({
       name: item.pharmacy!,
       count: item._count.pharmacy,
     }));

@@ -1,91 +1,67 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:dio/dio.dart';
-import '../../../../core/config/app_config.dart';
 import '../../../../core/logging/bounded_context_loggers.dart';
-import '../../../../core/network/dio_provider.dart';
 import '../../domain/models/models.dart';
-import '../../infrastructure/services/medication_api_service.dart';
+import '../../infrastructure/repositories/medication_repository.dart';
 
 // Healthcare-compliant logger for medication context
 final _logger = BoundedContextLoggers.medication;
 
-/// Provider for medication repository
-final medicationRepositoryProvider = Provider<MedicationRepository>((ref) {
-  final dio = ref.read(dioProvider);
-  return MedicationRepository(dio);
-});
-
 /// Provider for user medications list
 final medicationsProvider = FutureProvider<List<Medication>>((ref) async {
   final repository = ref.read(medicationRepositoryProvider);
-  return repository.getUserMedications();
+  return repository.getMedications();
 });
 
 /// Provider for active medications only
 final activeMedicationsProvider = FutureProvider<List<Medication>>((ref) async {
   final repository = ref.read(medicationRepositoryProvider);
-  return repository.getUserMedications(
-    params: const MedicationQueryParams(isActive: true),
-  );
+  return repository.getMedications(params: const MedicationQueryParams(isActive: true));
 });
 
 /// Provider for inactive medications only
 final inactiveMedicationsProvider = FutureProvider<List<Medication>>((ref) async {
   final repository = ref.read(medicationRepositoryProvider);
-  return repository.getUserMedications(
-    params: const MedicationQueryParams(isActive: false),
-  );
+  return repository.getMedications(params: const MedicationQueryParams(isActive: false));
 });
 
 /// Provider for single medication by ID
-final medicationProvider = FutureProvider.family<Medication, String>((
-  ref,
-  id,
-) async {
+final medicationProvider = FutureProvider.family<Medication?, String>((ref, id) async {
   final repository = ref.read(medicationRepositoryProvider);
-  return repository.getMedication(id);
+  return repository.getMedicationById(id);
 });
 
-/// Provider for medication search results
-final medicationSearchProvider = FutureProvider.family<List<Medication>, String>((
-  ref,
-  searchTerm,
-) async {
-  if (searchTerm.isEmpty) return [];
-  
-  final repository = ref.read(medicationRepositoryProvider);
-  return repository.searchMedications(searchTerm, limit: 20);
-});
+// TODO: Implement these providers when additional repository methods are added
+// /// Provider for medication search results
+// final medicationSearchProvider = FutureProvider.family<List<Medication>, String>((ref, searchTerm) async {
+//   if (searchTerm.isEmpty) return [];
+//
+//   final repository = ref.read(medicationRepositoryProvider);
+//   return repository.searchMedications(searchTerm, limit: 20);
+// });
 
-/// Provider for user prescriptions
-final prescriptionsProvider = FutureProvider<List<Prescription>>((ref) async {
-  final repository = ref.read(medicationRepositoryProvider);
-  return repository.getUserPrescriptions();
-});
+// /// Provider for user prescriptions
+// final prescriptionsProvider = FutureProvider<List<Prescription>>((ref) async {
+//   final repository = ref.read(medicationRepositoryProvider);
+//   return repository.getUserPrescriptions();
+// });
 
-/// Provider for adherence records
-final adherenceRecordsProvider = FutureProvider<List<AdherenceRecord>>((ref) async {
-  final repository = ref.read(medicationRepositoryProvider);
-  return repository.getAdherenceRecords();
-});
+// /// Provider for adherence records
+// final adherenceRecordsProvider = FutureProvider<List<AdherenceRecord>>((ref) async {
+//   final repository = ref.read(medicationRepositoryProvider);
+//   return repository.getAdherenceRecords();
+// });
 
-/// Provider for adherence records by medication ID
-final medicationAdherenceProvider = FutureProvider.family<List<AdherenceRecord>, String>((
-  ref,
-  medicationId,
-) async {
-  final repository = ref.read(medicationRepositoryProvider);
-  return repository.getAdherenceRecords(
-    params: AdherenceQueryParams(medicationId: medicationId),
-  );
-});
+// /// Provider for adherence records by medication ID
+// final medicationAdherenceProvider = FutureProvider.family<List<AdherenceRecord>, String>((ref, medicationId) async {
+//   final repository = ref.read(medicationRepositoryProvider);
+//   return repository.getAdherenceRecords(params: AdherenceQueryParams(medicationId: medicationId));
+// });
 
 /// State provider for selected medication
 final selectedMedicationProvider = StateProvider<Medication?>((ref) => null);
 
 /// State provider for medication filter parameters
-final medicationFilterProvider = StateProvider<MedicationQueryParams>((ref) => 
-  const MedicationQueryParams());
+final medicationFilterProvider = StateProvider<MedicationQueryParams>((ref) => const MedicationQueryParams());
 
 /// State provider for medication search term
 final medicationSearchTermProvider = StateProvider<String>((ref) => '');
@@ -107,16 +83,16 @@ class MedicationNotifier extends StateNotifier<AsyncValue<List<Medication>>> {
   Future<void> loadMedications() async {
     state = const AsyncValue.loading();
     try {
-      final medications = await _repository.getUserMedications();
+      final medications = await _repository.getMedications();
       state = AsyncValue.data(medications);
-      
+
       _logger.logMedicationEvent('Medications loaded successfully', {
         'medicationCount': medications.length,
         'timestamp': DateTime.now().toIso8601String(),
       });
     } catch (error, stackTrace) {
       state = AsyncValue.error(error, stackTrace);
-      
+
       _logger.error('Failed to load medications', {
         'error': error.toString(),
         'timestamp': DateTime.now().toIso8601String(),
@@ -127,18 +103,18 @@ class MedicationNotifier extends StateNotifier<AsyncValue<List<Medication>>> {
   Future<void> createMedication(CreateMedicationRequest request) async {
     try {
       final newMedication = await _repository.createMedication(request);
-      
+
       // Update state with new medication
       state.whenData((medications) {
         state = AsyncValue.data([...medications, newMedication]);
       });
-      
+
       _logger.logMedicationEvent('Medication created successfully', {
         'medicationId': newMedication.id,
         'medicationName': newMedication.name,
         'timestamp': DateTime.now().toIso8601String(),
       });
-    } catch (error, stackTrace) {
+    } catch (error) {
       _logger.error('Failed to create medication', {
         'medicationName': request.name,
         'error': error.toString(),
@@ -151,20 +127,19 @@ class MedicationNotifier extends StateNotifier<AsyncValue<List<Medication>>> {
   Future<void> updateMedication(String id, UpdateMedicationRequest request) async {
     try {
       final updatedMedication = await _repository.updateMedication(id, request);
-      
+
       // Update state with updated medication
       state.whenData((medications) {
-        final updatedList = medications.map((med) => 
-          med.id == id ? updatedMedication : med).toList();
+        final updatedList = medications.map((med) => med.id == id ? updatedMedication : med).toList();
         state = AsyncValue.data(updatedList);
       });
-      
+
       _logger.logMedicationEvent('Medication updated successfully', {
         'medicationId': updatedMedication.id,
         'medicationName': updatedMedication.name,
         'timestamp': DateTime.now().toIso8601String(),
       });
-    } catch (error, stackTrace) {
+    } catch (error) {
       _logger.error('Failed to update medication', {
         'medicationId': id,
         'error': error.toString(),
@@ -177,18 +152,18 @@ class MedicationNotifier extends StateNotifier<AsyncValue<List<Medication>>> {
   Future<void> deleteMedication(String id) async {
     try {
       await _repository.deleteMedication(id);
-      
+
       // Update state by removing deleted medication
       state.whenData((medications) {
         final updatedList = medications.where((med) => med.id != id).toList();
         state = AsyncValue.data(updatedList);
       });
-      
+
       _logger.logMedicationEvent('Medication deleted successfully', {
         'medicationId': id,
         'timestamp': DateTime.now().toIso8601String(),
       });
-    } catch (error, stackTrace) {
+    } catch (error) {
       _logger.error('Failed to delete medication', {
         'medicationId': id,
         'error': error.toString(),
@@ -212,7 +187,6 @@ final medicationNotifierProvider = StateNotifierProvider<MedicationNotifier, Asy
 /// Computed provider for filtered medications
 final filteredMedicationsProvider = Provider<AsyncValue<List<Medication>>>((ref) {
   final medications = ref.watch(medicationNotifierProvider);
-  final filter = ref.watch(medicationFilterProvider);
   final searchTerm = ref.watch(medicationSearchTermProvider);
   final formFilter = ref.watch(medicationFormFilterProvider);
   final activeFilter = ref.watch(medicationActiveFilterProvider);
@@ -255,22 +229,22 @@ final filteredMedicationsProvider = Provider<AsyncValue<List<Medication>>>((ref)
 /// Provider for medication statistics
 final medicationStatisticsProvider = FutureProvider<Map<String, dynamic>>((ref) async {
   final medications = await ref.watch(medicationsProvider.future);
-  
+
   final stats = {
     'total': medications.length,
     'active': medications.where((m) => m.isActive).length,
     'inactive': medications.where((m) => !m.isActive).length,
     'byForm': <String, int>{},
-    'expiringSoon': medications.where((m) => 
-      m.endDate != null && 
-      m.endDate!.isBefore(DateTime.now().add(const Duration(days: 30)))
-    ).length,
+    'expiringSoon': medications
+        .where((m) => m.endDate != null && m.endDate!.isBefore(DateTime.now().add(const Duration(days: 30))))
+        .length,
   };
 
   // Count by form
+  final byForm = stats['byForm'] as Map<String, int>;
   for (final med in medications) {
     final form = med.form.displayName;
-    stats['byForm'][form] = (stats['byForm'][form] as int? ?? 0) + 1;
+    byForm[form] = (byForm[form] ?? 0) + 1;
   }
 
   return stats;

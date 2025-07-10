@@ -106,18 +106,39 @@ export class MedicationService {
       id: existingMedication.id,
       userId: existingMedication.userId,
       name: updates.name || existingMedication.name,
-      genericName: updates.genericName !== undefined ? updates.genericName : (existingMedication.genericName || undefined),
+      genericName:
+        updates.genericName !== undefined
+          ? updates.genericName
+          : existingMedication.genericName || undefined,
       strength: updates.strength || existingMedication.strength,
       form: updates.form || existingMedication.form,
-      manufacturer: updates.manufacturer !== undefined ? updates.manufacturer : (existingMedication.manufacturer || undefined),
-      rxNormCode: updates.rxNormCode !== undefined ? updates.rxNormCode : (existingMedication.rxNormCode || undefined),
-      ndcCode: updates.ndcCode !== undefined ? updates.ndcCode : (existingMedication.ndcCode || undefined),
-      classification: updates.classification !== undefined ? updates.classification : (existingMedication.classification || undefined),
+      manufacturer:
+        updates.manufacturer !== undefined
+          ? updates.manufacturer
+          : existingMedication.manufacturer || undefined,
+      rxNormCode:
+        updates.rxNormCode !== undefined
+          ? updates.rxNormCode
+          : existingMedication.rxNormCode || undefined,
+      ndcCode:
+        updates.ndcCode !== undefined
+          ? updates.ndcCode
+          : existingMedication.ndcCode || undefined,
+      classification:
+        updates.classification !== undefined
+          ? updates.classification
+          : existingMedication.classification || undefined,
       isActive: existingMedication.isActive,
       startDate: existingMedication.startDate,
-      endDate: updates.endDate !== undefined ? updates.endDate : (existingMedication.endDate || undefined),
+      endDate:
+        updates.endDate !== undefined
+          ? updates.endDate
+          : existingMedication.endDate || undefined,
       prescriptionId: existingMedication.prescriptionId || undefined,
-      notes: updates.notes !== undefined ? updates.notes : (existingMedication.notes || undefined),
+      notes:
+        updates.notes !== undefined
+          ? updates.notes
+          : existingMedication.notes || undefined,
     });
 
     if (!updatedMedication.validate()) {
@@ -201,7 +222,10 @@ export class MedicationService {
     userId: string,
     classification: string,
   ): Promise<Medication[]> {
-    return this.medicationRepository.findByClassification(userId, classification);
+    return this.medicationRepository.findByClassification(
+      userId,
+      classification,
+    );
   }
 
   async getMedicationsByPrescription(
@@ -224,7 +248,10 @@ export class MedicationService {
     userId: string,
     withinDays: number,
   ): Promise<Medication[]> {
-    return this.medicationRepository.findExpiringMedications(userId, withinDays);
+    return this.medicationRepository.findExpiringMedications(
+      userId,
+      withinDays,
+    );
   }
 
   async findSimilarMedications(
@@ -304,7 +331,10 @@ export class MedicationService {
       medication.form,
     );
 
-    if (duplicates.length > 0 && !duplicates.some(d => d.id === medication.id)) {
+    if (
+      duplicates.length > 0 &&
+      !duplicates.some((d) => d.id === medication.id)
+    ) {
       warnings.push('Similar medication already exists');
     }
 

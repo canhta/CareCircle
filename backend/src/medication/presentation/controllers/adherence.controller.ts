@@ -15,7 +15,12 @@ import {
 import { FirebaseAuthGuard } from '../../../identity-access/presentation/guards/firebase-auth.guard';
 import { AdherenceService } from '../../application/services/adherence.service';
 import { DoseStatus } from '@prisma/client';
-import { CreateAdherenceRecordDto, UpdateAdherenceRecordDto, AdherenceQueryDto, MarkDoseDto } from '../dto/adherence.dto';
+import {
+  CreateAdherenceRecordDto,
+  UpdateAdherenceRecordDto,
+  AdherenceQueryDto,
+  MarkDoseDto,
+} from '../dto/adherence.dto';
 
 @Controller('adherence')
 @UseGuards(FirebaseAuthGuard)
@@ -32,7 +37,9 @@ export class AdherenceController {
         ...createAdherenceRecordDto,
         userId: req.user.uid,
         scheduledTime: new Date(createAdherenceRecordDto.scheduledTime),
-        takenAt: createAdherenceRecordDto.takenAt ? new Date(createAdherenceRecordDto.takenAt) : undefined,
+        takenAt: createAdherenceRecordDto.takenAt
+          ? new Date(createAdherenceRecordDto.takenAt)
+          : undefined,
       });
 
       return {
@@ -117,7 +124,10 @@ export class AdherenceController {
     @Request() req: any,
   ) {
     try {
-      const records = await this.adherenceService.getAdherenceByStatus(req.user.uid, status);
+      const records = await this.adherenceService.getAdherenceByStatus(
+        req.user.uid,
+        status,
+      );
 
       return {
         success: true,
@@ -128,7 +138,8 @@ export class AdherenceController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to fetch adherence records by status',
+          message:
+            error.message || 'Failed to fetch adherence records by status',
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -225,7 +236,9 @@ export class AdherenceController {
   @Get('scheduled')
   async getScheduledDoses(@Request() req: any) {
     try {
-      const records = await this.adherenceService.getScheduledDoses(req.user.uid);
+      const records = await this.adherenceService.getScheduledDoses(
+        req.user.uid,
+      );
 
       return {
         success: true,
@@ -326,7 +339,7 @@ export class AdherenceController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to fetch today\'s doses',
+          message: error.message || "Failed to fetch today's doses",
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -425,7 +438,10 @@ export class AdherenceController {
     @Request() req: any,
   ) {
     try {
-      const streak = await this.adherenceService.getCurrentAdherenceStreak(req.user.uid, medicationId);
+      const streak = await this.adherenceService.getCurrentAdherenceStreak(
+        req.user.uid,
+        medicationId,
+      );
 
       return {
         success: true,
@@ -448,7 +464,10 @@ export class AdherenceController {
     @Request() req: any,
   ) {
     try {
-      const streak = await this.adherenceService.getLongestAdherenceStreak(req.user.uid, medicationId);
+      const streak = await this.adherenceService.getLongestAdherenceStreak(
+        req.user.uid,
+        medicationId,
+      );
 
       return {
         success: true,
@@ -468,7 +487,9 @@ export class AdherenceController {
   @Get('ranking')
   async getMedicationAdherenceRanking(@Request() req: any) {
     try {
-      const ranking = await this.adherenceService.getMedicationAdherenceRanking(req.user.uid);
+      const ranking = await this.adherenceService.getMedicationAdherenceRanking(
+        req.user.uid,
+      );
 
       return {
         success: true,
@@ -478,7 +499,8 @@ export class AdherenceController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to fetch medication adherence ranking',
+          message:
+            error.message || 'Failed to fetch medication adherence ranking',
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -491,10 +513,11 @@ export class AdherenceController {
     @Request() req: any,
   ) {
     try {
-      const medications = await this.adherenceService.getPoorAdherenceMedications(
-        req.user.uid,
-        parseFloat(threshold.toString()),
-      );
+      const medications =
+        await this.adherenceService.getPoorAdherenceMedications(
+          req.user.uid,
+          parseFloat(threshold.toString()),
+        );
 
       return {
         success: true,
@@ -505,7 +528,8 @@ export class AdherenceController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to fetch poor adherence medications',
+          message:
+            error.message || 'Failed to fetch poor adherence medications',
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -544,7 +568,8 @@ export class AdherenceController {
   @Get('medication/:medicationId')
   async getMedicationAdherence(@Param('medicationId') medicationId: string) {
     try {
-      const records = await this.adherenceService.getMedicationAdherence(medicationId);
+      const records =
+        await this.adherenceService.getMedicationAdherence(medicationId);
 
       return {
         success: true,
@@ -565,7 +590,8 @@ export class AdherenceController {
   @Get('schedule/:scheduleId')
   async getScheduleAdherence(@Param('scheduleId') scheduleId: string) {
     try {
-      const records = await this.adherenceService.getScheduleAdherence(scheduleId);
+      const records =
+        await this.adherenceService.getScheduleAdherence(scheduleId);
 
       return {
         success: true,
@@ -625,7 +651,9 @@ export class AdherenceController {
     try {
       const record = await this.adherenceService.updateAdherenceRecord(id, {
         ...updateAdherenceRecordDto,
-        takenAt: updateAdherenceRecordDto.takenAt ? new Date(updateAdherenceRecordDto.takenAt) : undefined,
+        takenAt: updateAdherenceRecordDto.takenAt
+          ? new Date(updateAdherenceRecordDto.takenAt)
+          : undefined,
       });
 
       return {
@@ -678,7 +706,11 @@ export class AdherenceController {
     @Body() body: { reason: string; notes?: string },
   ) {
     try {
-      const record = await this.adherenceService.markDoseAsSkipped(id, body.reason, body.notes);
+      const record = await this.adherenceService.markDoseAsSkipped(
+        id,
+        body.reason,
+        body.notes,
+      );
 
       return {
         success: true,
@@ -702,7 +734,10 @@ export class AdherenceController {
     @Body() body: { notes?: string },
   ) {
     try {
-      const record = await this.adherenceService.markDoseAsMissed(id, body.notes);
+      const record = await this.adherenceService.markDoseAsMissed(
+        id,
+        body.notes,
+      );
 
       return {
         success: true,
@@ -751,13 +786,17 @@ export class AdherenceController {
   @Post('process-overdue')
   async processOverdueDoses(@Request() req: any) {
     try {
-      const result = await this.adherenceService.processOverdueDoses(req.user.uid);
+      const result = await this.adherenceService.processOverdueDoses(
+        req.user.uid,
+      );
 
       return {
         success: true,
         data: {
           processedCount: result.processedCount,
-          markedAsMissed: result.markedAsMissed.map((record) => record.toJSON()),
+          markedAsMissed: result.markedAsMissed.map((record) =>
+            record.toJSON(),
+          ),
         },
         message: `${result.processedCount} overdue doses processed successfully`,
       };

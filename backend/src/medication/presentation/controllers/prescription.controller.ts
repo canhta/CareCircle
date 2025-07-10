@@ -14,7 +14,14 @@ import {
 } from '@nestjs/common';
 import { FirebaseAuthGuard } from '../../../identity-access/presentation/guards/firebase-auth.guard';
 import { PrescriptionService } from '../../application/services/prescription.service';
-import { CreatePrescriptionDto, UpdatePrescriptionDto, PrescriptionQueryDto, AddMedicationDto, UpdateMedicationDto, SetOCRDataDto } from '../dto/prescription.dto';
+import {
+  CreatePrescriptionDto,
+  UpdatePrescriptionDto,
+  PrescriptionQueryDto,
+  AddMedicationDto,
+  UpdateMedicationDto,
+  SetOCRDataDto,
+} from '../dto/prescription.dto';
 
 @Controller('prescriptions')
 @UseGuards(FirebaseAuthGuard)
@@ -31,7 +38,9 @@ export class PrescriptionController {
         ...createPrescriptionDto,
         userId: req.user.uid,
         prescribedDate: new Date(createPrescriptionDto.prescribedDate),
-        verifiedAt: createPrescriptionDto.verifiedAt ? new Date(createPrescriptionDto.verifiedAt) : undefined,
+        verifiedAt: createPrescriptionDto.verifiedAt
+          ? new Date(createPrescriptionDto.verifiedAt)
+          : undefined,
       });
 
       return {
@@ -116,10 +125,11 @@ export class PrescriptionController {
     @Request() req: any,
   ) {
     try {
-      const prescriptions = await this.prescriptionService.getRecentPrescriptions(
-        req.user.uid,
-        limit ? parseInt(limit.toString()) : undefined,
-      );
+      const prescriptions =
+        await this.prescriptionService.getRecentPrescriptions(
+          req.user.uid,
+          limit ? parseInt(limit.toString()) : undefined,
+        );
 
       return {
         success: true,
@@ -140,7 +150,8 @@ export class PrescriptionController {
   @Get('unverified')
   async getUnverifiedPrescriptions(@Request() req: any) {
     try {
-      const prescriptions = await this.prescriptionService.getUnverifiedPrescriptions(req.user.uid);
+      const prescriptions =
+        await this.prescriptionService.getUnverifiedPrescriptions(req.user.uid);
 
       return {
         success: true,
@@ -161,7 +172,8 @@ export class PrescriptionController {
   @Get('verified')
   async getVerifiedPrescriptions(@Request() req: any) {
     try {
-      const prescriptions = await this.prescriptionService.getVerifiedPrescriptions(req.user.uid);
+      const prescriptions =
+        await this.prescriptionService.getVerifiedPrescriptions(req.user.uid);
 
       return {
         success: true,
@@ -182,7 +194,10 @@ export class PrescriptionController {
   @Get('pending-verification')
   async getPendingVerificationPrescriptions(@Request() req: any) {
     try {
-      const prescriptions = await this.prescriptionService.getPendingVerificationPrescriptions(req.user.uid);
+      const prescriptions =
+        await this.prescriptionService.getPendingVerificationPrescriptions(
+          req.user.uid,
+        );
 
       return {
         success: true,
@@ -193,7 +208,9 @@ export class PrescriptionController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to fetch pending verification prescriptions',
+          message:
+            error.message ||
+            'Failed to fetch pending verification prescriptions',
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -203,7 +220,8 @@ export class PrescriptionController {
   @Get('with-ocr')
   async getPrescriptionsWithOCR(@Request() req: any) {
     try {
-      const prescriptions = await this.prescriptionService.getPrescriptionsWithOCR(req.user.uid);
+      const prescriptions =
+        await this.prescriptionService.getPrescriptionsWithOCR(req.user.uid);
 
       return {
         success: true,
@@ -224,7 +242,8 @@ export class PrescriptionController {
   @Get('without-ocr')
   async getPrescriptionsWithoutOCR(@Request() req: any) {
     try {
-      const prescriptions = await this.prescriptionService.getPrescriptionsWithoutOCR(req.user.uid);
+      const prescriptions =
+        await this.prescriptionService.getPrescriptionsWithoutOCR(req.user.uid);
 
       return {
         success: true,
@@ -245,7 +264,9 @@ export class PrescriptionController {
   @Get('prescribers')
   async getUniquePrescribers(@Request() req: any) {
     try {
-      const prescribers = await this.prescriptionService.getUniquePrescribers(req.user.uid);
+      const prescribers = await this.prescriptionService.getUniquePrescribers(
+        req.user.uid,
+      );
 
       return {
         success: true,
@@ -266,7 +287,9 @@ export class PrescriptionController {
   @Get('pharmacies')
   async getUniquePharmacies(@Request() req: any) {
     try {
-      const pharmacies = await this.prescriptionService.getUniquePharmacies(req.user.uid);
+      const pharmacies = await this.prescriptionService.getUniquePharmacies(
+        req.user.uid,
+      );
 
       return {
         success: true,
@@ -287,7 +310,8 @@ export class PrescriptionController {
   @Get('statistics')
   async getPrescriptionStatistics(@Request() req: any) {
     try {
-      const statistics = await this.prescriptionService.getPrescriptionStatistics(req.user.uid);
+      const statistics =
+        await this.prescriptionService.getPrescriptionStatistics(req.user.uid);
 
       return {
         success: true,
@@ -311,11 +335,12 @@ export class PrescriptionController {
     @Request() req: any,
   ) {
     try {
-      const prescriptions = await this.prescriptionService.searchPrescriptionsByTerm(
-        req.user.uid,
-        searchTerm,
-        limit ? parseInt(limit.toString()) : undefined,
-      );
+      const prescriptions =
+        await this.prescriptionService.searchPrescriptionsByTerm(
+          req.user.uid,
+          searchTerm,
+          limit ? parseInt(limit.toString()) : undefined,
+        );
 
       return {
         success: true,
@@ -373,11 +398,18 @@ export class PrescriptionController {
     @Body() updatePrescriptionDto: UpdatePrescriptionDto,
   ) {
     try {
-      const prescription = await this.prescriptionService.updatePrescription(id, {
-        ...updatePrescriptionDto,
-        prescribedDate: updatePrescriptionDto.prescribedDate ? new Date(updatePrescriptionDto.prescribedDate) : undefined,
-        verifiedAt: updatePrescriptionDto.verifiedAt ? new Date(updatePrescriptionDto.verifiedAt) : undefined,
-      });
+      const prescription = await this.prescriptionService.updatePrescription(
+        id,
+        {
+          ...updatePrescriptionDto,
+          prescribedDate: updatePrescriptionDto.prescribedDate
+            ? new Date(updatePrescriptionDto.prescribedDate)
+            : undefined,
+          verifiedAt: updatePrescriptionDto.verifiedAt
+            ? new Date(updatePrescriptionDto.verifiedAt)
+            : undefined,
+        },
+      );
 
       return {
         success: true,
@@ -401,7 +433,10 @@ export class PrescriptionController {
     @Body() body: { verifiedBy: string },
   ) {
     try {
-      const prescription = await this.prescriptionService.verifyPrescription(id, body.verifiedBy);
+      const prescription = await this.prescriptionService.verifyPrescription(
+        id,
+        body.verifiedBy,
+      );
 
       return {
         success: true,
@@ -422,7 +457,8 @@ export class PrescriptionController {
   @Put(':id/unverify')
   async unverifyPrescription(@Param('id') id: string) {
     try {
-      const prescription = await this.prescriptionService.unverifyPrescription(id);
+      const prescription =
+        await this.prescriptionService.unverifyPrescription(id);
 
       return {
         success: true,
@@ -446,7 +482,11 @@ export class PrescriptionController {
     @Body() addMedicationDto: AddMedicationDto,
   ) {
     try {
-      const prescription = await this.prescriptionService.addMedicationToPrescription(id, addMedicationDto);
+      const prescription =
+        await this.prescriptionService.addMedicationToPrescription(
+          id,
+          addMedicationDto,
+        );
 
       return {
         success: true,
@@ -471,11 +511,12 @@ export class PrescriptionController {
     @Body() updateMedicationDto: UpdateMedicationDto,
   ) {
     try {
-      const prescription = await this.prescriptionService.updateMedicationInPrescription(
-        id,
-        medicationName,
-        updateMedicationDto,
-      );
+      const prescription =
+        await this.prescriptionService.updateMedicationInPrescription(
+          id,
+          medicationName,
+          updateMedicationDto,
+        );
 
       return {
         success: true,
@@ -486,7 +527,8 @@ export class PrescriptionController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to update medication in prescription',
+          message:
+            error.message || 'Failed to update medication in prescription',
         },
         HttpStatus.BAD_REQUEST,
       );
@@ -499,7 +541,11 @@ export class PrescriptionController {
     @Param('medicationName') medicationName: string,
   ) {
     try {
-      const prescription = await this.prescriptionService.removeMedicationFromPrescription(id, medicationName);
+      const prescription =
+        await this.prescriptionService.removeMedicationFromPrescription(
+          id,
+          medicationName,
+        );
 
       return {
         success: true,
@@ -510,7 +556,8 @@ export class PrescriptionController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to remove medication from prescription',
+          message:
+            error.message || 'Failed to remove medication from prescription',
         },
         HttpStatus.BAD_REQUEST,
       );
@@ -523,7 +570,10 @@ export class PrescriptionController {
     @Body() setOCRDataDto: SetOCRDataDto,
   ) {
     try {
-      const prescription = await this.prescriptionService.setOCRData(id, setOCRDataDto);
+      const prescription = await this.prescriptionService.setOCRData(
+        id,
+        setOCRDataDto,
+      );
 
       return {
         success: true,
@@ -547,7 +597,10 @@ export class PrescriptionController {
     @Body() body: { imageUrl: string },
   ) {
     try {
-      const prescription = await this.prescriptionService.setImageUrl(id, body.imageUrl);
+      const prescription = await this.prescriptionService.setImageUrl(
+        id,
+        body.imageUrl,
+      );
 
       return {
         success: true,

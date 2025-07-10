@@ -1,5 +1,9 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { RxNormService, DrugInteraction, MedicationInfo } from './rxnorm.service';
+import {
+  RxNormService,
+  DrugInteraction,
+  MedicationInfo,
+} from './rxnorm.service';
 import { MedicationRepository } from '../../domain/repositories/medication.repository';
 
 export interface InteractionAlert {
@@ -33,17 +37,22 @@ export class DrugInteractionService {
     private readonly medicationRepository: MedicationRepository,
   ) {}
 
-  async checkUserMedicationInteractions(userId: string): Promise<InteractionAnalysis> {
+  async checkUserMedicationInteractions(
+    userId: string,
+  ): Promise<InteractionAnalysis> {
     try {
       // Get all active medications for the user
-      const activeMedications = await this.medicationRepository.findActiveByUserId(userId);
+      const activeMedications =
+        await this.medicationRepository.findActiveByUserId(userId);
 
       if (activeMedications.length < 2) {
-        return this.createEmptyAnalysis('Need at least 2 active medications to check interactions');
+        return this.createEmptyAnalysis(
+          'Need at least 2 active medications to check interactions',
+        );
       }
 
       // Prepare medications for interaction checking
-      const medicationsForCheck = activeMedications.map(med => ({
+      const medicationsForCheck = activeMedications.map((med) => ({
         id: med.id,
         name: med.name,
         rxcui: med.rxNormCode,
@@ -51,7 +60,9 @@ export class DrugInteractionService {
 
       return this.analyzeMedicationInteractions(medicationsForCheck);
     } catch (error) {
-      throw new Error(`Failed to check user medication interactions: ${error.message}`);
+      throw new Error(
+        `Failed to check user medication interactions: ${error.message}`,
+      );
     }
   }
 
@@ -59,10 +70,12 @@ export class DrugInteractionService {
     medicationNames: string[],
   ): Promise<InteractionAnalysis> {
     if (medicationNames.length < 2) {
-      return this.createEmptyAnalysis('Need at least 2 medications to check interactions');
+      return this.createEmptyAnalysis(
+        'Need at least 2 medications to check interactions',
+      );
     }
 
-    const medicationsForCheck = medicationNames.map(name => ({
+    const medicationsForCheck = medicationNames.map((name) => ({
       id: `temp_${Date.now()}_${Math.random()}`,
       name,
       rxcui: undefined,
@@ -77,11 +90,12 @@ export class DrugInteractionService {
   ): Promise<InteractionAnalysis> {
     try {
       // Get all active medications for the user
-      const activeMedications = await this.medicationRepository.findActiveByUserId(userId);
+      const activeMedications =
+        await this.medicationRepository.findActiveByUserId(userId);
 
       // Add the new medication to the list
       const allMedications = [
-        ...activeMedications.map(med => ({
+        ...activeMedications.map((med) => ({
           id: med.id,
           name: med.name,
           rxcui: med.rxNormCode,
@@ -95,7 +109,9 @@ export class DrugInteractionService {
 
       return this.analyzeMedicationInteractions(allMedications);
     } catch (error) {
-      throw new Error(`Failed to check new medication interactions: ${error.message}`);
+      throw new Error(
+        `Failed to check new medication interactions: ${error.message}`,
+      );
     }
   }
 
@@ -104,10 +120,13 @@ export class DrugInteractionService {
   ): Promise<InteractionAnalysis> {
     try {
       // Get RxNorm analysis
-      const rxNormAnalysis = await this.rxNormService.analyzeDrugInteractions(medications);
+      const rxNormAnalysis =
+        await this.rxNormService.analyzeDrugInteractions(medications);
 
       // Convert to our alert format
-      const alerts = this.convertToInteractionAlerts(rxNormAnalysis.interactions);
+      const alerts = this.convertToInteractionAlerts(
+        rxNormAnalysis.interactions,
+      );
 
       // Generate comprehensive recommendations
       const recommendations = this.generateRecommendations(
@@ -124,11 +143,15 @@ export class DrugInteractionService {
         lastChecked: new Date(),
       };
     } catch (error) {
-      throw new Error(`Failed to analyze medication interactions: ${error.message}`);
+      throw new Error(
+        `Failed to analyze medication interactions: ${error.message}`,
+      );
     }
   }
 
-  private convertToInteractionAlerts(interactions: DrugInteraction[]): InteractionAlert[] {
+  private convertToInteractionAlerts(
+    interactions: DrugInteraction[],
+  ): InteractionAlert[] {
     const alerts: InteractionAlert[] = [];
 
     for (const interaction of interactions) {
@@ -136,7 +159,7 @@ export class DrugInteractionService {
         for (const type of typeGroup.interactionType) {
           for (const pair of type.interactionPair) {
             const severity = this.normalizeSeverity(pair.severity);
-            
+
             alerts.push({
               severity,
               medicationA: interaction.minConceptItem.name,
@@ -153,21 +176,34 @@ export class DrugInteractionService {
     return alerts;
   }
 
-  private normalizeSeverity(severity: string): 'high' | 'moderate' | 'low' | 'unknown' {
+  private normalizeSeverity(
+    severity: string,
+  ): 'high' | 'moderate' | 'low' | 'unknown' {
     const normalizedSeverity = severity?.toLowerCase() || '';
-    
-    if (normalizedSeverity.includes('high') || normalizedSeverity.includes('major')) {
+
+    if (
+      normalizedSeverity.includes('high') ||
+      normalizedSeverity.includes('major')
+    ) {
       return 'high';
-    } else if (normalizedSeverity.includes('moderate') || normalizedSeverity.includes('medium')) {
+    } else if (
+      normalizedSeverity.includes('moderate') ||
+      normalizedSeverity.includes('medium')
+    ) {
       return 'moderate';
-    } else if (normalizedSeverity.includes('low') || normalizedSeverity.includes('minor')) {
+    } else if (
+      normalizedSeverity.includes('low') ||
+      normalizedSeverity.includes('minor')
+    ) {
       return 'low';
     }
-    
+
     return 'unknown';
   }
 
-  private generateRecommendationForSeverity(severity: 'high' | 'moderate' | 'low' | 'unknown'): string {
+  private generateRecommendationForSeverity(
+    severity: 'high' | 'moderate' | 'low' | 'unknown',
+  ): string {
     switch (severity) {
       case 'high':
         return 'Consult healthcare provider immediately before taking these medications together';
@@ -182,7 +218,12 @@ export class DrugInteractionService {
 
   private generateRecommendations(
     alerts: InteractionAlert[],
-    severityBreakdown: { high: number; moderate: number; low: number; unknown: number },
+    severityBreakdown: {
+      high: number;
+      moderate: number;
+      low: number;
+      unknown: number;
+    },
   ): string[] {
     const recommendations: string[] = [];
 
@@ -220,8 +261,12 @@ export class DrugInteractionService {
     }
 
     if (recommendations.length === 0) {
-      recommendations.push('✅ No significant interactions detected with current analysis.');
-      recommendations.push('Continue regular medication reviews with your healthcare provider.');
+      recommendations.push(
+        '✅ No significant interactions detected with current analysis.',
+      );
+      recommendations.push(
+        'Continue regular medication reviews with your healthcare provider.',
+      );
     }
 
     return recommendations;
@@ -253,11 +298,14 @@ export class DrugInteractionService {
   }> {
     try {
       // Validate and get RxCUI
-      const validation = await this.rxNormService.validateMedicationName(medicationName);
+      const validation =
+        await this.rxNormService.validateMedicationName(medicationName);
 
       if (validation.isValid && validation.rxcui) {
         // Get detailed medication information
-        const medicationInfo = await this.rxNormService.getMedicationInfo(validation.rxcui);
+        const medicationInfo = await this.rxNormService.getMedicationInfo(
+          validation.rxcui,
+        );
 
         if (medicationInfo) {
           return {
@@ -316,14 +364,17 @@ export class DrugInteractionService {
         }
 
         try {
-          const enrichedData = await this.enrichMedicationWithRxNormData(medication.name);
+          const enrichedData = await this.enrichMedicationWithRxNormData(
+            medication.name,
+          );
 
           if (enrichedData.isValid && enrichedData.rxcui) {
             // Update medication with RxNorm data
             await this.medicationRepository.update(medication.id, {
               rxNormCode: enrichedData.rxcui,
               genericName: enrichedData.genericName || medication.genericName,
-              classification: enrichedData.classification || medication.classification,
+              classification:
+                enrichedData.classification || medication.classification,
             });
 
             results.push({

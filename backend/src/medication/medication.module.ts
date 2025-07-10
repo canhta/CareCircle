@@ -61,7 +61,7 @@ import { DrugInteractionController } from './presentation/controllers/drug-inter
       provide: 'AdherenceRecordRepository',
       useClass: PrismaAdherenceRecordRepository,
     },
-    
+
     // Infrastructure Services
     OCRService,
     RxNormService,

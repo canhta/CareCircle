@@ -1,5 +1,9 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { Prescription, OCRData, PrescriptionMedication } from '../../domain/entities/prescription.entity';
+import {
+  Prescription,
+  OCRData,
+  PrescriptionMedication,
+} from '../../domain/entities/prescription.entity';
 import {
   PrescriptionRepository,
   PrescriptionQuery,
@@ -249,7 +253,9 @@ export class PrescriptionService {
     return this.prescriptionRepository.findWithImages(userId);
   }
 
-  async getPrescriptionsWithoutImages(userId?: string): Promise<Prescription[]> {
+  async getPrescriptionsWithoutImages(
+    userId?: string,
+  ): Promise<Prescription[]> {
     return this.prescriptionRepository.findWithoutImages(userId);
   }
 

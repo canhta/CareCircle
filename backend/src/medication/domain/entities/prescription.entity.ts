@@ -81,28 +81,32 @@ export class Prescription {
   validate(): boolean {
     // Basic validation rules for prescription data
     if (!this.userId || this.userId.trim().length === 0) return false;
-    if (!this.prescribedBy || this.prescribedBy.trim().length === 0) return false;
-    
+    if (!this.prescribedBy || this.prescribedBy.trim().length === 0)
+      return false;
+
     // Validate prescribed date is not too far in the future
     const now = new Date();
     const maxFutureDate = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000); // 7 days
     if (this.prescribedDate > maxFutureDate) return false;
-    
+
     // Validate prescribed date is not too far in the past (10 years)
-    const minPastDate = new Date(now.getTime() - 10 * 365 * 24 * 60 * 60 * 1000);
+    const minPastDate = new Date(
+      now.getTime() - 10 * 365 * 24 * 60 * 60 * 1000,
+    );
     if (this.prescribedDate < minPastDate) return false;
-    
+
     // Validate medications array
     if (this.medications.length === 0) return false;
-    
+
     // Validate each medication entry
     for (const med of this.medications) {
       if (!med.name || med.name.trim().length === 0) return false;
       if (!med.strength || med.strength.trim().length === 0) return false;
-      if (!med.instructions || med.instructions.trim().length === 0) return false;
+      if (!med.instructions || med.instructions.trim().length === 0)
+        return false;
       if (med.quantity <= 0) return false;
     }
-    
+
     return true;
   }
 
@@ -129,20 +133,27 @@ export class Prescription {
     if (medication.quantity <= 0) {
       throw new Error('Medication quantity must be positive');
     }
-    
+
     this.medications.push(medication);
   }
 
   removeMedication(medicationName: string): void {
-    this.medications = this.medications.filter(med => med.name !== medicationName);
+    this.medications = this.medications.filter(
+      (med) => med.name !== medicationName,
+    );
   }
 
-  updateMedication(medicationName: string, updates: Partial<PrescriptionMedication>): void {
-    const medicationIndex = this.medications.findIndex(med => med.name === medicationName);
+  updateMedication(
+    medicationName: string,
+    updates: Partial<PrescriptionMedication>,
+  ): void {
+    const medicationIndex = this.medications.findIndex(
+      (med) => med.name === medicationName,
+    );
     if (medicationIndex === -1) {
       throw new Error('Medication not found in prescription');
     }
-    
+
     this.medications[medicationIndex] = {
       ...this.medications[medicationIndex],
       ...updates,
@@ -151,27 +162,28 @@ export class Prescription {
 
   setOCRData(ocrData: OCRData): void {
     this.ocrData = ocrData;
-    
+
     // Auto-populate fields from OCR data if they're not already set
     if (ocrData.fields.prescribedBy && !this.prescribedBy) {
       this.prescribedBy = ocrData.fields.prescribedBy;
     }
-    
+
     if (ocrData.fields.prescribedDate && !this.prescribedDate) {
       const parsedDate = new Date(ocrData.fields.prescribedDate);
       if (!isNaN(parsedDate.getTime())) {
         this.prescribedDate = parsedDate;
       }
     }
-    
+
     if (ocrData.fields.pharmacy && !this.pharmacy) {
       this.pharmacy = ocrData.fields.pharmacy;
     }
-    
+
     // Auto-populate medications from OCR if none exist
     if (this.medications.length === 0 && ocrData.fields.medications) {
       for (const ocrMed of ocrData.fields.medications) {
-        if (ocrMed.name && ocrMed.confidence > 0.7) { // Only add high-confidence extractions
+        if (ocrMed.name && ocrMed.confidence > 0.7) {
+          // Only add high-confidence extractions
           this.addMedication({
             name: ocrMed.name,
             strength: ocrMed.strength || 'Unknown',
@@ -210,9 +222,11 @@ export class Prescription {
   }
 
   findMedication(medicationName: string): PrescriptionMedication | null {
-    return this.medications.find(med => 
-      med.name.toLowerCase().includes(medicationName.toLowerCase())
-    ) || null;
+    return (
+      this.medications.find((med) =>
+        med.name.toLowerCase().includes(medicationName.toLowerCase()),
+      ) || null
+    );
   }
 
   isExpired(expirationMonths: number = 12): boolean {
@@ -228,7 +242,9 @@ export class Prescription {
   }
 
   requiresVerification(): boolean {
-    return !this.isVerified && (this.hasOCRData() || this.getMedicationCount() > 0);
+    return (
+      !this.isVerified && (this.hasOCRData() || this.getMedicationCount() > 0)
+    );
   }
 
   toJSON(): Record<string, any> {

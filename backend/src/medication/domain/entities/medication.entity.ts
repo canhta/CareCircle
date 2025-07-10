@@ -64,18 +64,18 @@ export class Medication {
     if (!this.name || this.name.trim().length === 0) return false;
     if (!this.strength || this.strength.trim().length === 0) return false;
     if (!this.userId || this.userId.trim().length === 0) return false;
-    
+
     // Validate start date is not in the future beyond reasonable limits
     const now = new Date();
     const maxFutureDate = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000); // 30 days
     if (this.startDate > maxFutureDate) return false;
-    
+
     // Validate end date is after start date if provided
     if (this.endDate && this.endDate <= this.startDate) return false;
-    
+
     // Validate medication form
     if (!Object.values(MedicationForm).includes(this.form)) return false;
-    
+
     return true;
   }
 
@@ -83,7 +83,9 @@ export class Medication {
     this.isActive = false;
     this.endDate = new Date();
     if (reason) {
-      this.notes = this.notes ? `${this.notes}\nDeactivated: ${reason}` : `Deactivated: ${reason}`;
+      this.notes = this.notes
+        ? `${this.notes}\nDeactivated: ${reason}`
+        : `Deactivated: ${reason}`;
     }
   }
 
@@ -105,11 +107,11 @@ export class Medication {
 
   isCurrentlyActive(): boolean {
     if (!this.isActive) return false;
-    
+
     const now = new Date();
     if (this.startDate > now) return false;
     if (this.endDate && this.endDate < now) return false;
-    
+
     return true;
   }
 
@@ -144,7 +146,11 @@ export class Medication {
   }
 
   getFullDescription(): string {
-    const parts = [this.getDisplayName(), this.strength, this.form.toLowerCase()];
+    const parts = [
+      this.getDisplayName(),
+      this.strength,
+      this.form.toLowerCase(),
+    ];
     if (this.manufacturer) {
       parts.push(`by ${this.manufacturer}`);
     }

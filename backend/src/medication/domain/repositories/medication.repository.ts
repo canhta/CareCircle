@@ -27,7 +27,10 @@ export abstract class MedicationRepository {
   abstract create(medication: Medication): Promise<Medication>;
   abstract findById(id: string): Promise<Medication | null>;
   abstract findMany(query: MedicationQuery): Promise<Medication[]>;
-  abstract update(id: string, updates: Partial<Medication>): Promise<Medication>;
+  abstract update(
+    id: string,
+    updates: Partial<Medication>,
+  ): Promise<Medication>;
   abstract delete(id: string): Promise<void>;
 
   // Bulk operations
@@ -35,7 +38,10 @@ export abstract class MedicationRepository {
   abstract deleteMany(ids: string[]): Promise<void>;
 
   // User-specific queries
-  abstract findByUserId(userId: string, includeInactive?: boolean): Promise<Medication[]>;
+  abstract findByUserId(
+    userId: string,
+    includeInactive?: boolean,
+  ): Promise<Medication[]>;
   abstract findActiveByUserId(userId: string): Promise<Medication[]>;
   abstract findInactiveByUserId(userId: string): Promise<Medication[]>;
 
@@ -44,9 +50,19 @@ export abstract class MedicationRepository {
   abstract findWithoutPrescription(userId: string): Promise<Medication[]>;
 
   // Search and filtering
-  abstract searchByName(userId: string, searchTerm: string, limit?: number): Promise<Medication[]>;
-  abstract findByForm(userId: string, form: MedicationForm): Promise<Medication[]>;
-  abstract findByClassification(userId: string, classification: string): Promise<Medication[]>;
+  abstract searchByName(
+    userId: string,
+    searchTerm: string,
+    limit?: number,
+  ): Promise<Medication[]>;
+  abstract findByForm(
+    userId: string,
+    form: MedicationForm,
+  ): Promise<Medication[]>;
+  abstract findByClassification(
+    userId: string,
+    classification: string,
+  ): Promise<Medication[]>;
 
   // Date-based queries
   abstract findStartingInDateRange(
@@ -60,7 +76,10 @@ export abstract class MedicationRepository {
     endDate: Date,
   ): Promise<Medication[]>;
   abstract findExpiredMedications(userId: string): Promise<Medication[]>;
-  abstract findExpiringMedications(userId: string, withinDays: number): Promise<Medication[]>;
+  abstract findExpiringMedications(
+    userId: string,
+    withinDays: number,
+  ): Promise<Medication[]>;
 
   // Drug identification queries
   abstract findByRxNormCode(rxNormCode: string): Promise<Medication[]>;
@@ -73,16 +92,35 @@ export abstract class MedicationRepository {
   ): Promise<Medication[]>;
 
   // Statistics and analytics
-  abstract getMedicationStatistics(userId: string): Promise<MedicationStatistics>;
-  abstract getMedicationCount(userId: string, isActive?: boolean): Promise<number>;
-  abstract getMedicationsByFormCount(userId: string): Promise<Record<MedicationForm, number>>;
+  abstract getMedicationStatistics(
+    userId: string,
+  ): Promise<MedicationStatistics>;
+  abstract getMedicationCount(
+    userId: string,
+    isActive?: boolean,
+  ): Promise<number>;
+  abstract getMedicationsByFormCount(
+    userId: string,
+  ): Promise<Record<MedicationForm, number>>;
 
   // Validation and compliance
   abstract findMedicationsNeedingReview(userId: string): Promise<Medication[]>;
   abstract findDuplicateMedications(userId: string): Promise<Medication[][]>;
 
   // Recent activity
-  abstract findRecentlyAdded(userId: string, days: number, limit?: number): Promise<Medication[]>;
-  abstract findRecentlyModified(userId: string, days: number, limit?: number): Promise<Medication[]>;
-  abstract findRecentlyDeactivated(userId: string, days: number, limit?: number): Promise<Medication[]>;
+  abstract findRecentlyAdded(
+    userId: string,
+    days: number,
+    limit?: number,
+  ): Promise<Medication[]>;
+  abstract findRecentlyModified(
+    userId: string,
+    days: number,
+    limit?: number,
+  ): Promise<Medication[]>;
+  abstract findRecentlyDeactivated(
+    userId: string,
+    days: number,
+    limit?: number,
+  ): Promise<Medication[]>;
 }

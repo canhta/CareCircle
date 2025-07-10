@@ -15,7 +15,11 @@ import {
 import { FirebaseAuthGuard } from '../../../identity-access/presentation/guards/firebase-auth.guard';
 import { MedicationService } from '../../application/services/medication.service';
 import { MedicationForm } from '@prisma/client';
-import { CreateMedicationDto, UpdateMedicationDto, MedicationQueryDto } from '../dto/medication.dto';
+import {
+  CreateMedicationDto,
+  UpdateMedicationDto,
+  MedicationQueryDto,
+} from '../dto/medication.dto';
 
 @Controller('medications')
 @UseGuards(FirebaseAuthGuard)
@@ -108,7 +112,9 @@ export class MedicationController {
   @Get('active')
   async getActiveMedications(@Request() req: any) {
     try {
-      const medications = await this.medicationService.getActiveMedications(req.user.uid);
+      const medications = await this.medicationService.getActiveMedications(
+        req.user.uid,
+      );
 
       return {
         success: true,
@@ -129,7 +135,9 @@ export class MedicationController {
   @Get('inactive')
   async getInactiveMedications(@Request() req: any) {
     try {
-      const medications = await this.medicationService.getInactiveMedications(req.user.uid);
+      const medications = await this.medicationService.getInactiveMedications(
+        req.user.uid,
+      );
 
       return {
         success: true,
@@ -206,7 +214,9 @@ export class MedicationController {
   @Get('expired')
   async getExpiredMedications(@Request() req: any) {
     try {
-      const medications = await this.medicationService.getExpiredMedications(req.user.uid);
+      const medications = await this.medicationService.getExpiredMedications(
+        req.user.uid,
+      );
 
       return {
         success: true,
@@ -254,7 +264,9 @@ export class MedicationController {
   @Get('statistics')
   async getMedicationStatistics(@Request() req: any) {
     try {
-      const statistics = await this.medicationService.getMedicationStatistics(req.user.uid);
+      const statistics = await this.medicationService.getMedicationStatistics(
+        req.user.uid,
+      );
 
       return {
         success: true,
@@ -274,7 +286,9 @@ export class MedicationController {
   @Get('duplicates')
   async getDuplicateMedications(@Request() req: any) {
     try {
-      const duplicates = await this.medicationService.findDuplicateMedications(req.user.uid);
+      const duplicates = await this.medicationService.findDuplicateMedications(
+        req.user.uid,
+      );
 
       return {
         success: true,
@@ -299,11 +313,12 @@ export class MedicationController {
     @Request() req: any,
   ) {
     try {
-      const recentMedications = await this.medicationService.getRecentMedications(
-        req.user.uid,
-        parseInt(days.toString()),
-        limit ? parseInt(limit.toString()) : undefined,
-      );
+      const recentMedications =
+        await this.medicationService.getRecentMedications(
+          req.user.uid,
+          parseInt(days.toString()),
+          limit ? parseInt(limit.toString()) : undefined,
+        );
 
       return {
         success: true,
@@ -360,7 +375,10 @@ export class MedicationController {
     @Body() updateMedicationDto: UpdateMedicationDto,
   ) {
     try {
-      const medication = await this.medicationService.updateMedication(id, updateMedicationDto);
+      const medication = await this.medicationService.updateMedication(
+        id,
+        updateMedicationDto,
+      );
 
       return {
         success: true,
@@ -384,7 +402,10 @@ export class MedicationController {
     @Body() body: { reason?: string },
   ) {
     try {
-      const medication = await this.medicationService.deactivateMedication(id, body.reason);
+      const medication = await this.medicationService.deactivateMedication(
+        id,
+        body.reason,
+      );
 
       return {
         success: true,

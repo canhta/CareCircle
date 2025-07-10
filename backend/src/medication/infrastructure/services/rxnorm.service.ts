@@ -108,7 +108,9 @@ export class RxNormService {
   async getMedicationInfo(rxcui: string): Promise<MedicationInfo | null> {
     try {
       // Get basic concept information
-      const conceptResponse = await this.httpClient.get(`/rxcui/${rxcui}/properties.json`);
+      const conceptResponse = await this.httpClient.get(
+        `/rxcui/${rxcui}/properties.json`,
+      );
       const properties = conceptResponse.data?.properties;
 
       if (!properties) {
@@ -116,11 +118,14 @@ export class RxNormService {
       }
 
       // Get related concepts (brand names, generic names, etc.)
-      const relatedResponse = await this.httpClient.get(`/rxcui/${rxcui}/related.json`, {
-        params: {
-          tty: 'SBD+GPCK+BN+SCD',
+      const relatedResponse = await this.httpClient.get(
+        `/rxcui/${rxcui}/related.json`,
+        {
+          params: {
+            tty: 'SBD+GPCK+BN+SCD',
+          },
         },
-      });
+      );
 
       const relatedGroup = relatedResponse.data?.relatedGroup;
       const brandNames: string[] = [];
@@ -130,7 +135,9 @@ export class RxNormService {
         for (const group of relatedGroup.conceptGroup) {
           if (group.tty === 'BN' && group.conceptProperties) {
             // Brand names
-            brandNames.push(...group.conceptProperties.map((prop: any) => prop.name));
+            brandNames.push(
+              ...group.conceptProperties.map((prop: any) => prop.name),
+            );
           } else if (group.tty === 'IN' && group.conceptProperties) {
             // Generic/ingredient names
             genericName = group.conceptProperties[0]?.name;
@@ -139,14 +146,18 @@ export class RxNormService {
       }
 
       // Get ingredients
-      const ingredientsResponse = await this.httpClient.get(`/rxcui/${rxcui}/allrelated.json`);
+      const ingredientsResponse = await this.httpClient.get(
+        `/rxcui/${rxcui}/allrelated.json`,
+      );
       const ingredients: string[] = [];
-      
+
       const allRelated = ingredientsResponse.data?.allRelatedGroup;
       if (allRelated && allRelated.conceptGroup) {
         for (const group of allRelated.conceptGroup) {
           if (group.tty === 'IN' && group.conceptProperties) {
-            ingredients.push(...group.conceptProperties.map((prop: any) => prop.name));
+            ingredients.push(
+              ...group.conceptProperties.map((prop: any) => prop.name),
+            );
           }
         }
       }
@@ -199,12 +210,13 @@ export class RxNormService {
   async findRxCuiByName(medicationName: string): Promise<string | null> {
     try {
       const concepts = await this.searchMedication(medicationName);
-      
+
       // Prefer exact matches first
       const exactMatch = concepts.find(
-        concept => concept.name.toLowerCase() === medicationName.toLowerCase()
+        (concept) =>
+          concept.name.toLowerCase() === medicationName.toLowerCase(),
       );
-      
+
       if (exactMatch) {
         return exactMatch.rxcui;
       }
@@ -241,7 +253,10 @@ export class RxNormService {
     }
   }
 
-  async getApproximateMatch(medicationName: string, maxEntries: number = 10): Promise<RxNormConcept[]> {
+  async getApproximateMatch(
+    medicationName: string,
+    maxEntries: number = 10,
+  ): Promise<RxNormConcept[]> {
     try {
       const response = await this.httpClient.get('/approximateTerm.json', {
         params: {
@@ -273,7 +288,7 @@ export class RxNormService {
     try {
       // First try exact search
       const rxcui = await this.findRxCuiByName(medicationName);
-      
+
       if (rxcui) {
         return {
           isValid: true,
@@ -302,7 +317,9 @@ export class RxNormService {
     }
   }
 
-  async analyzeDrugInteractions(medications: Array<{ name: string; rxcui?: string }>): Promise<{
+  async analyzeDrugInteractions(
+    medications: Array<{ name: string; rxcui?: string }>,
+  ): Promise<{
     interactions: DrugInteraction[];
     severityAnalysis: {
       high: number;
@@ -319,22 +336,24 @@ export class RxNormService {
           if (med.rxcui) {
             return { ...med, rxcui: med.rxcui };
           }
-          
+
           const rxcui = await this.findRxCuiByName(med.name);
           return { ...med, rxcui };
-        })
+        }),
       );
 
       // Filter out medications without RxCUIs
       const validRxcuis = medicationsWithRxcui
-        .filter(med => med.rxcui)
-        .map(med => med.rxcui!);
+        .filter((med) => med.rxcui)
+        .map((med) => med.rxcui!);
 
       if (validRxcuis.length < 2) {
         return {
           interactions: [],
           severityAnalysis: { high: 0, moderate: 0, low: 0, unknown: 0 },
-          recommendations: ['Need at least 2 valid medications to check interactions'],
+          recommendations: [
+            'Need at least 2 valid medications to check interactions',
+          ],
         };
       }
 
@@ -350,7 +369,7 @@ export class RxNormService {
           for (const type of typeGroup.interactionType) {
             for (const pair of type.interactionPair) {
               const severity = pair.severity?.toLowerCase();
-              
+
               switch (severity) {
                 case 'high':
                 case 'major':
@@ -375,9 +394,13 @@ export class RxNormService {
       }
 
       if (severityAnalysis.high > 0) {
-        recommendations.unshift('⚠️ HIGH SEVERITY interactions detected - Consult healthcare provider immediately');
+        recommendations.unshift(
+          '⚠️ HIGH SEVERITY interactions detected - Consult healthcare provider immediately',
+        );
       } else if (severityAnalysis.moderate > 0) {
-        recommendations.unshift('⚠️ MODERATE interactions detected - Monitor closely and consult healthcare provider');
+        recommendations.unshift(
+          '⚠️ MODERATE interactions detected - Monitor closely and consult healthcare provider',
+        );
       }
 
       return {

@@ -1,4 +1,15 @@
-import { IsString, IsOptional, IsBoolean, IsDateString, IsArray, IsNumber, IsObject, IsEnum, Min, Max } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsBoolean,
+  IsDateString,
+  IsArray,
+  IsNumber,
+  IsObject,
+  IsEnum,
+  Min,
+  Max,
+} from 'class-validator';
 import { Transform, Type } from 'class-transformer';
 
 export class TimeDto {

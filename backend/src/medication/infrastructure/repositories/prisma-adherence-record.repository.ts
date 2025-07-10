@@ -111,7 +111,10 @@ export class PrismaAdherenceRecordRepository extends AdherenceRecordRepository {
     return data.map((item) => this.mapToEntity(item));
   }
 
-  async update(id: string, updates: Partial<AdherenceRecord>): Promise<AdherenceRecord> {
+  async update(
+    id: string,
+    updates: Partial<AdherenceRecord>,
+  ): Promise<AdherenceRecord> {
     const data = await this.prisma.medicationDose.update({
       where: { id },
       data: {
@@ -205,7 +208,10 @@ export class PrismaAdherenceRecordRepository extends AdherenceRecordRepository {
     return data.map((item) => this.mapToEntity(item));
   }
 
-  async findByStatus(userId: string, status: DoseStatus): Promise<AdherenceRecord[]> {
+  async findByStatus(
+    userId: string,
+    status: DoseStatus,
+  ): Promise<AdherenceRecord[]> {
     const data = await this.prisma.medicationDose.findMany({
       where: {
         userId,
@@ -217,7 +223,11 @@ export class PrismaAdherenceRecordRepository extends AdherenceRecordRepository {
     return data.map((item) => this.mapToEntity(item));
   }
 
-  async findTakenDoses(userId: string, startDate?: Date, endDate?: Date): Promise<AdherenceRecord[]> {
+  async findTakenDoses(
+    userId: string,
+    startDate?: Date,
+    endDate?: Date,
+  ): Promise<AdherenceRecord[]> {
     const where: Prisma.MedicationDoseWhereInput = {
       userId,
       status: DoseStatus.TAKEN,
@@ -237,7 +247,11 @@ export class PrismaAdherenceRecordRepository extends AdherenceRecordRepository {
     return data.map((item) => this.mapToEntity(item));
   }
 
-  async findMissedDoses(userId: string, startDate?: Date, endDate?: Date): Promise<AdherenceRecord[]> {
+  async findMissedDoses(
+    userId: string,
+    startDate?: Date,
+    endDate?: Date,
+  ): Promise<AdherenceRecord[]> {
     const where: Prisma.MedicationDoseWhereInput = {
       userId,
       status: DoseStatus.MISSED,
@@ -257,7 +271,11 @@ export class PrismaAdherenceRecordRepository extends AdherenceRecordRepository {
     return data.map((item) => this.mapToEntity(item));
   }
 
-  async findSkippedDoses(userId: string, startDate?: Date, endDate?: Date): Promise<AdherenceRecord[]> {
+  async findSkippedDoses(
+    userId: string,
+    startDate?: Date,
+    endDate?: Date,
+  ): Promise<AdherenceRecord[]> {
     const where: Prisma.MedicationDoseWhereInput = {
       userId,
       status: DoseStatus.SKIPPED,

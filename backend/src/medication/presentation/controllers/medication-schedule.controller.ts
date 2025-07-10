@@ -14,7 +14,12 @@ import {
 } from '@nestjs/common';
 import { FirebaseAuthGuard } from '../../../identity-access/presentation/guards/firebase-auth.guard';
 import { MedicationScheduleService } from '../../application/services/medication-schedule.service';
-import { CreateScheduleDto, UpdateScheduleDto, ScheduleQueryDto, AddReminderTimeDto } from '../dto/medication-schedule.dto';
+import {
+  CreateScheduleDto,
+  UpdateScheduleDto,
+  ScheduleQueryDto,
+  AddReminderTimeDto,
+} from '../dto/medication-schedule.dto';
 
 @Controller('medication-schedules')
 @UseGuards(FirebaseAuthGuard)
@@ -31,7 +36,9 @@ export class MedicationScheduleController {
         ...createScheduleDto,
         userId: req.user.uid,
         startDate: new Date(createScheduleDto.startDate),
-        endDate: createScheduleDto.endDate ? new Date(createScheduleDto.endDate) : undefined,
+        endDate: createScheduleDto.endDate
+          ? new Date(createScheduleDto.endDate)
+          : undefined,
       });
 
       return {
@@ -113,7 +120,9 @@ export class MedicationScheduleController {
   @Get('active')
   async getActiveSchedules(@Request() req: any) {
     try {
-      const schedules = await this.scheduleService.getActiveSchedules(req.user.uid);
+      const schedules = await this.scheduleService.getActiveSchedules(
+        req.user.uid,
+      );
 
       return {
         success: true,
@@ -134,7 +143,9 @@ export class MedicationScheduleController {
   @Get('inactive')
   async getInactiveSchedules(@Request() req: any) {
     try {
-      const schedules = await this.scheduleService.getInactiveSchedules(req.user.uid);
+      const schedules = await this.scheduleService.getInactiveSchedules(
+        req.user.uid,
+      );
 
       return {
         success: true,
@@ -155,7 +166,9 @@ export class MedicationScheduleController {
   @Get('with-reminders')
   async getSchedulesWithReminders(@Request() req: any) {
     try {
-      const schedules = await this.scheduleService.getSchedulesWithReminders(req.user.uid);
+      const schedules = await this.scheduleService.getSchedulesWithReminders(
+        req.user.uid,
+      );
 
       return {
         success: true,
@@ -176,7 +189,9 @@ export class MedicationScheduleController {
   @Get('without-reminders')
   async getSchedulesWithoutReminders(@Request() req: any) {
     try {
-      const schedules = await this.scheduleService.getSchedulesWithoutReminders(req.user.uid);
+      const schedules = await this.scheduleService.getSchedulesWithoutReminders(
+        req.user.uid,
+      );
 
       return {
         success: true,
@@ -187,7 +202,8 @@ export class MedicationScheduleController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to fetch schedules without reminders',
+          message:
+            error.message || 'Failed to fetch schedules without reminders',
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -200,7 +216,10 @@ export class MedicationScheduleController {
     @Request() req: any,
   ) {
     try {
-      const schedules = await this.scheduleService.getSchedulesByFrequency(req.user.uid, frequency);
+      const schedules = await this.scheduleService.getSchedulesByFrequency(
+        req.user.uid,
+        frequency,
+      );
 
       return {
         success: true,
@@ -248,7 +267,9 @@ export class MedicationScheduleController {
   @Get('expired')
   async getExpiredSchedules(@Request() req: any) {
     try {
-      const schedules = await this.scheduleService.getExpiredSchedules(req.user.uid);
+      const schedules = await this.scheduleService.getExpiredSchedules(
+        req.user.uid,
+      );
 
       return {
         success: true,
@@ -296,7 +317,9 @@ export class MedicationScheduleController {
   @Get('statistics')
   async getScheduleStatistics(@Request() req: any) {
     try {
-      const statistics = await this.scheduleService.getScheduleStatistics(req.user.uid);
+      const statistics = await this.scheduleService.getScheduleStatistics(
+        req.user.uid,
+      );
 
       return {
         success: true,
@@ -316,7 +339,8 @@ export class MedicationScheduleController {
   @Get('medication/:medicationId')
   async getMedicationSchedules(@Param('medicationId') medicationId: string) {
     try {
-      const schedules = await this.scheduleService.getMedicationSchedules(medicationId);
+      const schedules =
+        await this.scheduleService.getMedicationSchedules(medicationId);
 
       return {
         success: true,
@@ -335,9 +359,12 @@ export class MedicationScheduleController {
   }
 
   @Get('medication/:medicationId/active')
-  async getActiveMedicationSchedules(@Param('medicationId') medicationId: string) {
+  async getActiveMedicationSchedules(
+    @Param('medicationId') medicationId: string,
+  ) {
     try {
-      const schedules = await this.scheduleService.getActiveMedicationSchedules(medicationId);
+      const schedules =
+        await this.scheduleService.getActiveMedicationSchedules(medicationId);
 
       return {
         success: true,
@@ -348,7 +375,8 @@ export class MedicationScheduleController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to fetch active medication schedules',
+          message:
+            error.message || 'Failed to fetch active medication schedules',
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -397,7 +425,9 @@ export class MedicationScheduleController {
     try {
       const schedule = await this.scheduleService.updateSchedule(id, {
         ...updateScheduleDto,
-        endDate: updateScheduleDto.endDate ? new Date(updateScheduleDto.endDate) : undefined,
+        endDate: updateScheduleDto.endDate
+          ? new Date(updateScheduleDto.endDate)
+          : undefined,
       });
 
       return {
@@ -422,7 +452,10 @@ export class MedicationScheduleController {
     @Body() body: { endDate: string },
   ) {
     try {
-      const schedule = await this.scheduleService.endSchedule(id, new Date(body.endDate));
+      const schedule = await this.scheduleService.endSchedule(
+        id,
+        new Date(body.endDate),
+      );
 
       return {
         success: true,
@@ -488,7 +521,10 @@ export class MedicationScheduleController {
     @Body() addReminderTimeDto: AddReminderTimeDto,
   ) {
     try {
-      const schedule = await this.scheduleService.addReminderTime(id, addReminderTimeDto);
+      const schedule = await this.scheduleService.addReminderTime(
+        id,
+        addReminderTimeDto,
+      );
 
       return {
         success: true,
@@ -512,7 +548,10 @@ export class MedicationScheduleController {
     @Body() removeReminderTimeDto: AddReminderTimeDto,
   ) {
     try {
-      const schedule = await this.scheduleService.removeReminderTime(id, removeReminderTimeDto);
+      const schedule = await this.scheduleService.removeReminderTime(
+        id,
+        removeReminderTimeDto,
+      );
 
       return {
         success: true,

@@ -28,7 +28,8 @@ export class PrescriptionProcessingController {
   @UseInterceptors(FileInterceptor('image'))
   async processImageUpload(
     @UploadedFile() file: Express.Multer.File,
-    @Body() body: {
+    @Body()
+    body: {
       prescribedBy?: string;
       prescribedDate?: string;
       imageQuality?: 'low' | 'medium' | 'high';
@@ -73,23 +74,28 @@ export class PrescriptionProcessingController {
       const options: OCRProcessingOptions = {
         imageQuality: body.imageQuality,
         extractionMethod: body.extractionMethod,
-        confidenceThreshold: body.confidenceThreshold ? parseFloat(body.confidenceThreshold.toString()) : undefined,
+        confidenceThreshold: body.confidenceThreshold
+          ? parseFloat(body.confidenceThreshold.toString())
+          : undefined,
       };
 
-      const result = await this.prescriptionProcessingService.processImagePrescription(
-        req.user.uid,
-        file.buffer,
-        body.prescribedBy,
-        body.prescribedDate ? new Date(body.prescribedDate) : undefined,
-        options,
-      );
+      const result =
+        await this.prescriptionProcessingService.processImagePrescription(
+          req.user.uid,
+          file.buffer,
+          body.prescribedBy,
+          body.prescribedDate ? new Date(body.prescribedDate) : undefined,
+          options,
+        );
 
       return {
         success: true,
         data: {
           prescription: result.prescription.toJSON(),
           extractedMedications: result.extractedMedications,
-          createdMedications: result.createdMedications.map(med => med.toJSON()),
+          createdMedications: result.createdMedications.map((med) =>
+            med.toJSON(),
+          ),
           ocrValidation: result.ocrValidation,
           interactionAnalysis: result.interactionAnalysis,
           processingMetadata: result.processingMetadata,
@@ -109,7 +115,8 @@ export class PrescriptionProcessingController {
 
   @Post('url')
   async processImageUrl(
-    @Body() body: {
+    @Body()
+    body: {
       imageUrl: string;
       prescribedBy?: string;
       prescribedDate?: string;
@@ -136,20 +143,23 @@ export class PrescriptionProcessingController {
         confidenceThreshold: body.confidenceThreshold,
       };
 
-      const result = await this.prescriptionProcessingService.processUrlPrescription(
-        req.user.uid,
-        body.imageUrl,
-        body.prescribedBy,
-        body.prescribedDate ? new Date(body.prescribedDate) : undefined,
-        options,
-      );
+      const result =
+        await this.prescriptionProcessingService.processUrlPrescription(
+          req.user.uid,
+          body.imageUrl,
+          body.prescribedBy,
+          body.prescribedDate ? new Date(body.prescribedDate) : undefined,
+          options,
+        );
 
       return {
         success: true,
         data: {
           prescription: result.prescription.toJSON(),
           extractedMedications: result.extractedMedications,
-          createdMedications: result.createdMedications.map(med => med.toJSON()),
+          createdMedications: result.createdMedications.map((med) =>
+            med.toJSON(),
+          ),
           ocrValidation: result.ocrValidation,
           interactionAnalysis: result.interactionAnalysis,
           processingMetadata: result.processingMetadata,
@@ -170,7 +180,8 @@ export class PrescriptionProcessingController {
   @Put(':id/reprocess')
   async reprocessPrescription(
     @Param('id') id: string,
-    @Body() body: {
+    @Body()
+    body: {
       imageQuality?: 'low' | 'medium' | 'high';
       extractionMethod?: 'basic' | 'enhanced' | 'medical';
       confidenceThreshold?: number;
@@ -183,7 +194,11 @@ export class PrescriptionProcessingController {
         confidenceThreshold: body.confidenceThreshold,
       };
 
-      const result = await this.prescriptionProcessingService.reprocessPrescriptionOCR(id, options);
+      const result =
+        await this.prescriptionProcessingService.reprocessPrescriptionOCR(
+          id,
+          options,
+        );
 
       return {
         success: true,
@@ -208,7 +223,10 @@ export class PrescriptionProcessingController {
   @Put(':id/enhance-rxnorm')
   async enhanceWithRxNorm(@Param('id') id: string) {
     try {
-      const result = await this.prescriptionProcessingService.enhancePrescriptionWithRxNormData(id);
+      const result =
+        await this.prescriptionProcessingService.enhancePrescriptionWithRxNormData(
+          id,
+        );
 
       return {
         success: true,
@@ -222,7 +240,8 @@ export class PrescriptionProcessingController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to enhance prescription with RxNorm data',
+          message:
+            error.message || 'Failed to enhance prescription with RxNorm data',
         },
         HttpStatus.BAD_REQUEST,
       );

@@ -162,9 +162,12 @@ export class PrismaMedicationRepository extends MedicationRepository {
     });
   }
 
-  async findByUserId(userId: string, includeInactive?: boolean): Promise<Medication[]> {
+  async findByUserId(
+    userId: string,
+    includeInactive?: boolean,
+  ): Promise<Medication[]> {
     const where: Prisma.MedicationWhereInput = { userId };
-    
+
     if (!includeInactive) {
       where.isActive = true;
     }
@@ -222,7 +225,11 @@ export class PrismaMedicationRepository extends MedicationRepository {
     return data.map((item) => this.mapToEntity(item));
   }
 
-  async searchByName(userId: string, searchTerm: string, limit?: number): Promise<Medication[]> {
+  async searchByName(
+    userId: string,
+    searchTerm: string,
+    limit?: number,
+  ): Promise<Medication[]> {
     const data = await this.prisma.medication.findMany({
       where: {
         userId,
@@ -238,7 +245,10 @@ export class PrismaMedicationRepository extends MedicationRepository {
     return data.map((item) => this.mapToEntity(item));
   }
 
-  async findByForm(userId: string, form: MedicationForm): Promise<Medication[]> {
+  async findByForm(
+    userId: string,
+    form: MedicationForm,
+  ): Promise<Medication[]> {
     const data = await this.prisma.medication.findMany({
       where: {
         userId,
@@ -250,7 +260,10 @@ export class PrismaMedicationRepository extends MedicationRepository {
     return data.map((item) => this.mapToEntity(item));
   }
 
-  async findByClassification(userId: string, classification: string): Promise<Medication[]> {
+  async findByClassification(
+    userId: string,
+    classification: string,
+  ): Promise<Medication[]> {
     const data = await this.prisma.medication.findMany({
       where: {
         userId,
@@ -315,9 +328,14 @@ export class PrismaMedicationRepository extends MedicationRepository {
     return data.map((item) => this.mapToEntity(item));
   }
 
-  async findExpiringMedications(userId: string, withinDays: number): Promise<Medication[]> {
+  async findExpiringMedications(
+    userId: string,
+    withinDays: number,
+  ): Promise<Medication[]> {
     const now = new Date();
-    const futureDate = new Date(now.getTime() + withinDays * 24 * 60 * 60 * 1000);
+    const futureDate = new Date(
+      now.getTime() + withinDays * 24 * 60 * 60 * 1000,
+    );
 
     const data = await this.prisma.medication.findMany({
       where: {
@@ -380,18 +398,19 @@ export class PrismaMedicationRepository extends MedicationRepository {
   }
 
   async getMedicationStatistics(userId: string): Promise<MedicationStatistics> {
-    const [total, active, inactive, formCounts, prescriptionBased] = await Promise.all([
-      this.prisma.medication.count({ where: { userId } }),
-      this.prisma.medication.count({ where: { userId, isActive: true } }),
-      this.prisma.medication.count({ where: { userId, isActive: false } }),
-      this.getMedicationsByFormCount(userId),
-      this.prisma.medication.count({
-        where: {
-          userId,
-          prescriptionId: { not: null }
-        }
-      }),
-    ]);
+    const [total, active, inactive, formCounts, prescriptionBased] =
+      await Promise.all([
+        this.prisma.medication.count({ where: { userId } }),
+        this.prisma.medication.count({ where: { userId, isActive: true } }),
+        this.prisma.medication.count({ where: { userId, isActive: false } }),
+        this.getMedicationsByFormCount(userId),
+        this.prisma.medication.count({
+          where: {
+            userId,
+            prescriptionId: { not: null },
+          },
+        }),
+      ]);
 
     // Calculate average duration for medications with end dates
     const medicationsWithDuration = await this.prisma.medication.findMany({
@@ -405,12 +424,13 @@ export class PrismaMedicationRepository extends MedicationRepository {
       },
     });
 
-    const averageDurationDays = medicationsWithDuration.length > 0
-      ? medicationsWithDuration.reduce((sum, med) => {
-          const duration = med.endDate!.getTime() - med.startDate.getTime();
-          return sum + Math.ceil(duration / (1000 * 60 * 60 * 24));
-        }, 0) / medicationsWithDuration.length
-      : 0;
+    const averageDurationDays =
+      medicationsWithDuration.length > 0
+        ? medicationsWithDuration.reduce((sum, med) => {
+            const duration = med.endDate!.getTime() - med.startDate.getTime();
+            return sum + Math.ceil(duration / (1000 * 60 * 60 * 24));
+          }, 0) / medicationsWithDuration.length
+        : 0;
 
     return {
       totalMedications: total,
@@ -422,14 +442,19 @@ export class PrismaMedicationRepository extends MedicationRepository {
     };
   }
 
-  async getMedicationCount(userId: string, isActive?: boolean): Promise<number> {
+  async getMedicationCount(
+    userId: string,
+    isActive?: boolean,
+  ): Promise<number> {
     const where: Prisma.MedicationWhereInput = { userId };
     if (isActive !== undefined) where.isActive = isActive;
 
     return this.prisma.medication.count({ where });
   }
 
-  async getMedicationsByFormCount(userId: string): Promise<Record<MedicationForm, number>> {
+  async getMedicationsByFormCount(
+    userId: string,
+  ): Promise<Record<MedicationForm, number>> {
     const result = await this.prisma.medication.groupBy({
       by: ['form'],
       where: { userId },
@@ -439,12 +464,12 @@ export class PrismaMedicationRepository extends MedicationRepository {
     const formCounts = {} as Record<MedicationForm, number>;
 
     // Initialize all forms with 0
-    Object.values(MedicationForm).forEach(form => {
+    Object.values(MedicationForm).forEach((form) => {
       formCounts[form] = 0;
     });
 
     // Fill in actual counts
-    result.forEach(item => {
+    result.forEach((item) => {
       formCounts[item.form] = item._count.form;
     });
 
@@ -498,7 +523,11 @@ export class PrismaMedicationRepository extends MedicationRepository {
     return duplicates;
   }
 
-  async findRecentlyAdded(userId: string, days: number, limit?: number): Promise<Medication[]> {
+  async findRecentlyAdded(
+    userId: string,
+    days: number,
+    limit?: number,
+  ): Promise<Medication[]> {
     const cutoffDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
 
     const data = await this.prisma.medication.findMany({
@@ -513,7 +542,11 @@ export class PrismaMedicationRepository extends MedicationRepository {
     return data.map((item) => this.mapToEntity(item));
   }
 
-  async findRecentlyModified(userId: string, days: number, limit?: number): Promise<Medication[]> {
+  async findRecentlyModified(
+    userId: string,
+    days: number,
+    limit?: number,
+  ): Promise<Medication[]> {
     const cutoffDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
 
     const data = await this.prisma.medication.findMany({
@@ -529,7 +562,11 @@ export class PrismaMedicationRepository extends MedicationRepository {
     return data.map((item) => this.mapToEntity(item));
   }
 
-  async findRecentlyDeactivated(userId: string, days: number, limit?: number): Promise<Medication[]> {
+  async findRecentlyDeactivated(
+    userId: string,
+    days: number,
+    limit?: number,
+  ): Promise<Medication[]> {
     const cutoffDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
 
     const data = await this.prisma.medication.findMany({

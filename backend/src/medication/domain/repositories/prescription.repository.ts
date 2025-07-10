@@ -30,7 +30,10 @@ export abstract class PrescriptionRepository {
   abstract create(prescription: Prescription): Promise<Prescription>;
   abstract findById(id: string): Promise<Prescription | null>;
   abstract findMany(query: PrescriptionQuery): Promise<Prescription[]>;
-  abstract update(id: string, updates: Partial<Prescription>): Promise<Prescription>;
+  abstract update(
+    id: string,
+    updates: Partial<Prescription>,
+  ): Promise<Prescription>;
   abstract delete(id: string): Promise<void>;
 
   // Bulk operations
@@ -39,7 +42,10 @@ export abstract class PrescriptionRepository {
 
   // User-specific queries
   abstract findByUserId(userId: string): Promise<Prescription[]>;
-  abstract findRecentByUserId(userId: string, limit?: number): Promise<Prescription[]>;
+  abstract findRecentByUserId(
+    userId: string,
+    limit?: number,
+  ): Promise<Prescription[]>;
 
   // Verification queries
   abstract findUnverified(userId?: string): Promise<Prescription[]>;
@@ -53,8 +59,14 @@ export abstract class PrescriptionRepository {
   abstract findWithoutImages(userId?: string): Promise<Prescription[]>;
 
   // Prescriber and pharmacy queries
-  abstract findByPrescriber(userId: string, prescriberName: string): Promise<Prescription[]>;
-  abstract findByPharmacy(userId: string, pharmacyName: string): Promise<Prescription[]>;
+  abstract findByPrescriber(
+    userId: string,
+    prescriberName: string,
+  ): Promise<Prescription[]>;
+  abstract findByPharmacy(
+    userId: string,
+    pharmacyName: string,
+  ): Promise<Prescription[]>;
   abstract getUniquePrescribers(userId: string): Promise<string[]>;
   abstract getUniquePharmacies(userId: string): Promise<string[]>;
 
@@ -64,16 +76,34 @@ export abstract class PrescriptionRepository {
     startDate: Date,
     endDate: Date,
   ): Promise<Prescription[]>;
-  abstract findExpired(userId: string, expirationMonths?: number): Promise<Prescription[]>;
-  abstract findExpiringMedications(userId: string, withinMonths: number): Promise<Prescription[]>;
+  abstract findExpired(
+    userId: string,
+    expirationMonths?: number,
+  ): Promise<Prescription[]>;
+  abstract findExpiringMedications(
+    userId: string,
+    withinMonths: number,
+  ): Promise<Prescription[]>;
 
   // Search functionality
-  abstract searchPrescriptions(userId: string, searchTerm: string, limit?: number): Promise<Prescription[]>;
-  abstract findByMedicationName(userId: string, medicationName: string): Promise<Prescription[]>;
+  abstract searchPrescriptions(
+    userId: string,
+    searchTerm: string,
+    limit?: number,
+  ): Promise<Prescription[]>;
+  abstract findByMedicationName(
+    userId: string,
+    medicationName: string,
+  ): Promise<Prescription[]>;
 
   // Statistics and analytics
-  abstract getPrescriptionStatistics(userId: string): Promise<PrescriptionStatistics>;
-  abstract getPrescriptionCount(userId: string, isVerified?: boolean): Promise<number>;
+  abstract getPrescriptionStatistics(
+    userId: string,
+  ): Promise<PrescriptionStatistics>;
+  abstract getPrescriptionCount(
+    userId: string,
+    isVerified?: boolean,
+  ): Promise<number>;
   abstract getProcessingTimeStatistics(userId: string): Promise<{
     averageHours: number;
     medianHours: number;
@@ -82,12 +112,29 @@ export abstract class PrescriptionRepository {
   }>;
 
   // Quality and compliance
-  abstract findLowConfidenceOCR(userId: string, confidenceThreshold?: number): Promise<Prescription[]>;
+  abstract findLowConfidenceOCR(
+    userId: string,
+    confidenceThreshold?: number,
+  ): Promise<Prescription[]>;
   abstract findIncompleteData(userId: string): Promise<Prescription[]>;
-  abstract findDuplicatePrescriptions(userId: string): Promise<Prescription[][]>;
+  abstract findDuplicatePrescriptions(
+    userId: string,
+  ): Promise<Prescription[][]>;
 
   // Recent activity
-  abstract findRecentlyAdded(userId: string, days: number, limit?: number): Promise<Prescription[]>;
-  abstract findRecentlyVerified(userId: string, days: number, limit?: number): Promise<Prescription[]>;
-  abstract findRecentlyProcessed(userId: string, days: number, limit?: number): Promise<Prescription[]>;
+  abstract findRecentlyAdded(
+    userId: string,
+    days: number,
+    limit?: number,
+  ): Promise<Prescription[]>;
+  abstract findRecentlyVerified(
+    userId: string,
+    days: number,
+    limit?: number,
+  ): Promise<Prescription[]>;
+  abstract findRecentlyProcessed(
+    userId: string,
+    days: number,
+    limit?: number,
+  ): Promise<Prescription[]>;
 }

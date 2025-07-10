@@ -64,9 +64,7 @@ class ErrorTracker {
     }
 
     // Sanitize context data for healthcare compliance
-    final sanitizedContext = context != null
-        ? HealthcareLogSanitizer.sanitizeData(context)
-        : <String, dynamic>{};
+    final sanitizedContext = context != null ? HealthcareLogSanitizer.sanitizeData(context) : <String, dynamic>{};
 
     // Add healthcare-specific metadata
     sanitizedContext.addAll({
@@ -95,9 +93,7 @@ class ErrorTracker {
           error,
           stackTrace,
           reason: reason,
-          information: sanitizedContext.entries
-              .map((e) => DiagnosticsProperty(e.key, e.value))
-              .toList(),
+          information: sanitizedContext.entries.map((e) => DiagnosticsProperty(e.key, e.value)).toList(),
           fatal: isFatal,
         );
       }
@@ -125,12 +121,7 @@ class ErrorTracker {
       ...?context,
     };
 
-    await recordError(
-      error,
-      stackTrace,
-      reason: 'Authentication error',
-      context: authContext,
-    );
+    await recordError(error, stackTrace, reason: 'Authentication error', context: authContext);
 
     // Log specific auth error
     BoundedContextLoggers.auth.error('Authentication error recorded', {
@@ -155,17 +146,38 @@ class ErrorTracker {
       ...?context,
     };
 
-    await recordError(
-      error,
-      stackTrace,
-      reason: 'Health data error',
-      context: healthContext,
-    );
+    await recordError(error, stackTrace, reason: 'Health data error', context: healthContext);
 
     // Log specific health data error
     BoundedContextLoggers.healthData.error('Health data error recorded', {
       'operation': operation,
       'dataType': dataType,
+      'error': error.toString(),
+      'timestamp': DateTime.now().toIso8601String(),
+    });
+  }
+
+  /// Record medication error
+  static Future<void> recordMedicationError(
+    dynamic error,
+    StackTrace? stackTrace, {
+    String? operation,
+    String? medicationId,
+    Map<String, dynamic>? context,
+  }) async {
+    final medicationContext = {
+      'category': 'medication',
+      'operation': operation ?? 'unknown',
+      'hasMedicationId': medicationId != null,
+      ...?context,
+    };
+
+    await recordError(error, stackTrace, reason: 'Medication error', context: medicationContext);
+
+    // Log specific medication error
+    BoundedContextLoggers.medication.error('Medication error recorded', {
+      'operation': operation,
+      'medicationId': medicationId,
       'error': error.toString(),
       'timestamp': DateTime.now().toIso8601String(),
     });
@@ -186,12 +198,7 @@ class ErrorTracker {
       ...?context,
     };
 
-    await recordError(
-      error,
-      stackTrace,
-      reason: 'AI Assistant error',
-      context: aiContext,
-    );
+    await recordError(error, stackTrace, reason: 'AI Assistant error', context: aiContext);
 
     // Log specific AI error
     BoundedContextLoggers.aiAssistant.error('AI Assistant error recorded', {
@@ -216,12 +223,7 @@ class ErrorTracker {
       ...?context,
     };
 
-    await recordError(
-      error,
-      stackTrace,
-      reason: 'Navigation error',
-      context: navContext,
-    );
+    await recordError(error, stackTrace, reason: 'Navigation error', context: navContext);
 
     // Log specific navigation error
     BoundedContextLoggers.navigation.error('Navigation error recorded', {
@@ -260,9 +262,7 @@ class ErrorTracker {
     try {
       await _crashlytics?.setUserIdentifier('');
 
-      _logger.info('User identifier cleared from error tracking', {
-        'timestamp': DateTime.now().toIso8601String(),
-      });
+      _logger.info('User identifier cleared from error tracking', {'timestamp': DateTime.now().toIso8601String()});
     } catch (e) {
       _logger.error('Failed to clear user identifier', {
         'error': e.toString(),
@@ -272,10 +272,7 @@ class ErrorTracker {
   }
 
   /// Log custom event for error analysis
-  static Future<void> logCustomEvent(
-    String eventName,
-    Map<String, dynamic> parameters,
-  ) async {
+  static Future<void> logCustomEvent(String eventName, Map<String, dynamic> parameters) async {
     if (!_initialized) {
       await initialize();
     }
@@ -379,9 +376,7 @@ class ErrorTracker {
   static Future<void> testCrash() async {
     if (!kDebugMode) return;
 
-    _logger.warning('Test crash initiated (debug mode only)', {
-      'timestamp': DateTime.now().toIso8601String(),
-    });
+    _logger.warning('Test crash initiated (debug mode only)', {'timestamp': DateTime.now().toIso8601String()});
 
     await recordError(
       Exception('Test crash for error tracking verification'),

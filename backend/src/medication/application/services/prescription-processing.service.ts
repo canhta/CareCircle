@@ -1,9 +1,15 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { PrescriptionService } from './prescription.service';
 import { MedicationService } from './medication.service';
-import { OCRService, OCRProcessingOptions } from '../../infrastructure/services/ocr.service';
+import {
+  OCRService,
+  OCRProcessingOptions,
+} from '../../infrastructure/services/ocr.service';
 import { DrugInteractionService } from '../../infrastructure/services/drug-interaction.service';
-import { Prescription, PrescriptionMedication } from '../../domain/entities/prescription.entity';
+import {
+  Prescription,
+  PrescriptionMedication,
+} from '../../domain/entities/prescription.entity';
 import { Medication } from '../../domain/entities/medication.entity';
 import { MedicationForm } from '@prisma/client';
 
@@ -61,10 +67,14 @@ export class PrescriptionProcessingService {
       const prescription = await this.prescriptionService.createPrescription({
         userId,
         prescribedBy: prescribedBy || ocrData.fields.prescribedBy || 'Unknown',
-        prescribedDate: prescribedDate || (ocrData.fields.prescribedDate ? new Date(ocrData.fields.prescribedDate) : new Date()),
+        prescribedDate:
+          prescribedDate ||
+          (ocrData.fields.prescribedDate
+            ? new Date(ocrData.fields.prescribedDate)
+            : new Date()),
         pharmacy: ocrData.fields.pharmacy,
         ocrData,
-        medications: (ocrData.fields.medications || []).map(med => ({
+        medications: (ocrData.fields.medications || []).map((med) => ({
           name: med.name || 'Unknown',
           strength: med.strength || 'Unknown',
           form: 'Unknown', // OCR doesn't extract form, will be set later
@@ -96,7 +106,7 @@ export class PrescriptionProcessingService {
 
       return {
         prescription,
-        extractedMedications: (ocrData.fields.medications || []).map(med => ({
+        extractedMedications: (ocrData.fields.medications || []).map((med) => ({
           name: med.name || 'Unknown',
           strength: med.strength || 'Unknown',
           form: 'Unknown', // OCR doesn't extract form, will be set later
@@ -132,7 +142,10 @@ export class PrescriptionProcessingService {
     try {
       // Step 1: Process image from URL with OCR
       const ocrStartTime = Date.now();
-      const ocrData = await this.ocrService.processImageFromUrl(imageUrl, options);
+      const ocrData = await this.ocrService.processImageFromUrl(
+        imageUrl,
+        options,
+      );
       const ocrProcessingTime = Date.now() - ocrStartTime;
 
       // Step 2: Validate OCR results
@@ -142,11 +155,15 @@ export class PrescriptionProcessingService {
       const prescription = await this.prescriptionService.createPrescription({
         userId,
         prescribedBy: prescribedBy || ocrData.fields.prescribedBy || 'Unknown',
-        prescribedDate: prescribedDate || (ocrData.fields.prescribedDate ? new Date(ocrData.fields.prescribedDate) : new Date()),
+        prescribedDate:
+          prescribedDate ||
+          (ocrData.fields.prescribedDate
+            ? new Date(ocrData.fields.prescribedDate)
+            : new Date()),
         pharmacy: ocrData.fields.pharmacy,
         ocrData,
         imageUrl,
-        medications: (ocrData.fields.medications || []).map(med => ({
+        medications: (ocrData.fields.medications || []).map((med) => ({
           name: med.name || 'Unknown',
           strength: med.strength || 'Unknown',
           form: 'Unknown', // OCR doesn't extract form, will be set later
@@ -162,7 +179,7 @@ export class PrescriptionProcessingService {
       const createdMedications = await this.createMedicationsFromPrescription(
         userId,
         prescription,
-        (ocrData.fields.medications || []).map(med => ({
+        (ocrData.fields.medications || []).map((med) => ({
           name: med.name || 'Unknown',
           strength: med.strength || 'Unknown',
           form: 'Unknown', // OCR doesn't extract form, will be set later
@@ -211,7 +228,8 @@ export class PrescriptionProcessingService {
     updatedMedications: PrescriptionMedication[];
   }> {
     try {
-      const prescription = await this.prescriptionService.getPrescription(prescriptionId);
+      const prescription =
+        await this.prescriptionService.getPrescription(prescriptionId);
       if (!prescription) {
         throw new Error('Prescription not found');
       }
@@ -221,16 +239,22 @@ export class PrescriptionProcessingService {
       }
 
       // Reprocess OCR
-      const ocrData = await this.ocrService.processImageFromUrl(prescription.imageUrl, options);
+      const ocrData = await this.ocrService.processImageFromUrl(
+        prescription.imageUrl,
+        options,
+      );
       const ocrValidation = await this.ocrService.validateOCRResult(ocrData);
 
       // Update prescription with new OCR data
-      const updatedPrescription = await this.prescriptionService.setOCRData(prescriptionId, ocrData);
+      const updatedPrescription = await this.prescriptionService.setOCRData(
+        prescriptionId,
+        ocrData,
+      );
 
       return {
         prescription: updatedPrescription,
         ocrValidation,
-        updatedMedications: (ocrData.fields.medications || []).map(med => ({
+        updatedMedications: (ocrData.fields.medications || []).map((med) => ({
           name: med.name || 'Unknown',
           strength: med.strength || 'Unknown',
           form: 'Unknown', // OCR doesn't extract form, will be set later
@@ -260,7 +284,9 @@ export class PrescriptionProcessingService {
         }
 
         // Determine medication form
-        const form = this.determineMedicationForm(extractedMed.form || extractedMed.instructions);
+        const form = this.determineMedicationForm(
+          extractedMed.form || extractedMed.instructions,
+        );
 
         const medication = await this.medicationService.createMedication({
           userId,
@@ -285,7 +311,10 @@ export class PrescriptionProcessingService {
         );
       } catch (error) {
         // Log error but continue with other medications
-        console.error(`Failed to create medication ${extractedMed.name}:`, error.message);
+        console.error(
+          `Failed to create medication ${extractedMed.name}:`,
+          error.message,
+        );
       }
     }
 
@@ -295,15 +324,25 @@ export class PrescriptionProcessingService {
   private determineMedicationForm(formOrInstructions: string): MedicationForm {
     const text = formOrInstructions?.toLowerCase() || '';
 
-    if (text.includes('tablet') || text.includes('tab')) return MedicationForm.TABLET;
-    if (text.includes('capsule') || text.includes('cap')) return MedicationForm.CAPSULE;
-    if (text.includes('liquid') || text.includes('syrup') || text.includes('solution')) return MedicationForm.LIQUID;
-    if (text.includes('injection') || text.includes('inject')) return MedicationForm.INJECTION;
+    if (text.includes('tablet') || text.includes('tab'))
+      return MedicationForm.TABLET;
+    if (text.includes('capsule') || text.includes('cap'))
+      return MedicationForm.CAPSULE;
+    if (
+      text.includes('liquid') ||
+      text.includes('syrup') ||
+      text.includes('solution')
+    )
+      return MedicationForm.LIQUID;
+    if (text.includes('injection') || text.includes('inject'))
+      return MedicationForm.INJECTION;
     if (text.includes('cream')) return MedicationForm.CREAM;
     if (text.includes('ointment')) return MedicationForm.OINTMENT;
-    if (text.includes('inhaler') || text.includes('inhale')) return MedicationForm.INHALER;
+    if (text.includes('inhaler') || text.includes('inhale'))
+      return MedicationForm.INHALER;
     if (text.includes('patch')) return MedicationForm.PATCH;
-    if (text.includes('drop') || text.includes('eye') || text.includes('ear')) return MedicationForm.DROPS;
+    if (text.includes('drop') || text.includes('eye') || text.includes('ear'))
+      return MedicationForm.DROPS;
 
     return MedicationForm.OTHER;
   }
@@ -318,7 +357,7 @@ export class PrescriptionProcessingService {
       }
 
       // Check interactions between new medications and existing ones
-      const medicationNames = newMedications.map(med => med.name);
+      const medicationNames = newMedications.map((med) => med.name);
       return await this.drugInteractionService.checkNewMedicationAgainstExisting(
         userId,
         medicationNames[0], // For now, check first medication against existing
@@ -342,7 +381,8 @@ export class PrescriptionProcessingService {
     }>;
   }> {
     try {
-      const prescription = await this.prescriptionService.getPrescription(prescriptionId);
+      const prescription =
+        await this.prescriptionService.getPrescription(prescriptionId);
       if (!prescription) {
         throw new Error('Prescription not found');
       }
@@ -359,10 +399,11 @@ export class PrescriptionProcessingService {
       // Enhance each medication in the prescription
       for (const medication of prescription.medications) {
         try {
-          const enrichedData = await this.drugInteractionService.enrichMedicationWithRxNormData(
-            medication.name,
-            medication.strength,
-          );
+          const enrichedData =
+            await this.drugInteractionService.enrichMedicationWithRxNormData(
+              medication.name,
+              medication.strength,
+            );
 
           if (enrichedData.isValid) {
             // Update the medication in the prescription
@@ -399,14 +440,17 @@ export class PrescriptionProcessingService {
       }
 
       // Get updated prescription
-      const updatedPrescription = await this.prescriptionService.getPrescription(prescriptionId);
+      const updatedPrescription =
+        await this.prescriptionService.getPrescription(prescriptionId);
 
       return {
         prescription: updatedPrescription!,
         enhancedMedications,
       };
     } catch (error) {
-      throw new Error(`Failed to enhance prescription with RxNorm data: ${error.message}`);
+      throw new Error(
+        `Failed to enhance prescription with RxNorm data: ${error.message}`,
+      );
     }
   }
 }

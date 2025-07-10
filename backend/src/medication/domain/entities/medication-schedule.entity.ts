@@ -77,29 +77,40 @@ export class MedicationSchedule {
 
   validate(): boolean {
     // Basic validation rules
-    if (!this.medicationId || this.medicationId.trim().length === 0) return false;
+    if (!this.medicationId || this.medicationId.trim().length === 0)
+      return false;
     if (!this.userId || this.userId.trim().length === 0) return false;
-    if (!this.instructions || this.instructions.trim().length === 0) return false;
-    
+    if (!this.instructions || this.instructions.trim().length === 0)
+      return false;
+
     // Validate dates
     const now = new Date();
-    if (this.startDate > new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000)) return false; // Not more than 30 days in future
+    if (this.startDate > new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000))
+      return false; // Not more than 30 days in future
     if (this.endDate && this.endDate <= this.startDate) return false;
-    
+
     // Validate schedule
     if (!this.schedule.frequency) return false;
     if (this.schedule.times <= 0) return false;
-    
+
     // Validate frequency-specific rules
     switch (this.schedule.frequency) {
       case 'weekly':
-        if (this.schedule.daysOfWeek && this.schedule.daysOfWeek.some(day => day < 0 || day > 6)) return false;
+        if (
+          this.schedule.daysOfWeek &&
+          this.schedule.daysOfWeek.some((day) => day < 0 || day > 6)
+        )
+          return false;
         break;
       case 'monthly':
-        if (this.schedule.daysOfMonth && this.schedule.daysOfMonth.some(day => day < 1 || day > 31)) return false;
+        if (
+          this.schedule.daysOfMonth &&
+          this.schedule.daysOfMonth.some((day) => day < 1 || day > 31)
+        )
+          return false;
         break;
     }
-    
+
     // Validate specific times
     if (this.schedule.specificTimes) {
       for (const time of this.schedule.specificTimes) {
@@ -107,18 +118,18 @@ export class MedicationSchedule {
         if (time.minute < 0 || time.minute > 59) return false;
       }
     }
-    
+
     // Validate reminder times
     for (const time of this.reminderTimes) {
       if (time.hour < 0 || time.hour > 23) return false;
       if (time.minute < 0 || time.minute > 59) return false;
     }
-    
+
     // Validate reminder settings
     if (this.reminderSettings.advanceMinutes < 0) return false;
     if (this.reminderSettings.repeatMinutes < 0) return false;
     if (this.reminderSettings.maxReminders < 0) return false;
-    
+
     return true;
   }
 
@@ -145,11 +156,11 @@ export class MedicationSchedule {
       this.createdAt,
       this.updatedAt,
     );
-    
+
     if (!tempSchedule.validate()) {
       throw new Error('Invalid schedule configuration');
     }
-    
+
     this.schedule = schedule;
   }
 
@@ -173,21 +184,30 @@ export class MedicationSchedule {
   }
 
   addReminderTime(time: Time): void {
-    if (time.hour < 0 || time.hour > 23 || time.minute < 0 || time.minute > 59) {
+    if (
+      time.hour < 0 ||
+      time.hour > 23 ||
+      time.minute < 0 ||
+      time.minute > 59
+    ) {
       throw new Error('Invalid time format');
     }
-    
+
     // Check if time already exists
-    const exists = this.reminderTimes.some(t => t.hour === time.hour && t.minute === time.minute);
+    const exists = this.reminderTimes.some(
+      (t) => t.hour === time.hour && t.minute === time.minute,
+    );
     if (!exists) {
       this.reminderTimes.push(time);
-      this.reminderTimes.sort((a, b) => a.hour * 60 + a.minute - (b.hour * 60 + b.minute));
+      this.reminderTimes.sort(
+        (a, b) => a.hour * 60 + a.minute - (b.hour * 60 + b.minute),
+      );
     }
   }
 
   removeReminderTime(time: Time): void {
     this.reminderTimes = this.reminderTimes.filter(
-      t => !(t.hour === time.hour && t.minute === time.minute)
+      (t) => !(t.hour === time.hour && t.minute === time.minute),
     );
   }
 
@@ -211,21 +231,21 @@ export class MedicationSchedule {
 
   getNextScheduledTime(): Date | null {
     if (!this.isCurrentlyActive()) return null;
-    
+
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    
+
     // For daily schedules with specific times
     if (this.schedule.frequency === 'daily' && this.schedule.specificTimes) {
       for (const time of this.schedule.specificTimes) {
         const scheduledTime = new Date(today);
         scheduledTime.setHours(time.hour, time.minute, 0, 0);
-        
+
         if (scheduledTime > now) {
           return scheduledTime;
         }
       }
-      
+
       // If no time today, get first time tomorrow
       if (this.schedule.specificTimes.length > 0) {
         const tomorrow = new Date(today);
@@ -235,26 +255,30 @@ export class MedicationSchedule {
         return tomorrow;
       }
     }
-    
+
     // For as-needed schedules, no specific next time
     if (this.schedule.frequency === 'as_needed') {
       return null;
     }
-    
+
     // For other frequencies, would need more complex logic
     return null;
   }
 
   shouldRemindNow(): boolean {
     if (!this.remindersEnabled || !this.isCurrentlyActive()) return false;
-    
+
     const nextScheduledTime = this.getNextScheduledTime();
     if (!nextScheduledTime) return false;
-    
+
     const now = new Date();
-    const timeDiffMinutes = (nextScheduledTime.getTime() - now.getTime()) / (1000 * 60);
-    
-    return timeDiffMinutes <= this.reminderSettings.advanceMinutes && timeDiffMinutes > 0;
+    const timeDiffMinutes =
+      (nextScheduledTime.getTime() - now.getTime()) / (1000 * 60);
+
+    return (
+      timeDiffMinutes <= this.reminderSettings.advanceMinutes &&
+      timeDiffMinutes > 0
+    );
   }
 
   getFrequencyDescription(): string {

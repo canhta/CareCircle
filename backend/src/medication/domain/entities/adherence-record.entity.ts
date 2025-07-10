@@ -50,36 +50,40 @@ export class AdherenceRecord {
 
   validate(): boolean {
     // Basic validation rules
-    if (!this.medicationId || this.medicationId.trim().length === 0) return false;
+    if (!this.medicationId || this.medicationId.trim().length === 0)
+      return false;
     if (!this.scheduleId || this.scheduleId.trim().length === 0) return false;
     if (!this.userId || this.userId.trim().length === 0) return false;
     if (!this.unit || this.unit.trim().length === 0) return false;
-    
+
     // Validate dosage
     if (this.dosage <= 0) return false;
-    
+
     // Validate scheduled time is not too far in the future
     const now = new Date();
     const maxFutureTime = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000); // 7 days
     if (this.scheduledTime > maxFutureTime) return false;
-    
+
     // Validate status-specific rules
     switch (this.status) {
       case DoseStatus.TAKEN:
         if (!this.takenAt) return false;
         // Taken time should not be before scheduled time by more than 2 hours
-        const minTakenTime = new Date(this.scheduledTime.getTime() - 2 * 60 * 60 * 1000);
+        const minTakenTime = new Date(
+          this.scheduledTime.getTime() - 2 * 60 * 60 * 1000,
+        );
         if (this.takenAt < minTakenTime) return false;
         break;
       case DoseStatus.SKIPPED:
-        if (!this.skippedReason || this.skippedReason.trim().length === 0) return false;
+        if (!this.skippedReason || this.skippedReason.trim().length === 0)
+          return false;
         break;
       case DoseStatus.MISSED:
         // Missed doses should be past their scheduled time
         if (this.scheduledTime > now) return false;
         break;
     }
-    
+
     return true;
   }
 
@@ -96,7 +100,7 @@ export class AdherenceRecord {
     if (!reason || reason.trim().length === 0) {
       throw new Error('Skip reason is required');
     }
-    
+
     this.status = DoseStatus.SKIPPED;
     this.skippedReason = reason;
     this.takenAt = null; // Clear any previous taken time
@@ -118,7 +122,7 @@ export class AdherenceRecord {
     if (newScheduledTime <= new Date()) {
       throw new Error('Rescheduled time must be in the future');
     }
-    
+
     this.status = DoseStatus.SCHEDULED;
     // Note: In a real implementation, you might want to create a new record
     // and mark this one as rescheduled, but for simplicity we'll update this one
@@ -137,23 +141,27 @@ export class AdherenceRecord {
 
   isOverdue(): boolean {
     if (this.status !== DoseStatus.SCHEDULED) return false;
-    
+
     const now = new Date();
-    const overdueThreshold = new Date(this.scheduledTime.getTime() + 2 * 60 * 60 * 1000); // 2 hours after scheduled
+    const overdueThreshold = new Date(
+      this.scheduledTime.getTime() + 2 * 60 * 60 * 1000,
+    ); // 2 hours after scheduled
     return now > overdueThreshold;
   }
 
   isDue(): boolean {
     if (this.status !== DoseStatus.SCHEDULED) return false;
-    
+
     const now = new Date();
-    const dueThreshold = new Date(this.scheduledTime.getTime() - 15 * 60 * 1000); // 15 minutes before scheduled
+    const dueThreshold = new Date(
+      this.scheduledTime.getTime() - 15 * 60 * 1000,
+    ); // 15 minutes before scheduled
     return now >= dueThreshold && now <= this.scheduledTime;
   }
 
   isUpcoming(): boolean {
     if (this.status !== DoseStatus.SCHEDULED) return false;
-    
+
     const now = new Date();
     const upcomingThreshold = new Date(now.getTime() + 60 * 60 * 1000); // Next 1 hour
     return this.scheduledTime > now && this.scheduledTime <= upcomingThreshold;
@@ -200,7 +208,9 @@ export class AdherenceRecord {
       case DoseStatus.TAKEN:
         // Bonus points for taking on time
         if (this.takenAt) {
-          const timeDiff = Math.abs(this.takenAt.getTime() - this.scheduledTime.getTime());
+          const timeDiff = Math.abs(
+            this.takenAt.getTime() - this.scheduledTime.getTime(),
+          );
           const hoursDiff = timeDiff / (1000 * 60 * 60);
           if (hoursDiff <= 0.5) return 1.0; // Perfect adherence
           if (hoursDiff <= 2) return 0.9; // Good adherence
@@ -222,9 +232,13 @@ export class AdherenceRecord {
   getStatusDescription(): string {
     switch (this.status) {
       case DoseStatus.TAKEN:
-        return this.takenAt ? `Taken at ${this.takenAt.toLocaleTimeString()}` : 'Taken';
+        return this.takenAt
+          ? `Taken at ${this.takenAt.toLocaleTimeString()}`
+          : 'Taken';
       case DoseStatus.SKIPPED:
-        return this.skippedReason ? `Skipped: ${this.skippedReason}` : 'Skipped';
+        return this.skippedReason
+          ? `Skipped: ${this.skippedReason}`
+          : 'Skipped';
       case DoseStatus.MISSED:
         return 'Missed';
       // RESCHEDULED status doesn't exist in Prisma schema

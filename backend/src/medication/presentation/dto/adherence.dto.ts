@@ -1,4 +1,11 @@
-import { IsString, IsOptional, IsDateString, IsNumber, IsEnum, Min } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsDateString,
+  IsNumber,
+  IsEnum,
+  Min,
+} from 'class-validator';
 import { Transform, Type } from 'class-transformer';
 import { DoseStatus } from '@prisma/client';
 

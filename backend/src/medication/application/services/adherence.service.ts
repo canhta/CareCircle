@@ -63,7 +63,9 @@ export class AdherenceService {
       });
 
       if (!record.validate()) {
-        throw new Error(`Invalid adherence record data for medication ${data.medicationId}`);
+        throw new Error(
+          `Invalid adherence record data for medication ${data.medicationId}`,
+        );
       }
 
       return record;
@@ -182,10 +184,16 @@ export class AdherenceService {
     startDate: Date,
     endDate: Date,
   ): Promise<AdherenceRecord[]> {
-    return this.adherenceRepository.findByUserIdAndDateRange(userId, startDate, endDate);
+    return this.adherenceRepository.findByUserIdAndDateRange(
+      userId,
+      startDate,
+      endDate,
+    );
   }
 
-  async getMedicationAdherence(medicationId: string): Promise<AdherenceRecord[]> {
+  async getMedicationAdherence(
+    medicationId: string,
+  ): Promise<AdherenceRecord[]> {
     return this.adherenceRepository.findByMedicationId(medicationId);
   }
 
@@ -193,7 +201,9 @@ export class AdherenceService {
     return this.adherenceRepository.findByScheduleId(scheduleId);
   }
 
-  async searchAdherenceRecords(query: AdherenceQuery): Promise<AdherenceRecord[]> {
+  async searchAdherenceRecords(
+    query: AdherenceQuery,
+  ): Promise<AdherenceRecord[]> {
     return this.adherenceRepository.findMany(query);
   }
 
@@ -225,7 +235,11 @@ export class AdherenceService {
     startDate?: Date,
     endDate?: Date,
   ): Promise<AdherenceRecord[]> {
-    return this.adherenceRepository.findSkippedDoses(userId, startDate, endDate);
+    return this.adherenceRepository.findSkippedDoses(
+      userId,
+      startDate,
+      endDate,
+    );
   }
 
   async getScheduledDoses(userId: string): Promise<AdherenceRecord[]> {
@@ -236,7 +250,10 @@ export class AdherenceService {
     return this.adherenceRepository.findOverdueDoses(userId);
   }
 
-  async getDosesForDate(userId: string, date: Date): Promise<AdherenceRecord[]> {
+  async getDosesForDate(
+    userId: string,
+    date: Date,
+  ): Promise<AdherenceRecord[]> {
     return this.adherenceRepository.findDosesForDate(userId, date);
   }
 
@@ -260,7 +277,11 @@ export class AdherenceService {
     startDate?: Date,
     endDate?: Date,
   ): Promise<AdherenceStatistics> {
-    return this.adherenceRepository.getAdherenceStatistics(userId, startDate, endDate);
+    return this.adherenceRepository.getAdherenceStatistics(
+      userId,
+      startDate,
+      endDate,
+    );
   }
 
   async getAdherenceRate(
@@ -269,7 +290,12 @@ export class AdherenceService {
     startDate?: Date,
     endDate?: Date,
   ): Promise<number> {
-    return this.adherenceRepository.getAdherenceRate(userId, medicationId, startDate, endDate);
+    return this.adherenceRepository.getAdherenceRate(
+      userId,
+      medicationId,
+      startDate,
+      endDate,
+    );
   }
 
   async getAdherenceTrend(
@@ -277,29 +303,41 @@ export class AdherenceService {
     days: number,
     medicationId?: string,
   ): Promise<AdherenceTrend[]> {
-    return this.adherenceRepository.getAdherenceTrend(userId, days, medicationId);
+    return this.adherenceRepository.getAdherenceTrend(
+      userId,
+      days,
+      medicationId,
+    );
   }
 
   async getCurrentAdherenceStreak(
     userId: string,
     medicationId?: string,
   ): Promise<number> {
-    return this.adherenceRepository.getCurrentAdherenceStreak(userId, medicationId);
+    return this.adherenceRepository.getCurrentAdherenceStreak(
+      userId,
+      medicationId,
+    );
   }
 
   async getLongestAdherenceStreak(
     userId: string,
     medicationId?: string,
   ): Promise<number> {
-    return this.adherenceRepository.getLongestAdherenceStreak(userId, medicationId);
+    return this.adherenceRepository.getLongestAdherenceStreak(
+      userId,
+      medicationId,
+    );
   }
 
-  async getMedicationAdherenceRanking(userId: string): Promise<Array<{
-    medicationId: string;
-    adherenceRate: number;
-    totalDoses: number;
-    takenDoses: number;
-  }>> {
+  async getMedicationAdherenceRanking(userId: string): Promise<
+    Array<{
+      medicationId: string;
+      adherenceRate: number;
+      totalDoses: number;
+      takenDoses: number;
+    }>
+  > {
     return this.adherenceRepository.getMedicationAdherenceRanking(userId);
   }
 
@@ -307,7 +345,10 @@ export class AdherenceService {
     userId: string,
     adherenceThreshold: number = 0.8,
   ): Promise<string[]> {
-    return this.adherenceRepository.findPoorAdherenceMedications(userId, adherenceThreshold);
+    return this.adherenceRepository.findPoorAdherenceMedications(
+      userId,
+      adherenceThreshold,
+    );
   }
 
   async getRecentAdherenceActivity(
