@@ -570,12 +570,20 @@ class _MedicationApiService implements MedicationApiService {
   }
 
   @override
-  Future<OCRProcessingResult> processImageOCR(InvalidType image) async {
+  Future<OCRProcessingResult> processImageOCR(File image) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     final _data = FormData();
-    _data.fields.add(MapEntry('image', image));
+    _data.files.add(
+      MapEntry(
+        'image',
+        MultipartFile.fromFileSync(
+          image.path,
+          filename: image.path.split(Platform.pathSeparator).last,
+        ),
+      ),
+    );
     final _options = _setStreamType<OCRProcessingResult>(
       Options(
             method: 'POST',
