@@ -12,7 +12,7 @@ import '../widgets/medication_interactions_tab.dart';
 import '../widgets/medication_history_tab.dart';
 
 /// Individual medication detail screen with tabbed interface
-/// 
+///
 /// Provides comprehensive medication management including:
 /// - Overview with basic details and actions
 /// - Schedules for dosing and reminders
@@ -30,7 +30,8 @@ class MedicationDetailScreen extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<MedicationDetailScreen> createState() => _MedicationDetailScreenState();
+  ConsumerState<MedicationDetailScreen> createState() =>
+      _MedicationDetailScreenState();
 }
 
 class _MedicationDetailScreenState extends ConsumerState<MedicationDetailScreen>
@@ -42,7 +43,7 @@ class _MedicationDetailScreenState extends ConsumerState<MedicationDetailScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 5, vsync: this);
-    
+
     _logger.info('Medication detail screen initialized', {
       'medicationId': widget.medicationId,
       'hasPreloadedData': widget.medication != null,
@@ -73,7 +74,7 @@ class _MedicationDetailScreenState extends ConsumerState<MedicationDetailScreen>
 
   Widget _buildDetailScreen(Medication medication) {
     final theme = Theme.of(context);
-    
+
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
       appBar: _buildAppBar(medication, theme),
@@ -100,26 +101,17 @@ class _MedicationDetailScreenState extends ConsumerState<MedicationDetailScreen>
       backgroundColor: theme.colorScheme.surface,
       elevation: 0,
       leading: IconButton(
-        icon: Icon(
-          Icons.arrow_back,
-          color: theme.colorScheme.onSurface,
-        ),
+        icon: Icon(Icons.arrow_back, color: theme.colorScheme.onSurface),
         onPressed: () => Navigator.of(context).pop(),
       ),
       actions: [
         IconButton(
-          icon: Icon(
-            Icons.edit,
-            color: theme.colorScheme.onSurface,
-          ),
+          icon: Icon(Icons.edit, color: theme.colorScheme.onSurface),
           onPressed: () => _navigateToEditMedication(medication),
           tooltip: 'Edit medication',
         ),
         PopupMenuButton<String>(
-          icon: Icon(
-            Icons.more_vert,
-            color: theme.colorScheme.onSurface,
-          ),
+          icon: Icon(Icons.more_vert, color: theme.colorScheme.onSurface),
           onSelected: (value) => _handleMenuAction(value, medication),
           itemBuilder: (context) => [
             const PopupMenuItem(
@@ -232,9 +224,7 @@ class _MedicationDetailScreenState extends ConsumerState<MedicationDetailScreen>
       ),
       child: Text(
         text,
-        style: theme.textTheme.bodySmall?.copyWith(
-          fontWeight: FontWeight.w500,
-        ),
+        style: theme.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w500),
       ),
     );
   }
@@ -243,7 +233,7 @@ class _MedicationDetailScreenState extends ConsumerState<MedicationDetailScreen>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: isActive 
+        color: isActive
             ? CareCircleDesignTokens.healthGreen.withValues(alpha: 0.1)
             : theme.colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(12),
@@ -251,7 +241,7 @@ class _MedicationDetailScreenState extends ConsumerState<MedicationDetailScreen>
       child: Text(
         isActive ? 'Active' : 'Inactive',
         style: theme.textTheme.bodySmall?.copyWith(
-          color: isActive 
+          color: isActive
               ? CareCircleDesignTokens.healthGreen
               : theme.colorScheme.onSurface.withValues(alpha: 0.7),
           fontWeight: FontWeight.w500,
@@ -275,7 +265,9 @@ class _MedicationDetailScreenState extends ConsumerState<MedicationDetailScreen>
         isScrollable: true,
         indicatorColor: CareCircleDesignTokens.primaryMedicalBlue,
         labelColor: CareCircleDesignTokens.primaryMedicalBlue,
-        unselectedLabelColor: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+        unselectedLabelColor: theme.colorScheme.onSurface.withValues(
+          alpha: 0.7,
+        ),
         labelStyle: theme.textTheme.bodyMedium?.copyWith(
           fontWeight: FontWeight.w600,
         ),
@@ -333,9 +325,7 @@ class _MedicationDetailScreenState extends ConsumerState<MedicationDetailScreen>
         title: const Text('Loading...'),
         backgroundColor: Theme.of(context).colorScheme.surface,
       ),
-      body: const Center(
-        child: CircularProgressIndicator(),
-      ),
+      body: const Center(child: CircularProgressIndicator()),
     );
   }
 
@@ -352,7 +342,9 @@ class _MedicationDetailScreenState extends ConsumerState<MedicationDetailScreen>
             Icon(
               Icons.search_off,
               size: 64,
-              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.5),
             ),
             const SizedBox(height: 16),
             Text(
@@ -363,7 +355,9 @@ class _MedicationDetailScreenState extends ConsumerState<MedicationDetailScreen>
             Text(
               'The requested medication could not be found',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.7),
               ),
             ),
             const SizedBox(height: 16),
@@ -401,7 +395,9 @@ class _MedicationDetailScreenState extends ConsumerState<MedicationDetailScreen>
             Text(
               'Please try again later',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.7),
               ),
             ),
             const SizedBox(height: 16),
@@ -471,7 +467,7 @@ class _MedicationDetailScreenState extends ConsumerState<MedicationDetailScreen>
       'medicationId': medication.id,
       'timestamp': DateTime.now().toIso8601String(),
     });
-    
+
     switch (action) {
       case 'duplicate':
         // TODO: Implement duplicate medication

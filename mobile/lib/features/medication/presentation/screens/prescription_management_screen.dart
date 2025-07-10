@@ -7,7 +7,7 @@ import '../../domain/models/models.dart';
 import '../providers/prescription_providers.dart';
 
 /// Prescription Management Screen for prescription overview interface
-/// 
+///
 /// Features:
 /// - Prescription list and overview
 /// - Verification status tracking
@@ -18,10 +18,12 @@ class PrescriptionManagementScreen extends ConsumerStatefulWidget {
   const PrescriptionManagementScreen({super.key});
 
   @override
-  ConsumerState<PrescriptionManagementScreen> createState() => _PrescriptionManagementScreenState();
+  ConsumerState<PrescriptionManagementScreen> createState() =>
+      _PrescriptionManagementScreenState();
 }
 
-class _PrescriptionManagementScreenState extends ConsumerState<PrescriptionManagementScreen> {
+class _PrescriptionManagementScreenState
+    extends ConsumerState<PrescriptionManagementScreen> {
   static final _logger = BoundedContextLoggers.medication;
   String _selectedFilter = 'all';
 
@@ -44,10 +46,22 @@ class _PrescriptionManagementScreenState extends ConsumerState<PrescriptionManag
               });
             },
             itemBuilder: (context) => [
-              const PopupMenuItem(value: 'all', child: Text('All Prescriptions')),
-              const PopupMenuItem(value: 'verified', child: Text('Verified Only')),
-              const PopupMenuItem(value: 'pending', child: Text('Pending Verification')),
-              const PopupMenuItem(value: 'needs_review', child: Text('Needs Review')),
+              const PopupMenuItem(
+                value: 'all',
+                child: Text('All Prescriptions'),
+              ),
+              const PopupMenuItem(
+                value: 'verified',
+                child: Text('Verified Only'),
+              ),
+              const PopupMenuItem(
+                value: 'pending',
+                child: Text('Pending Verification'),
+              ),
+              const PopupMenuItem(
+                value: 'needs_review',
+                child: Text('Needs Review'),
+              ),
             ],
             icon: const Icon(Icons.filter_list),
           ),
@@ -56,9 +70,7 @@ class _PrescriptionManagementScreenState extends ConsumerState<PrescriptionManag
       body: Column(
         children: [
           _buildStatsOverview(prescriptionsAsync, theme),
-          Expanded(
-            child: _buildPrescriptionsList(prescriptionsAsync, theme),
-          ),
+          Expanded(child: _buildPrescriptionsList(prescriptionsAsync, theme)),
         ],
       ),
       floatingActionButton: FloatingActionButton(
@@ -70,7 +82,10 @@ class _PrescriptionManagementScreenState extends ConsumerState<PrescriptionManag
     );
   }
 
-  Widget _buildStatsOverview(AsyncValue<List<Prescription>> prescriptionsAsync, ThemeData theme) {
+  Widget _buildStatsOverview(
+    AsyncValue<List<Prescription>> prescriptionsAsync,
+    ThemeData theme,
+  ) {
     return Card(
       margin: const EdgeInsets.all(16),
       elevation: 2,
@@ -83,7 +98,8 @@ class _PrescriptionManagementScreenState extends ConsumerState<PrescriptionManag
             height: 80,
             child: Center(child: CircularProgressIndicator()),
           ),
-          error: (error, _) => _buildErrorState('Failed to load statistics', theme),
+          error: (error, _) =>
+              _buildErrorState('Failed to load statistics', theme),
         ),
       ),
     );
@@ -91,9 +107,15 @@ class _PrescriptionManagementScreenState extends ConsumerState<PrescriptionManag
 
   Widget _buildStatsContent(List<Prescription> prescriptions, ThemeData theme) {
     final total = prescriptions.length;
-    final verified = prescriptions.where((p) => p.verificationStatus == VerificationStatus.verified).length;
-    final pending = prescriptions.where((p) => p.verificationStatus == VerificationStatus.pending).length;
-    final needsReview = prescriptions.where((p) => p.verificationStatus == VerificationStatus.needsReview).length;
+    final verified = prescriptions
+        .where((p) => p.verificationStatus == VerificationStatus.verified)
+        .length;
+    final pending = prescriptions
+        .where((p) => p.verificationStatus == VerificationStatus.pending)
+        .length;
+    final needsReview = prescriptions
+        .where((p) => p.verificationStatus == VerificationStatus.needsReview)
+        .length;
 
     return Row(
       children: [
@@ -140,7 +162,13 @@ class _PrescriptionManagementScreenState extends ConsumerState<PrescriptionManag
     );
   }
 
-  Widget _buildStatCard(String title, String value, IconData icon, Color color, ThemeData theme) {
+  Widget _buildStatCard(
+    String title,
+    String value,
+    IconData icon,
+    Color color,
+    ThemeData theme,
+  ) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -169,11 +197,14 @@ class _PrescriptionManagementScreenState extends ConsumerState<PrescriptionManag
     );
   }
 
-  Widget _buildPrescriptionsList(AsyncValue<List<Prescription>> prescriptionsAsync, ThemeData theme) {
+  Widget _buildPrescriptionsList(
+    AsyncValue<List<Prescription>> prescriptionsAsync,
+    ThemeData theme,
+  ) {
     return prescriptionsAsync.when(
       data: (prescriptions) {
         final filteredPrescriptions = _filterPrescriptions(prescriptions);
-        
+
         if (filteredPrescriptions.isEmpty) {
           return _buildEmptyState(theme);
         }
@@ -187,7 +218,8 @@ class _PrescriptionManagementScreenState extends ConsumerState<PrescriptionManag
         );
       },
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, _) => _buildErrorState('Failed to load prescriptions', theme),
+      error: (error, _) =>
+          _buildErrorState('Failed to load prescriptions', theme),
     );
   }
 
@@ -209,7 +241,9 @@ class _PrescriptionManagementScreenState extends ConsumerState<PrescriptionManag
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: _getStatusColor(prescription).withValues(alpha: 0.1),
+                      color: _getStatusColor(
+                        prescription,
+                      ).withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Icon(
@@ -241,7 +275,10 @@ class _PrescriptionManagementScreenState extends ConsumerState<PrescriptionManag
                     ),
                   ),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: _getStatusColor(prescription),
                       borderRadius: BorderRadius.circular(12),
@@ -268,20 +305,24 @@ class _PrescriptionManagementScreenState extends ConsumerState<PrescriptionManag
                 Wrap(
                   spacing: 8,
                   runSpacing: 4,
-                  children: prescription.extractedMedications.take(3).map((med) {
+                  children: prescription.extractedMedications.take(3).map((
+                    med,
+                  ) {
                     return Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: theme.colorScheme.surfaceContainerLow,
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(
-                          color: theme.colorScheme.outline.withValues(alpha: 0.2),
+                          color: theme.colorScheme.outline.withValues(
+                            alpha: 0.2,
+                          ),
                         ),
                       ),
-                      child: Text(
-                        med,
-                        style: theme.textTheme.bodySmall,
-                      ),
+                      child: Text(med, style: theme.textTheme.bodySmall),
                     );
                   }).toList(),
                 ),
@@ -308,7 +349,8 @@ class _PrescriptionManagementScreenState extends ConsumerState<PrescriptionManag
               const SizedBox(height: 12),
               Row(
                 children: [
-                  if (prescription.verificationStatus == VerificationStatus.pending)
+                  if (prescription.verificationStatus ==
+                      VerificationStatus.pending)
                     Expanded(
                       child: OutlinedButton.icon(
                         onPressed: () => _reprocessPrescription(prescription),
@@ -319,9 +361,13 @@ class _PrescriptionManagementScreenState extends ConsumerState<PrescriptionManag
                         ),
                       ),
                     ),
-                  if (prescription.verificationStatus == VerificationStatus.pending && prescription.extractedMedications.isNotEmpty)
+                  if (prescription.verificationStatus ==
+                          VerificationStatus.pending &&
+                      prescription.extractedMedications.isNotEmpty)
                     const SizedBox(width: 8),
-                  if (prescription.verificationStatus != VerificationStatus.verified && prescription.extractedMedications.isNotEmpty)
+                  if (prescription.verificationStatus !=
+                          VerificationStatus.verified &&
+                      prescription.extractedMedications.isNotEmpty)
                     Expanded(
                       child: ElevatedButton.icon(
                         onPressed: () => _verifyPrescription(prescription),
@@ -333,14 +379,17 @@ class _PrescriptionManagementScreenState extends ConsumerState<PrescriptionManag
                         ),
                       ),
                     ),
-                  if (prescription.verificationStatus == VerificationStatus.verified)
+                  if (prescription.verificationStatus ==
+                      VerificationStatus.verified)
                     Expanded(
                       child: OutlinedButton.icon(
-                        onPressed: () => _navigateToPrescriptionDetail(prescription),
+                        onPressed: () =>
+                            _navigateToPrescriptionDetail(prescription),
                         icon: const Icon(Icons.visibility, size: 16),
                         label: const Text('View Details'),
                         style: OutlinedButton.styleFrom(
-                          foregroundColor: CareCircleDesignTokens.primaryMedicalBlue,
+                          foregroundColor:
+                              CareCircleDesignTokens.primaryMedicalBlue,
                         ),
                       ),
                     ),
@@ -438,11 +487,19 @@ class _PrescriptionManagementScreenState extends ConsumerState<PrescriptionManag
   List<Prescription> _filterPrescriptions(List<Prescription> prescriptions) {
     switch (_selectedFilter) {
       case 'verified':
-        return prescriptions.where((p) => p.verificationStatus == VerificationStatus.verified).toList();
+        return prescriptions
+            .where((p) => p.verificationStatus == VerificationStatus.verified)
+            .toList();
       case 'pending':
-        return prescriptions.where((p) => p.verificationStatus == VerificationStatus.pending).toList();
+        return prescriptions
+            .where((p) => p.verificationStatus == VerificationStatus.pending)
+            .toList();
       case 'needs_review':
-        return prescriptions.where((p) => p.verificationStatus == VerificationStatus.needsReview).toList();
+        return prescriptions
+            .where(
+              (p) => p.verificationStatus == VerificationStatus.needsReview,
+            )
+            .toList();
       case 'all':
       default:
         return prescriptions;
@@ -597,9 +654,8 @@ class _PrescriptionManagementScreenState extends ConsumerState<PrescriptionManag
 
   void _navigateToPrescriptionDetail(Prescription prescription) {
     // Navigate to prescription detail screen
-    Navigator.of(context).pushNamed(
-      '/prescription-detail',
-      arguments: prescription.id,
-    );
+    Navigator.of(
+      context,
+    ).pushNamed('/prescription-detail', arguments: prescription.id);
   }
 }

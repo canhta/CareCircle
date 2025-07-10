@@ -7,7 +7,7 @@ import '../../domain/models/models.dart';
 import '../providers/interaction_providers.dart';
 
 /// Interactions tab for medication detail screen
-/// 
+///
 /// Displays drug interaction information including:
 /// - Current medication interactions
 /// - Interaction severity levels
@@ -17,10 +17,7 @@ class MedicationInteractionsTab extends ConsumerWidget {
   final String medicationId;
   static final _logger = BoundedContextLoggers.medication;
 
-  const MedicationInteractionsTab({
-    super.key,
-    required this.medicationId,
-  });
+  const MedicationInteractionsTab({super.key, required this.medicationId});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -47,11 +44,7 @@ class MedicationInteractionsTab extends ConsumerWidget {
   Widget _buildInteractionsHeader(ThemeData theme) {
     return Row(
       children: [
-        Icon(
-          Icons.warning_amber,
-          color: Colors.orange,
-          size: 24,
-        ),
+        Icon(Icons.warning_amber, color: Colors.orange, size: 24),
         const SizedBox(width: 8),
         Text(
           'Drug Interactions',
@@ -72,7 +65,10 @@ class MedicationInteractionsTab extends ConsumerWidget {
     );
   }
 
-  Widget _buildInteractionsContent(InteractionAnalysis analysis, ThemeData theme) {
+  Widget _buildInteractionsContent(
+    InteractionAnalysis analysis,
+    ThemeData theme,
+  ) {
     if (analysis.interactions.isEmpty) {
       return _buildNoInteractionsState(theme);
     }
@@ -87,10 +83,19 @@ class MedicationInteractionsTab extends ConsumerWidget {
     );
   }
 
-  Widget _buildInteractionsSummary(InteractionAnalysis analysis, ThemeData theme) {
-    final majorCount = analysis.interactions.where((i) => i.severity == InteractionSeverity.major).length;
-    final moderateCount = analysis.interactions.where((i) => i.severity == InteractionSeverity.moderate).length;
-    final minorCount = analysis.interactions.where((i) => i.severity == InteractionSeverity.minor).length;
+  Widget _buildInteractionsSummary(
+    InteractionAnalysis analysis,
+    ThemeData theme,
+  ) {
+    final majorCount = analysis.interactions
+        .where((i) => i.severity == InteractionSeverity.major)
+        .length;
+    final moderateCount = analysis.interactions
+        .where((i) => i.severity == InteractionSeverity.moderate)
+        .length;
+    final minorCount = analysis.interactions
+        .where((i) => i.severity == InteractionSeverity.minor)
+        .length;
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -146,15 +151,18 @@ class MedicationInteractionsTab extends ConsumerWidget {
     );
   }
 
-  Widget _buildSeverityCard(String label, int count, Color color, ThemeData theme) {
+  Widget _buildSeverityCard(
+    String label,
+    int count,
+    Color color,
+    ThemeData theme,
+  ) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: color.withValues(alpha: 0.3),
-        ),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Column(
         children: [
@@ -176,7 +184,10 @@ class MedicationInteractionsTab extends ConsumerWidget {
     );
   }
 
-  Widget _buildInteractionsList(List<InteractionAlert> interactions, ThemeData theme) {
+  Widget _buildInteractionsList(
+    List<InteractionAlert> interactions,
+    ThemeData theme,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -187,22 +198,22 @@ class MedicationInteractionsTab extends ConsumerWidget {
           ),
         ),
         const SizedBox(height: 12),
-        ...interactions.map((interaction) => Padding(
-          padding: const EdgeInsets.only(bottom: 12),
-          child: _buildInteractionCard(interaction, theme),
-        )),
+        ...interactions.map(
+          (interaction) => Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: _buildInteractionCard(interaction, theme),
+          ),
+        ),
       ],
     );
   }
 
   Widget _buildInteractionCard(InteractionAlert interaction, ThemeData theme) {
     final severityColor = _getSeverityColor(interaction.severity);
-    
+
     return Card(
       elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -242,7 +253,11 @@ class MedicationInteractionsTab extends ConsumerWidget {
     );
   }
 
-  Widget _buildSeverityChip(InteractionSeverity severity, Color color, ThemeData theme) {
+  Widget _buildSeverityChip(
+    InteractionSeverity severity,
+    Color color,
+    ThemeData theme,
+  ) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
@@ -272,28 +287,30 @@ class MedicationInteractionsTab extends ConsumerWidget {
           ),
         ),
         const SizedBox(height: 4),
-        ...effects.map((effect) => Padding(
-          padding: const EdgeInsets.only(left: 8, bottom: 2),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                '• ',
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
-                ),
-              ),
-              Expanded(
-                child: Text(
-                  effect,
+        ...effects.map(
+          (effect) => Padding(
+            padding: const EdgeInsets.only(left: 8, bottom: 2),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '• ',
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                   ),
                 ),
-              ),
-            ],
+                Expanded(
+                  child: Text(
+                    effect,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
-        )),
+        ),
       ],
     );
   }
@@ -305,7 +322,9 @@ class MedicationInteractionsTab extends ConsumerWidget {
         color: CareCircleDesignTokens.primaryMedicalBlue.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: CareCircleDesignTokens.primaryMedicalBlue.withValues(alpha: 0.3),
+          color: CareCircleDesignTokens.primaryMedicalBlue.withValues(
+            alpha: 0.3,
+          ),
         ),
       ),
       child: Row(

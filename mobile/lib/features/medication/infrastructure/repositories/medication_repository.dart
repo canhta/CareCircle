@@ -19,7 +19,10 @@ class MedicationRepository {
   MedicationRepository(this._apiService);
 
   /// Get user medications with optional filtering
-  Future<List<Medication>> getMedications({MedicationQueryParams? params, bool useCache = true}) async {
+  Future<List<Medication>> getMedications({
+    MedicationQueryParams? params,
+    bool useCache = true,
+  }) async {
     try {
       _logger.info('Fetching user medications', {
         'operation': 'getMedications',
@@ -32,7 +35,10 @@ class MedicationRepository {
       if (useCache) {
         final cached = await _getCachedMedications();
         if (cached != null && cached.isNotEmpty) {
-          _logger.info('Returning cached medications', {'count': cached.length, 'source': 'cache'});
+          _logger.info('Returning cached medications', {
+            'count': cached.length,
+            'source': 'cache',
+          });
           return cached;
         }
       }
@@ -83,7 +89,11 @@ class MedicationRepository {
       });
       rethrow;
     } catch (e, stackTrace) {
-      await ErrorTracker.recordMedicationError(e, stackTrace, operation: 'getMedications');
+      await ErrorTracker.recordMedicationError(
+        e,
+        stackTrace,
+        operation: 'getMedications',
+      );
       rethrow;
     }
   }
@@ -109,7 +119,10 @@ class MedicationRepository {
       return medication;
     } on DioException catch (e) {
       if (e.response?.statusCode == 404) {
-        _logger.warning('Medication not found', {'medicationId': id, 'statusCode': 404});
+        _logger.warning('Medication not found', {
+          'medicationId': id,
+          'statusCode': 404,
+        });
         return null;
       }
 
@@ -195,7 +208,10 @@ class MedicationRepository {
   }
 
   /// Update existing medication
-  Future<Medication> updateMedication(String id, UpdateMedicationRequest request) async {
+  Future<Medication> updateMedication(
+    String id,
+    UpdateMedicationRequest request,
+  ) async {
     try {
       _logger.info('Updating medication', {
         'operation': 'updateMedication',
@@ -297,27 +313,42 @@ class MedicationRepository {
   Future<void> _cacheMedications(List<Medication> medications) async {
     try {
       final medicationData = medications.map((m) => m.toJson()).toList();
-      await StorageService.setCacheJson('medication_cache', 'user_medications', {
-        'medications': medicationData,
-        'cached_at': DateTime.now().toIso8601String(),
-      });
+      await StorageService.setCacheJson(
+        'medication_cache',
+        'user_medications',
+        {
+          'medications': medicationData,
+          'cached_at': DateTime.now().toIso8601String(),
+        },
+      );
     } catch (e) {
-      _logger.warning('Failed to cache medications', {'error': e.toString(), 'count': medications.length});
+      _logger.warning('Failed to cache medications', {
+        'error': e.toString(),
+        'count': medications.length,
+      });
     }
   }
 
   /// Get cached medications
   Future<List<Medication>?> _getCachedMedications() async {
     try {
-      final data = await StorageService.getCacheJson('medication_cache', 'user_medications');
+      final data = await StorageService.getCacheJson(
+        'medication_cache',
+        'user_medications',
+      );
       if (data == null) return null;
 
       final medications = data['medications'] as List?;
       if (medications == null) return null;
 
-      return medications.cast<Map<String, dynamic>>().map((json) => Medication.fromJson(json)).toList();
+      return medications
+          .cast<Map<String, dynamic>>()
+          .map((json) => Medication.fromJson(json))
+          .toList();
     } catch (e) {
-      _logger.warning('Failed to get cached medications', {'error': e.toString()});
+      _logger.warning('Failed to get cached medications', {
+        'error': e.toString(),
+      });
       return null;
     }
   }
@@ -327,7 +358,9 @@ class MedicationRepository {
     try {
       await StorageService.removeCache('medication_cache', 'user_medications');
     } catch (e) {
-      _logger.warning('Failed to clear medication cache', {'error': e.toString()});
+      _logger.warning('Failed to clear medication cache', {
+        'error': e.toString(),
+      });
     }
   }
 }

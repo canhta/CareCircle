@@ -7,7 +7,7 @@ import '../../domain/models/models.dart';
 import '../providers/schedule_providers.dart';
 
 /// Schedule Management Screen for medication scheduling interface
-/// 
+///
 /// Features:
 /// - Schedule creation and editing forms
 /// - Reminder configuration interface
@@ -25,10 +25,12 @@ class ScheduleManagementScreen extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<ScheduleManagementScreen> createState() => _ScheduleManagementScreenState();
+  ConsumerState<ScheduleManagementScreen> createState() =>
+      _ScheduleManagementScreenState();
 }
 
-class _ScheduleManagementScreenState extends ConsumerState<ScheduleManagementScreen> {
+class _ScheduleManagementScreenState
+    extends ConsumerState<ScheduleManagementScreen> {
   final _formKey = GlobalKey<FormState>();
   final _instructionsController = TextEditingController();
   static final _logger = BoundedContextLoggers.medication;
@@ -42,7 +44,7 @@ class _ScheduleManagementScreenState extends ConsumerState<ScheduleManagementScr
   List<int> _selectedDaysOfWeek = [];
   List<TimeOfDay> _reminderTimes = [];
   String _mealRelation = 'independent';
-  
+
   // Reminder settings
   int _advanceMinutes = 15;
   bool _soundEnabled = true;
@@ -74,12 +76,12 @@ class _ScheduleManagementScreenState extends ConsumerState<ScheduleManagementScr
       _timesPerDay = schedule.schedule.times;
       _selectedDaysOfWeek = schedule.schedule.daysOfWeek ?? [];
       _mealRelation = schedule.schedule.mealRelation ?? 'independent';
-      
+
       // Convert reminder times
-      _reminderTimes = schedule.reminderTimes.map((time) => 
-        TimeOfDay(hour: time.hour, minute: time.minute)
-      ).toList();
-      
+      _reminderTimes = schedule.reminderTimes
+          .map((time) => TimeOfDay(hour: time.hour, minute: time.minute))
+          .toList();
+
       // Reminder settings
       _advanceMinutes = schedule.reminderSettings.advanceMinutes;
       _soundEnabled = schedule.reminderSettings.soundEnabled;
@@ -87,7 +89,9 @@ class _ScheduleManagementScreenState extends ConsumerState<ScheduleManagementScr
       _criticalityLevel = schedule.reminderSettings.criticalityLevel;
     } else {
       _startDate = DateTime.now();
-      _reminderTimes = [const TimeOfDay(hour: 8, minute: 0)]; // Default morning time
+      _reminderTimes = [
+        const TimeOfDay(hour: 8, minute: 0),
+      ]; // Default morning time
     }
   }
 
@@ -161,7 +165,9 @@ class _ScheduleManagementScreenState extends ConsumerState<ScheduleManagementScr
                         width: 20,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.white,
+                          ),
                         ),
                       )
                     : Text(isEditing ? 'Update Schedule' : 'Create Schedule'),
@@ -325,10 +331,19 @@ class _ScheduleManagementScreenState extends ConsumerState<ScheduleManagementScr
                 border: OutlineInputBorder(),
               ),
               items: const [
-                DropdownMenuItem(value: 'independent', child: Text('Independent of meals')),
-                DropdownMenuItem(value: 'before_meal', child: Text('Before meals')),
+                DropdownMenuItem(
+                  value: 'independent',
+                  child: Text('Independent of meals'),
+                ),
+                DropdownMenuItem(
+                  value: 'before_meal',
+                  child: Text('Before meals'),
+                ),
                 DropdownMenuItem(value: 'with_meal', child: Text('With meals')),
-                DropdownMenuItem(value: 'after_meal', child: Text('After meals')),
+                DropdownMenuItem(
+                  value: 'after_meal',
+                  child: Text('After meals'),
+                ),
               ],
               onChanged: (value) {
                 if (value != null) {
@@ -474,7 +489,10 @@ class _ScheduleManagementScreenState extends ConsumerState<ScheduleManagementScr
                 ),
                 items: const [
                   DropdownMenuItem(value: 'low', child: Text('Low Priority')),
-                  DropdownMenuItem(value: 'medium', child: Text('Medium Priority')),
+                  DropdownMenuItem(
+                    value: 'medium',
+                    child: Text('Medium Priority'),
+                  ),
                   DropdownMenuItem(value: 'high', child: Text('High Priority')),
                 ],
                 onChanged: (value) {
@@ -526,7 +544,9 @@ class _ScheduleManagementScreenState extends ConsumerState<ScheduleManagementScr
   Future<void> _selectDate(BuildContext context, bool isStartDate) async {
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: isStartDate ? (_startDate ?? DateTime.now()) : (_endDate ?? DateTime.now()),
+      initialDate: isStartDate
+          ? (_startDate ?? DateTime.now())
+          : (_endDate ?? DateTime.now()),
       firstDate: DateTime.now().subtract(const Duration(days: 1)),
       lastDate: DateTime(2030),
     );
@@ -611,14 +631,14 @@ class _ScheduleManagementScreenState extends ConsumerState<ScheduleManagementScr
           frequency: _frequency,
           times: _timesPerDay,
           daysOfWeek: _frequency == 'weekly' ? _selectedDaysOfWeek : null,
-          specificTimes: _reminderTimes.map((time) =>
-            Time(hour: time.hour, minute: time.minute)
-          ).toList(),
+          specificTimes: _reminderTimes
+              .map((time) => Time(hour: time.hour, minute: time.minute))
+              .toList(),
           mealRelation: _mealRelation,
         ),
-        reminderTimes: _reminderTimes.map((time) =>
-          Time(hour: time.hour, minute: time.minute)
-        ).toList(),
+        reminderTimes: _reminderTimes
+            .map((time) => Time(hour: time.hour, minute: time.minute))
+            .toList(),
         reminderSettings: ReminderSettings(
           advanceMinutes: _advanceMinutes,
           repeatMinutes: 15,
@@ -630,12 +650,13 @@ class _ScheduleManagementScreenState extends ConsumerState<ScheduleManagementScr
       );
 
       if (isEditing) {
-        await ref.read(scheduleUpdateProvider.notifier).updateSchedule(
-          widget.schedule!.id,
-          scheduleRequest,
-        );
+        await ref
+            .read(scheduleUpdateProvider.notifier)
+            .updateSchedule(widget.schedule!.id, scheduleRequest);
       } else {
-        await ref.read(scheduleCreateProvider.notifier).createSchedule(scheduleRequest);
+        await ref
+            .read(scheduleCreateProvider.notifier)
+            .createSchedule(scheduleRequest);
       }
 
       if (mounted) {
@@ -647,7 +668,11 @@ class _ScheduleManagementScreenState extends ConsumerState<ScheduleManagementScr
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(isEditing ? 'Schedule updated successfully' : 'Schedule created successfully'),
+            content: Text(
+              isEditing
+                  ? 'Schedule updated successfully'
+                  : 'Schedule created successfully',
+            ),
             backgroundColor: CareCircleDesignTokens.healthGreen,
           ),
         );
@@ -656,7 +681,9 @@ class _ScheduleManagementScreenState extends ConsumerState<ScheduleManagementScr
       }
     } catch (e) {
       _logger.error('Failed to save schedule', {
-        'operation': widget.schedule != null ? 'updateSchedule' : 'createSchedule',
+        'operation': widget.schedule != null
+            ? 'updateSchedule'
+            : 'createSchedule',
         'medicationId': widget.medicationId,
         'error': e.toString(),
         'timestamp': DateTime.now().toIso8601String(),
@@ -686,7 +713,9 @@ class _ScheduleManagementScreenState extends ConsumerState<ScheduleManagementScr
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Delete Schedule'),
-        content: const Text('Are you sure you want to delete this schedule? This action cannot be undone.'),
+        content: const Text(
+          'Are you sure you want to delete this schedule? This action cannot be undone.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
@@ -712,7 +741,9 @@ class _ScheduleManagementScreenState extends ConsumerState<ScheduleManagementScr
           'timestamp': DateTime.now().toIso8601String(),
         });
 
-        await ref.read(scheduleDeleteProvider.notifier).deleteSchedule(widget.schedule!.id);
+        await ref
+            .read(scheduleDeleteProvider.notifier)
+            .deleteSchedule(widget.schedule!.id);
 
         if (mounted) {
           _logger.info('Schedule deleted successfully', {

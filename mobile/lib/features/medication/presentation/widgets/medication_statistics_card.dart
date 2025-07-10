@@ -17,7 +17,10 @@ class MedicationStatisticsCard extends ConsumerWidget {
     );
   }
 
-  Widget _buildStatisticsCard(BuildContext context, Map<String, dynamic> stats) {
+  Widget _buildStatisticsCard(
+    BuildContext context,
+    Map<String, dynamic> stats,
+  ) {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -113,11 +116,7 @@ class MedicationStatisticsCard extends ConsumerWidget {
             color: color.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
           ),
-          child: Icon(
-            icon,
-            color: color,
-            size: 24,
-          ),
+          child: Icon(icon, color: color, size: 24),
         ),
         const SizedBox(height: 8),
         Text(
@@ -129,9 +128,9 @@ class MedicationStatisticsCard extends ConsumerWidget {
         ),
         Text(
           label,
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            color: Colors.grey[600],
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
         ),
       ],
     );
@@ -202,18 +201,11 @@ class MedicationStatisticsCard extends ConsumerWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
-                Icons.error_outline,
-                color: Colors.red[400],
-                size: 32,
-              ),
+              Icon(Icons.error_outline, color: Colors.red[400], size: 32),
               const SizedBox(height: 8),
               Text(
                 'Failed to load statistics',
-                style: TextStyle(
-                  color: Colors.red[600],
-                  fontSize: 12,
-                ),
+                style: TextStyle(color: Colors.red[600], fontSize: 12),
               ),
             ],
           ),

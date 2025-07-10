@@ -11,7 +11,8 @@ class MedicationFormScreen extends ConsumerStatefulWidget {
   const MedicationFormScreen({super.key, this.medication});
 
   @override
-  ConsumerState<MedicationFormScreen> createState() => _MedicationFormScreenState();
+  ConsumerState<MedicationFormScreen> createState() =>
+      _MedicationFormScreenState();
 }
 
 class _MedicationFormScreenState extends ConsumerState<MedicationFormScreen> {
@@ -182,9 +183,15 @@ class _MedicationFormScreenState extends ConsumerState<MedicationFormScreen> {
                   flex: 2,
                   child: DropdownButtonFormField<MedicationForm>(
                     value: _selectedForm,
-                    decoration: const InputDecoration(labelText: 'Form *', border: OutlineInputBorder()),
+                    decoration: const InputDecoration(
+                      labelText: 'Form *',
+                      border: OutlineInputBorder(),
+                    ),
                     items: MedicationForm.values.map((form) {
-                      return DropdownMenuItem(value: form, child: Text(form.displayName));
+                      return DropdownMenuItem(
+                        value: form,
+                        child: Text(form.displayName),
+                      );
                     }).toList(),
                     onChanged: (value) {
                       if (value != null) {
@@ -231,9 +238,15 @@ class _MedicationFormScreenState extends ConsumerState<MedicationFormScreen> {
             const SizedBox(height: 16),
             DropdownButtonFormField<String>(
               value: _selectedClassification,
-              decoration: const InputDecoration(labelText: 'Classification', border: OutlineInputBorder()),
+              decoration: const InputDecoration(
+                labelText: 'Classification',
+                border: OutlineInputBorder(),
+              ),
               items: _classifications.map((classification) {
-                return DropdownMenuItem(value: classification, child: Text(classification));
+                return DropdownMenuItem(
+                  value: classification,
+                  child: Text(classification),
+                );
               }).toList(),
               onChanged: (value) {
                 if (value != null) {
@@ -246,7 +259,11 @@ class _MedicationFormScreenState extends ConsumerState<MedicationFormScreen> {
             const SizedBox(height: 16),
             SwitchListTile(
               title: const Text('Active Medication'),
-              subtitle: Text(_isActive ? 'Currently taking this medication' : 'No longer taking this medication'),
+              subtitle: Text(
+                _isActive
+                    ? 'Currently taking this medication'
+                    : 'No longer taking this medication',
+              ),
               value: _isActive,
               onChanged: (value) {
                 setState(() {
@@ -308,7 +325,9 @@ class _MedicationFormScreenState extends ConsumerState<MedicationFormScreen> {
                         suffixIcon: Icon(Icons.calendar_today),
                       ),
                       child: Text(
-                        _endDate != null ? '${_endDate!.day}/${_endDate!.month}/${_endDate!.year}' : 'Select end date',
+                        _endDate != null
+                            ? '${_endDate!.day}/${_endDate!.month}/${_endDate!.year}'
+                            : 'Select end date',
                       ),
                     ),
                   ),
@@ -362,7 +381,9 @@ class _MedicationFormScreenState extends ConsumerState<MedicationFormScreen> {
             onPressed: _isLoading ? null : () => Navigator.of(context).pop(),
             style: OutlinedButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 16),
-              side: BorderSide(color: CareCircleDesignTokens.primaryMedicalBlue),
+              side: BorderSide(
+                color: CareCircleDesignTokens.primaryMedicalBlue,
+              ),
             ),
             child: const Text('Cancel'),
           ),
@@ -386,7 +407,9 @@ class _MedicationFormScreenState extends ConsumerState<MedicationFormScreen> {
   Future<void> _selectDate(BuildContext context, bool isStartDate) async {
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: isStartDate ? (_startDate ?? DateTime.now()) : (_endDate ?? DateTime.now()),
+      initialDate: isStartDate
+          ? (_startDate ?? DateTime.now())
+          : (_endDate ?? DateTime.now()),
       firstDate: DateTime(2000),
       lastDate: DateTime(2030),
     );
@@ -418,18 +441,26 @@ class _MedicationFormScreenState extends ConsumerState<MedicationFormScreen> {
         // Update existing medication
         final request = UpdateMedicationRequest(
           name: _nameController.text.trim(),
-          genericName: _genericNameController.text.trim().isEmpty ? null : _genericNameController.text.trim(),
+          genericName: _genericNameController.text.trim().isEmpty
+              ? null
+              : _genericNameController.text.trim(),
           strength: _strengthController.text.trim(),
           form: _selectedForm,
-          manufacturer: _manufacturerController.text.trim().isEmpty ? null : _manufacturerController.text.trim(),
+          manufacturer: _manufacturerController.text.trim().isEmpty
+              ? null
+              : _manufacturerController.text.trim(),
           classification: _selectedClassification,
           isActive: _isActive,
           startDate: _startDate,
           endDate: _endDate,
-          notes: _notesController.text.trim().isEmpty ? null : _notesController.text.trim(),
+          notes: _notesController.text.trim().isEmpty
+              ? null
+              : _notesController.text.trim(),
         );
 
-        await ref.read(medicationNotifierProvider.notifier).updateMedication(widget.medication!.id, request);
+        await ref
+            .read(medicationNotifierProvider.notifier)
+            .updateMedication(widget.medication!.id, request);
 
         _logger.logMedicationEvent('Medication updated via form', {
           'medicationId': widget.medication!.id,
@@ -442,22 +473,32 @@ class _MedicationFormScreenState extends ConsumerState<MedicationFormScreen> {
         final startDate = _startDate ?? DateTime.now();
 
         // For create, strength is required
-        final strength = _strengthController.text.trim().isEmpty ? 'N/A' : _strengthController.text.trim();
+        final strength = _strengthController.text.trim().isEmpty
+            ? 'N/A'
+            : _strengthController.text.trim();
 
         final request = CreateMedicationRequest(
           name: _nameController.text.trim(),
-          genericName: _genericNameController.text.trim().isEmpty ? null : _genericNameController.text.trim(),
+          genericName: _genericNameController.text.trim().isEmpty
+              ? null
+              : _genericNameController.text.trim(),
           strength: strength,
           form: _selectedForm,
-          manufacturer: _manufacturerController.text.trim().isEmpty ? null : _manufacturerController.text.trim(),
+          manufacturer: _manufacturerController.text.trim().isEmpty
+              ? null
+              : _manufacturerController.text.trim(),
           classification: _selectedClassification,
           isActive: _isActive,
           startDate: startDate,
           endDate: _endDate,
-          notes: _notesController.text.trim().isEmpty ? null : _notesController.text.trim(),
+          notes: _notesController.text.trim().isEmpty
+              ? null
+              : _notesController.text.trim(),
         );
 
-        await ref.read(medicationNotifierProvider.notifier).createMedication(request);
+        await ref
+            .read(medicationNotifierProvider.notifier)
+            .createMedication(request);
 
         _logger.logMedicationEvent('Medication created via form', {
           'medicationName': request.name,
@@ -481,7 +522,9 @@ class _MedicationFormScreenState extends ConsumerState<MedicationFormScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to ${isEditing ? 'update' : 'save'} medication: $error'),
+            content: Text(
+              'Failed to ${isEditing ? 'update' : 'save'} medication: $error',
+            ),
             backgroundColor: Colors.red,
           ),
         );

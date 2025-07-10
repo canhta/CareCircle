@@ -8,7 +8,7 @@ import '../../domain/models/models.dart';
 part 'prescription_processing_api_service.g.dart';
 
 /// API service for prescription processing and OCR operations
-/// 
+///
 /// Provides endpoints for:
 /// - Image upload and OCR processing
 /// - URL-based prescription processing
@@ -16,7 +16,8 @@ part 'prescription_processing_api_service.g.dart';
 /// - RxNorm integration and validation
 @RestApi(baseUrl: AppConfig.apiBaseUrl)
 abstract class PrescriptionProcessingApiService {
-  factory PrescriptionProcessingApiService(Dio dio, {String baseUrl}) = _PrescriptionProcessingApiService;
+  factory PrescriptionProcessingApiService(Dio dio, {String baseUrl}) =
+      _PrescriptionProcessingApiService;
 
   /// Process prescription image using OCR
   @POST('/prescription-processing/process-image')
@@ -25,7 +26,9 @@ abstract class PrescriptionProcessingApiService {
 
   /// Process prescription from URL
   @POST('/prescription-processing/process-url')
-  Future<OCRProcessingResult> processUrlOCR(@Body() Map<String, String> request);
+  Future<OCRProcessingResult> processUrlOCR(
+    @Body() Map<String, String> request,
+  );
 
   /// Reprocess existing prescription with updated OCR
   @POST('/prescription-processing/{id}/reprocess')
@@ -37,7 +40,9 @@ abstract class PrescriptionProcessingApiService {
 
   /// Validate prescription data
   @POST('/prescription-processing/validate')
-  Future<PrescriptionResponse> validatePrescriptionData(@Body() Map<String, dynamic> data);
+  Future<PrescriptionResponse> validatePrescriptionData(
+    @Body() Map<String, dynamic> data,
+  );
 
   /// Get OCR processing status
   @GET('/prescription-processing/{id}/status')

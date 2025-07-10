@@ -8,7 +8,7 @@ import '../providers/interaction_providers.dart';
 import '../providers/medication_providers.dart';
 
 /// Drug Interaction Screen for interaction analysis interface
-/// 
+///
 /// Features:
 /// - Interaction checking and severity alerts
 /// - Recommendations and guidance
@@ -19,7 +19,8 @@ class DrugInteractionScreen extends ConsumerStatefulWidget {
   const DrugInteractionScreen({super.key});
 
   @override
-  ConsumerState<DrugInteractionScreen> createState() => _DrugInteractionScreenState();
+  ConsumerState<DrugInteractionScreen> createState() =>
+      _DrugInteractionScreenState();
 }
 
 class _DrugInteractionScreenState extends ConsumerState<DrugInteractionScreen> {
@@ -40,7 +41,7 @@ class _DrugInteractionScreenState extends ConsumerState<DrugInteractionScreen> {
         actions: [
           IconButton(
             onPressed: _isCheckingInteractions ? null : _checkAllInteractions,
-            icon: _isCheckingInteractions 
+            icon: _isCheckingInteractions
                 ? const SizedBox(
                     width: 20,
                     height: 20,
@@ -72,7 +73,10 @@ class _DrugInteractionScreenState extends ConsumerState<DrugInteractionScreen> {
     );
   }
 
-  Widget _buildOverviewSection(AsyncValue<InteractionAnalysis> analysisAsync, ThemeData theme) {
+  Widget _buildOverviewSection(
+    AsyncValue<InteractionAnalysis> analysisAsync,
+    ThemeData theme,
+  ) {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -92,7 +96,10 @@ class _DrugInteractionScreenState extends ConsumerState<DrugInteractionScreen> {
             analysisAsync.when(
               data: (analysis) => _buildOverviewContent(analysis, theme),
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (error, _) => _buildErrorState('Failed to load interaction analysis', theme),
+              error: (error, _) => _buildErrorState(
+                'Failed to load interaction analysis',
+                theme,
+              ),
             ),
           ],
         ),
@@ -102,9 +109,15 @@ class _DrugInteractionScreenState extends ConsumerState<DrugInteractionScreen> {
 
   Widget _buildOverviewContent(InteractionAnalysis analysis, ThemeData theme) {
     final totalInteractions = analysis.interactions.length;
-    final highSeverity = analysis.interactions.where((i) => i.severity == InteractionSeverity.high).length;
-    final mediumSeverity = analysis.interactions.where((i) => i.severity == InteractionSeverity.medium).length;
-    final lowSeverity = analysis.interactions.where((i) => i.severity == InteractionSeverity.low).length;
+    final highSeverity = analysis.interactions
+        .where((i) => i.severity == InteractionSeverity.high)
+        .length;
+    final mediumSeverity = analysis.interactions
+        .where((i) => i.severity == InteractionSeverity.medium)
+        .length;
+    final lowSeverity = analysis.interactions
+        .where((i) => i.severity == InteractionSeverity.low)
+        .length;
 
     return Column(
       children: [
@@ -191,7 +204,12 @@ class _DrugInteractionScreenState extends ConsumerState<DrugInteractionScreen> {
     );
   }
 
-  Widget _buildSeverityCard(String severity, int count, Color color, ThemeData theme) {
+  Widget _buildSeverityCard(
+    String severity,
+    int count,
+    Color color,
+    ThemeData theme,
+  ) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -220,7 +238,10 @@ class _DrugInteractionScreenState extends ConsumerState<DrugInteractionScreen> {
     );
   }
 
-  Widget _buildMedicationListSection(AsyncValue<List<Medication>> medicationsAsync, ThemeData theme) {
+  Widget _buildMedicationListSection(
+    AsyncValue<List<Medication>> medicationsAsync,
+    ThemeData theme,
+  ) {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -241,10 +262,16 @@ class _DrugInteractionScreenState extends ConsumerState<DrugInteractionScreen> {
               data: (medications) => medications.isEmpty
                   ? _buildEmptyState('No medications added yet', theme)
                   : Column(
-                      children: medications.map((medication) => _buildMedicationCard(medication, theme)).toList(),
+                      children: medications
+                          .map(
+                            (medication) =>
+                                _buildMedicationCard(medication, theme),
+                          )
+                          .toList(),
                     ),
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (error, _) => _buildErrorState('Failed to load medications', theme),
+              error: (error, _) =>
+                  _buildErrorState('Failed to load medications', theme),
             ),
           ],
         ),
@@ -268,7 +295,9 @@ class _DrugInteractionScreenState extends ConsumerState<DrugInteractionScreen> {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: CareCircleDesignTokens.primaryMedicalBlue.withValues(alpha: 0.1),
+              color: CareCircleDesignTokens.primaryMedicalBlue.withValues(
+                alpha: 0.1,
+              ),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(
@@ -308,7 +337,10 @@ class _DrugInteractionScreenState extends ConsumerState<DrugInteractionScreen> {
     );
   }
 
-  Widget _buildInteractionAlertsSection(AsyncValue<InteractionAnalysis> analysisAsync, ThemeData theme) {
+  Widget _buildInteractionAlertsSection(
+    AsyncValue<InteractionAnalysis> analysisAsync,
+    ThemeData theme,
+  ) {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -329,10 +361,16 @@ class _DrugInteractionScreenState extends ConsumerState<DrugInteractionScreen> {
               data: (analysis) => analysis.interactions.isEmpty
                   ? _buildEmptyState('No interactions detected', theme)
                   : Column(
-                      children: analysis.interactions.map((interaction) => _buildInteractionCard(interaction, theme)).toList(),
+                      children: analysis.interactions
+                          .map(
+                            (interaction) =>
+                                _buildInteractionCard(interaction, theme),
+                          )
+                          .toList(),
                     ),
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (error, _) => _buildErrorState('Failed to load interactions', theme),
+              error: (error, _) =>
+                  _buildErrorState('Failed to load interactions', theme),
             ),
           ],
         ),
@@ -342,7 +380,7 @@ class _DrugInteractionScreenState extends ConsumerState<DrugInteractionScreen> {
 
   Widget _buildInteractionCard(InteractionAlert interaction, ThemeData theme) {
     final severityColor = _getSeverityColor(interaction.severity);
-    
+
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
@@ -387,10 +425,7 @@ class _DrugInteractionScreenState extends ConsumerState<DrugInteractionScreen> {
             ],
           ),
           const SizedBox(height: 8),
-          Text(
-            interaction.description,
-            style: theme.textTheme.bodyMedium,
-          ),
+          Text(interaction.description, style: theme.textTheme.bodyMedium),
           if (interaction.clinicalEffect.isNotEmpty) ...[
             const SizedBox(height: 8),
             Container(
@@ -401,11 +436,7 @@ class _DrugInteractionScreenState extends ConsumerState<DrugInteractionScreen> {
               ),
               child: Row(
                 children: [
-                  Icon(
-                    Icons.lightbulb_outline,
-                    color: Colors.amber,
-                    size: 20,
-                  ),
+                  Icon(Icons.lightbulb_outline, color: Colors.amber, size: 20),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
@@ -424,7 +455,10 @@ class _DrugInteractionScreenState extends ConsumerState<DrugInteractionScreen> {
     );
   }
 
-  Widget _buildRecommendationsSection(AsyncValue<InteractionAnalysis> analysisAsync, ThemeData theme) {
+  Widget _buildRecommendationsSection(
+    AsyncValue<InteractionAnalysis> analysisAsync,
+    ThemeData theme,
+  ) {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -444,7 +478,8 @@ class _DrugInteractionScreenState extends ConsumerState<DrugInteractionScreen> {
             analysisAsync.when(
               data: (analysis) => _buildRecommendationsContent(analysis, theme),
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (error, _) => _buildErrorState('Failed to load recommendations', theme),
+              error: (error, _) =>
+                  _buildErrorState('Failed to load recommendations', theme),
             ),
           ],
         ),
@@ -452,19 +487,32 @@ class _DrugInteractionScreenState extends ConsumerState<DrugInteractionScreen> {
     );
   }
 
-  Widget _buildRecommendationsContent(InteractionAnalysis analysis, ThemeData theme) {
+  Widget _buildRecommendationsContent(
+    InteractionAnalysis analysis,
+    ThemeData theme,
+  ) {
     final recommendations = _generateRecommendations(analysis);
 
     if (recommendations.isEmpty) {
-      return _buildEmptyState('No specific recommendations at this time', theme);
+      return _buildEmptyState(
+        'No specific recommendations at this time',
+        theme,
+      );
     }
 
     return Column(
-      children: recommendations.map((recommendation) => _buildRecommendationCard(recommendation, theme)).toList(),
+      children: recommendations
+          .map(
+            (recommendation) => _buildRecommendationCard(recommendation, theme),
+          )
+          .toList(),
     );
   }
 
-  Widget _buildRecommendationCard(Recommendation recommendation, ThemeData theme) {
+  Widget _buildRecommendationCard(
+    Recommendation recommendation,
+    ThemeData theme,
+  ) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
@@ -581,9 +629,13 @@ class _DrugInteractionScreenState extends ConsumerState<DrugInteractionScreen> {
   }
 
   Color _getOverallSeverityColor(InteractionAnalysis analysis) {
-    if (analysis.interactions.any((i) => i.severity == InteractionSeverity.high)) {
+    if (analysis.interactions.any(
+      (i) => i.severity == InteractionSeverity.high,
+    )) {
       return CareCircleDesignTokens.criticalAlert;
-    } else if (analysis.interactions.any((i) => i.severity == InteractionSeverity.medium)) {
+    } else if (analysis.interactions.any(
+      (i) => i.severity == InteractionSeverity.medium,
+    )) {
       return Colors.orange;
     } else if (analysis.interactions.isNotEmpty) {
       return Colors.blue;
@@ -593,9 +645,13 @@ class _DrugInteractionScreenState extends ConsumerState<DrugInteractionScreen> {
   }
 
   IconData _getOverallSeverityIcon(InteractionAnalysis analysis) {
-    if (analysis.interactions.any((i) => i.severity == InteractionSeverity.high)) {
+    if (analysis.interactions.any(
+      (i) => i.severity == InteractionSeverity.high,
+    )) {
       return Icons.dangerous;
-    } else if (analysis.interactions.any((i) => i.severity == InteractionSeverity.medium)) {
+    } else if (analysis.interactions.any(
+      (i) => i.severity == InteractionSeverity.medium,
+    )) {
       return Icons.warning;
     } else if (analysis.interactions.isNotEmpty) {
       return Icons.info;
@@ -605,9 +661,13 @@ class _DrugInteractionScreenState extends ConsumerState<DrugInteractionScreen> {
   }
 
   String _getOverallStatusText(InteractionAnalysis analysis) {
-    if (analysis.interactions.any((i) => i.severity == InteractionSeverity.high)) {
+    if (analysis.interactions.any(
+      (i) => i.severity == InteractionSeverity.high,
+    )) {
       return 'High Risk Interactions';
-    } else if (analysis.interactions.any((i) => i.severity == InteractionSeverity.medium)) {
+    } else if (analysis.interactions.any(
+      (i) => i.severity == InteractionSeverity.medium,
+    )) {
       return 'Moderate Risk Interactions';
     } else if (analysis.interactions.isNotEmpty) {
       return 'Low Risk Interactions';
@@ -619,31 +679,42 @@ class _DrugInteractionScreenState extends ConsumerState<DrugInteractionScreen> {
   List<Recommendation> _generateRecommendations(InteractionAnalysis analysis) {
     final recommendations = <Recommendation>[];
 
-    if (analysis.interactions.any((i) => i.severity == InteractionSeverity.high)) {
-      recommendations.add(Recommendation(
-        title: 'Consult Healthcare Provider',
-        description: 'High-risk interactions detected. Contact your doctor or pharmacist immediately.',
-        type: RecommendationType.warning,
-        icon: Icons.medical_services,
-      ));
+    if (analysis.interactions.any(
+      (i) => i.severity == InteractionSeverity.high,
+    )) {
+      recommendations.add(
+        Recommendation(
+          title: 'Consult Healthcare Provider',
+          description:
+              'High-risk interactions detected. Contact your doctor or pharmacist immediately.',
+          type: RecommendationType.warning,
+          icon: Icons.medical_services,
+        ),
+      );
     }
 
     if (analysis.interactions.length > 3) {
-      recommendations.add(Recommendation(
-        title: 'Medication Review Needed',
-        description: 'Multiple interactions detected. Consider a comprehensive medication review.',
-        type: RecommendationType.warning,
-        icon: Icons.assignment,
-      ));
+      recommendations.add(
+        Recommendation(
+          title: 'Medication Review Needed',
+          description:
+              'Multiple interactions detected. Consider a comprehensive medication review.',
+          type: RecommendationType.warning,
+          icon: Icons.assignment,
+        ),
+      );
     }
 
     if (analysis.interactions.isEmpty) {
-      recommendations.add(Recommendation(
-        title: 'Good Medication Safety',
-        description: 'No interactions detected. Continue taking medications as prescribed.',
-        type: RecommendationType.positive,
-        icon: Icons.check_circle,
-      ));
+      recommendations.add(
+        Recommendation(
+          title: 'Good Medication Safety',
+          description:
+              'No interactions detected. Continue taking medications as prescribed.',
+          type: RecommendationType.positive,
+          icon: Icons.check_circle,
+        ),
+      );
     }
 
     return recommendations;
@@ -731,7 +802,9 @@ class _DrugInteractionScreenState extends ConsumerState<DrugInteractionScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to check interactions for ${medication.name}'),
+            content: Text(
+              'Failed to check interactions for ${medication.name}',
+            ),
             backgroundColor: CareCircleDesignTokens.criticalAlert,
           ),
         );

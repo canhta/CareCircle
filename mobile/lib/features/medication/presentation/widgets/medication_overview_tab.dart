@@ -6,7 +6,7 @@ import '../../../../core/logging/bounded_context_loggers.dart';
 import '../../domain/models/models.dart';
 
 /// Overview tab for medication detail screen
-/// 
+///
 /// Displays comprehensive medication information including:
 /// - Basic medication details
 /// - Prescription information
@@ -16,15 +16,12 @@ class MedicationOverviewTab extends ConsumerWidget {
   final Medication medication;
   static final _logger = BoundedContextLoggers.medication;
 
-  const MedicationOverviewTab({
-    super.key,
-    required this.medication,
-  });
+  const MedicationOverviewTab({super.key, required this.medication});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -59,7 +56,11 @@ class MedicationOverviewTab extends ConsumerWidget {
           _buildInfoRow('Form', medication.form.displayName, theme),
           if (medication.manufacturer != null)
             _buildInfoRow('Manufacturer', medication.manufacturer!, theme),
-          _buildInfoRow('Status', medication.isActive ? 'Active' : 'Inactive', theme),
+          _buildInfoRow(
+            'Status',
+            medication.isActive ? 'Active' : 'Inactive',
+            theme,
+          ),
           _buildInfoRow('Start Date', _formatDate(medication.startDate), theme),
           if (medication.endDate != null)
             _buildInfoRow('End Date', _formatDate(medication.endDate!), theme),
@@ -157,10 +158,7 @@ class MedicationOverviewTab extends ConsumerWidget {
                 color: theme.colorScheme.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: Text(
-                medication.notes!,
-                style: theme.textTheme.bodyMedium,
-              ),
+              child: Text(medication.notes!, style: theme.textTheme.bodyMedium),
             )
           : _buildEmptyState('No notes added', theme),
     );
@@ -174,10 +172,14 @@ class MedicationOverviewTab extends ConsumerWidget {
         width: double.infinity,
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: CareCircleDesignTokens.primaryMedicalBlue.withValues(alpha: 0.1),
+          color: CareCircleDesignTokens.primaryMedicalBlue.withValues(
+            alpha: 0.1,
+          ),
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: CareCircleDesignTokens.primaryMedicalBlue.withValues(alpha: 0.3),
+            color: CareCircleDesignTokens.primaryMedicalBlue.withValues(
+              alpha: 0.3,
+            ),
           ),
         ),
         child: Text(
@@ -267,9 +269,7 @@ class MedicationOverviewTab extends ConsumerWidget {
         backgroundColor: color,
         foregroundColor: Colors.white,
         padding: const EdgeInsets.symmetric(vertical: 12),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
     );
   }

@@ -15,17 +15,26 @@ final medicationsProvider = FutureProvider<List<Medication>>((ref) async {
 /// Provider for active medications only
 final activeMedicationsProvider = FutureProvider<List<Medication>>((ref) async {
   final repository = ref.read(medicationRepositoryProvider);
-  return repository.getMedications(params: const MedicationQueryParams(isActive: true));
+  return repository.getMedications(
+    params: const MedicationQueryParams(isActive: true),
+  );
 });
 
 /// Provider for inactive medications only
-final inactiveMedicationsProvider = FutureProvider<List<Medication>>((ref) async {
+final inactiveMedicationsProvider = FutureProvider<List<Medication>>((
+  ref,
+) async {
   final repository = ref.read(medicationRepositoryProvider);
-  return repository.getMedications(params: const MedicationQueryParams(isActive: false));
+  return repository.getMedications(
+    params: const MedicationQueryParams(isActive: false),
+  );
 });
 
 /// Provider for single medication by ID
-final medicationProvider = FutureProvider.family<Medication?, String>((ref, id) async {
+final medicationProvider = FutureProvider.family<Medication?, String>((
+  ref,
+  id,
+) async {
   final repository = ref.read(medicationRepositoryProvider);
   return repository.getMedicationById(id);
 });
@@ -61,13 +70,17 @@ final medicationProvider = FutureProvider.family<Medication?, String>((ref, id) 
 final selectedMedicationProvider = StateProvider<Medication?>((ref) => null);
 
 /// State provider for medication filter parameters
-final medicationFilterProvider = StateProvider<MedicationQueryParams>((ref) => const MedicationQueryParams());
+final medicationFilterProvider = StateProvider<MedicationQueryParams>(
+  (ref) => const MedicationQueryParams(),
+);
 
 /// State provider for medication search term
 final medicationSearchTermProvider = StateProvider<String>((ref) => '');
 
 /// State provider for medication form filter
-final medicationFormFilterProvider = StateProvider<MedicationForm?>((ref) => null);
+final medicationFormFilterProvider = StateProvider<MedicationForm?>(
+  (ref) => null,
+);
 
 /// State provider for medication active status filter
 final medicationActiveFilterProvider = StateProvider<bool?>((ref) => null);
@@ -124,13 +137,18 @@ class MedicationNotifier extends StateNotifier<AsyncValue<List<Medication>>> {
     }
   }
 
-  Future<void> updateMedication(String id, UpdateMedicationRequest request) async {
+  Future<void> updateMedication(
+    String id,
+    UpdateMedicationRequest request,
+  ) async {
     try {
       final updatedMedication = await _repository.updateMedication(id, request);
 
       // Update state with updated medication
       state.whenData((medications) {
-        final updatedList = medications.map((med) => med.id == id ? updatedMedication : med).toList();
+        final updatedList = medications
+            .map((med) => med.id == id ? updatedMedication : med)
+            .toList();
         state = AsyncValue.data(updatedList);
       });
 
@@ -179,13 +197,18 @@ class MedicationNotifier extends StateNotifier<AsyncValue<List<Medication>>> {
 }
 
 /// Provider for medication notifier
-final medicationNotifierProvider = StateNotifierProvider<MedicationNotifier, AsyncValue<List<Medication>>>((ref) {
-  final repository = ref.read(medicationRepositoryProvider);
-  return MedicationNotifier(repository);
-});
+final medicationNotifierProvider =
+    StateNotifierProvider<MedicationNotifier, AsyncValue<List<Medication>>>((
+      ref,
+    ) {
+      final repository = ref.read(medicationRepositoryProvider);
+      return MedicationNotifier(repository);
+    });
 
 /// Computed provider for filtered medications
-final filteredMedicationsProvider = Provider<AsyncValue<List<Medication>>>((ref) {
+final filteredMedicationsProvider = Provider<AsyncValue<List<Medication>>>((
+  ref,
+) {
   final medications = ref.watch(medicationNotifierProvider);
   final searchTerm = ref.watch(medicationSearchTermProvider);
   final formFilter = ref.watch(medicationFormFilterProvider);
@@ -198,7 +221,8 @@ final filteredMedicationsProvider = Provider<AsyncValue<List<Medication>>>((ref)
         if (searchTerm.isNotEmpty) {
           final searchLower = searchTerm.toLowerCase();
           if (!med.name.toLowerCase().contains(searchLower) &&
-              !(med.genericName?.toLowerCase().contains(searchLower) ?? false)) {
+              !(med.genericName?.toLowerCase().contains(searchLower) ??
+                  false)) {
             return false;
           }
         }
@@ -227,7 +251,9 @@ final filteredMedicationsProvider = Provider<AsyncValue<List<Medication>>>((ref)
 });
 
 /// Provider for medication statistics
-final medicationStatisticsProvider = FutureProvider<Map<String, dynamic>>((ref) async {
+final medicationStatisticsProvider = FutureProvider<Map<String, dynamic>>((
+  ref,
+) async {
   final medications = await ref.watch(medicationsProvider.future);
 
   final stats = {
@@ -236,7 +262,11 @@ final medicationStatisticsProvider = FutureProvider<Map<String, dynamic>>((ref) 
     'inactive': medications.where((m) => !m.isActive).length,
     'byForm': <String, int>{},
     'expiringSoon': medications
-        .where((m) => m.endDate != null && m.endDate!.isBefore(DateTime.now().add(const Duration(days: 30))))
+        .where(
+          (m) =>
+              m.endDate != null &&
+              m.endDate!.isBefore(DateTime.now().add(const Duration(days: 30))),
+        )
         .length,
   };
 

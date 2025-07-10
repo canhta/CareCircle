@@ -6,7 +6,7 @@ import '../../domain/models/models.dart';
 import 'prescription_processing_api_service.dart';
 
 /// Service for image processing and OCR operations
-/// 
+///
 /// Handles:
 /// - Image preprocessing for OCR
 /// - OCR result processing and validation
@@ -131,9 +131,7 @@ class ImageProcessingService {
   bool validateOCRResults(OCRProcessingResult result) {
     // Check if processing was successful
     if (!result.success) {
-      _logger.warning('OCR processing failed', {
-        'error': result.error,
-      });
+      _logger.warning('OCR processing failed', {'error': result.error});
       return false;
     }
 

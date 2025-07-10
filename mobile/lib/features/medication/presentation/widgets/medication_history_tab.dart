@@ -5,7 +5,7 @@ import '../../../../core/design/design_tokens.dart';
 import '../../../../core/logging/bounded_context_loggers.dart';
 
 /// History tab for medication detail screen
-/// 
+///
 /// Displays medication change history including:
 /// - Dosage changes
 /// - Schedule modifications
@@ -15,15 +15,12 @@ class MedicationHistoryTab extends ConsumerWidget {
   final String medicationId;
   static final _logger = BoundedContextLoggers.medication;
 
-  const MedicationHistoryTab({
-    super.key,
-    required this.medicationId,
-  });
+  const MedicationHistoryTab({super.key, required this.medicationId});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    
+
     // TODO: Replace with actual history provider when available
     final mockHistory = _generateMockHistory();
 
@@ -71,35 +68,44 @@ class MedicationHistoryTab extends ConsumerWidget {
     );
   }
 
-  Widget _buildHistoryTimeline(List<MedicationHistoryEntry> history, ThemeData theme) {
+  Widget _buildHistoryTimeline(
+    List<MedicationHistoryEntry> history,
+    ThemeData theme,
+  ) {
     return Column(
       children: history.asMap().entries.map((entry) {
         final index = entry.key;
         final historyEntry = entry.value;
         final isLast = index == history.length - 1;
-        
+
         return _buildTimelineItem(historyEntry, isLast, theme);
       }).toList(),
     );
   }
 
-  Widget _buildTimelineItem(MedicationHistoryEntry entry, bool isLast, ThemeData theme) {
+  Widget _buildTimelineItem(
+    MedicationHistoryEntry entry,
+    bool isLast,
+    ThemeData theme,
+  ) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildTimelineIndicator(entry.type, isLast, theme),
         const SizedBox(width: 16),
-        Expanded(
-          child: _buildHistoryCard(entry, theme),
-        ),
+        Expanded(child: _buildHistoryCard(entry, theme)),
       ],
     );
   }
 
-  Widget _buildTimelineIndicator(HistoryEntryType type, bool isLast, ThemeData theme) {
+  Widget _buildTimelineIndicator(
+    HistoryEntryType type,
+    bool isLast,
+    ThemeData theme,
+  ) {
     final color = _getHistoryTypeColor(type);
     final icon = _getHistoryTypeIcon(type);
-    
+
     return Column(
       children: [
         Container(
@@ -110,11 +116,7 @@ class MedicationHistoryTab extends ConsumerWidget {
             borderRadius: BorderRadius.circular(20),
             border: Border.all(color: color, width: 2),
           ),
-          child: Icon(
-            icon,
-            color: color,
-            size: 20,
-          ),
+          child: Icon(icon, color: color, size: 20),
         ),
         if (!isLast)
           Container(
@@ -212,32 +214,38 @@ class MedicationHistoryTab extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 8),
-          ...changes.entries.map((change) => Padding(
-            padding: const EdgeInsets.only(bottom: 4),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                  width: 80,
-                  child: Text(
-                    '${change.key}:',
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      fontWeight: FontWeight.w500,
-                      color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+          ...changes.entries.map(
+            (change) => Padding(
+              padding: const EdgeInsets.only(bottom: 4),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    width: 80,
+                    child: Text(
+                      '${change.key}:',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        fontWeight: FontWeight.w500,
+                        color: theme.colorScheme.onSurface.withValues(
+                          alpha: 0.7,
+                        ),
+                      ),
                     ),
                   ),
-                ),
-                Expanded(
-                  child: Text(
-                    change.value,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
+                  Expanded(
+                    child: Text(
+                      change.value,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurface.withValues(
+                          alpha: 0.8,
+                        ),
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          )),
+          ),
         ],
       ),
     );
@@ -337,11 +345,7 @@ class MedicationHistoryTab extends ConsumerWidget {
         title: 'Medication Added',
         description: 'Medication was added to your profile',
         timestamp: DateTime.now().subtract(const Duration(days: 30)),
-        changes: {
-          'Name': 'Lisinopril',
-          'Strength': '10mg',
-          'Form': 'Tablet',
-        },
+        changes: {'Name': 'Lisinopril', 'Strength': '10mg', 'Form': 'Tablet'},
         performedBy: 'Dr. Smith',
       ),
       MedicationHistoryEntry(
@@ -362,9 +366,7 @@ class MedicationHistoryTab extends ConsumerWidget {
         title: 'Dosage Increased',
         description: 'Medication strength was increased',
         timestamp: DateTime.now().subtract(const Duration(days: 7)),
-        changes: {
-          'Strength': '10mg → 20mg',
-        },
+        changes: {'Strength': '10mg → 20mg'},
         performedBy: 'Dr. Smith',
       ),
     ];

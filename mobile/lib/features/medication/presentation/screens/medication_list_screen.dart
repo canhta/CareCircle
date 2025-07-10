@@ -11,7 +11,8 @@ class MedicationListScreen extends ConsumerStatefulWidget {
   const MedicationListScreen({super.key});
 
   @override
-  ConsumerState<MedicationListScreen> createState() => _MedicationListScreenState();
+  ConsumerState<MedicationListScreen> createState() =>
+      _MedicationListScreenState();
 }
 
 class _MedicationListScreenState extends ConsumerState<MedicationListScreen>
@@ -34,7 +35,8 @@ class _MedicationListScreenState extends ConsumerState<MedicationListScreen>
   }
 
   void _onSearchChanged() {
-    ref.read(medicationSearchTermProvider.notifier).state = _searchController.text;
+    ref.read(medicationSearchTermProvider.notifier).state =
+        _searchController.text;
   }
 
   @override
@@ -139,7 +141,9 @@ class _MedicationListScreenState extends ConsumerState<MedicationListScreen>
 
         return RefreshIndicator(
           onRefresh: () async {
-            await ref.read(medicationNotifierProvider.notifier).refreshMedications();
+            await ref
+                .read(medicationNotifierProvider.notifier)
+                .refreshMedications();
           },
           child: ListView.builder(
             padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -193,11 +197,7 @@ class _MedicationListScreenState extends ConsumerState<MedicationListScreen>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              icon,
-              size: 80,
-              color: Colors.grey[400],
-            ),
+            Icon(icon, size: 80, color: Colors.grey[400]),
             const SizedBox(height: 24),
             Text(
               title,
@@ -210,9 +210,9 @@ class _MedicationListScreenState extends ConsumerState<MedicationListScreen>
             const SizedBox(height: 12),
             Text(
               subtitle,
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: Colors.grey[500],
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyLarge?.copyWith(color: Colors.grey[500]),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 32),
@@ -224,7 +224,10 @@ class _MedicationListScreenState extends ConsumerState<MedicationListScreen>
                 style: ElevatedButton.styleFrom(
                   backgroundColor: CareCircleDesignTokens.primaryMedicalBlue,
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 12,
+                  ),
                 ),
               ),
           ],
@@ -240,11 +243,7 @@ class _MedicationListScreenState extends ConsumerState<MedicationListScreen>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.error_outline,
-              size: 80,
-              color: Colors.red[400],
-            ),
+            Icon(Icons.error_outline, size: 80, color: Colors.red[400]),
             const SizedBox(height: 24),
             Text(
               'Error Loading Medications',
@@ -257,15 +256,17 @@ class _MedicationListScreenState extends ConsumerState<MedicationListScreen>
             const SizedBox(height: 12),
             Text(
               error,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Colors.grey[600],
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 32),
             ElevatedButton.icon(
               onPressed: () {
-                ref.read(medicationNotifierProvider.notifier).refreshMedications();
+                ref
+                    .read(medicationNotifierProvider.notifier)
+                    .refreshMedications();
               },
               icon: const Icon(Icons.refresh),
               label: const Text('Retry'),
@@ -282,9 +283,7 @@ class _MedicationListScreenState extends ConsumerState<MedicationListScreen>
 
   void _navigateToAddMedication() {
     Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => const MedicationFormScreen(),
-      ),
+      MaterialPageRoute(builder: (context) => const MedicationFormScreen()),
     );
   }
 
@@ -323,7 +322,8 @@ class _MedicationListScreenState extends ConsumerState<MedicationListScreen>
               final scaffoldMessenger = ScaffoldMessenger.of(context);
               navigator.pop();
               try {
-                await ref.read(medicationNotifierProvider.notifier)
+                await ref
+                    .read(medicationNotifierProvider.notifier)
                     .deleteMedication(medication.id);
                 if (mounted) {
                   scaffoldMessenger.showSnackBar(

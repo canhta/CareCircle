@@ -48,7 +48,9 @@ class MedicationCard extends StatelessWidget {
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
             color: medication.isActive
-                ? CareCircleDesignTokens.primaryMedicalBlue.withValues(alpha: 0.1)
+                ? CareCircleDesignTokens.primaryMedicalBlue.withValues(
+                    alpha: 0.1,
+                  )
                 : Colors.grey.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(8),
           ),
@@ -66,7 +68,9 @@ class MedicationCard extends StatelessWidget {
                 medication.name,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: medication.isActive ? Colors.black87 : Colors.grey[600],
+                  color: medication.isActive
+                      ? Colors.black87
+                      : Colors.grey[600],
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -171,11 +175,7 @@ class MedicationCard extends StatelessWidget {
         ),
         if (medication.manufacturer != null) ...[
           const SizedBox(height: 8),
-          _buildInfoChip(
-            context,
-            Icons.business,
-            medication.manufacturer!,
-          ),
+          _buildInfoChip(context, Icons.business, medication.manufacturer!),
         ],
       ],
     );
@@ -191,19 +191,9 @@ class MedicationCard extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            icon,
-            size: 14,
-            color: Colors.grey[600],
-          ),
+          Icon(icon, size: 14, color: Colors.grey[600]),
           const SizedBox(width: 4),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.grey[700],
-            ),
-          ),
+          Text(label, style: TextStyle(fontSize: 12, color: Colors.grey[700])),
         ],
       ),
     );
@@ -212,43 +202,38 @@ class MedicationCard extends StatelessWidget {
   Widget _buildFooter(BuildContext context) {
     return Row(
       children: [
-        Icon(
-          Icons.calendar_today,
-          size: 14,
-          color: Colors.grey[600],
-        ),
+        Icon(Icons.calendar_today, size: 14, color: Colors.grey[600]),
         const SizedBox(width: 4),
         Text(
           'Started: ${_formatDate(medication.startDate)}',
-          style: TextStyle(
-            fontSize: 12,
-            color: Colors.grey[600],
-          ),
+          style: TextStyle(fontSize: 12, color: Colors.grey[600]),
         ),
         if (medication.endDate != null) ...[
           const SizedBox(width: 16),
           Icon(
             Icons.event_busy,
             size: 14,
-            color: _isExpiringSoon(medication.endDate!) ? Colors.orange : Colors.grey[600],
+            color: _isExpiringSoon(medication.endDate!)
+                ? Colors.orange
+                : Colors.grey[600],
           ),
           const SizedBox(width: 4),
           Text(
             'Ends: ${_formatDate(medication.endDate!)}',
             style: TextStyle(
               fontSize: 12,
-              color: _isExpiringSoon(medication.endDate!) ? Colors.orange : Colors.grey[600],
-              fontWeight: _isExpiringSoon(medication.endDate!) ? FontWeight.w500 : FontWeight.normal,
+              color: _isExpiringSoon(medication.endDate!)
+                  ? Colors.orange
+                  : Colors.grey[600],
+              fontWeight: _isExpiringSoon(medication.endDate!)
+                  ? FontWeight.w500
+                  : FontWeight.normal,
             ),
           ),
         ],
         const Spacer(),
         if (medication.notes != null && medication.notes!.isNotEmpty)
-          Icon(
-            Icons.note,
-            size: 14,
-            color: Colors.grey[600],
-          ),
+          Icon(Icons.note, size: 14, color: Colors.grey[600]),
       ],
     );
   }

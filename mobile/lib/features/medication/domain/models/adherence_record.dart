@@ -67,7 +67,8 @@ extension DoseStatusExtension on DoseStatus {
   }
 
   bool get isCompleted => this == DoseStatus.taken;
-  bool get isNegative => this == DoseStatus.missed || this == DoseStatus.skipped;
+  bool get isNegative =>
+      this == DoseStatus.missed || this == DoseStatus.skipped;
 }
 
 /// Main adherence record entity
@@ -95,7 +96,8 @@ abstract class AdherenceRecord with _$AdherenceRecord {
 
 /// Adherence record creation request DTO
 @freezed
-abstract class CreateAdherenceRecordRequest with _$CreateAdherenceRecordRequest {
+abstract class CreateAdherenceRecordRequest
+    with _$CreateAdherenceRecordRequest {
   const factory CreateAdherenceRecordRequest({
     required String medicationId,
     required String scheduleId,
@@ -115,7 +117,8 @@ abstract class CreateAdherenceRecordRequest with _$CreateAdherenceRecordRequest 
 
 /// Adherence record update request DTO
 @freezed
-abstract class UpdateAdherenceRecordRequest with _$UpdateAdherenceRecordRequest {
+abstract class UpdateAdherenceRecordRequest
+    with _$UpdateAdherenceRecordRequest {
   const factory UpdateAdherenceRecordRequest({
     DoseStatus? status,
     DateTime? takenAt,

@@ -9,7 +9,7 @@ import '../../domain/models/models.dart';
 import '../providers/prescription_providers.dart';
 
 /// Prescription Scanning Screen for camera integration and OCR processing
-/// 
+///
 /// Features:
 /// - Camera integration for prescription photo capture
 /// - Gallery image selection
@@ -20,13 +20,15 @@ class PrescriptionScanScreen extends ConsumerStatefulWidget {
   const PrescriptionScanScreen({super.key});
 
   @override
-  ConsumerState<PrescriptionScanScreen> createState() => _PrescriptionScanScreenState();
+  ConsumerState<PrescriptionScanScreen> createState() =>
+      _PrescriptionScanScreenState();
 }
 
-class _PrescriptionScanScreenState extends ConsumerState<PrescriptionScanScreen> {
+class _PrescriptionScanScreenState
+    extends ConsumerState<PrescriptionScanScreen> {
   static final _logger = BoundedContextLoggers.medication;
   final ImagePicker _picker = ImagePicker();
-  
+
   XFile? _selectedImage;
   bool _isProcessing = false;
   PrescriptionOCRResult? _ocrResult;
@@ -96,10 +98,26 @@ class _PrescriptionScanScreenState extends ConsumerState<PrescriptionScanScreen>
               ],
             ),
             const SizedBox(height: 12),
-            _buildInstructionItem('Ensure good lighting', Icons.wb_sunny, theme),
-            _buildInstructionItem('Keep prescription flat and straight', Icons.crop_rotate, theme),
-            _buildInstructionItem('Include all medication details', Icons.medication, theme),
-            _buildInstructionItem('Avoid shadows and glare', Icons.visibility, theme),
+            _buildInstructionItem(
+              'Ensure good lighting',
+              Icons.wb_sunny,
+              theme,
+            ),
+            _buildInstructionItem(
+              'Keep prescription flat and straight',
+              Icons.crop_rotate,
+              theme,
+            ),
+            _buildInstructionItem(
+              'Include all medication details',
+              Icons.medication,
+              theme,
+            ),
+            _buildInstructionItem(
+              'Avoid shadows and glare',
+              Icons.visibility,
+              theme,
+            ),
           ],
         ),
       ),
@@ -111,18 +129,9 @@ class _PrescriptionScanScreenState extends ConsumerState<PrescriptionScanScreen>
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(
         children: [
-          Icon(
-            icon,
-            size: 16,
-            color: theme.colorScheme.onSurfaceVariant,
-          ),
+          Icon(icon, size: 16, color: theme.colorScheme.onSurfaceVariant),
           const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              text,
-              style: theme.textTheme.bodyMedium,
-            ),
-          ),
+          Expanded(child: Text(text, style: theme.textTheme.bodyMedium)),
         ],
       ),
     );
@@ -177,7 +186,7 @@ class _PrescriptionScanScreenState extends ConsumerState<PrescriptionScanScreen>
                   Expanded(
                     child: ElevatedButton.icon(
                       onPressed: _isProcessing ? null : _processImage,
-                      icon: _isProcessing 
+                      icon: _isProcessing
                           ? const SizedBox(
                               width: 16,
                               height: 16,
@@ -186,7 +195,8 @@ class _PrescriptionScanScreenState extends ConsumerState<PrescriptionScanScreen>
                           : const Icon(Icons.text_fields),
                       label: Text(_isProcessing ? 'Processing...' : 'Process'),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: CareCircleDesignTokens.primaryMedicalBlue,
+                        backgroundColor:
+                            CareCircleDesignTokens.primaryMedicalBlue,
                         foregroundColor: Colors.white,
                       ),
                     ),
@@ -303,14 +313,18 @@ class _PrescriptionScanScreenState extends ConsumerState<PrescriptionScanScreen>
                 ),
               ),
               const SizedBox(height: 8),
-              ..._ocrResult!.medications.map((med) => _buildMedicationCard(med, theme)),
+              ..._ocrResult!.medications.map(
+                (med) => _buildMedicationCard(med, theme),
+              ),
             ] else ...[
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: Colors.orange.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
+                  border: Border.all(
+                    color: Colors.orange.withValues(alpha: 0.3),
+                  ),
                 ),
                 child: Row(
                   children: [
@@ -333,7 +347,9 @@ class _PrescriptionScanScreenState extends ConsumerState<PrescriptionScanScreen>
                 decoration: BoxDecoration(
                   color: Colors.orange.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
+                  border: Border.all(
+                    color: Colors.orange.withValues(alpha: 0.3),
+                  ),
                 ),
                 child: Row(
                   children: [
@@ -429,10 +445,7 @@ class _PrescriptionScanScreenState extends ConsumerState<PrescriptionScanScreen>
                     ),
                   ),
                   const SizedBox(height: 4),
-                  Text(
-                    _errorMessage!,
-                    style: theme.textTheme.bodyMedium,
-                  ),
+                  Text(_errorMessage!, style: theme.textTheme.bodyMedium),
                 ],
               ),
             ),
@@ -588,7 +601,9 @@ class _PrescriptionScanScreenState extends ConsumerState<PrescriptionScanScreen>
         'timestamp': DateTime.now().toIso8601String(),
       });
 
-      final result = await ref.read(prescriptionOCRProvider.notifier).processImage(_selectedImage!);
+      final result = await ref
+          .read(prescriptionOCRProvider.notifier)
+          .processImage(_selectedImage!);
 
       if (mounted) {
         setState(() {
@@ -637,7 +652,9 @@ class _PrescriptionScanScreenState extends ConsumerState<PrescriptionScanScreen>
         notes: '',
       );
 
-      await ref.read(prescriptionCreateProvider.notifier).createPrescription(prescriptionRequest);
+      await ref
+          .read(prescriptionCreateProvider.notifier)
+          .createPrescription(prescriptionRequest);
 
       if (mounted) {
         _logger.info('Prescription saved successfully', {

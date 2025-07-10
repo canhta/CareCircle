@@ -242,7 +242,8 @@ abstract class RxNormSearchResponse with _$RxNormSearchResponse {
 
 /// API response wrapper for medication enrichment
 @freezed
-abstract class MedicationEnrichmentResponse with _$MedicationEnrichmentResponse {
+abstract class MedicationEnrichmentResponse
+    with _$MedicationEnrichmentResponse {
   const factory MedicationEnrichmentResponse({
     required bool success,
     RxNormMedication? enrichedData,

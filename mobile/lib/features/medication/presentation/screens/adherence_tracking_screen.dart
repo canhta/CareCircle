@@ -8,7 +8,7 @@ import '../providers/adherence_providers.dart';
 import '../providers/schedule_providers.dart';
 
 /// Adherence Tracking Screen for dose management interface
-/// 
+///
 /// Features:
 /// - Dose status recording interface
 /// - Quick dose actions (taken, missed, skipped)
@@ -18,25 +18,30 @@ import '../providers/schedule_providers.dart';
 class AdherenceTrackingScreen extends ConsumerStatefulWidget {
   final String medicationId;
 
-  const AdherenceTrackingScreen({
-    super.key,
-    required this.medicationId,
-  });
+  const AdherenceTrackingScreen({super.key, required this.medicationId});
 
   @override
-  ConsumerState<AdherenceTrackingScreen> createState() => _AdherenceTrackingScreenState();
+  ConsumerState<AdherenceTrackingScreen> createState() =>
+      _AdherenceTrackingScreenState();
 }
 
-class _AdherenceTrackingScreenState extends ConsumerState<AdherenceTrackingScreen> {
+class _AdherenceTrackingScreenState
+    extends ConsumerState<AdherenceTrackingScreen> {
   static final _logger = BoundedContextLoggers.medication;
   DateTime _selectedDate = DateTime.now();
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final adherenceAsync = ref.watch(medicationAdherenceProvider(widget.medicationId));
-    final statisticsAsync = ref.watch(adherenceStatisticsProvider(widget.medicationId));
-    final todayDosesAsync = ref.watch(medicationAdherenceProvider(widget.medicationId));
+    final adherenceAsync = ref.watch(
+      medicationAdherenceProvider(widget.medicationId),
+    );
+    final statisticsAsync = ref.watch(
+      adherenceStatisticsProvider(widget.medicationId),
+    );
+    final todayDosesAsync = ref.watch(
+      medicationAdherenceProvider(widget.medicationId),
+    );
 
     return Scaffold(
       appBar: AppBar(
@@ -119,7 +124,10 @@ class _AdherenceTrackingScreenState extends ConsumerState<AdherenceTrackingScree
     );
   }
 
-  Widget _buildStatisticsCard(AsyncValue<AdherenceStatistics> statisticsAsync, ThemeData theme) {
+  Widget _buildStatisticsCard(
+    AsyncValue<AdherenceStatistics> statisticsAsync,
+    ThemeData theme,
+  ) {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -139,7 +147,8 @@ class _AdherenceTrackingScreenState extends ConsumerState<AdherenceTrackingScree
             statisticsAsync.when(
               data: (statistics) => _buildStatisticsContent(statistics, theme),
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (error, _) => _buildErrorState('Failed to load statistics', theme),
+              error: (error, _) =>
+                  _buildErrorState('Failed to load statistics', theme),
             ),
           ],
         ),
@@ -147,7 +156,10 @@ class _AdherenceTrackingScreenState extends ConsumerState<AdherenceTrackingScree
     );
   }
 
-  Widget _buildStatisticsContent(AdherenceStatistics statistics, ThemeData theme) {
+  Widget _buildStatisticsContent(
+    AdherenceStatistics statistics,
+    ThemeData theme,
+  ) {
     return Column(
       children: [
         // Adherence percentage circle
@@ -172,10 +184,7 @@ class _AdherenceTrackingScreenState extends ConsumerState<AdherenceTrackingScree
                     color: _getAdherenceColor(statistics.adherencePercentage),
                   ),
                 ),
-                Text(
-                  'Adherence',
-                  style: theme.textTheme.bodySmall,
-                ),
+                Text('Adherence', style: theme.textTheme.bodySmall),
               ],
             ),
           ),
@@ -232,7 +241,13 @@ class _AdherenceTrackingScreenState extends ConsumerState<AdherenceTrackingScree
     );
   }
 
-  Widget _buildStatCard(String title, String value, IconData icon, Color color, ThemeData theme) {
+  Widget _buildStatCard(
+    String title,
+    String value,
+    IconData icon,
+    Color color,
+    ThemeData theme,
+  ) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -261,7 +276,10 @@ class _AdherenceTrackingScreenState extends ConsumerState<AdherenceTrackingScree
     );
   }
 
-  Widget _buildTodayDosesSection(AsyncValue<List<AdherenceRecord>> todayDosesAsync, ThemeData theme) {
+  Widget _buildTodayDosesSection(
+    AsyncValue<List<AdherenceRecord>> todayDosesAsync,
+    ThemeData theme,
+  ) {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -282,10 +300,13 @@ class _AdherenceTrackingScreenState extends ConsumerState<AdherenceTrackingScree
               data: (doses) => doses.isEmpty
                   ? _buildEmptyState('No doses scheduled for today', theme)
                   : Column(
-                      children: doses.map((dose) => _buildDoseCard(dose, theme)).toList(),
+                      children: doses
+                          .map((dose) => _buildDoseCard(dose, theme))
+                          .toList(),
                     ),
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (error, _) => _buildErrorState('Failed to load today\'s doses', theme),
+              error: (error, _) =>
+                  _buildErrorState('Failed to load today\'s doses', theme),
             ),
           ],
         ),
@@ -379,7 +400,10 @@ class _AdherenceTrackingScreenState extends ConsumerState<AdherenceTrackingScree
     );
   }
 
-  Widget _buildRecentRecordsSection(AsyncValue<List<AdherenceRecord>> adherenceAsync, ThemeData theme) {
+  Widget _buildRecentRecordsSection(
+    AsyncValue<List<AdherenceRecord>> adherenceAsync,
+    ThemeData theme,
+  ) {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -400,10 +424,14 @@ class _AdherenceTrackingScreenState extends ConsumerState<AdherenceTrackingScree
               data: (records) => records.isEmpty
                   ? _buildEmptyState('No adherence records yet', theme)
                   : Column(
-                      children: records.take(10).map((record) => _buildRecordCard(record, theme)).toList(),
+                      children: records
+                          .take(10)
+                          .map((record) => _buildRecordCard(record, theme))
+                          .toList(),
                     ),
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (error, _) => _buildErrorState('Failed to load records', theme),
+              error: (error, _) =>
+                  _buildErrorState('Failed to load records', theme),
             ),
           ],
         ),
@@ -612,7 +640,9 @@ class _AdherenceTrackingScreenState extends ConsumerState<AdherenceTrackingScree
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Dose marked as ${_getDoseStatusText(status).toLowerCase()}'),
+            content: Text(
+              'Dose marked as ${_getDoseStatusText(status).toLowerCase()}',
+            ),
             backgroundColor: _getDoseStatusColor(status),
           ),
         );

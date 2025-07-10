@@ -10,7 +10,8 @@ part 'medication_api_service.g.dart';
 
 @RestApi(baseUrl: AppConfig.apiBaseUrl)
 abstract class MedicationApiService {
-  factory MedicationApiService(Dio dio, {String baseUrl}) = _MedicationApiService;
+  factory MedicationApiService(Dio dio, {String baseUrl}) =
+      _MedicationApiService;
 
   // Medication CRUD Operations
   @GET('/medications')
@@ -30,20 +31,28 @@ abstract class MedicationApiService {
   );
 
   @POST('/medications')
-  Future<MedicationResponse> createMedication(@Body() CreateMedicationRequest request);
+  Future<MedicationResponse> createMedication(
+    @Body() CreateMedicationRequest request,
+  );
 
   @GET('/medications/{id}')
   Future<MedicationResponse> getMedication(@Path('id') String id);
 
   @PUT('/medications/{id}')
-  Future<MedicationResponse> updateMedication(@Path('id') String id, @Body() UpdateMedicationRequest request);
+  Future<MedicationResponse> updateMedication(
+    @Path('id') String id,
+    @Body() UpdateMedicationRequest request,
+  );
 
   @DELETE('/medications/{id}')
   Future<MedicationResponse> deleteMedication(@Path('id') String id);
 
   // Medication Search and Statistics
   @GET('/medications/search')
-  Future<MedicationListResponse> searchMedications(@Query('term') String searchTerm, @Query('limit') int? limit);
+  Future<MedicationListResponse> searchMedications(
+    @Query('term') String searchTerm,
+    @Query('limit') int? limit,
+  );
 
   @GET('/medications/statistics')
   Future<MedicationStatistics> getMedicationStatistics();
@@ -55,7 +64,9 @@ abstract class MedicationApiService {
   Future<MedicationListResponse> getInactiveMedications();
 
   @GET('/medications/expiring')
-  Future<MedicationListResponse> getExpiringMedications(@Query('days') int? days);
+  Future<MedicationListResponse> getExpiringMedications(
+    @Query('days') int? days,
+  );
 
   // Medication Validation and Enrichment
   @POST('/medications/{id}/validate')
@@ -75,13 +86,18 @@ abstract class MedicationApiService {
   );
 
   @POST('/prescriptions')
-  Future<PrescriptionResponse> createPrescription(@Body() CreatePrescriptionRequest request);
+  Future<PrescriptionResponse> createPrescription(
+    @Body() CreatePrescriptionRequest request,
+  );
 
   @GET('/prescriptions/{id}')
   Future<PrescriptionResponse> getPrescription(@Path('id') String id);
 
   @PUT('/prescriptions/{id}')
-  Future<PrescriptionResponse> updatePrescription(@Path('id') String id, @Body() UpdatePrescriptionRequest request);
+  Future<PrescriptionResponse> updatePrescription(
+    @Path('id') String id,
+    @Body() UpdatePrescriptionRequest request,
+  );
 
   @DELETE('/prescriptions/{id}')
   Future<PrescriptionResponse> deletePrescription(@Path('id') String id);
@@ -95,7 +111,9 @@ abstract class MedicationApiService {
   Future<OCRProcessingResult> processImageOCR(@Part() File image);
 
   @POST('/prescription-processing/process-url')
-  Future<OCRProcessingResult> processUrlOCR(@Body() Map<String, String> request);
+  Future<OCRProcessingResult> processUrlOCR(
+    @Body() Map<String, String> request,
+  );
 
   @POST('/prescription-processing/{id}/reprocess')
   Future<OCRProcessingResult> reprocessPrescription(@Path('id') String id);
@@ -113,13 +131,18 @@ abstract class MedicationApiService {
   );
 
   @POST('/medication-schedules')
-  Future<ScheduleResponse> createSchedule(@Body() CreateScheduleRequest request);
+  Future<ScheduleResponse> createSchedule(
+    @Body() CreateScheduleRequest request,
+  );
 
   @GET('/medication-schedules/{id}')
   Future<ScheduleResponse> getSchedule(@Path('id') String id);
 
   @PUT('/medication-schedules/{id}')
-  Future<ScheduleResponse> updateSchedule(@Path('id') String id, @Body() UpdateScheduleRequest request);
+  Future<ScheduleResponse> updateSchedule(
+    @Path('id') String id,
+    @Body() UpdateScheduleRequest request,
+  );
 
   @DELETE('/medication-schedules/{id}')
   Future<ScheduleResponse> deleteSchedule(@Path('id') String id);
@@ -143,7 +166,9 @@ abstract class MedicationApiService {
   );
 
   @POST('/adherence')
-  Future<AdherenceRecordResponse> createAdherenceRecord(@Body() CreateAdherenceRecordRequest request);
+  Future<AdherenceRecordResponse> createAdherenceRecord(
+    @Body() CreateAdherenceRecordRequest request,
+  );
 
   @GET('/adherence/{id}')
   Future<AdherenceRecordResponse> getAdherenceRecord(@Path('id') String id);
@@ -172,29 +197,43 @@ abstract class MedicationApiService {
   );
 
   @POST('/adherence/mark-taken')
-  Future<AdherenceRecordResponse> markDoseTaken(@Body() Map<String, dynamic> request);
+  Future<AdherenceRecordResponse> markDoseTaken(
+    @Body() Map<String, dynamic> request,
+  );
 
   @POST('/adherence/mark-missed')
-  Future<AdherenceRecordResponse> markDoseMissed(@Body() Map<String, dynamic> request);
+  Future<AdherenceRecordResponse> markDoseMissed(
+    @Body() Map<String, dynamic> request,
+  );
 
   @POST('/adherence/mark-skipped')
-  Future<AdherenceRecordResponse> markDoseSkipped(@Body() Map<String, dynamic> request);
+  Future<AdherenceRecordResponse> markDoseSkipped(
+    @Body() Map<String, dynamic> request,
+  );
 
   // Drug Interaction Operations
   @POST('/drug-interactions/check')
-  Future<InteractionAnalysisResponse> checkDrugInteractions(@Body() InteractionCheckRequest request);
+  Future<InteractionAnalysisResponse> checkDrugInteractions(
+    @Body() InteractionCheckRequest request,
+  );
 
   @GET('/drug-interactions/user-medications')
   Future<InteractionAnalysisResponse> checkUserMedicationInteractions();
 
   @POST('/drug-interactions/rxnorm/search')
-  Future<RxNormSearchResponse> searchRxNorm(@Body() RxNormSearchRequest request);
+  Future<RxNormSearchResponse> searchRxNorm(
+    @Body() RxNormSearchRequest request,
+  );
 
   @POST('/drug-interactions/rxnorm/validate')
-  Future<MedicationEnrichmentResponse> validateRxNormCode(@Body() Map<String, String> request);
+  Future<MedicationEnrichmentResponse> validateRxNormCode(
+    @Body() Map<String, String> request,
+  );
 
   @POST('/drug-interactions/enrich')
-  Future<MedicationEnrichmentResponse> enrichMedicationData(@Body() MedicationEnrichmentRequest request);
+  Future<MedicationEnrichmentResponse> enrichMedicationData(
+    @Body() MedicationEnrichmentRequest request,
+  );
 }
 
 /// Healthcare-compliant medication repository with comprehensive logging
@@ -210,7 +249,9 @@ class MedicationRepository {
   MedicationRepository(Dio dio) : _service = MedicationApiService(dio);
 
   // Medication Operations
-  Future<List<Medication>> getUserMedications({MedicationQueryParams? params}) async {
+  Future<List<Medication>> getUserMedications({
+    MedicationQueryParams? params,
+  }) async {
     try {
       _logger.logMedicationEvent('Fetching user medications', {
         'hasFilters': params != null,
@@ -312,7 +353,10 @@ class MedicationRepository {
     }
   }
 
-  Future<Medication> updateMedication(String id, UpdateMedicationRequest request) async {
+  Future<Medication> updateMedication(
+    String id,
+    UpdateMedicationRequest request,
+  ) async {
     try {
       _logger.logMedicationEvent('Updating medication', {
         'medicationId': id,
@@ -370,7 +414,10 @@ class MedicationRepository {
     }
   }
 
-  Future<List<Medication>> searchMedications(String searchTerm, {int? limit}) async {
+  Future<List<Medication>> searchMedications(
+    String searchTerm, {
+    int? limit,
+  }) async {
     try {
       _logger.logMedicationEvent('Searching medications', {
         'searchTerm': searchTerm,
@@ -404,9 +451,17 @@ class MedicationRepository {
   // Prescription Operations
   Future<List<Prescription>> getUserPrescriptions() async {
     try {
-      _logger.logMedicationEvent('Fetching user prescriptions', {'timestamp': DateTime.now().toIso8601String()});
+      _logger.logMedicationEvent('Fetching user prescriptions', {
+        'timestamp': DateTime.now().toIso8601String(),
+      });
 
-      final response = await _service.getUserPrescriptions(null, null, null, null, null);
+      final response = await _service.getUserPrescriptions(
+        null,
+        null,
+        null,
+        null,
+        null,
+      );
 
       if (response.success) {
         _logger.logMedicationEvent('User prescriptions fetched successfully', {
@@ -428,7 +483,9 @@ class MedicationRepository {
   }
 
   // Adherence Operations
-  Future<List<AdherenceRecord>> getAdherenceRecords({AdherenceQueryParams? params}) async {
+  Future<List<AdherenceRecord>> getAdherenceRecords({
+    AdherenceQueryParams? params,
+  }) async {
     try {
       _logger.logMedicationEvent('Fetching adherence records', {
         'hasFilters': params != null,
@@ -469,13 +526,17 @@ class MedicationRepository {
       case DioExceptionType.connectionTimeout:
       case DioExceptionType.sendTimeout:
       case DioExceptionType.receiveTimeout:
-        return Exception('Connection timeout. Please check your internet connection.');
+        return Exception(
+          'Connection timeout. Please check your internet connection.',
+        );
       case DioExceptionType.badResponse:
         final statusCode = e.response?.statusCode;
         if (statusCode == 401) {
           return Exception('Authentication failed. Please log in again.');
         } else if (statusCode == 403) {
-          return Exception('Access denied. You do not have permission to perform this action.');
+          return Exception(
+            'Access denied. You do not have permission to perform this action.',
+          );
         } else if (statusCode == 404) {
           return Exception('Resource not found.');
         } else if (statusCode == 422) {
@@ -487,7 +548,9 @@ class MedicationRepository {
       case DioExceptionType.cancel:
         return Exception('Request was cancelled');
       case DioExceptionType.connectionError:
-        return Exception('Connection error. Please check your internet connection.');
+        return Exception(
+          'Connection error. Please check your internet connection.',
+        );
       default:
         return Exception('An unexpected error occurred');
     }

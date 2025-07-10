@@ -7,7 +7,7 @@ import '../../domain/models/models.dart';
 import '../providers/adherence_providers.dart';
 
 /// Adherence tab for medication detail screen
-/// 
+///
 /// Displays adherence tracking and analytics including:
 /// - Adherence statistics and trends
 /// - Recent dose records
@@ -17,10 +17,7 @@ class MedicationAdherenceTab extends ConsumerWidget {
   final String medicationId;
   static final _logger = BoundedContextLoggers.medication;
 
-  const MedicationAdherenceTab({
-    super.key,
-    required this.medicationId,
-  });
+  const MedicationAdherenceTab({super.key, required this.medicationId});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -43,7 +40,10 @@ class MedicationAdherenceTab extends ConsumerWidget {
     );
   }
 
-  Widget _buildStatisticsSection(AsyncValue<AdherenceStatistics> statisticsAsync, ThemeData theme) {
+  Widget _buildStatisticsSection(
+    AsyncValue<AdherenceStatistics> statisticsAsync,
+    ThemeData theme,
+  ) {
     return statisticsAsync.when(
       data: (statistics) => _buildStatisticsContent(statistics, theme),
       loading: () => _buildStatisticsLoading(theme),
@@ -51,7 +51,10 @@ class MedicationAdherenceTab extends ConsumerWidget {
     );
   }
 
-  Widget _buildStatisticsContent(AdherenceStatistics statistics, ThemeData theme) {
+  Widget _buildStatisticsContent(
+    AdherenceStatistics statistics,
+    ThemeData theme,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -131,7 +134,7 @@ class MedicationAdherenceTab extends ConsumerWidget {
 
   Widget _buildAdherencePercentage(double percentage, ThemeData theme) {
     final color = _getAdherenceColor(percentage);
-    
+
     return Column(
       children: [
         Stack(
@@ -143,7 +146,9 @@ class MedicationAdherenceTab extends ConsumerWidget {
               child: CircularProgressIndicator(
                 value: percentage / 100,
                 strokeWidth: 8,
-                backgroundColor: theme.colorScheme.outline.withValues(alpha: 0.2),
+                backgroundColor: theme.colorScheme.outline.withValues(
+                  alpha: 0.2,
+                ),
                 valueColor: AlwaysStoppedAnimation<Color>(color),
               ),
             ),
@@ -178,23 +183,23 @@ class MedicationAdherenceTab extends ConsumerWidget {
     );
   }
 
-  Widget _buildStatCard(String label, String value, IconData icon, Color color, ThemeData theme) {
+  Widget _buildStatCard(
+    String label,
+    String value,
+    IconData icon,
+    Color color,
+    ThemeData theme,
+  ) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: color.withValues(alpha: 0.3),
-        ),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Column(
         children: [
-          Icon(
-            icon,
-            color: color,
-            size: 24,
-          ),
+          Icon(icon, color: color, size: 24),
           const SizedBox(height: 8),
           Text(
             value,
@@ -265,7 +270,10 @@ class MedicationAdherenceTab extends ConsumerWidget {
     );
   }
 
-  Widget _buildRecentRecordsSection(AsyncValue<List<AdherenceRecord>> adherenceAsync, ThemeData theme) {
+  Widget _buildRecentRecordsSection(
+    AsyncValue<List<AdherenceRecord>> adherenceAsync,
+    ThemeData theme,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -304,17 +312,22 @@ class MedicationAdherenceTab extends ConsumerWidget {
     }
 
     return Column(
-      children: records.take(5).map((record) => Padding(
-        padding: const EdgeInsets.only(bottom: 8),
-        child: _buildRecordCard(record, theme),
-      )).toList(),
+      children: records
+          .take(5)
+          .map(
+            (record) => Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: _buildRecordCard(record, theme),
+            ),
+          )
+          .toList(),
     );
   }
 
   Widget _buildRecordCard(AdherenceRecord record, ThemeData theme) {
     final statusColor = _getDoseStatusColor(record.status);
     final statusIcon = _getDoseStatusIcon(record.status);
-    
+
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -332,11 +345,7 @@ class MedicationAdherenceTab extends ConsumerWidget {
               color: statusColor.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Icon(
-              statusIcon,
-              color: statusColor,
-              size: 20,
-            ),
+            child: Icon(statusIcon, color: statusColor, size: 20),
           ),
           const SizedBox(width: 12),
           Expanded(

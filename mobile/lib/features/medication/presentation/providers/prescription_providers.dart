@@ -10,10 +10,11 @@ import '../../infrastructure/services/image_processing_service.dart';
 final _logger = BoundedContextLoggers.medication;
 
 /// Provider for prescription processing API service
-final prescriptionProcessingApiServiceProvider = Provider<PrescriptionProcessingApiService>((ref) {
-  // TODO: Get Dio instance from existing provider
-  throw UnimplementedError('Dio provider not yet implemented');
-});
+final prescriptionProcessingApiServiceProvider =
+    Provider<PrescriptionProcessingApiService>((ref) {
+      // TODO: Get Dio instance from existing provider
+      throw UnimplementedError('Dio provider not yet implemented');
+    });
 
 /// Provider for image processing service
 final imageProcessingServiceProvider = Provider<ImageProcessingService>((ref) {
@@ -34,7 +35,10 @@ final prescriptionsProvider = FutureProvider<List<Prescription>>((ref) async {
 });
 
 /// Provider for prescription by ID
-final prescriptionProvider = FutureProvider.family<Prescription?, String>((ref, prescriptionId) async {
+final prescriptionProvider = FutureProvider.family<Prescription?, String>((
+  ref,
+  prescriptionId,
+) async {
   // TODO: Implement prescription repository when available
   _logger.info('Fetching prescription by ID - not yet implemented', {
     'operation': 'getPrescription',
@@ -47,21 +51,27 @@ final prescriptionProvider = FutureProvider.family<Prescription?, String>((ref, 
 });
 
 /// Provider for OCR processing state
-final ocrProcessingProvider = StateNotifierProvider<OCRProcessingNotifier, AsyncValue<OCRProcessingResult?>>((ref) {
-  final imageProcessingService = ref.read(imageProcessingServiceProvider);
-  return OCRProcessingNotifier(imageProcessingService);
-});
+final ocrProcessingProvider =
+    StateNotifierProvider<
+      OCRProcessingNotifier,
+      AsyncValue<OCRProcessingResult?>
+    >((ref) {
+      final imageProcessingService = ref.read(imageProcessingServiceProvider);
+      return OCRProcessingNotifier(imageProcessingService);
+    });
 
 /// State notifier for OCR processing operations
-class OCRProcessingNotifier extends StateNotifier<AsyncValue<OCRProcessingResult?>> {
+class OCRProcessingNotifier
+    extends StateNotifier<AsyncValue<OCRProcessingResult?>> {
   final ImageProcessingService _imageProcessingService;
 
-  OCRProcessingNotifier(this._imageProcessingService) : super(const AsyncValue.data(null));
+  OCRProcessingNotifier(this._imageProcessingService)
+    : super(const AsyncValue.data(null));
 
   /// Process image file for OCR
   Future<void> processImageFile(File imageFile) async {
     state = const AsyncValue.loading();
-    
+
     try {
       _logger.info('Starting OCR processing', {
         'operation': 'processImageFile',
@@ -90,7 +100,7 @@ class OCRProcessingNotifier extends StateNotifier<AsyncValue<OCRProcessingResult
   /// Process image from URL for OCR
   Future<void> processImageUrl(String imageUrl) async {
     state = const AsyncValue.loading();
-    
+
     try {
       _logger.info('Starting URL OCR processing', {
         'operation': 'processImageUrl',

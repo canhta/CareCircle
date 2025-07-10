@@ -7,7 +7,7 @@ import '../../domain/models/models.dart';
 import '../providers/schedule_providers.dart';
 
 /// Schedules tab for medication detail screen
-/// 
+///
 /// Displays and manages medication schedules including:
 /// - Active schedules list
 /// - Schedule creation and editing
@@ -17,10 +17,7 @@ class MedicationSchedulesTab extends ConsumerWidget {
   final String medicationId;
   static final _logger = BoundedContextLoggers.medication;
 
-  const MedicationSchedulesTab({
-    super.key,
-    required this.medicationId,
-  });
+  const MedicationSchedulesTab({super.key, required this.medicationId});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -34,7 +31,11 @@ class MedicationSchedulesTab extends ConsumerWidget {
     );
   }
 
-  Widget _buildSchedulesContent(List<MedicationSchedule> schedules, ThemeData theme, WidgetRef ref) {
+  Widget _buildSchedulesContent(
+    List<MedicationSchedule> schedules,
+    ThemeData theme,
+    WidgetRef ref,
+  ) {
     if (schedules.isEmpty) {
       return _buildEmptyState(theme);
     }
@@ -101,9 +102,7 @@ class MedicationSchedulesTab extends ConsumerWidget {
   Widget _buildScheduleCard(MedicationSchedule schedule, ThemeData theme) {
     return Card(
       elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -132,14 +131,18 @@ class MedicationSchedulesTab extends ConsumerWidget {
     );
   }
 
-  Widget _buildScheduleStatusChip(MedicationSchedule schedule, ThemeData theme) {
-    final isActive = schedule.remindersEnabled && 
-                    (schedule.endDate == null || schedule.endDate!.isAfter(DateTime.now()));
-    
+  Widget _buildScheduleStatusChip(
+    MedicationSchedule schedule,
+    ThemeData theme,
+  ) {
+    final isActive =
+        schedule.remindersEnabled &&
+        (schedule.endDate == null || schedule.endDate!.isAfter(DateTime.now()));
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: isActive 
+        color: isActive
             ? CareCircleDesignTokens.healthGreen.withValues(alpha: 0.1)
             : theme.colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(12),
@@ -147,7 +150,7 @@ class MedicationSchedulesTab extends ConsumerWidget {
       child: Text(
         isActive ? 'Active' : 'Inactive',
         style: theme.textTheme.bodySmall?.copyWith(
-          color: isActive 
+          color: isActive
               ? CareCircleDesignTokens.healthGreen
               : theme.colorScheme.onSurface.withValues(alpha: 0.7),
           fontWeight: FontWeight.w500,
@@ -177,7 +180,12 @@ class MedicationSchedulesTab extends ConsumerWidget {
           const SizedBox(height: 8),
           _buildDetailRow(
             'Times',
-            schedule.reminderTimes.map((time) => '${time.hour}:${time.minute.toString().padLeft(2, '0')}').join(', '),
+            schedule.reminderTimes
+                .map(
+                  (time) =>
+                      '${time.hour}:${time.minute.toString().padLeft(2, '0')}',
+                )
+                .join(', '),
             Icons.access_time,
             theme,
           ),
@@ -193,7 +201,12 @@ class MedicationSchedulesTab extends ConsumerWidget {
     );
   }
 
-  Widget _buildDetailRow(String label, String value, IconData icon, ThemeData theme) {
+  Widget _buildDetailRow(
+    String label,
+    String value,
+    IconData icon,
+    ThemeData theme,
+  ) {
     return Row(
       children: [
         Icon(
@@ -241,7 +254,9 @@ class MedicationSchedulesTab extends ConsumerWidget {
           ),
           label: Text(schedule.remindersEnabled ? 'Pause' : 'Resume'),
           style: TextButton.styleFrom(
-            foregroundColor: schedule.remindersEnabled ? Colors.orange : CareCircleDesignTokens.healthGreen,
+            foregroundColor: schedule.remindersEnabled
+                ? Colors.orange
+                : CareCircleDesignTokens.healthGreen,
             padding: const EdgeInsets.symmetric(horizontal: 8),
           ),
         ),
@@ -300,9 +315,7 @@ class MedicationSchedulesTab extends ConsumerWidget {
   }
 
   Widget _buildLoadingState() {
-    return const Center(
-      child: CircularProgressIndicator(),
-    );
+    return const Center(child: CircularProgressIndicator());
   }
 
   Widget _buildErrorState(Object error, ThemeData theme) {
@@ -351,7 +364,7 @@ class MedicationSchedulesTab extends ConsumerWidget {
   String _getDurationText(MedicationSchedule schedule) {
     final start = schedule.startDate;
     final end = schedule.endDate;
-    
+
     if (end == null) {
       return 'Started ${_formatDate(start)} - Ongoing';
     } else {

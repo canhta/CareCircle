@@ -8,7 +8,9 @@ import '../../infrastructure/repositories/medication_repository.dart';
 final _logger = BoundedContextLoggers.medication;
 
 /// Provider for user adherence records
-final adherenceRecordsProvider = FutureProvider<List<AdherenceRecord>>((ref) async {
+final adherenceRecordsProvider = FutureProvider<List<AdherenceRecord>>((
+  ref,
+) async {
   // TODO: Implement adherence repository when available
   _logger.info('Fetching user adherence records - not yet implemented', {
     'operation': 'getAdherenceRecords',
@@ -20,20 +22,29 @@ final adherenceRecordsProvider = FutureProvider<List<AdherenceRecord>>((ref) asy
 });
 
 /// Provider for adherence records by medication ID
-final medicationAdherenceProvider = FutureProvider.family<List<AdherenceRecord>, String>((ref, medicationId) async {
-  // TODO: Implement adherence repository when available
-  _logger.info('Fetching adherence records for medication - not yet implemented', {
-    'operation': 'getMedicationAdherence',
-    'medicationId': medicationId,
-    'timestamp': DateTime.now().toIso8601String(),
-  });
+final medicationAdherenceProvider =
+    FutureProvider.family<List<AdherenceRecord>, String>((
+      ref,
+      medicationId,
+    ) async {
+      // TODO: Implement adherence repository when available
+      _logger.info(
+        'Fetching adherence records for medication - not yet implemented',
+        {
+          'operation': 'getMedicationAdherence',
+          'medicationId': medicationId,
+          'timestamp': DateTime.now().toIso8601String(),
+        },
+      );
 
-  // Return empty list for now
-  return <AdherenceRecord>[];
-});
+      // Return empty list for now
+      return <AdherenceRecord>[];
+    });
 
 /// Provider for adherence statistics
-final adherenceStatisticsProvider = FutureProvider<AdherenceStatistics>((ref) async {
+final adherenceStatisticsProvider = FutureProvider<AdherenceStatistics>((
+  ref,
+) async {
   // TODO: Implement adherence repository when available
   _logger.info('Fetching adherence statistics - not yet implemented', {
     'operation': 'getAdherenceStatistics',
@@ -57,15 +68,17 @@ final adherenceStatisticsProvider = FutureProvider<AdherenceStatistics>((ref) as
 });
 
 /// Provider for today's adherence records
-final todayAdherenceProvider = FutureProvider<List<AdherenceRecord>>((ref) async {
+final todayAdherenceProvider = FutureProvider<List<AdherenceRecord>>((
+  ref,
+) async {
   final allRecords = await ref.read(adherenceRecordsProvider.future);
   final today = DateTime.now();
-  
+
   final todayRecords = allRecords.where((record) {
     final recordDate = record.scheduledTime;
     return recordDate.year == today.year &&
-           recordDate.month == today.month &&
-           recordDate.day == today.day;
+        recordDate.month == today.month &&
+        recordDate.day == today.day;
   }).toList();
 
   _logger.info('Filtered today\'s adherence records', {
@@ -80,7 +93,9 @@ final todayAdherenceProvider = FutureProvider<List<AdherenceRecord>>((ref) async
 });
 
 /// Provider for adherence trends (last 30 days)
-final adherenceTrendsProvider = FutureProvider<List<AdherenceTrendPoint>>((ref) async {
+final adherenceTrendsProvider = FutureProvider<List<AdherenceTrendPoint>>((
+  ref,
+) async {
   // TODO: Implement adherence repository when available
   final endDate = DateTime.now();
   final startDate = endDate.subtract(const Duration(days: 30));
@@ -97,21 +112,31 @@ final adherenceTrendsProvider = FutureProvider<List<AdherenceTrendPoint>>((ref) 
 });
 
 /// Provider for adherence management operations
-final adherenceManagementProvider = StateNotifierProvider<AdherenceManagementNotifier, AsyncValue<void>>((ref) {
-  final repository = ref.read(medicationRepositoryProvider);
-  return AdherenceManagementNotifier(repository, ref);
-});
+final adherenceManagementProvider =
+    StateNotifierProvider<AdherenceManagementNotifier, AsyncValue<void>>((ref) {
+      final repository = ref.read(medicationRepositoryProvider);
+      return AdherenceManagementNotifier(repository, ref);
+    });
 
 /// State notifier for adherence management operations
 class AdherenceManagementNotifier extends StateNotifier<AsyncValue<void>> {
   // ignore: unused_field
-  final MedicationRepository _repository; // TODO: Will be used when adherence repository is implemented
+  final MedicationRepository
+  _repository; // TODO: Will be used when adherence repository is implemented
   final Ref _ref;
 
-  AdherenceManagementNotifier(this._repository, this._ref) : super(const AsyncValue.data(null));
+  AdherenceManagementNotifier(this._repository, this._ref)
+    : super(const AsyncValue.data(null));
 
   /// Record dose taken
-  Future<void> recordDoseTaken(String medicationId, String scheduleId, DateTime scheduledTime, double dosage, String unit, {String? notes}) async {
+  Future<void> recordDoseTaken(
+    String medicationId,
+    String scheduleId,
+    DateTime scheduledTime,
+    double dosage,
+    String unit, {
+    String? notes,
+  }) async {
     state = const AsyncValue.loading();
 
     try {
@@ -140,10 +165,10 @@ class AdherenceManagementNotifier extends StateNotifier<AsyncValue<void>> {
         'medicationId': request.medicationId,
         'status': request.status.name,
       });
-      
+
       // Refresh adherence data
       _refreshAdherenceData();
-      
+
       state = const AsyncValue.data(null);
 
       _logger.info('Dose recorded successfully', {
@@ -164,7 +189,14 @@ class AdherenceManagementNotifier extends StateNotifier<AsyncValue<void>> {
   }
 
   /// Record dose missed
-  Future<void> recordDoseMissed(String medicationId, String scheduleId, DateTime scheduledTime, double dosage, String unit, {String? reason}) async {
+  Future<void> recordDoseMissed(
+    String medicationId,
+    String scheduleId,
+    DateTime scheduledTime,
+    double dosage,
+    String unit, {
+    String? reason,
+  }) async {
     state = const AsyncValue.loading();
 
     try {
@@ -192,10 +224,10 @@ class AdherenceManagementNotifier extends StateNotifier<AsyncValue<void>> {
         'medicationId': request.medicationId,
         'status': request.status.name,
       });
-      
+
       // Refresh adherence data
       _refreshAdherenceData();
-      
+
       state = const AsyncValue.data(null);
 
       _logger.info('Dose missed recorded successfully', {
@@ -216,7 +248,14 @@ class AdherenceManagementNotifier extends StateNotifier<AsyncValue<void>> {
   }
 
   /// Record dose skipped
-  Future<void> recordDoseSkipped(String medicationId, String scheduleId, DateTime scheduledTime, double dosage, String unit, {String? reason}) async {
+  Future<void> recordDoseSkipped(
+    String medicationId,
+    String scheduleId,
+    DateTime scheduledTime,
+    double dosage,
+    String unit, {
+    String? reason,
+  }) async {
     state = const AsyncValue.loading();
 
     try {
@@ -244,10 +283,10 @@ class AdherenceManagementNotifier extends StateNotifier<AsyncValue<void>> {
         'medicationId': request.medicationId,
         'status': request.status.name,
       });
-      
+
       // Refresh adherence data
       _refreshAdherenceData();
-      
+
       state = const AsyncValue.data(null);
 
       _logger.info('Dose skipped recorded successfully', {

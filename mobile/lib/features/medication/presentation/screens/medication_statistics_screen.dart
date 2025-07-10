@@ -9,7 +9,7 @@ import '../providers/medication_providers.dart';
 import '../providers/adherence_providers.dart';
 
 /// Medication Statistics Screen for analytics and insights interface
-/// 
+///
 /// Features:
 /// - Usage analytics and insights
 /// - Adherence trends over time
@@ -20,10 +20,12 @@ class MedicationStatisticsScreen extends ConsumerStatefulWidget {
   const MedicationStatisticsScreen({super.key});
 
   @override
-  ConsumerState<MedicationStatisticsScreen> createState() => _MedicationStatisticsScreenState();
+  ConsumerState<MedicationStatisticsScreen> createState() =>
+      _MedicationStatisticsScreenState();
 }
 
-class _MedicationStatisticsScreenState extends ConsumerState<MedicationStatisticsScreen> {
+class _MedicationStatisticsScreenState
+    extends ConsumerState<MedicationStatisticsScreen> {
   static final _logger = BoundedContextLoggers.medication;
   String _selectedPeriod = '30days';
   String _selectedMetric = 'adherence';
@@ -50,7 +52,10 @@ class _MedicationStatisticsScreenState extends ConsumerState<MedicationStatistic
             itemBuilder: (context) => [
               const PopupMenuItem(value: '7days', child: Text('Last 7 Days')),
               const PopupMenuItem(value: '30days', child: Text('Last 30 Days')),
-              const PopupMenuItem(value: '90days', child: Text('Last 3 Months')),
+              const PopupMenuItem(
+                value: '90days',
+                child: Text('Last 3 Months'),
+              ),
               const PopupMenuItem(value: '365days', child: Text('Last Year')),
             ],
             icon: const Icon(Icons.date_range),
@@ -129,7 +134,13 @@ class _MedicationStatisticsScreenState extends ConsumerState<MedicationStatistic
     );
   }
 
-  Widget _buildOverviewCard(String title, String value, IconData icon, Color color, ThemeData theme) {
+  Widget _buildOverviewCard(
+    String title,
+    String value,
+    IconData icon,
+    Color color,
+    ThemeData theme,
+  ) {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -201,12 +212,17 @@ class _MedicationStatisticsScreenState extends ConsumerState<MedicationStatistic
           });
         }
       },
-      selectedColor: CareCircleDesignTokens.primaryMedicalBlue.withValues(alpha: 0.2),
+      selectedColor: CareCircleDesignTokens.primaryMedicalBlue.withValues(
+        alpha: 0.2,
+      ),
       checkmarkColor: CareCircleDesignTokens.primaryMedicalBlue,
     );
   }
 
-  Widget _buildMainChart(AsyncValue<AdherenceStatistics> statisticsAsync, ThemeData theme) {
+  Widget _buildMainChart(
+    AsyncValue<AdherenceStatistics> statisticsAsync,
+    ThemeData theme,
+  ) {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -240,7 +256,8 @@ class _MedicationStatisticsScreenState extends ConsumerState<MedicationStatistic
                 height: 200,
                 child: Center(child: CircularProgressIndicator()),
               ),
-              error: (error, _) => _buildErrorState('Failed to load chart data', theme),
+              error: (error, _) =>
+                  _buildErrorState('Failed to load chart data', theme),
             ),
           ],
         ),
@@ -265,7 +282,10 @@ class _MedicationStatisticsScreenState extends ConsumerState<MedicationStatistic
 
   Widget _buildAdherenceChart(AdherenceStatistics statistics, ThemeData theme) {
     // Create mock trend data from statistics
-    final trends = List.generate(7, (index) => statistics.adherencePercentage + (index * 2.0 - 6.0));
+    final trends = List.generate(
+      7,
+      (index) => statistics.adherencePercentage + (index * 2.0 - 6.0),
+    );
 
     return SizedBox(
       height: 200,
@@ -284,8 +304,12 @@ class _MedicationStatisticsScreenState extends ConsumerState<MedicationStatistic
           ),
           titlesData: FlTitlesData(
             show: true,
-            rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            rightTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            topTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
             bottomTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
@@ -294,7 +318,9 @@ class _MedicationStatisticsScreenState extends ConsumerState<MedicationStatistic
                 getTitlesWidget: (value, meta) {
                   final index = value.toInt();
                   if (index >= 0 && index < trends.length) {
-                    final date = DateTime.now().subtract(Duration(days: trends.length - index - 1));
+                    final date = DateTime.now().subtract(
+                      Duration(days: trends.length - index - 1),
+                    );
                     return Text(
                       '${date.day}/${date.month}',
                       style: theme.textTheme.bodySmall,
@@ -350,7 +376,9 @@ class _MedicationStatisticsScreenState extends ConsumerState<MedicationStatistic
               ),
               belowBarData: BarAreaData(
                 show: true,
-                color: CareCircleDesignTokens.healthGreen.withValues(alpha: 0.2),
+                color: CareCircleDesignTokens.healthGreen.withValues(
+                  alpha: 0.2,
+                ),
               ),
             ),
           ],
@@ -359,11 +387,20 @@ class _MedicationStatisticsScreenState extends ConsumerState<MedicationStatistic
     );
   }
 
-  Widget _buildDosesChart(AdherenceStatistics statistics, ThemeData theme, bool showTaken) {
+  Widget _buildDosesChart(
+    AdherenceStatistics statistics,
+    ThemeData theme,
+    bool showTaken,
+  ) {
     // Create mock dosage data from statistics
-    final trends = List.generate(7, (index) => showTaken ? statistics.takenDoses : statistics.missedDoses);
+    final trends = List.generate(
+      7,
+      (index) => showTaken ? statistics.takenDoses : statistics.missedDoses,
+    );
 
-    final color = showTaken ? CareCircleDesignTokens.healthGreen : CareCircleDesignTokens.criticalAlert;
+    final color = showTaken
+        ? CareCircleDesignTokens.healthGreen
+        : CareCircleDesignTokens.criticalAlert;
 
     return SizedBox(
       height: 200,
@@ -379,22 +416,31 @@ class _MedicationStatisticsScreenState extends ConsumerState<MedicationStatistic
                 final label = showTaken ? 'Taken' : 'Missed';
                 return BarTooltipItem(
                   '$label: $value',
-                  const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                  const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
                 );
               },
             ),
           ),
           titlesData: FlTitlesData(
             show: true,
-            rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            rightTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            topTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
             bottomTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
                 getTitlesWidget: (value, meta) {
                   final index = value.toInt();
                   if (index >= 0 && index < trends.length) {
-                    final date = DateTime.now().subtract(Duration(days: trends.length - index - 1));
+                    final date = DateTime.now().subtract(
+                      Duration(days: trends.length - index - 1),
+                    );
                     return Text(
                       '${date.day}/${date.month}',
                       style: theme.textTheme.bodySmall,
@@ -447,9 +493,15 @@ class _MedicationStatisticsScreenState extends ConsumerState<MedicationStatistic
     );
   }
 
-  Widget _buildEffectivenessChart(AdherenceStatistics statistics, ThemeData theme) {
+  Widget _buildEffectivenessChart(
+    AdherenceStatistics statistics,
+    ThemeData theme,
+  ) {
     // Create mock effectiveness data from statistics
-    final trends = List.generate(7, (index) => (statistics.adherencePercentage / 20.0).clamp(1.0, 5.0));
+    final trends = List.generate(
+      7,
+      (index) => (statistics.adherencePercentage / 20.0).clamp(1.0, 5.0),
+    );
 
     return SizedBox(
       height: 200,
@@ -468,8 +520,12 @@ class _MedicationStatisticsScreenState extends ConsumerState<MedicationStatistic
           ),
           titlesData: FlTitlesData(
             show: true,
-            rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            rightTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            topTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
             bottomTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
@@ -478,7 +534,9 @@ class _MedicationStatisticsScreenState extends ConsumerState<MedicationStatistic
                 getTitlesWidget: (value, meta) {
                   final index = value.toInt();
                   if (index >= 0 && index < trends.length) {
-                    final date = DateTime.now().subtract(Duration(days: trends.length - index - 1));
+                    final date = DateTime.now().subtract(
+                      Duration(days: trends.length - index - 1),
+                    );
                     return Text(
                       '${date.day}/${date.month}',
                       style: theme.textTheme.bodySmall,
@@ -534,7 +592,9 @@ class _MedicationStatisticsScreenState extends ConsumerState<MedicationStatistic
               ),
               belowBarData: BarAreaData(
                 show: true,
-                color: CareCircleDesignTokens.primaryMedicalBlue.withValues(alpha: 0.2),
+                color: CareCircleDesignTokens.primaryMedicalBlue.withValues(
+                  alpha: 0.2,
+                ),
               ),
             ),
           ],
@@ -543,7 +603,10 @@ class _MedicationStatisticsScreenState extends ConsumerState<MedicationStatistic
     );
   }
 
-  Widget _buildMedicationBreakdown(AsyncValue<List<Medication>> medicationsAsync, ThemeData theme) {
+  Widget _buildMedicationBreakdown(
+    AsyncValue<List<Medication>> medicationsAsync,
+    ThemeData theme,
+  ) {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -568,7 +631,8 @@ class _MedicationStatisticsScreenState extends ConsumerState<MedicationStatistic
                 height: 200,
                 child: Center(child: CircularProgressIndicator()),
               ),
-              error: (error, _) => _buildErrorState('Failed to load medication data', theme),
+              error: (error, _) =>
+                  _buildErrorState('Failed to load medication data', theme),
             ),
           ],
         ),
@@ -576,10 +640,15 @@ class _MedicationStatisticsScreenState extends ConsumerState<MedicationStatistic
     );
   }
 
-  Widget _buildMedicationPieChart(List<Medication> medications, ThemeData theme) {
+  Widget _buildMedicationPieChart(
+    List<Medication> medications,
+    ThemeData theme,
+  ) {
     final categoryData = <String, int>{};
     for (final medication in medications) {
-      final category = medication.category.isNotEmpty ? medication.category : 'Other';
+      final category = medication.category.isNotEmpty
+          ? medication.category
+          : 'Other';
       categoryData[category] = (categoryData[category] ?? 0) + 1;
     }
 
@@ -661,7 +730,10 @@ class _MedicationStatisticsScreenState extends ConsumerState<MedicationStatistic
     );
   }
 
-  Widget _buildInsightsSection(AsyncValue<AdherenceStatistics> statisticsAsync, ThemeData theme) {
+  Widget _buildInsightsSection(
+    AsyncValue<AdherenceStatistics> statisticsAsync,
+    ThemeData theme,
+  ) {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -681,7 +753,8 @@ class _MedicationStatisticsScreenState extends ConsumerState<MedicationStatistic
             statisticsAsync.when(
               data: (statistics) => _buildInsightsContent(statistics, theme),
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (error, _) => _buildErrorState('Failed to load insights', theme),
+              error: (error, _) =>
+                  _buildErrorState('Failed to load insights', theme),
             ),
           ],
         ),
@@ -689,7 +762,10 @@ class _MedicationStatisticsScreenState extends ConsumerState<MedicationStatistic
     );
   }
 
-  Widget _buildInsightsContent(AdherenceStatistics statistics, ThemeData theme) {
+  Widget _buildInsightsContent(
+    AdherenceStatistics statistics,
+    ThemeData theme,
+  ) {
     final insights = _generateInsights(statistics);
 
     if (insights.isEmpty) {
@@ -697,7 +773,9 @@ class _MedicationStatisticsScreenState extends ConsumerState<MedicationStatistic
     }
 
     return Column(
-      children: insights.map((insight) => _buildInsightCard(insight, theme)).toList(),
+      children: insights
+          .map((insight) => _buildInsightCard(insight, theme))
+          .toList(),
     );
   }
 
@@ -709,15 +787,15 @@ class _MedicationStatisticsScreenState extends ConsumerState<MedicationStatistic
         color: insight.type == InsightType.positive
             ? CareCircleDesignTokens.healthGreen.withValues(alpha: 0.1)
             : insight.type == InsightType.warning
-                ? Colors.orange.withValues(alpha: 0.1)
-                : CareCircleDesignTokens.criticalAlert.withValues(alpha: 0.1),
+            ? Colors.orange.withValues(alpha: 0.1)
+            : CareCircleDesignTokens.criticalAlert.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
           color: insight.type == InsightType.positive
               ? CareCircleDesignTokens.healthGreen.withValues(alpha: 0.3)
               : insight.type == InsightType.warning
-                  ? Colors.orange.withValues(alpha: 0.3)
-                  : CareCircleDesignTokens.criticalAlert.withValues(alpha: 0.3),
+              ? Colors.orange.withValues(alpha: 0.3)
+              : CareCircleDesignTokens.criticalAlert.withValues(alpha: 0.3),
         ),
       ),
       child: Row(
@@ -727,8 +805,8 @@ class _MedicationStatisticsScreenState extends ConsumerState<MedicationStatistic
             color: insight.type == InsightType.positive
                 ? CareCircleDesignTokens.healthGreen
                 : insight.type == InsightType.warning
-                    ? Colors.orange
-                    : CareCircleDesignTokens.criticalAlert,
+                ? Colors.orange
+                : CareCircleDesignTokens.criticalAlert,
             size: 24,
           ),
           const SizedBox(width: 12),
@@ -743,10 +821,7 @@ class _MedicationStatisticsScreenState extends ConsumerState<MedicationStatistic
                   ),
                 ),
                 const SizedBox(height: 4),
-                Text(
-                  insight.description,
-                  style: theme.textTheme.bodyMedium,
-                ),
+                Text(insight.description, style: theme.textTheme.bodyMedium),
               ],
             ),
           ),
@@ -862,47 +937,62 @@ class _MedicationStatisticsScreenState extends ConsumerState<MedicationStatistic
 
     // Adherence insights
     if (statistics.adherencePercentage >= 90) {
-      insights.add(StatisticsInsight(
-        title: 'Excellent Adherence!',
-        description: 'Your adherence of ${statistics.adherencePercentage.toInt()}% is excellent. Keep up the great work!',
-        type: InsightType.positive,
-        icon: Icons.celebration,
-      ));
+      insights.add(
+        StatisticsInsight(
+          title: 'Excellent Adherence!',
+          description:
+              'Your adherence of ${statistics.adherencePercentage.toInt()}% is excellent. Keep up the great work!',
+          type: InsightType.positive,
+          icon: Icons.celebration,
+        ),
+      );
     } else if (statistics.adherencePercentage >= 70) {
-      insights.add(StatisticsInsight(
-        title: 'Good Progress',
-        description: 'Your adherence is good at ${statistics.adherencePercentage.toInt()}%, but there\'s room for improvement.',
-        type: InsightType.warning,
-        icon: Icons.trending_up,
-      ));
+      insights.add(
+        StatisticsInsight(
+          title: 'Good Progress',
+          description:
+              'Your adherence is good at ${statistics.adherencePercentage.toInt()}%, but there\'s room for improvement.',
+          type: InsightType.warning,
+          icon: Icons.trending_up,
+        ),
+      );
     } else {
-      insights.add(StatisticsInsight(
-        title: 'Needs Attention',
-        description: 'Your adherence of ${statistics.adherencePercentage.toInt()}% could be improved. Consider setting more reminders.',
-        type: InsightType.critical,
-        icon: Icons.warning,
-      ));
+      insights.add(
+        StatisticsInsight(
+          title: 'Needs Attention',
+          description:
+              'Your adherence of ${statistics.adherencePercentage.toInt()}% could be improved. Consider setting more reminders.',
+          type: InsightType.critical,
+          icon: Icons.warning,
+        ),
+      );
     }
 
     // Dose insights
     final totalDoses = statistics.takenDoses + statistics.missedDoses;
     if (totalDoses > 50) {
-      insights.add(StatisticsInsight(
-        title: 'Active Medication Management',
-        description: 'You have $totalDoses total doses tracked. Great job staying on top of your medications!',
-        type: InsightType.positive,
-        icon: Icons.medication,
-      ));
+      insights.add(
+        StatisticsInsight(
+          title: 'Active Medication Management',
+          description:
+              'You have $totalDoses total doses tracked. Great job staying on top of your medications!',
+          type: InsightType.positive,
+          icon: Icons.medication,
+        ),
+      );
     }
 
     // Streak insights
     if (statistics.currentStreak >= 7) {
-      insights.add(StatisticsInsight(
-        title: 'Great Streak!',
-        description: 'You\'ve maintained a ${statistics.currentStreak}-day streak. Consistency is key!',
-        type: InsightType.positive,
-        icon: Icons.local_fire_department,
-      ));
+      insights.add(
+        StatisticsInsight(
+          title: 'Great Streak!',
+          description:
+              'You\'ve maintained a ${statistics.currentStreak}-day streak. Consistency is key!',
+          type: InsightType.positive,
+          icon: Icons.local_fire_department,
+        ),
+      );
     }
 
     return insights;
