@@ -7,20 +7,18 @@ import '../providers/care_group_providers.dart';
 class CreateCareGroupDialog extends ConsumerStatefulWidget {
   final Function(CareGroup)? onGroupCreated;
 
-  const CreateCareGroupDialog({
-    super.key,
-    this.onGroupCreated,
-  });
+  const CreateCareGroupDialog({super.key, this.onGroupCreated});
 
   @override
-  ConsumerState<CreateCareGroupDialog> createState() => _CreateCareGroupDialogState();
+  ConsumerState<CreateCareGroupDialog> createState() =>
+      _CreateCareGroupDialogState();
 }
 
 class _CreateCareGroupDialogState extends ConsumerState<CreateCareGroupDialog> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _descriptionController = TextEditingController();
-  
+
   bool _isLoading = false;
   bool _allowHealthDataSharing = true;
   bool _allowMedicationSharing = true;
@@ -37,9 +35,7 @@ class _CreateCareGroupDialogState extends ConsumerState<CreateCareGroupDialog> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Container(
         constraints: const BoxConstraints(maxWidth: 500),
         child: SingleChildScrollView(
@@ -74,7 +70,9 @@ class _CreateCareGroupDialogState extends ConsumerState<CreateCareGroupDialog> {
           width: 48,
           height: 48,
           decoration: BoxDecoration(
-            color: CareCircleDesignTokens.primaryMedicalBlue.withValues(alpha: 0.1),
+            color: CareCircleDesignTokens.primaryMedicalBlue.withValues(
+              alpha: 0.1,
+            ),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Icon(
@@ -90,15 +88,15 @@ class _CreateCareGroupDialogState extends ConsumerState<CreateCareGroupDialog> {
             children: [
               Text(
                 'Create Care Group',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
               ),
               Text(
                 'Set up a new care coordination group',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Colors.grey[600],
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
               ),
             ],
           ),
@@ -117,9 +115,9 @@ class _CreateCareGroupDialogState extends ConsumerState<CreateCareGroupDialog> {
       children: [
         Text(
           'Basic Information',
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 16),
         TextFormField(
@@ -127,9 +125,7 @@ class _CreateCareGroupDialogState extends ConsumerState<CreateCareGroupDialog> {
           decoration: InputDecoration(
             labelText: 'Group Name *',
             hintText: 'e.g., Smith Family Care',
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
             prefixIcon: const Icon(Icons.group),
           ),
           validator: (value) {
@@ -149,9 +145,7 @@ class _CreateCareGroupDialogState extends ConsumerState<CreateCareGroupDialog> {
           decoration: InputDecoration(
             labelText: 'Description (Optional)',
             hintText: 'Describe the purpose of this care group',
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
             prefixIcon: const Icon(Icons.description),
           ),
           maxLines: 3,
@@ -167,9 +161,9 @@ class _CreateCareGroupDialogState extends ConsumerState<CreateCareGroupDialog> {
       children: [
         Text(
           'Group Settings',
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 16),
         _buildSettingTile(
@@ -216,20 +210,17 @@ class _CreateCareGroupDialogState extends ConsumerState<CreateCareGroupDialog> {
       child: SwitchListTile(
         title: Text(
           title,
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            fontWeight: FontWeight.w500,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
         ),
         subtitle: Text(
           subtitle,
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            color: Colors.grey[600],
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
         ),
-        secondary: Icon(
-          icon,
-          color: CareCircleDesignTokens.primaryMedicalBlue,
-        ),
+        secondary: Icon(icon, color: CareCircleDesignTokens.primaryMedicalBlue),
         value: value,
         onChanged: onChanged,
         activeColor: CareCircleDesignTokens.primaryMedicalBlue,
@@ -284,18 +275,20 @@ class _CreateCareGroupDialogState extends ConsumerState<CreateCareGroupDialog> {
         enableTaskNotifications: _enableTaskNotifications,
       );
 
-      final group = await ref.read(careGroupNotifierProvider.notifier).createCareGroup(
-        name: _nameController.text.trim(),
-        description: _descriptionController.text.trim().isEmpty 
-          ? null 
-          : _descriptionController.text.trim(),
-        settings: settings,
-      );
+      final group = await ref
+          .read(careGroupNotifierProvider.notifier)
+          .createCareGroup(
+            name: _nameController.text.trim(),
+            description: _descriptionController.text.trim().isEmpty
+                ? null
+                : _descriptionController.text.trim(),
+            settings: settings,
+          );
 
       if (mounted) {
         Navigator.of(context).pop();
         widget.onGroupCreated?.call(group);
-        
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Care group "${group.name}" created successfully!'),

@@ -18,7 +18,8 @@ class HealthDashboardScreen extends ConsumerStatefulWidget {
   const HealthDashboardScreen({super.key});
 
   @override
-  ConsumerState<HealthDashboardScreen> createState() => _HealthDashboardScreenState();
+  ConsumerState<HealthDashboardScreen> createState() =>
+      _HealthDashboardScreenState();
 }
 
 class _HealthDashboardScreenState extends ConsumerState<HealthDashboardScreen> {
@@ -37,7 +38,9 @@ class _HealthDashboardScreenState extends ConsumerState<HealthDashboardScreen> {
 
   Future<void> _checkPermissionsAndSync() async {
     try {
-      final hasPermissions = await ref.read(healthSyncPermissionsProvider.future);
+      final hasPermissions = await ref.read(
+        healthSyncPermissionsProvider.future,
+      );
       if (hasPermissions) {
         // Trigger sync of last 24 hours if permissions are available
         ref.read(syncLast24HoursProvider);
@@ -125,7 +128,8 @@ class _HealthDashboardScreenState extends ConsumerState<HealthDashboardScreen> {
             ),
             HealthMetricCard(
               metricType: HealthMetricType.bloodPressure,
-              onTap: () => _navigateToMetricDetail(HealthMetricType.bloodPressure),
+              onTap: () =>
+                  _navigateToMetricDetail(HealthMetricType.bloodPressure),
             ),
             HealthMetricCard(
               metricType: HealthMetricType.weight,
@@ -155,7 +159,10 @@ class _HealthDashboardScreenState extends ConsumerState<HealthDashboardScreen> {
                 color: CareCircleDesignTokens.primaryMedicalBlue,
               ),
             ),
-            TextButton(onPressed: () => _navigateToAllMetrics(), child: const Text('View All')),
+            TextButton(
+              onPressed: () => _navigateToAllMetrics(),
+              child: const Text('View All'),
+            ),
           ],
         ),
         const SizedBox(height: 16),
@@ -291,43 +298,57 @@ class _HealthDashboardScreenState extends ConsumerState<HealthDashboardScreen> {
   void _navigateToMetricDetail(HealthMetricType metricType) {
     _logger.info('Navigating to metric detail: ${metricType.displayName}');
     // TODO: Implement metric detail navigation
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${metricType.displayName} detail coming soon')));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('${metricType.displayName} detail coming soon')),
+    );
   }
 
   void _navigateToAllMetrics() {
     _logger.info('Navigating to all metrics view');
     // TODO: Implement all metrics navigation
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('All metrics view coming soon')));
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('All metrics view coming soon')),
+    );
   }
 
   void _navigateToAddMetric() {
     _logger.info('Navigating to add metric screen');
     // TODO: Implement add metric navigation
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Add metric coming soon')));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Add metric coming soon')));
   }
 
   void _navigateToDevices() {
     _logger.info('Navigating to devices screen');
     // TODO: Implement devices navigation
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Devices screen coming soon')));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Devices screen coming soon')));
   }
 
   void _navigateToGoals() {
     _logger.info('Navigating to goals screen');
     // TODO: Implement goals navigation
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Goals screen coming soon')));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Goals screen coming soon')));
   }
 
   void _navigateToAnalytics() {
     _logger.info('Navigating to analytics screen');
     // TODO: Implement analytics navigation
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Analytics screen coming soon')));
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Analytics screen coming soon')),
+    );
   }
 
   void _navigateToSettings() {
     _logger.info('Navigating to health settings');
     // TODO: Implement settings navigation
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Health settings coming soon')));
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Health settings coming soon')),
+    );
   }
 }
 
@@ -338,7 +359,12 @@ class _QuickActionButton extends StatelessWidget {
   final Color color;
   final VoidCallback onPressed;
 
-  const _QuickActionButton({required this.icon, required this.label, required this.color, required this.onPressed});
+  const _QuickActionButton({
+    required this.icon,
+    required this.label,
+    required this.color,
+    required this.onPressed,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -355,7 +381,10 @@ class _QuickActionButton extends StatelessWidget {
         children: [
           Icon(icon, size: 24),
           const SizedBox(height: 4),
-          Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
+          Text(
+            label,
+            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+          ),
         ],
       ),
     );

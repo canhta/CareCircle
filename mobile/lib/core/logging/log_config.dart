@@ -124,11 +124,17 @@ class LogConfig {
 
   /// Get Talker logger settings
   static TalkerLoggerSettings get talkerLoggerSettings {
-    return TalkerLoggerSettings(level: logLevel, enableColors: enableConsoleColors);
+    return TalkerLoggerSettings(
+      level: logLevel,
+      enableColors: enableConsoleColors,
+    );
   }
 
   /// Get Talker wrapper options
   static TalkerWrapperOptions get talkerWrapperOptions {
-    return TalkerWrapperOptions(enableErrorAlerts: enableErrorAlerts, enableExceptionAlerts: enableExceptionAlerts);
+    return TalkerWrapperOptions(
+      enableErrorAlerts: enableErrorAlerts,
+      enableExceptionAlerts: enableExceptionAlerts,
+    );
   }
 }

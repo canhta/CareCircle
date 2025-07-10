@@ -6,7 +6,7 @@ import '../../../../core/logging/bounded_context_loggers.dart';
 import '../../application/providers/health_sync_provider.dart';
 
 /// Widget displaying health data sync status and controls
-/// 
+///
 /// Shows current sync status, last sync time, and provides
 /// quick access to sync operations with healthcare-compliant logging.
 class HealthSyncStatusWidget extends ConsumerWidget {
@@ -21,9 +21,7 @@ class HealthSyncStatusWidget extends ConsumerWidget {
 
     return Card(
       elevation: 1,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -82,14 +80,13 @@ class HealthSyncStatusWidget extends ConsumerWidget {
 
     final icon = status.hasError ? Icons.error : Icons.check_circle;
 
-    return Icon(
-      icon,
-      color: color,
-      size: 16,
-    );
+    return Icon(icon, color: color, size: 16);
   }
 
-  Widget _buildPermissionsStatus(BuildContext context, AsyncValue<bool> permissionsAsync) {
+  Widget _buildPermissionsStatus(
+    BuildContext context,
+    AsyncValue<bool> permissionsAsync,
+  ) {
     return permissionsAsync.when(
       data: (hasPermissions) {
         if (hasPermissions) {
@@ -112,18 +109,14 @@ class HealthSyncStatusWidget extends ConsumerWidget {
         } else {
           return Row(
             children: [
-              Icon(
-                Icons.warning,
-                color: Colors.orange[600],
-                size: 16,
-              ),
+              Icon(Icons.warning, color: Colors.orange[600], size: 16),
               const SizedBox(width: 6),
               Expanded(
                 child: Text(
                   'Health permissions required',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Colors.orange[600],
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodySmall?.copyWith(color: Colors.orange[600]),
                 ),
               ),
               TextButton(
@@ -148,9 +141,9 @@ class HealthSyncStatusWidget extends ConsumerWidget {
           const SizedBox(width: 6),
           Text(
             'Checking permissions...',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: Colors.grey[600],
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
           ),
         ],
       ),
@@ -177,13 +170,13 @@ class HealthSyncStatusWidget extends ConsumerWidget {
 
   Widget _buildLastSyncInfo(BuildContext context, HealthSyncStatus status) {
     final lastSyncTime = status.lastSyncTime;
-    
+
     if (lastSyncTime == null) {
       return Text(
         'No sync performed yet',
-        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-          color: Colors.grey[600],
-        ),
+        style: Theme.of(
+          context,
+        ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
       );
     }
 
@@ -194,17 +187,13 @@ class HealthSyncStatusWidget extends ConsumerWidget {
 
     return Row(
       children: [
-        Icon(
-          Icons.access_time,
-          size: 14,
-          color: Colors.grey[500],
-        ),
+        Icon(Icons.access_time, size: 14, color: Colors.grey[500]),
         const SizedBox(width: 4),
         Text(
           '$syncInfo $timeAgo',
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            color: Colors.grey[600],
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
         ),
       ],
     );
@@ -251,7 +240,7 @@ class HealthSyncStatusWidget extends ConsumerWidget {
 
   void _requestPermissions(BuildContext context) async {
     _logger.info('Requesting health permissions from sync status widget');
-    
+
     try {
       // TODO: Implement permission request through DeviceHealthService
       ScaffoldMessenger.of(context).showSnackBar(
@@ -262,7 +251,7 @@ class HealthSyncStatusWidget extends ConsumerWidget {
       );
     } catch (e) {
       _logger.error('Failed to request health permissions: $e', e);
-      
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Failed to request permissions: ${e.toString()}'),
@@ -308,11 +297,7 @@ class CompactHealthSyncStatus extends ConsumerWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(
-          icon,
-          color: color,
-          size: 14,
-        ),
+        Icon(icon, color: color, size: 14),
         const SizedBox(width: 4),
         Text(
           syncStatus.hasError ? 'Sync Error' : 'Synced',

@@ -16,10 +16,12 @@ class DevicePermissionsWidget extends ConsumerStatefulWidget {
   const DevicePermissionsWidget({super.key});
 
   @override
-  ConsumerState<DevicePermissionsWidget> createState() => _DevicePermissionsWidgetState();
+  ConsumerState<DevicePermissionsWidget> createState() =>
+      _DevicePermissionsWidgetState();
 }
 
-class _DevicePermissionsWidgetState extends ConsumerState<DevicePermissionsWidget> {
+class _DevicePermissionsWidgetState
+    extends ConsumerState<DevicePermissionsWidget> {
   static final _logger = BoundedContextLoggers.healthData;
   final _deviceHealthService = DeviceHealthService();
   bool _showAllPermissions = false;
@@ -52,7 +54,11 @@ class _DevicePermissionsWidgetState extends ConsumerState<DevicePermissionsWidge
   Widget _buildHeader() {
     return Row(
       children: [
-        Icon(Icons.security, color: CareCircleDesignTokens.primaryMedicalBlue, size: 20),
+        Icon(
+          Icons.security,
+          color: CareCircleDesignTokens.primaryMedicalBlue,
+          size: 20,
+        ),
         const SizedBox(width: 8),
         Text(
           'Health Data Permissions',
@@ -93,7 +99,9 @@ class _DevicePermissionsWidgetState extends ConsumerState<DevicePermissionsWidge
             children: [
               Icon(
                 hasPermissions ? Icons.check_circle : Icons.warning,
-                color: hasPermissions ? CareCircleDesignTokens.healthGreen : Colors.orange[600],
+                color: hasPermissions
+                    ? CareCircleDesignTokens.healthGreen
+                    : Colors.orange[600],
                 size: 24,
               ),
               const SizedBox(width: 12),
@@ -102,10 +110,14 @@ class _DevicePermissionsWidgetState extends ConsumerState<DevicePermissionsWidge
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      hasPermissions ? 'Permissions Granted' : 'Permissions Required',
+                      hasPermissions
+                          ? 'Permissions Granted'
+                          : 'Permissions Required',
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
                         fontWeight: FontWeight.w600,
-                        color: hasPermissions ? CareCircleDesignTokens.healthGreen : Colors.orange[600],
+                        color: hasPermissions
+                            ? CareCircleDesignTokens.healthGreen
+                            : Colors.orange[600],
                       ),
                     ),
                     const SizedBox(height: 2),
@@ -113,7 +125,9 @@ class _DevicePermissionsWidgetState extends ConsumerState<DevicePermissionsWidge
                       hasPermissions
                           ? 'CareCircle can access your health data'
                           : 'Grant permissions to sync health data',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey[700]),
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodySmall?.copyWith(color: Colors.grey[700]),
                     ),
                   ],
                 ),
@@ -124,14 +138,23 @@ class _DevicePermissionsWidgetState extends ConsumerState<DevicePermissionsWidge
       },
       loading: () => Container(
         padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(color: Colors.grey[100], borderRadius: BorderRadius.circular(8)),
+        decoration: BoxDecoration(
+          color: Colors.grey[100],
+          borderRadius: BorderRadius.circular(8),
+        ),
         child: Row(
           children: [
-            const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)),
+            const SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
             const SizedBox(width: 12),
             Text(
               'Checking permissions...',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
             ),
           ],
         ),
@@ -141,16 +164,24 @@ class _DevicePermissionsWidgetState extends ConsumerState<DevicePermissionsWidge
         decoration: BoxDecoration(
           color: CareCircleDesignTokens.criticalAlert.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: CareCircleDesignTokens.criticalAlert.withValues(alpha: 0.3)),
+          border: Border.all(
+            color: CareCircleDesignTokens.criticalAlert.withValues(alpha: 0.3),
+          ),
         ),
         child: Row(
           children: [
-            Icon(Icons.error, color: CareCircleDesignTokens.criticalAlert, size: 24),
+            Icon(
+              Icons.error,
+              color: CareCircleDesignTokens.criticalAlert,
+              size: 24,
+            ),
             const SizedBox(width: 12),
             Expanded(
               child: Text(
                 'Failed to check permissions: ${error.toString()}',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey[700]),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(color: Colors.grey[700]),
               ),
             ),
           ],
@@ -161,7 +192,9 @@ class _DevicePermissionsWidgetState extends ConsumerState<DevicePermissionsWidge
 
   Widget _buildPermissionsList() {
     final supportedTypes = _deviceHealthService.supportedMetricTypes;
-    final displayTypes = _showAllPermissions ? supportedTypes : supportedTypes.take(5).toList();
+    final displayTypes = _showAllPermissions
+        ? supportedTypes
+        : supportedTypes.take(5).toList();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -170,7 +203,9 @@ class _DevicePermissionsWidgetState extends ConsumerState<DevicePermissionsWidge
           children: [
             Text(
               'Health Metrics Access',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
             ),
             const Spacer(),
             if (supportedTypes.length > 5)
@@ -195,9 +230,18 @@ class _DevicePermissionsWidgetState extends ConsumerState<DevicePermissionsWidge
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         children: [
-          Icon(_getMetricIcon(metricType), color: _getMetricColor(metricType), size: 18),
+          Icon(
+            _getMetricIcon(metricType),
+            color: _getMetricColor(metricType),
+            size: 18,
+          ),
           const SizedBox(width: 12),
-          Expanded(child: Text(metricType.displayName, style: Theme.of(context).textTheme.bodySmall)),
+          Expanded(
+            child: Text(
+              metricType.displayName,
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
             decoration: BoxDecoration(
@@ -206,7 +250,11 @@ class _DevicePermissionsWidgetState extends ConsumerState<DevicePermissionsWidge
             ),
             child: Text(
               'Read/Write',
-              style: TextStyle(fontSize: 10, color: CareCircleDesignTokens.healthGreen, fontWeight: FontWeight.w500),
+              style: TextStyle(
+                fontSize: 10,
+                color: CareCircleDesignTokens.healthGreen,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ),
         ],
@@ -225,7 +273,9 @@ class _DevicePermissionsWidgetState extends ConsumerState<DevicePermissionsWidge
                   onPressed: () => _showPermissionsDetails(),
                   icon: const Icon(Icons.list),
                   label: const Text('View Details'),
-                  style: OutlinedButton.styleFrom(foregroundColor: CareCircleDesignTokens.primaryMedicalBlue),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: CareCircleDesignTokens.primaryMedicalBlue,
+                  ),
                 ),
               ),
               const SizedBox(width: 12),
@@ -267,7 +317,10 @@ class _DevicePermissionsWidgetState extends ConsumerState<DevicePermissionsWidge
           onPressed: () => _retryPermissionCheck(),
           icon: const Icon(Icons.refresh),
           label: const Text('Retry Permission Check'),
-          style: ElevatedButton.styleFrom(backgroundColor: Colors.orange[600], foregroundColor: Colors.white),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.orange[600],
+            foregroundColor: Colors.white,
+          ),
         ),
       ),
     );
@@ -357,7 +410,9 @@ class _DevicePermissionsWidgetState extends ConsumerState<DevicePermissionsWidge
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Health permissions were denied. Please grant permissions in Settings.'),
+              content: Text(
+                'Health permissions were denied. Please grant permissions in Settings.',
+              ),
               backgroundColor: Colors.orange,
               duration: Duration(seconds: 4),
             ),
@@ -390,7 +445,10 @@ class _DevicePermissionsWidgetState extends ConsumerState<DevicePermissionsWidge
           'Note: This will stop health data sync until permissions are granted again.',
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel'),
+          ),
           TextButton(
             onPressed: () {
               Navigator.of(context).pop();
@@ -426,24 +484,53 @@ class _DevicePermissionsWidgetState extends ConsumerState<DevicePermissionsWidge
                   padding: const EdgeInsets.symmetric(vertical: 2),
                   child: Row(
                     children: [
-                      Icon(_getMetricIcon(type), size: 16, color: _getMetricColor(type)),
+                      Icon(
+                        _getMetricIcon(type),
+                        size: 16,
+                        color: _getMetricColor(type),
+                      ),
                       const SizedBox(width: 8),
-                      Expanded(child: Text(type.displayName, style: const TextStyle(fontSize: 14))),
-                      Text('Read/Write', style: TextStyle(fontSize: 12, color: Colors.grey[600])),
+                      Expanded(
+                        child: Text(
+                          type.displayName,
+                          style: const TextStyle(fontSize: 14),
+                        ),
+                      ),
+                      Text(
+                        'Read/Write',
+                        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                      ),
                     ],
                   ),
                 ),
               ),
               const SizedBox(height: 16),
-              const Text('Privacy & Security:', style: TextStyle(fontWeight: FontWeight.w500)),
+              const Text(
+                'Privacy & Security:',
+                style: TextStyle(fontWeight: FontWeight.w500),
+              ),
               const SizedBox(height: 8),
-              const Text('• All data is encrypted and HIPAA-compliant', style: TextStyle(fontSize: 14)),
-              const Text('• Data is only used for your health tracking', style: TextStyle(fontSize: 14)),
-              const Text('• You can revoke permissions at any time', style: TextStyle(fontSize: 14)),
+              const Text(
+                '• All data is encrypted and HIPAA-compliant',
+                style: TextStyle(fontSize: 14),
+              ),
+              const Text(
+                '• Data is only used for your health tracking',
+                style: TextStyle(fontSize: 14),
+              ),
+              const Text(
+                '• You can revoke permissions at any time',
+                style: TextStyle(fontSize: 14),
+              ),
             ],
           ),
         ),
-        actions: [TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Close'))],
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Close'),
+          ),
+        ],
       ),
     );
   }
@@ -460,7 +547,10 @@ class _DevicePermissionsWidgetState extends ConsumerState<DevicePermissionsWidge
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('Why does CareCircle need health permissions?', style: TextStyle(fontWeight: FontWeight.bold)),
+              Text(
+                'Why does CareCircle need health permissions?',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
               SizedBox(height: 8),
               Text('CareCircle needs access to your health data to:'),
               Text('• Sync your health metrics automatically'),
@@ -468,14 +558,20 @@ class _DevicePermissionsWidgetState extends ConsumerState<DevicePermissionsWidge
               Text('• Track your health goals and progress'),
               Text('• Share data with your healthcare providers'),
               SizedBox(height: 16),
-              Text('Your Privacy is Protected', style: TextStyle(fontWeight: FontWeight.bold)),
+              Text(
+                'Your Privacy is Protected',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
               SizedBox(height: 8),
               Text('• All data is encrypted and HIPAA-compliant'),
               Text('• Data is stored securely on your device and our servers'),
               Text('• You control what data is shared and with whom'),
               Text('• Permissions can be revoked at any time'),
               SizedBox(height: 16),
-              Text('Platform Integration', style: TextStyle(fontWeight: FontWeight.bold)),
+              Text(
+                'Platform Integration',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
               SizedBox(height: 8),
               Text('• iOS: Integrates with Apple HealthKit'),
               Text('• Android: Integrates with Google Health Connect'),
@@ -483,7 +579,12 @@ class _DevicePermissionsWidgetState extends ConsumerState<DevicePermissionsWidge
             ],
           ),
         ),
-        actions: [TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Close'))],
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Close'),
+          ),
+        ],
       ),
     );
   }

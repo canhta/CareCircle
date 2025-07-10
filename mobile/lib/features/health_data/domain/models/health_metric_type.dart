@@ -266,7 +266,9 @@ enum HealthMetricType {
     return HealthMetricType.values
         .map((type) => type.toHealthDataType())
         .toList()
-      ..add(HealthDataType.BLOOD_PRESSURE_DIASTOLIC); // Add diastolic for blood pressure
+      ..add(
+        HealthDataType.BLOOD_PRESSURE_DIASTOLIC,
+      ); // Add diastolic for blood pressure
   }
 
   /// Get read/write permissions for all types

@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 import '../logging/logging.dart';
 
 /// Healthcare-compliant navigation service with comprehensive logging
-/// 
+///
 /// This service provides centralized navigation management with detailed
 /// logging for user journey tracking and debugging purposes.
 class NavigationService {
@@ -20,7 +20,7 @@ class NavigationService {
 
     try {
       context.go(route, extra: extra);
-      
+
       _logger.logNavigationEvent('Navigation completed', {
         'route': route,
         'success': true,
@@ -46,7 +46,7 @@ class NavigationService {
 
     try {
       context.push(route, extra: extra);
-      
+
       _logger.logNavigationEvent('Route push completed', {
         'route': route,
         'success': true,
@@ -71,7 +71,7 @@ class NavigationService {
 
     try {
       context.pop(result);
-      
+
       _logger.logNavigationEvent('Route pop completed', {
         'success': true,
         'timestamp': DateTime.now().toIso8601String(),
@@ -86,7 +86,11 @@ class NavigationService {
   }
 
   /// Replace the current route
-  static void replaceRoute(BuildContext context, String route, {Object? extra}) {
+  static void replaceRoute(
+    BuildContext context,
+    String route, {
+    Object? extra,
+  }) {
     _logger.logNavigationEvent('Route replacement initiated', {
       'newRoute': route,
       'hasExtra': extra != null,
@@ -95,7 +99,7 @@ class NavigationService {
 
     try {
       context.pushReplacement(route, extra: extra);
-      
+
       _logger.logNavigationEvent('Route replacement completed', {
         'newRoute': route,
         'success': true,
@@ -114,7 +118,7 @@ class NavigationService {
   /// Navigate to authentication flow
   static void navigateToAuth(BuildContext context, {String? specificRoute}) {
     final route = specificRoute ?? '/auth/login';
-    
+
     _logger.logNavigationEvent('Auth navigation initiated', {
       'authRoute': route,
       'timestamp': DateTime.now().toIso8601String(),
@@ -145,11 +149,14 @@ class NavigationService {
   }
 
   /// Navigate to AI Assistant
-  static void navigateToAIAssistant(BuildContext context, {String? conversationId}) {
-    final route = conversationId != null 
+  static void navigateToAIAssistant(
+    BuildContext context, {
+    String? conversationId,
+  }) {
+    final route = conversationId != null
         ? '/ai-assistant/conversation/$conversationId'
         : '/ai-assistant';
-    
+
     _logger.logNavigationEvent('AI Assistant navigation initiated', {
       'route': route,
       'hasConversationId': conversationId != null,
@@ -162,7 +169,7 @@ class NavigationService {
   /// Navigate to health data section
   static void navigateToHealthData(BuildContext context, {String? section}) {
     final route = section != null ? '/health_data/$section' : '/health_data';
-    
+
     _logger.logNavigationEvent('Health data navigation initiated', {
       'route': route,
       'section': section,
@@ -173,11 +180,14 @@ class NavigationService {
   }
 
   /// Navigate to medication management
-  static void navigateToMedications(BuildContext context, {String? medicationId}) {
-    final route = medicationId != null 
+  static void navigateToMedications(
+    BuildContext context, {
+    String? medicationId,
+  }) {
+    final route = medicationId != null
         ? '/medications/$medicationId'
         : '/medications';
-    
+
     _logger.logNavigationEvent('Medication navigation initiated', {
       'route': route,
       'hasMedicationId': medicationId != null,
@@ -190,7 +200,7 @@ class NavigationService {
   /// Navigate to care group section
   static void navigateToCareGroup(BuildContext context, {String? groupId}) {
     final route = groupId != null ? '/care-group/$groupId' : '/care-group';
-    
+
     _logger.logNavigationEvent('Care group navigation initiated', {
       'route': route,
       'hasGroupId': groupId != null,
@@ -201,7 +211,10 @@ class NavigationService {
   }
 
   /// Log deep link navigation
-  static void logDeepLinkNavigation(String deepLink, {Map<String, dynamic>? parameters}) {
+  static void logDeepLinkNavigation(
+    String deepLink, {
+    Map<String, dynamic>? parameters,
+  }) {
     _logger.logNavigationEvent('Deep link navigation', {
       'deepLink': deepLink,
       'parameters': parameters ?? {},
@@ -210,7 +223,11 @@ class NavigationService {
   }
 
   /// Log navigation error
-  static void logNavigationError(String operation, String error, {Map<String, dynamic>? context}) {
+  static void logNavigationError(
+    String operation,
+    String error, {
+    Map<String, dynamic>? context,
+  }) {
     _logger.error('Navigation error occurred', {
       'operation': operation,
       'error': error,
@@ -220,7 +237,10 @@ class NavigationService {
   }
 
   /// Log user journey milestone
-  static void logJourneyMilestone(String milestone, {Map<String, dynamic>? context}) {
+  static void logJourneyMilestone(
+    String milestone, {
+    Map<String, dynamic>? context,
+  }) {
     _logger.info('User journey milestone', {
       'milestone': milestone,
       'context': context ?? {},
@@ -254,7 +274,7 @@ class HealthcareRouteObserver extends NavigatorObserver {
   @override
   void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
     super.didPush(route, previousRoute);
-    
+
     _logger.logNavigationEvent('Route pushed', {
       'routeName': route.settings.name ?? 'unknown',
       'previousRoute': previousRoute?.settings.name ?? 'none',
@@ -266,7 +286,7 @@ class HealthcareRouteObserver extends NavigatorObserver {
   @override
   void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) {
     super.didPop(route, previousRoute);
-    
+
     _logger.logNavigationEvent('Route popped', {
       'routeName': route.settings.name ?? 'unknown',
       'previousRoute': previousRoute?.settings.name ?? 'none',
@@ -277,7 +297,7 @@ class HealthcareRouteObserver extends NavigatorObserver {
   @override
   void didReplace({Route<dynamic>? newRoute, Route<dynamic>? oldRoute}) {
     super.didReplace(newRoute: newRoute, oldRoute: oldRoute);
-    
+
     _logger.logNavigationEvent('Route replaced', {
       'newRoute': newRoute?.settings.name ?? 'unknown',
       'oldRoute': oldRoute?.settings.name ?? 'unknown',
@@ -288,7 +308,7 @@ class HealthcareRouteObserver extends NavigatorObserver {
   @override
   void didRemove(Route<dynamic> route, Route<dynamic>? previousRoute) {
     super.didRemove(route, previousRoute);
-    
+
     _logger.logNavigationEvent('Route removed', {
       'routeName': route.settings.name ?? 'unknown',
       'previousRoute': previousRoute?.settings.name ?? 'none',

@@ -41,9 +41,10 @@ class HealthMetricCard extends ConsumerWidget {
                   Expanded(
                     child: Text(
                       metricType.displayName,
-                      style: Theme.of(
-                        context,
-                      ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500, color: Colors.grey[700]),
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.w500,
+                        color: Colors.grey[700],
+                      ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -72,12 +73,18 @@ class HealthMetricCard extends ConsumerWidget {
       children: [
         Text(
           placeholderValue,
-          style: Theme.of(
-            context,
-          ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold, color: _getMetricColor()),
+          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: _getMetricColor(),
+          ),
         ),
         if (placeholderUnit.isNotEmpty)
-          Text(placeholderUnit, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey[600])),
+          Text(
+            placeholderUnit,
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+          ),
       ],
     );
   }
@@ -90,7 +97,10 @@ class HealthMetricCard extends ConsumerWidget {
         const SizedBox(width: 4),
         Text(
           'Updated 2h ago',
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey[500], fontSize: 10),
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: Colors.grey[500],
+            fontSize: 10,
+          ),
         ),
       ],
     );
@@ -241,13 +251,19 @@ class HealthMetricCardLoading extends StatelessWidget {
                 Container(
                   width: 24,
                   height: 24,
-                  decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(4)),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(4),
+                  ),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Container(
                     height: 16,
-                    decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(4)),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(4),
+                    ),
                   ),
                 ),
               ],
@@ -256,19 +272,28 @@ class HealthMetricCardLoading extends StatelessWidget {
             Container(
               height: 24,
               width: 60,
-              decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(4)),
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(4),
+              ),
             ),
             const SizedBox(height: 4),
             Container(
               height: 12,
               width: 40,
-              decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(4)),
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(4),
+              ),
             ),
             const SizedBox(height: 8),
             Container(
               height: 10,
               width: 80,
-              decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(4)),
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(4),
+              ),
             ),
           ],
         ),
@@ -295,7 +320,11 @@ class HealthMetricCardError extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.error_outline, color: CareCircleDesignTokens.criticalAlert, size: 32),
+            Icon(
+              Icons.error_outline,
+              color: CareCircleDesignTokens.criticalAlert,
+              size: 32,
+            ),
             const SizedBox(height: 8),
             Text(
               'Error loading data',
@@ -307,7 +336,9 @@ class HealthMetricCardError extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               error,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),

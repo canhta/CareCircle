@@ -6,7 +6,7 @@ import '../logging/bounded_context_loggers.dart';
 /// Provides HIPAA-compliant storage for PHI/PII data
 class SecureStorageService {
   static final _logger = BoundedContextLoggers.core;
-  
+
   static const FlutterSecureStorage _storage = FlutterSecureStorage(
     aOptions: AndroidOptions(
       encryptedSharedPreferences: true,
@@ -143,24 +143,24 @@ class SecureStorageKeys {
   static const String refreshToken = 'refresh_token';
   static const String biometricEnabled = 'biometric_enabled';
   static const String lastLoginTime = 'last_login_time';
-  
+
   // User Profile
   static const String userProfile = 'user_profile';
   static const String healthProfile = 'health_profile';
-  
+
   // Health Data
   static const String lastSyncTime = 'last_sync_time';
   static const String offlineHealthData = 'offline_health_data';
   static const String devicePermissions = 'device_permissions';
-  
+
   // AI Assistant
   static const String conversationHistory = 'conversation_history';
   static const String aiPreferences = 'ai_preferences';
-  
+
   // App Settings
   static const String appSettings = 'app_settings';
   static const String notificationSettings = 'notification_settings';
-  
+
   // Emergency
   static const String emergencyContacts = 'emergency_contacts';
   static const String medicalAlerts = 'medical_alerts';

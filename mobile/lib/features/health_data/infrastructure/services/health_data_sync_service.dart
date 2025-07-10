@@ -12,7 +12,8 @@ import 'health_data_api_service.dart';
 
 /// Service for synchronizing health data between device and backend
 class HealthDataSyncService {
-  static final HealthDataSyncService _instance = HealthDataSyncService._internal();
+  static final HealthDataSyncService _instance =
+      HealthDataSyncService._internal();
   factory HealthDataSyncService() => _instance;
   HealthDataSyncService._internal();
 
@@ -82,7 +83,12 @@ class HealthDataSyncService {
   }) async {
     if (_isSyncing && !forceSync) {
       _logger.warning('Sync already in progress');
-      return SyncResult(success: false, message: 'Sync already in progress', syncedCount: 0, errorCount: 0);
+      return SyncResult(
+        success: false,
+        message: 'Sync already in progress',
+        syncedCount: 0,
+        errorCount: 0,
+      );
     }
 
     _isSyncing = true;
@@ -91,7 +97,10 @@ class HealthDataSyncService {
       _logger.info('Starting health data sync...');
 
       // Default to last 7 days if no time range specified
-      final syncStartTime = startTime ?? _lastSyncTime ?? DateTime.now().subtract(const Duration(days: 7));
+      final syncStartTime =
+          startTime ??
+          _lastSyncTime ??
+          DateTime.now().subtract(const Duration(days: 7));
       final syncEndTime = endTime ?? DateTime.now();
 
       // Default to all metric types if none specified
@@ -103,7 +112,11 @@ class HealthDataSyncService {
 
       for (final metricType in typesToSync) {
         try {
-          final result = await _syncMetricType(metricType, syncStartTime, syncEndTime);
+          final result = await _syncMetricType(
+            metricType,
+            syncStartTime,
+            syncEndTime,
+          );
           syncedCount += result.syncedCount;
           errorCount += result.errorCount;
           errors.addAll(result.errors);
@@ -116,7 +129,9 @@ class HealthDataSyncService {
 
       _lastSyncTime = syncEndTime;
 
-      _logger.info('Health data sync completed: $syncedCount synced, $errorCount errors');
+      _logger.info(
+        'Health data sync completed: $syncedCount synced, $errorCount errors',
+      );
 
       return SyncResult(
         success: errorCount == 0,
@@ -143,9 +158,15 @@ class HealthDataSyncService {
   }
 
   /// Sync a specific metric type
-  Future<SyncResult> _syncMetricType(HealthMetricType metricType, DateTime startTime, DateTime endTime) async {
+  Future<SyncResult> _syncMetricType(
+    HealthMetricType metricType,
+    DateTime startTime,
+    DateTime endTime,
+  ) async {
     try {
-      _logger.info('Syncing ${metricType.displayName} from $startTime to $endTime');
+      _logger.info(
+        'Syncing ${metricType.displayName} from $startTime to $endTime',
+      );
 
       // Fetch data from device
       final deviceData = await _deviceHealthService.fetchHealthData(
@@ -157,11 +178,19 @@ class HealthDataSyncService {
 
       if (deviceData.isEmpty) {
         _logger.info('No ${metricType.displayName} data found on device');
-        return SyncResult(success: true, message: 'No data to sync', syncedCount: 0, errorCount: 0);
+        return SyncResult(
+          success: true,
+          message: 'No data to sync',
+          syncedCount: 0,
+          errorCount: 0,
+        );
       }
 
       // Convert device data to backend format
-      final healthMetrics = _convertDeviceDataToHealthMetrics(deviceData, metricType);
+      final healthMetrics = _convertDeviceDataToHealthMetrics(
+        deviceData,
+        metricType,
+      );
 
       int syncedCount = 0;
       int errorCount = 0;
@@ -170,7 +199,10 @@ class HealthDataSyncService {
       // Upload to backend
       for (final metric in healthMetrics) {
         try {
-          await _healthDataService.addHealthMetric('', metric); // TODO: Get actual userId
+          await _healthDataService.addHealthMetric(
+            '',
+            metric,
+          ); // TODO: Get actual userId
           syncedCount++;
         } catch (e) {
           _logger.error('Failed to upload health metric: $e', e);
@@ -179,7 +211,9 @@ class HealthDataSyncService {
         }
       }
 
-      _logger.info('Synced ${metricType.displayName}: $syncedCount uploaded, $errorCount errors');
+      _logger.info(
+        'Synced ${metricType.displayName}: $syncedCount uploaded, $errorCount errors',
+      );
 
       return SyncResult(
         success: errorCount == 0,
@@ -201,7 +235,10 @@ class HealthDataSyncService {
   }
 
   /// Convert device health data points to backend health metrics
-  List<HealthMetric> _convertDeviceDataToHealthMetrics(List<HealthDataPoint> deviceData, HealthMetricType metricType) {
+  List<HealthMetric> _convertDeviceDataToHealthMetrics(
+    List<HealthDataPoint> deviceData,
+    HealthMetricType metricType,
+  ) {
     final List<HealthMetric> metrics = [];
 
     if (metricType.isBloodPressure) {

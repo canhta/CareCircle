@@ -10,7 +10,7 @@ import '../widgets/device_permissions_widget.dart';
 import '../widgets/sync_troubleshooting_widget.dart';
 
 /// Screen for managing health device connections and sync settings
-/// 
+///
 /// Provides interface for device pairing, connection management,
 /// sync status monitoring, and troubleshooting with healthcare-compliant
 /// privacy protection and logging.
@@ -18,10 +18,12 @@ class DeviceManagementScreen extends ConsumerStatefulWidget {
   const DeviceManagementScreen({super.key});
 
   @override
-  ConsumerState<DeviceManagementScreen> createState() => _DeviceManagementScreenState();
+  ConsumerState<DeviceManagementScreen> createState() =>
+      _DeviceManagementScreenState();
 }
 
-class _DeviceManagementScreenState extends ConsumerState<DeviceManagementScreen> {
+class _DeviceManagementScreenState
+    extends ConsumerState<DeviceManagementScreen> {
   static final _logger = BoundedContextLoggers.healthData;
   final _deviceHealthService = DeviceHealthService();
 
@@ -29,7 +31,7 @@ class _DeviceManagementScreenState extends ConsumerState<DeviceManagementScreen>
   void initState() {
     super.initState();
     _logger.info('Device management screen initialized');
-    
+
     // Initialize device service if needed
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initializeDeviceService();
@@ -71,24 +73,24 @@ class _DeviceManagementScreenState extends ConsumerState<DeviceManagementScreen>
             children: [
               // Platform information
               _buildPlatformInfoSection(),
-              
+
               const SizedBox(height: 24),
-              
+
               // Permissions status
               const DevicePermissionsWidget(),
-              
+
               const SizedBox(height: 24),
-              
+
               // Device connection status
               _buildDeviceConnectionSection(),
-              
+
               const SizedBox(height: 24),
-              
+
               // Sync management
               _buildSyncManagementSection(),
-              
+
               const SizedBox(height: 24),
-              
+
               // Troubleshooting
               const SyncTroubleshootingWidget(),
             ],
@@ -101,9 +103,7 @@ class _DeviceManagementScreenState extends ConsumerState<DeviceManagementScreen>
   Widget _buildPlatformInfoSection() {
     return Card(
       elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -137,16 +137,12 @@ class _DeviceManagementScreenState extends ConsumerState<DeviceManagementScreen>
   Widget _buildPlatformDetails() {
     final platformName = _deviceHealthService.platformName;
     final isReady = _deviceHealthService.isReady;
-    
+
     return Column(
       children: [
         Row(
           children: [
-            Icon(
-              _getPlatformIcon(),
-              color: _getPlatformColor(),
-              size: 24,
-            ),
+            Icon(_getPlatformIcon(), color: _getPlatformColor(), size: 24),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
@@ -161,9 +157,9 @@ class _DeviceManagementScreenState extends ConsumerState<DeviceManagementScreen>
                   const SizedBox(height: 4),
                   Text(
                     _getPlatformDescription(),
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Colors.grey[600],
-                    ),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
                   ),
                 ],
               ),
@@ -171,7 +167,7 @@ class _DeviceManagementScreenState extends ConsumerState<DeviceManagementScreen>
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: isReady 
+                color: isReady
                     ? CareCircleDesignTokens.healthGreen.withValues(alpha: 0.1)
                     : Colors.orange.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
@@ -180,7 +176,9 @@ class _DeviceManagementScreenState extends ConsumerState<DeviceManagementScreen>
                 isReady ? 'Ready' : 'Setup Required',
                 style: TextStyle(
                   fontSize: 12,
-                  color: isReady ? CareCircleDesignTokens.healthGreen : Colors.orange[700],
+                  color: isReady
+                      ? CareCircleDesignTokens.healthGreen
+                      : Colors.orange[700],
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -195,29 +193,35 @@ class _DeviceManagementScreenState extends ConsumerState<DeviceManagementScreen>
 
   Widget _buildSupportedMetricsInfo() {
     final supportedTypes = _deviceHealthService.supportedMetricTypes;
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           'Supported Health Metrics',
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            fontWeight: FontWeight.w500,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
         ),
         const SizedBox(height: 8),
         Wrap(
           spacing: 8,
           runSpacing: 4,
-          children: supportedTypes.take(6).map((type) => Chip(
-            label: Text(
-              type.displayName,
-              style: const TextStyle(fontSize: 11),
-            ),
-            backgroundColor: CareCircleDesignTokens.primaryMedicalBlue.withValues(alpha: 0.1),
-            side: BorderSide.none,
-            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-          )).toList(),
+          children: supportedTypes
+              .take(6)
+              .map(
+                (type) => Chip(
+                  label: Text(
+                    type.displayName,
+                    style: const TextStyle(fontSize: 11),
+                  ),
+                  backgroundColor: CareCircleDesignTokens.primaryMedicalBlue
+                      .withValues(alpha: 0.1),
+                  side: BorderSide.none,
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+              )
+              .toList(),
         ),
         if (supportedTypes.length > 6) ...[
           const SizedBox(height: 4),
@@ -269,12 +273,10 @@ class _DeviceManagementScreenState extends ConsumerState<DeviceManagementScreen>
 
   Widget _buildSyncControls() {
     final syncStatus = ref.watch(healthSyncStatusProvider);
-    
+
     return Card(
       elevation: 1,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -307,7 +309,9 @@ class _DeviceManagementScreenState extends ConsumerState<DeviceManagementScreen>
               children: [
                 Expanded(
                   child: ElevatedButton.icon(
-                    onPressed: syncStatus.isSyncing ? null : () => _syncLast24Hours(),
+                    onPressed: syncStatus.isSyncing
+                        ? null
+                        : () => _syncLast24Hours(),
                     icon: const Icon(Icons.sync, size: 18),
                     label: const Text('Sync 24h'),
                     style: ElevatedButton.styleFrom(
@@ -319,11 +323,14 @@ class _DeviceManagementScreenState extends ConsumerState<DeviceManagementScreen>
                 const SizedBox(width: 12),
                 Expanded(
                   child: ElevatedButton.icon(
-                    onPressed: syncStatus.isSyncing ? null : () => _syncLast7Days(),
+                    onPressed: syncStatus.isSyncing
+                        ? null
+                        : () => _syncLast7Days(),
                     icon: const Icon(Icons.sync_alt, size: 18),
                     label: const Text('Sync 7d'),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: CareCircleDesignTokens.primaryMedicalBlue,
+                      backgroundColor:
+                          CareCircleDesignTokens.primaryMedicalBlue,
                       foregroundColor: Colors.white,
                     ),
                   ),
@@ -387,19 +394,19 @@ class _DeviceManagementScreenState extends ConsumerState<DeviceManagementScreen>
 
   Future<void> _refreshDeviceStatus() async {
     _logger.info('Refreshing device status');
-    
+
     try {
       // Refresh sync status
       ref.invalidate(healthSyncStatusProvider);
       ref.invalidate(healthSyncPermissionsProvider);
-      
+
       // Re-initialize device service if needed
       await _initializeDeviceService();
-      
+
       _logger.info('Device status refreshed successfully');
     } catch (e) {
       _logger.error('Failed to refresh device status: $e', e);
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -428,7 +435,7 @@ class _DeviceManagementScreenState extends ConsumerState<DeviceManagementScreen>
 
   void _showHelpDialog() {
     _logger.info('Showing device management help dialog');
-    
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -456,10 +463,7 @@ class _DeviceManagementScreenState extends ConsumerState<DeviceManagementScreen>
               Text('• Restart the app if connection issues persist'),
               Text('• Ensure your device supports health data sharing'),
               SizedBox(height: 16),
-              Text(
-                'Privacy',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
+              Text('Privacy', style: TextStyle(fontWeight: FontWeight.bold)),
               SizedBox(height: 8),
               Text('• All health data is encrypted and HIPAA-compliant'),
               Text('• You control what data is shared'),

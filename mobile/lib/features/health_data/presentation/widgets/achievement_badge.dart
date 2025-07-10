@@ -29,25 +29,35 @@ class AchievementBadge extends StatelessWidget {
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [achievement.color.withValues(alpha: 0.1), achievement.color.withValues(alpha: 0.05)],
+            colors: [
+              achievement.color.withValues(alpha: 0.1),
+              achievement.color.withValues(alpha: 0.05),
+            ],
           ),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: achievement.color.withValues(alpha: 0.3), width: 1),
+          border: Border.all(
+            color: achievement.color.withValues(alpha: 0.3),
+            width: 1,
+          ),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
               padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(color: achievement.color.withValues(alpha: 0.2), shape: BoxShape.circle),
+              decoration: BoxDecoration(
+                color: achievement.color.withValues(alpha: 0.2),
+                shape: BoxShape.circle,
+              ),
               child: Icon(achievement.icon, color: achievement.color, size: 24),
             ),
             const SizedBox(height: 8),
             Text(
               achievement.title,
-              style: Theme.of(
-                context,
-              ).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w600, color: achievement.color),
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                fontWeight: FontWeight.w600,
+                color: achievement.color,
+              ),
               textAlign: TextAlign.center,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
@@ -55,7 +65,10 @@ class AchievementBadge extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               _formatDate(achievement.earnedDate),
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey[600], fontSize: 10),
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Colors.grey[600],
+                fontSize: 10,
+              ),
               textAlign: TextAlign.center,
             ),
           ],
@@ -91,16 +104,29 @@ class GoalProgressChart extends StatelessWidget {
     return Container(
       height: 200,
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(color: Colors.grey[100], borderRadius: BorderRadius.circular(8)),
+      decoration: BoxDecoration(
+        color: Colors.grey[100],
+        borderRadius: BorderRadius.circular(8),
+      ),
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(Icons.show_chart, size: 48, color: Colors.grey[400]),
             const SizedBox(height: 8),
-            Text('Progress Chart', style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Colors.grey[600])),
+            Text(
+              'Progress Chart',
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(color: Colors.grey[600]),
+            ),
             const SizedBox(height: 4),
-            Text('Coming soon', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey[500])),
+            Text(
+              'Coming soon',
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: Colors.grey[500]),
+            ),
           ],
         ),
       ),

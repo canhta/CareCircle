@@ -43,7 +43,9 @@ class HealthBarChart extends BaseHealthChart {
         titlesData: _getTitlesData(),
         borderData: getBorderData(),
         barGroups: barGroups,
-        barTouchData: enableTouch ? _getBarTouchData() : BarTouchData(enabled: false),
+        barTouchData: enableTouch
+            ? _getBarTouchData()
+            : BarTouchData(enabled: false),
       ),
       duration: const Duration(milliseconds: 250),
       curve: Curves.easeInOut,
@@ -62,7 +64,10 @@ class HealthBarChart extends BaseHealthChart {
             toY: point.y,
             color: _getMetricColor(),
             width: barWidth,
-            borderRadius: const BorderRadius.only(topLeft: Radius.circular(4), topRight: Radius.circular(4)),
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(4),
+              topRight: Radius.circular(4),
+            ),
             rodStackItems: [],
             backDrawRodData: BackgroundBarChartRodData(
               show: true,
@@ -85,7 +90,8 @@ class HealthBarChart extends BaseHealthChart {
         sideTitles: SideTitles(
           showTitles: true,
           reservedSize: 30,
-          getTitlesWidget: (value, meta) => _buildBottomTitle(value.toInt(), meta),
+          getTitlesWidget: (value, meta) =>
+              _buildBottomTitle(value.toInt(), meta),
         ),
       ),
       leftTitles: AxisTitles(
@@ -106,11 +112,17 @@ class HealthBarChart extends BaseHealthChart {
     final point = dataPoints[index];
     final formatter = _getDateFormatter();
 
-    return Text(formatter.format(point.timestamp), style: TextStyle(color: Colors.grey[600], fontSize: 10));
+    return Text(
+      formatter.format(point.timestamp),
+      style: TextStyle(color: Colors.grey[600], fontSize: 10),
+    );
   }
 
   Widget _buildLeftTitle(double value, TitleMeta meta) {
-    return Text(_formatValue(value), style: TextStyle(color: Colors.grey[600], fontSize: 10));
+    return Text(
+      _formatValue(value),
+      style: TextStyle(color: Colors.grey[600], fontSize: 10),
+    );
   }
 
   DateFormat _getDateFormatter() {
@@ -143,13 +155,18 @@ class HealthBarChart extends BaseHealthChart {
 
           return BarTooltipItem(
             '${_formatValue(value)} ${metricType.unit}\n${DateFormat('MMM dd, HH:mm').format(point.timestamp)}',
-            const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w500),
+            const TextStyle(
+              color: Colors.white,
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+            ),
           );
         },
       ),
       touchCallback: (FlTouchEvent event, BarTouchResponse? touchResponse) {
         // Log touch events for analytics (with privacy protection)
-        if (event is FlTapUpEvent && touchResponse?.spot?.touchedBarGroup != null) {
+        if (event is FlTapUpEvent &&
+            touchResponse?.spot?.touchedBarGroup != null) {
           final groupIndex = touchResponse!.spot!.touchedBarGroup.x;
           BoundedContextLoggers.healthData.info(
             'Health bar chart touched: ${metricType.displayName} at index $groupIndex',
@@ -261,11 +278,17 @@ class WeeklyStepsBarChart extends BaseHealthChart {
 
               final point = dataPoints[groupIndex];
               final steps = point.y.round();
-              final goalText = dailyGoal != null ? '\nGoal: ${dailyGoal!.round()} steps' : '';
+              final goalText = dailyGoal != null
+                  ? '\nGoal: ${dailyGoal!.round()} steps'
+                  : '';
 
               return BarTooltipItem(
                 '$steps steps$goalText\n${DateFormat('E, MMM dd').format(point.timestamp)}',
-                const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w500),
+                const TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                ),
               );
             },
           ),
@@ -289,7 +312,10 @@ class WeeklyStepsBarChart extends BaseHealthChart {
             toY: point.y,
             color: metGoal ? Colors.green[600]! : Colors.purple[600]!,
             width: 20,
-            borderRadius: const BorderRadius.only(topLeft: Radius.circular(4), topRight: Radius.circular(4)),
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(4),
+              topRight: Radius.circular(4),
+            ),
           ),
         ],
       );
@@ -308,7 +334,11 @@ class WeeklyStepsBarChart extends BaseHealthChart {
             show: true,
             alignment: Alignment.topRight,
             padding: const EdgeInsets.only(right: 8, top: 4),
-            style: TextStyle(color: Colors.orange[600], fontSize: 12, fontWeight: FontWeight.w500),
+            style: TextStyle(
+              color: Colors.orange[600],
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+            ),
             labelResolver: (line) => 'Goal: ${line.y.round()}',
           ),
         ),
@@ -344,7 +374,10 @@ class WeeklyStepsBarChart extends BaseHealthChart {
           showTitles: true,
           reservedSize: 50,
           getTitlesWidget: (value, meta) {
-            return Text('${(value / 1000).round()}k', style: TextStyle(color: Colors.grey[600], fontSize: 10));
+            return Text(
+              '${(value / 1000).round()}k',
+              style: TextStyle(color: Colors.grey[600], fontSize: 10),
+            );
           },
         ),
       ),

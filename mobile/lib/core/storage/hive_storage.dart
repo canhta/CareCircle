@@ -11,7 +11,7 @@ class HiveStorageService {
   /// Initialize Hive storage
   static Future<void> initialize() async {
     if (_initialized) return;
-    
+
     try {
       await Hive.initFlutter();
       _initialized = true;
@@ -28,7 +28,7 @@ class HiveStorageService {
       if (!_initialized) {
         await initialize();
       }
-      
+
       final box = await Hive.openBox<T>(boxName);
       _logger.info('Opened Hive box: $boxName');
       return box;
@@ -57,7 +57,10 @@ class HiveStorageService {
       await box.put(key, value);
       _logger.info('Stored value in Hive box: $boxName, key: $key');
     } catch (e) {
-      _logger.error('Failed to store value in Hive box: $boxName, key: $key', e);
+      _logger.error(
+        'Failed to store value in Hive box: $boxName, key: $key',
+        e,
+      );
       rethrow;
     }
   }
@@ -72,13 +75,20 @@ class HiveStorageService {
       }
       return value;
     } catch (e) {
-      _logger.error('Failed to retrieve value from Hive box: $boxName, key: $key', e);
+      _logger.error(
+        'Failed to retrieve value from Hive box: $boxName, key: $key',
+        e,
+      );
       return null;
     }
   }
 
   /// Store a JSON object in a Hive box
-  static Future<void> putJson(String boxName, String key, Map<String, dynamic> value) async {
+  static Future<void> putJson(
+    String boxName,
+    String key,
+    Map<String, dynamic> value,
+  ) async {
     try {
       final jsonString = json.encode(value);
       await put<String>(boxName, key, jsonString);
@@ -89,13 +99,19 @@ class HiveStorageService {
   }
 
   /// Retrieve a JSON object from a Hive box
-  static Future<Map<String, dynamic>?> getJson(String boxName, String key) async {
+  static Future<Map<String, dynamic>?> getJson(
+    String boxName,
+    String key,
+  ) async {
     try {
       final jsonString = await get<String>(boxName, key);
       if (jsonString == null) return null;
       return json.decode(jsonString) as Map<String, dynamic>;
     } catch (e) {
-      _logger.error('Failed to retrieve JSON from Hive box: $boxName, key: $key', e);
+      _logger.error(
+        'Failed to retrieve JSON from Hive box: $boxName, key: $key',
+        e,
+      );
       return null;
     }
   }
@@ -107,7 +123,10 @@ class HiveStorageService {
       await box.delete(key);
       _logger.info('Deleted value from Hive box: $boxName, key: $key');
     } catch (e) {
-      _logger.error('Failed to delete value from Hive box: $boxName, key: $key', e);
+      _logger.error(
+        'Failed to delete value from Hive box: $boxName, key: $key',
+        e,
+      );
       rethrow;
     }
   }
@@ -130,7 +149,10 @@ class HiveStorageService {
       final box = await openBox(boxName);
       return box.containsKey(key);
     } catch (e) {
-      _logger.error('Failed to check key existence in Hive box: $boxName, key: $key', e);
+      _logger.error(
+        'Failed to check key existence in Hive box: $boxName, key: $key',
+        e,
+      );
       return false;
     }
   }
@@ -185,24 +207,24 @@ class HiveBoxNames {
   static const String healthMetrics = 'health_metrics';
   static const String healthGoals = 'health_goals';
   static const String deviceData = 'device_data';
-  
+
   // AI Assistant Cache
   static const String conversations = 'conversations';
   static const String aiResponses = 'ai_responses';
-  
+
   // App Cache
   static const String userPreferences = 'user_preferences';
   static const String appSettings = 'app_settings';
   static const String syncQueue = 'sync_queue';
-  
+
   // Offline Data
   static const String offlineActions = 'offline_actions';
   static const String pendingUploads = 'pending_uploads';
-  
+
   // Medication Cache
   static const String medications = 'medications';
   static const String medicationSchedule = 'medication_schedule';
-  
+
   // Care Group Cache
   static const String careGroups = 'care_groups';
   static const String familyMembers = 'family_members';

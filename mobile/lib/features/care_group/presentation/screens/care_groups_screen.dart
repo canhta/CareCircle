@@ -30,9 +30,7 @@ class CareGroupsScreen extends ConsumerWidget {
       ),
       body: careGroupsAsync.when(
         data: (groups) => _buildGroupsList(context, ref, groups),
-        loading: () => const Center(
-          child: CircularProgressIndicator(),
-        ),
+        loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, stackTrace) => _buildErrorState(context, ref, error),
       ),
       floatingActionButton: FloatingActionButton.extended(
@@ -45,7 +43,11 @@ class CareGroupsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildGroupsList(BuildContext context, WidgetRef ref, List<CareGroup> groups) {
+  Widget _buildGroupsList(
+    BuildContext context,
+    WidgetRef ref,
+    List<CareGroup> groups,
+  ) {
     if (groups.isEmpty) {
       return _buildEmptyState(context, ref);
     }
@@ -78,11 +80,7 @@ class CareGroupsScreen extends ConsumerWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.group_add,
-              size: 80,
-              color: Colors.grey[400],
-            ),
+            Icon(Icons.group_add, size: 80, color: Colors.grey[400]),
             const SizedBox(height: 24),
             Text(
               'No Care Groups Yet',
@@ -95,9 +93,9 @@ class CareGroupsScreen extends ConsumerWidget {
             Text(
               'Create your first care group to start coordinating care with family members and caregivers.',
               textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: Colors.grey[600],
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyLarge?.copyWith(color: Colors.grey[600]),
             ),
             const SizedBox(height: 32),
             ElevatedButton.icon(
@@ -105,7 +103,10 @@ class CareGroupsScreen extends ConsumerWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: CareCircleDesignTokens.primaryMedicalBlue,
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
               ),
               icon: const Icon(Icons.add),
               label: const Text('Create Your First Group'),
@@ -140,9 +141,9 @@ class CareGroupsScreen extends ConsumerWidget {
             Text(
               error.toString(),
               textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Colors.grey[600],
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
             ),
             const SizedBox(height: 32),
             ElevatedButton.icon(
@@ -174,15 +175,16 @@ class CareGroupsScreen extends ConsumerWidget {
     );
   }
 
-  void _navigateToGroupDetails(BuildContext context, WidgetRef ref, CareGroup group) {
+  void _navigateToGroupDetails(
+    BuildContext context,
+    WidgetRef ref,
+    CareGroup group,
+  ) {
     // Set the selected group
     ref.read(selectedCareGroupProvider.notifier).state = group;
-    
+
     // Navigate to group details screen
-    Navigator.of(context).pushNamed(
-      '/care-group/details',
-      arguments: group.id,
-    );
+    Navigator.of(context).pushNamed('/care-group/details', arguments: group.id);
   }
 }
 
@@ -197,17 +199,27 @@ class CareGroupStatsWidget extends ConsumerWidget {
     return careGroupsAsync.when(
       data: (groups) {
         final totalGroups = groups.length;
-        final totalMembers = groups.fold<int>(0, (sum, group) => sum + group.memberCount);
-        final totalActiveTasks = groups.fold<int>(0, (sum, group) => sum + group.activeTaskCount);
+        final totalMembers = groups.fold<int>(
+          0,
+          (sum, group) => sum + group.memberCount,
+        );
+        final totalActiveTasks = groups.fold<int>(
+          0,
+          (sum, group) => sum + group.activeTaskCount,
+        );
 
         return Container(
           margin: const EdgeInsets.all(16),
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: CareCircleDesignTokens.primaryMedicalBlue.withValues(alpha: 0.1),
+            color: CareCircleDesignTokens.primaryMedicalBlue.withValues(
+              alpha: 0.1,
+            ),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: CareCircleDesignTokens.primaryMedicalBlue.withValues(alpha: 0.3),
+              color: CareCircleDesignTokens.primaryMedicalBlue.withValues(
+                alpha: 0.3,
+              ),
             ),
           ),
           child: Column(
@@ -253,14 +265,15 @@ class CareGroupStatsWidget extends ConsumerWidget {
     );
   }
 
-  Widget _buildStatItem(BuildContext context, String label, String value, IconData icon) {
+  Widget _buildStatItem(
+    BuildContext context,
+    String label,
+    String value,
+    IconData icon,
+  ) {
     return Column(
       children: [
-        Icon(
-          icon,
-          size: 32,
-          color: CareCircleDesignTokens.primaryMedicalBlue,
-        ),
+        Icon(icon, size: 32, color: CareCircleDesignTokens.primaryMedicalBlue),
         const SizedBox(height: 8),
         Text(
           value,
@@ -271,9 +284,9 @@ class CareGroupStatsWidget extends ConsumerWidget {
         ),
         Text(
           label,
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            color: Colors.grey[600],
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
         ),
       ],
     );

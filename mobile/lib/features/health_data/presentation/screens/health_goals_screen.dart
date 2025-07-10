@@ -36,7 +36,11 @@ class _HealthGoalsScreenState extends ConsumerState<HealthGoalsScreen> {
         backgroundColor: CareCircleDesignTokens.healthGreen,
         foregroundColor: Colors.white,
         actions: [
-          IconButton(icon: const Icon(Icons.add), onPressed: () => _showCreateGoalDialog(), tooltip: 'Create New Goal'),
+          IconButton(
+            icon: const Icon(Icons.add),
+            onPressed: () => _showCreateGoalDialog(),
+            tooltip: 'Create New Goal',
+          ),
         ],
       ),
       body: RefreshIndicator(
@@ -88,7 +92,11 @@ class _HealthGoalsScreenState extends ConsumerState<HealthGoalsScreen> {
           children: [
             Row(
               children: [
-                Icon(Icons.track_changes, color: CareCircleDesignTokens.healthGreen, size: 20),
+                Icon(
+                  Icons.track_changes,
+                  color: CareCircleDesignTokens.healthGreen,
+                  size: 20,
+                ),
                 const SizedBox(width: 8),
                 Text(
                   'Progress Overview',
@@ -102,9 +110,27 @@ class _HealthGoalsScreenState extends ConsumerState<HealthGoalsScreen> {
             const SizedBox(height: 16),
             Row(
               children: [
-                Expanded(child: _buildProgressStat('Active Goals', '3', CareCircleDesignTokens.primaryMedicalBlue)),
-                Expanded(child: _buildProgressStat('Completed', '12', CareCircleDesignTokens.healthGreen)),
-                Expanded(child: _buildProgressStat('This Week', '85%', Colors.orange[600]!)),
+                Expanded(
+                  child: _buildProgressStat(
+                    'Active Goals',
+                    '3',
+                    CareCircleDesignTokens.primaryMedicalBlue,
+                  ),
+                ),
+                Expanded(
+                  child: _buildProgressStat(
+                    'Completed',
+                    '12',
+                    CareCircleDesignTokens.healthGreen,
+                  ),
+                ),
+                Expanded(
+                  child: _buildProgressStat(
+                    'This Week',
+                    '85%',
+                    Colors.orange[600]!,
+                  ),
+                ),
               ],
             ),
           ],
@@ -118,12 +144,17 @@ class _HealthGoalsScreenState extends ConsumerState<HealthGoalsScreen> {
       children: [
         Text(
           value,
-          style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold, color: color),
+          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: color,
+          ),
         ),
         const SizedBox(height: 4),
         Text(
           label,
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+          style: Theme.of(
+            context,
+          ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
           textAlign: TextAlign.center,
         ),
       ],
@@ -144,7 +175,10 @@ class _HealthGoalsScreenState extends ConsumerState<HealthGoalsScreen> {
               ),
             ),
             const Spacer(),
-            TextButton(onPressed: () => _showAllGoals(), child: const Text('View All')),
+            TextButton(
+              onPressed: () => _showAllGoals(),
+              child: const Text('View All'),
+            ),
           ],
         ),
         const SizedBox(height: 16),
@@ -166,7 +200,11 @@ class _HealthGoalsScreenState extends ConsumerState<HealthGoalsScreen> {
           .map(
             (goal) => Padding(
               padding: const EdgeInsets.only(bottom: 12),
-              child: GoalCard(goal: goal, onTap: () => _showGoalDetails(goal), onEdit: () => _editGoal(goal)),
+              child: GoalCard(
+                goal: goal,
+                onTap: () => _showGoalDetails(goal),
+                onEdit: () => _editGoal(goal),
+              ),
             ),
           )
           .toList(),
@@ -180,11 +218,18 @@ class _HealthGoalsScreenState extends ConsumerState<HealthGoalsScreen> {
         children: [
           Icon(Icons.flag_outlined, size: 48, color: Colors.grey[400]),
           const SizedBox(height: 16),
-          Text('No Active Goals', style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Colors.grey[600])),
+          Text(
+            'No Active Goals',
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(color: Colors.grey[600]),
+          ),
           const SizedBox(height: 8),
           Text(
             'Set your first health goal to start tracking your progress',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey[500]),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(color: Colors.grey[500]),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 16),
@@ -228,16 +273,24 @@ class _HealthGoalsScreenState extends ConsumerState<HealthGoalsScreen> {
         padding: const EdgeInsets.all(24),
         child: Column(
           children: [
-            Icon(Icons.emoji_events_outlined, size: 40, color: Colors.grey[400]),
+            Icon(
+              Icons.emoji_events_outlined,
+              size: 40,
+              color: Colors.grey[400],
+            ),
             const SizedBox(height: 12),
             Text(
               'No achievements yet',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
             ),
             const SizedBox(height: 4),
             Text(
               'Complete goals to earn achievements',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey[500]),
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: Colors.grey[500]),
             ),
           ],
         ),
@@ -252,8 +305,13 @@ class _HealthGoalsScreenState extends ConsumerState<HealthGoalsScreen> {
         itemBuilder: (context, index) {
           final achievement = placeholderAchievements[index];
           return Padding(
-            padding: EdgeInsets.only(right: index < placeholderAchievements.length - 1 ? 12 : 0),
-            child: AchievementBadge(achievement: achievement, onTap: () => _showAchievementDetails(achievement)),
+            padding: EdgeInsets.only(
+              right: index < placeholderAchievements.length - 1 ? 12 : 0,
+            ),
+            child: AchievementBadge(
+              achievement: achievement,
+              onTap: () => _showAchievementDetails(achievement),
+            ),
           );
         },
       ),
@@ -286,12 +344,20 @@ class _HealthGoalsScreenState extends ConsumerState<HealthGoalsScreen> {
             (suggestion) => Card(
               elevation: 1,
               margin: const EdgeInsets.only(bottom: 8),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
               child: ListTile(
-                leading: Icon(suggestion['icon'] as IconData, color: suggestion['color'] as Color),
+                leading: Icon(
+                  suggestion['icon'] as IconData,
+                  color: suggestion['color'] as Color,
+                ),
                 title: Text(suggestion['title'] as String),
                 subtitle: Text(suggestion['description'] as String),
-                trailing: TextButton(onPressed: () => _createSuggestedGoal(suggestion), child: const Text('Add')),
+                trailing: TextButton(
+                  onPressed: () => _createSuggestedGoal(suggestion),
+                  child: const Text('Add'),
+                ),
               ),
             ),
           )
@@ -421,7 +487,10 @@ class _HealthGoalsScreenState extends ConsumerState<HealthGoalsScreen> {
         title: const Text('Create New Goal'),
         content: const Text('Goal creation wizard coming soon!'),
         actions: [
-          TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel'),
+          ),
           ElevatedButton(
             onPressed: () {
               Navigator.of(context).pop();
@@ -437,19 +506,25 @@ class _HealthGoalsScreenState extends ConsumerState<HealthGoalsScreen> {
   void _showAllGoals() {
     _logger.info('Navigating to all goals view');
     // TODO: Navigate to all goals screen
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('All goals view coming soon')));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('All goals view coming soon')));
   }
 
   void _showGoalDetails(PlaceholderGoal goal) {
     _logger.info('Showing goal details: ${goal.title}');
     // TODO: Navigate to goal details screen
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${goal.title} details coming soon')));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('${goal.title} details coming soon')),
+    );
   }
 
   void _editGoal(PlaceholderGoal goal) {
     _logger.info('Editing goal: ${goal.title}');
     // TODO: Navigate to goal edit screen
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Edit ${goal.title} coming soon')));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('Edit ${goal.title} coming soon')));
   }
 
   void _showAchievementDetails(PlaceholderAchievement achievement) {
@@ -477,7 +552,12 @@ class _HealthGoalsScreenState extends ConsumerState<HealthGoalsScreen> {
             ),
           ],
         ),
-        actions: [TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Close'))],
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Close'),
+          ),
+        ],
       ),
     );
   }
@@ -485,7 +565,9 @@ class _HealthGoalsScreenState extends ConsumerState<HealthGoalsScreen> {
   void _createSuggestedGoal(Map<String, dynamic> suggestion) {
     _logger.info('Creating suggested goal: ${suggestion['title']}');
     // TODO: Create goal from suggestion
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Creating ${suggestion['title']} goal...')));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Creating ${suggestion['title']} goal...')),
+    );
   }
 }
 

@@ -19,7 +19,8 @@ class DebugScreen extends StatefulWidget {
   State<DebugScreen> createState() => _DebugScreenState();
 }
 
-class _DebugScreenState extends State<DebugScreen> with TickerProviderStateMixin {
+class _DebugScreenState extends State<DebugScreen>
+    with TickerProviderStateMixin {
   late TabController _tabController;
 
   @override
@@ -40,7 +41,12 @@ class _DebugScreenState extends State<DebugScreen> with TickerProviderStateMixin
     if (!kDebugMode) {
       return Scaffold(
         appBar: AppBar(title: const Text('Debug Tools')),
-        body: const Center(child: Text('Debug tools are only available in debug mode', style: TextStyle(fontSize: 16))),
+        body: const Center(
+          child: Text(
+            'Debug tools are only available in debug mode',
+            style: TextStyle(fontSize: 16),
+          ),
+        ),
       );
     }
 
@@ -66,7 +72,13 @@ class _DebugScreenState extends State<DebugScreen> with TickerProviderStateMixin
       ),
       body: TabBarView(
         controller: _tabController,
-        children: [_buildLogsTab(), _buildPerformanceTab(), _buildErrorsTab(), _buildSystemTab(), _buildToolsTab()],
+        children: [
+          _buildLogsTab(),
+          _buildPerformanceTab(),
+          _buildErrorsTab(),
+          _buildSystemTab(),
+          _buildToolsTab(),
+        ],
       ),
     );
   }
@@ -221,15 +233,21 @@ class _DebugScreenState extends State<DebugScreen> with TickerProviderStateMixin
             ElevatedButton(
               onPressed: () {
                 HealthcareApiPerformanceAnalyzer.analyzeHealthcareApiPerformance();
-                ScaffoldMessenger.of(
-                  context,
-                ).showSnackBar(const SnackBar(content: Text('Healthcare API analysis completed - check logs')));
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text(
+                      'Healthcare API analysis completed - check logs',
+                    ),
+                  ),
+                );
               },
               child: const Text('Analyze Healthcare APIs'),
             ),
             const SizedBox(height: 12),
             FutureBuilder<Map<String, dynamic>>(
-              future: Future.value(HealthcareApiPerformanceAnalyzer.generateHealthcarePerformanceReport()),
+              future: Future.value(
+                HealthcareApiPerformanceAnalyzer.generateHealthcarePerformanceReport(),
+              ),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) return const SizedBox();
 
@@ -238,7 +256,8 @@ class _DebugScreenState extends State<DebugScreen> with TickerProviderStateMixin
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text('Status: ${report['status']}'),
-                    if (report['overallAverageMs'] != null) Text('Overall Average: ${report['overallAverageMs']}ms'),
+                    if (report['overallAverageMs'] != null)
+                      Text('Overall Average: ${report['overallAverageMs']}ms'),
                   ],
                 );
               },
@@ -263,7 +282,9 @@ class _DebugScreenState extends State<DebugScreen> with TickerProviderStateMixin
                 Future.delayed(const Duration(milliseconds: 500), () {
                   PerformanceMonitor.endOperation('test_operation');
                 });
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Test operation logged')));
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Test operation logged')),
+                );
               },
               child: const Text('Test Performance Logging'),
             ),
@@ -283,9 +304,18 @@ class _DebugScreenState extends State<DebugScreen> with TickerProviderStateMixin
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildStatusRow('Initialized', status['initialized']),
-            _buildStatusRow('Crashlytics Enabled', status['crashlyticsEnabled']),
-            _buildStatusRow('Flutter Error Handler', status['flutterErrorHandlerActive']),
-            _buildStatusRow('Platform Error Handler', status['platformErrorHandlerActive']),
+            _buildStatusRow(
+              'Crashlytics Enabled',
+              status['crashlyticsEnabled'],
+            ),
+            _buildStatusRow(
+              'Flutter Error Handler',
+              status['flutterErrorHandlerActive'],
+            ),
+            _buildStatusRow(
+              'Platform Error Handler',
+              status['platformErrorHandlerActive'],
+            ),
           ],
         ),
       ),
@@ -297,7 +327,11 @@ class _DebugScreenState extends State<DebugScreen> with TickerProviderStateMixin
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         children: [
-          Icon(status ? Icons.check_circle : Icons.error, color: status ? Colors.green : Colors.red, size: 16),
+          Icon(
+            status ? Icons.check_circle : Icons.error,
+            color: status ? Colors.green : Colors.red,
+            size: 16,
+          ),
           const SizedBox(width: 8),
           Text('$label: ${status ? 'Active' : 'Inactive'}'),
         ],
@@ -317,7 +351,9 @@ class _DebugScreenState extends State<DebugScreen> with TickerProviderStateMixin
               onPressed: () async {
                 await ErrorTracker.testCrash();
                 if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Test crash recorded')));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Test crash recorded')),
+                  );
                 }
               },
               child: const Text('Test Crash Reporting'),
@@ -331,7 +367,9 @@ class _DebugScreenState extends State<DebugScreen> with TickerProviderStateMixin
                   context: {'source': 'debug_screen'},
                 );
                 if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Test error recorded')));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Test error recorded')),
+                  );
                 }
               },
               child: const Text('Test Error Recording'),
@@ -346,7 +384,9 @@ class _DebugScreenState extends State<DebugScreen> with TickerProviderStateMixin
     return const Card(
       child: Padding(
         padding: EdgeInsets.all(16),
-        child: Text('Recent errors are logged to the Logs tab and Firebase Crashlytics'),
+        child: Text(
+          'Recent errors are logged to the Logs tab and Firebase Crashlytics',
+        ),
       ),
     );
   }
@@ -427,10 +467,14 @@ class _DebugScreenState extends State<DebugScreen> with TickerProviderStateMixin
             const SizedBox(height: 12),
             ElevatedButton(
               onPressed: () {
-                Clipboard.setData(ClipboardData(text: AppLogger.getHistory().toString()));
-                ScaffoldMessenger.of(
-                  context,
-                ).showSnackBar(const SnackBar(content: Text('Log history copied to clipboard')));
+                Clipboard.setData(
+                  ClipboardData(text: AppLogger.getHistory().toString()),
+                );
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Log history copied to clipboard'),
+                  ),
+                );
               },
               child: const Text('Copy Logs to Clipboard'),
             ),
@@ -450,26 +494,36 @@ class _DebugScreenState extends State<DebugScreen> with TickerProviderStateMixin
           children: [
             ElevatedButton(
               onPressed: () {
-                BoundedContextLoggers.auth.info('Test auth log from debug screen');
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Test auth log created')));
+                BoundedContextLoggers.auth.info(
+                  'Test auth log from debug screen',
+                );
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Test auth log created')),
+                );
               },
               child: const Text('Test Auth Log'),
             ),
             ElevatedButton(
               onPressed: () {
-                BoundedContextLoggers.healthData.info('Test health data log from debug screen');
-                ScaffoldMessenger.of(
-                  context,
-                ).showSnackBar(const SnackBar(content: Text('Test health data log created')));
+                BoundedContextLoggers.healthData.info(
+                  'Test health data log from debug screen',
+                );
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Test health data log created')),
+                );
               },
               child: const Text('Test Health Data Log'),
             ),
             ElevatedButton(
               onPressed: () {
-                BoundedContextLoggers.aiAssistant.info('Test AI assistant log from debug screen');
-                ScaffoldMessenger.of(
-                  context,
-                ).showSnackBar(const SnackBar(content: Text('Test AI assistant log created')));
+                BoundedContextLoggers.aiAssistant.info(
+                  'Test AI assistant log from debug screen',
+                );
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Test AI assistant log created'),
+                  ),
+                );
               },
               child: const Text('Test AI Assistant Log'),
             ),
@@ -491,15 +545,22 @@ class _DebugScreenState extends State<DebugScreen> with TickerProviderStateMixin
               onPressed: () {
                 AppLogger.clearHistory();
                 BoundedContextLoggers.clearAllHistory();
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('All logs cleared')));
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('All logs cleared')),
+                );
               },
               child: const Text('Clear All Logs'),
             ),
             ElevatedButton(
               onPressed: () {
                 final stats = PerformanceMonitor.getAllStats();
-                AppLogger.info('Performance stats requested from debug screen', stats);
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Performance stats logged')));
+                AppLogger.info(
+                  'Performance stats requested from debug screen',
+                  stats,
+                );
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Performance stats logged')),
+                );
               },
               child: const Text('Log Performance Stats'),
             ),

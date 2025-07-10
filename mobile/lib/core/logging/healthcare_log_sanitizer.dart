@@ -75,7 +75,10 @@ class HealthcareLogSanitizer {
 
     // Remove sensitive patterns using regex
     for (final pattern in _sensitivePatterns) {
-      sanitized = sanitized.replaceAll(RegExp(pattern, caseSensitive: false), '[REDACTED]');
+      sanitized = sanitized.replaceAll(
+        RegExp(pattern, caseSensitive: false),
+        '[REDACTED]',
+      );
     }
 
     return sanitized;
@@ -133,7 +136,8 @@ class HealthcareLogSanitizer {
 
     // Partial match for compound field names
     for (final sensitiveField in _sensitiveFields) {
-      if (lowerFieldName.contains(sensitiveField) || sensitiveField.contains(lowerFieldName)) {
+      if (lowerFieldName.contains(sensitiveField) ||
+          sensitiveField.contains(lowerFieldName)) {
         return true;
       }
     }

@@ -27,7 +27,12 @@ class RecentMetricsList extends ConsumerWidget {
       return _buildEmptyState(context);
     }
 
-    return Column(children: placeholderMetrics.take(limit).map((metric) => _RecentMetricTile(metric: metric)).toList());
+    return Column(
+      children: placeholderMetrics
+          .take(limit)
+          .map((metric) => _RecentMetricTile(metric: metric))
+          .toList(),
+    );
   }
 
   Widget _buildEmptyState(BuildContext context) {
@@ -35,16 +40,24 @@ class RecentMetricsList extends ConsumerWidget {
       padding: const EdgeInsets.all(32),
       child: Column(
         children: [
-          Icon(Icons.health_and_safety_outlined, size: 48, color: Colors.grey[400]),
+          Icon(
+            Icons.health_and_safety_outlined,
+            size: 48,
+            color: Colors.grey[400],
+          ),
           const SizedBox(height: 16),
           Text(
             'No recent health data',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Colors.grey[600]),
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(color: Colors.grey[600]),
           ),
           const SizedBox(height: 8),
           Text(
             'Start tracking your health metrics to see them here',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey[500]),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(color: Colors.grey[500]),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 16),
@@ -65,7 +78,9 @@ class RecentMetricsList extends ConsumerWidget {
   void _navigateToAddMetric(BuildContext context) {
     _logger.info('Navigating to add metric from empty state');
     // TODO: Implement navigation to add metric screen
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Add metric coming soon')));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Add metric coming soon')));
   }
 
   List<_PlaceholderMetric> _generatePlaceholderMetrics() {
@@ -124,25 +139,37 @@ class _RecentMetricTile extends StatelessWidget {
           backgroundColor: _getMetricColor().withValues(alpha: 0.1),
           child: Icon(_getMetricIcon(), color: _getMetricColor(), size: 20),
         ),
-        title: Text(metric.type.displayName, style: const TextStyle(fontWeight: FontWeight.w500)),
+        title: Text(
+          metric.type.displayName,
+          style: const TextStyle(fontWeight: FontWeight.w500),
+        ),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 2),
             Text(
               metric.value,
-              style: TextStyle(color: _getMetricColor(), fontWeight: FontWeight.w600),
+              style: TextStyle(
+                color: _getMetricColor(),
+                fontWeight: FontWeight.w600,
+              ),
             ),
             const SizedBox(height: 2),
             Row(
               children: [
                 Icon(Icons.access_time, size: 12, color: Colors.grey[500]),
                 const SizedBox(width: 4),
-                Text(_formatTimeAgo(metric.timestamp), style: TextStyle(color: Colors.grey[500], fontSize: 12)),
+                Text(
+                  _formatTimeAgo(metric.timestamp),
+                  style: TextStyle(color: Colors.grey[500], fontSize: 12),
+                ),
                 const SizedBox(width: 8),
                 Icon(Icons.device_hub, size: 12, color: Colors.grey[500]),
                 const SizedBox(width: 4),
-                Text(metric.source, style: TextStyle(color: Colors.grey[500], fontSize: 12)),
+                Text(
+                  metric.source,
+                  style: TextStyle(color: Colors.grey[500], fontSize: 12),
+                ),
               ],
             ),
           ],
@@ -156,9 +183,9 @@ class _RecentMetricTile extends StatelessWidget {
   void _onMetricTap(BuildContext context) {
     _logger.info('Recent metric tapped: ${metric.type.displayName}');
     // TODO: Navigate to metric detail screen
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text('${metric.type.displayName} detail coming soon')));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('${metric.type.displayName} detail coming soon')),
+    );
   }
 
   IconData _getMetricIcon() {
@@ -248,7 +275,12 @@ class _PlaceholderMetric {
   final DateTime timestamp;
   final String source;
 
-  const _PlaceholderMetric({required this.type, required this.value, required this.timestamp, required this.source});
+  const _PlaceholderMetric({
+    required this.type,
+    required this.value,
+    required this.timestamp,
+    required this.source,
+  });
 }
 
 /// Loading state for recent metrics list
@@ -271,7 +303,10 @@ class RecentMetricsListLoading extends StatelessWidget {
             title: Container(
               height: 16,
               width: 120,
-              decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(4)),
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(4),
+              ),
             ),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -280,13 +315,19 @@ class RecentMetricsListLoading extends StatelessWidget {
                 Container(
                   height: 14,
                   width: 80,
-                  decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(4)),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(4),
+                  ),
                 ),
                 const SizedBox(height: 4),
                 Container(
                   height: 12,
                   width: 150,
-                  decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(4)),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(4),
+                  ),
                 ),
               ],
             ),

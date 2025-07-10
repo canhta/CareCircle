@@ -18,9 +18,7 @@ class CareGroupCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: InkWell(
         onTap: onTap,
         onLongPress: onLongPress,
@@ -51,7 +49,9 @@ class CareGroupCard extends StatelessWidget {
           width: 48,
           height: 48,
           decoration: BoxDecoration(
-            color: CareCircleDesignTokens.primaryMedicalBlue.withValues(alpha: 0.1),
+            color: CareCircleDesignTokens.primaryMedicalBlue.withValues(
+              alpha: 0.1,
+            ),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Icon(
@@ -67,18 +67,18 @@ class CareGroupCard extends StatelessWidget {
             children: [
               Text(
                 group.name,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
               const SizedBox(height: 4),
               Text(
                 'Created ${_formatDate(group.createdAt)}',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Colors.grey[600],
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
               ),
             ],
           ),
@@ -135,9 +135,7 @@ class CareGroupCard extends StatelessWidget {
           context,
           Icons.task_alt,
           '${group.activeTaskCount} tasks',
-          group.activeTaskCount > 0
-            ? Colors.orange[600]!
-            : Colors.grey[600]!,
+          group.activeTaskCount > 0 ? Colors.orange[600]! : Colors.grey[600]!,
         ),
         const SizedBox(width: 8),
         _buildStatChip(
@@ -150,7 +148,12 @@ class CareGroupCard extends StatelessWidget {
     );
   }
 
-  Widget _buildStatChip(BuildContext context, IconData icon, String label, Color color) {
+  Widget _buildStatChip(
+    BuildContext context,
+    IconData icon,
+    String label,
+    Color color,
+  ) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
@@ -160,11 +163,7 @@ class CareGroupCard extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            icon,
-            size: 14,
-            color: color,
-          ),
+          Icon(icon, size: 14, color: color),
           const SizedBox(width: 4),
           Text(
             label,
@@ -181,14 +180,8 @@ class CareGroupCard extends StatelessWidget {
   Widget _buildFooter(BuildContext context) {
     return Row(
       children: [
-        Expanded(
-          child: _buildMemberAvatars(context),
-        ),
-        Icon(
-          Icons.arrow_forward_ios,
-          size: 16,
-          color: Colors.grey[400],
-        ),
+        Expanded(child: _buildMemberAvatars(context)),
+        Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey[400]),
       ],
     );
   }
@@ -199,26 +192,29 @@ class CareGroupCard extends StatelessWidget {
 
     return Row(
       children: [
-        ...displayMembers.map((member) => Padding(
-          padding: const EdgeInsets.only(right: 4),
-          child: CircleAvatar(
-            radius: 16,
-            backgroundColor: CareCircleDesignTokens.primaryMedicalBlue.withValues(alpha: 0.2),
-            backgroundImage: member.photoUrl != null 
-              ? NetworkImage(member.photoUrl!) 
-              : null,
-            child: member.photoUrl == null 
-              ? Text(
-                  _getInitials(member.displayName),
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    color: CareCircleDesignTokens.primaryMedicalBlue,
-                  ),
-                )
-              : null,
+        ...displayMembers.map(
+          (member) => Padding(
+            padding: const EdgeInsets.only(right: 4),
+            child: CircleAvatar(
+              radius: 16,
+              backgroundColor: CareCircleDesignTokens.primaryMedicalBlue
+                  .withValues(alpha: 0.2),
+              backgroundImage: member.photoUrl != null
+                  ? NetworkImage(member.photoUrl!)
+                  : null,
+              child: member.photoUrl == null
+                  ? Text(
+                      _getInitials(member.displayName),
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: CareCircleDesignTokens.primaryMedicalBlue,
+                      ),
+                    )
+                  : null,
+            ),
           ),
-        )),
+        ),
         if (remainingCount > 0)
           Container(
             width: 32,

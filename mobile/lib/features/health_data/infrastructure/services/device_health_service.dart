@@ -58,7 +58,10 @@ class DeviceHealthService {
       final types = HealthMetricType.allHealthDataTypes;
       final permissions = HealthMetricType.allPermissions;
 
-      final granted = await _health.requestAuthorization(types, permissions: permissions);
+      final granted = await _health.requestAuthorization(
+        types,
+        permissions: permissions,
+      );
 
       _hasPermissions = granted;
 
@@ -110,7 +113,10 @@ class DeviceHealthService {
 
       // For blood pressure, fetch both systolic and diastolic
       if (metricType.isBloodPressure) {
-        types = [HealthDataType.BLOOD_PRESSURE_SYSTOLIC, HealthDataType.BLOOD_PRESSURE_DIASTOLIC];
+        types = [
+          HealthDataType.BLOOD_PRESSURE_SYSTOLIC,
+          HealthDataType.BLOOD_PRESSURE_DIASTOLIC,
+        ];
       }
 
       List<RecordingMethod> recordingMethodsToFilter = [];
@@ -128,10 +134,15 @@ class DeviceHealthService {
       // Remove duplicates
       final uniqueData = _health.removeDuplicates(healthData);
 
-      _logger.info('Fetched ${uniqueData.length} health data points for ${metricType.displayName}');
+      _logger.info(
+        'Fetched ${uniqueData.length} health data points for ${metricType.displayName}',
+      );
       return uniqueData;
     } catch (e, _) {
-      _logger.error('Failed to fetch health data for ${metricType.displayName}: $e', e);
+      _logger.error(
+        'Failed to fetch health data for ${metricType.displayName}: $e',
+        e,
+      );
       return [];
     }
   }
@@ -189,14 +200,21 @@ class DeviceHealthService {
       }
 
       if (success) {
-        _logger.info('Successfully wrote health data for ${metricType.displayName}');
+        _logger.info(
+          'Successfully wrote health data for ${metricType.displayName}',
+        );
       } else {
-        _logger.warning('Failed to write health data for ${metricType.displayName}');
+        _logger.warning(
+          'Failed to write health data for ${metricType.displayName}',
+        );
       }
 
       return success;
     } catch (e, _) {
-      _logger.error('Failed to write health data for ${metricType.displayName}: $e', e);
+      _logger.error(
+        'Failed to write health data for ${metricType.displayName}: $e',
+        e,
+      );
       return false;
     }
   }
@@ -213,7 +231,9 @@ class DeviceHealthService {
       final endOfDay = midnight.add(const Duration(days: 1));
 
       final steps = await _health.getTotalStepsInInterval(midnight, endOfDay);
-      _logger.info('Total steps for ${date.toIso8601String().split('T')[0]}: $steps');
+      _logger.info(
+        'Total steps for ${date.toIso8601String().split('T')[0]}: $steps',
+      );
 
       return steps;
     } catch (e, _) {

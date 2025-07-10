@@ -56,9 +56,19 @@ class GoalCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(goal.title, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+              Text(
+                goal.title,
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+              ),
               const SizedBox(height: 2),
-              Text(goal.description, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey[600])),
+              Text(
+                goal.description,
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+              ),
             ],
           ),
         ),
@@ -91,9 +101,10 @@ class GoalCard extends StatelessWidget {
                 children: [
                   Text(
                     'Progress',
-                    style: Theme.of(
-                      context,
-                    ).textTheme.bodySmall?.copyWith(color: Colors.grey[600], fontWeight: FontWeight.w500),
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Colors.grey[600],
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                   const SizedBox(height: 4),
                   Text(
@@ -109,7 +120,9 @@ class GoalCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: _getProgressColor(progressPercentage).withValues(alpha: 0.1),
+                color: _getProgressColor(
+                  progressPercentage,
+                ).withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
@@ -127,13 +140,19 @@ class GoalCard extends StatelessWidget {
         LinearProgressIndicator(
           value: progressPercentage,
           backgroundColor: Colors.grey[300],
-          valueColor: AlwaysStoppedAnimation<Color>(_getProgressColor(progressPercentage)),
+          valueColor: AlwaysStoppedAnimation<Color>(
+            _getProgressColor(progressPercentage),
+          ),
           minHeight: 6,
         ),
         const SizedBox(height: 8),
         Row(
           children: [
-            Icon(_getStatusIcon(progressPercentage), size: 14, color: _getProgressColor(progressPercentage)),
+            Icon(
+              _getStatusIcon(progressPercentage),
+              size: 14,
+              color: _getProgressColor(progressPercentage),
+            ),
             const SizedBox(width: 4),
             Text(
               _getStatusText(progressPercentage),
@@ -162,7 +181,9 @@ class GoalCard extends StatelessWidget {
               : daysLeft == 0
               ? 'Due today'
               : '$daysLeft days left',
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(color: isOverdue ? Colors.red[600] : Colors.grey[600]),
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: isOverdue ? Colors.red[600] : Colors.grey[600],
+          ),
         ),
         const Spacer(),
         if (goal.progressPercentage >= 1.0)
@@ -175,7 +196,11 @@ class GoalCard extends StatelessWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.check_circle, size: 12, color: CareCircleDesignTokens.healthGreen),
+                Icon(
+                  Icons.check_circle,
+                  size: 12,
+                  color: CareCircleDesignTokens.healthGreen,
+                ),
                 const SizedBox(width: 4),
                 Text(
                   'Completed',
@@ -328,13 +353,17 @@ class CompactGoalCard extends StatelessWidget {
                   children: [
                     Text(
                       goal.title,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                     const SizedBox(height: 4),
                     LinearProgressIndicator(
                       value: progressPercentage,
                       backgroundColor: Colors.grey[300],
-                      valueColor: AlwaysStoppedAnimation<Color>(_getProgressColor(progressPercentage)),
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        _getProgressColor(progressPercentage),
+                      ),
                       minHeight: 4,
                     ),
                   ],

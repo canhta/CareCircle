@@ -79,7 +79,8 @@ abstract class CareGroupSettings with _$CareGroupSettings {
 
 /// Member notification preferences
 @freezed
-abstract class MemberNotificationPreferences with _$MemberNotificationPreferences {
+abstract class MemberNotificationPreferences
+    with _$MemberNotificationPreferences {
   const factory MemberNotificationPreferences({
     @Default(true) bool taskAssignments,
     @Default(true) bool taskReminders,
@@ -110,7 +111,8 @@ abstract class CareGroupMember with _$CareGroupMember {
     String? invitedBy,
     required bool isActive,
     DateTime? lastActive,
-    @Default(MemberNotificationPreferences()) MemberNotificationPreferences notificationPreferences,
+    @Default(MemberNotificationPreferences())
+    MemberNotificationPreferences notificationPreferences,
   }) = _CareGroupMember;
 
   factory CareGroupMember.fromJson(Map<String, dynamic> json) =>

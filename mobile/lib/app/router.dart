@@ -43,9 +43,15 @@ class AppRouter {
   }
 
   /// Handles authentication-based redirects
-  static String? _handleAuthRedirect(Ref ref, BuildContext context, GoRouterState state) {
+  static String? _handleAuthRedirect(
+    Ref ref,
+    BuildContext context,
+    GoRouterState state,
+  ) {
     final authState = ref.read(authNotifierProvider);
-    final isLoggedIn = authState.status == AuthStatus.authenticated || authState.status == AuthStatus.guest;
+    final isLoggedIn =
+        authState.status == AuthStatus.authenticated ||
+        authState.status == AuthStatus.guest;
     final isLoading = authState.status == AuthStatus.loading;
     final currentLocation = state.matchedLocation;
 
@@ -79,12 +85,13 @@ class AppRouter {
 
     // If not logged in and trying to access protected routes, redirect to welcome
     if (!isLoggedIn && _isProtectedRoute(currentLocation)) {
-      _logger.logNavigationEvent('Redirect to welcome - user not authenticated', {
-        'fromLocation': currentLocation,
-        'toLocation': '/',
-        'authStatus': authState.status.name,
-        'timestamp': DateTime.now().toIso8601String(),
-      });
+      _logger
+          .logNavigationEvent('Redirect to welcome - user not authenticated', {
+            'fromLocation': currentLocation,
+            'toLocation': '/',
+            'authStatus': authState.status.name,
+            'timestamp': DateTime.now().toIso8601String(),
+          });
       return '/';
     }
 
@@ -102,10 +109,10 @@ class AppRouter {
     return [
       // Public routes (no authentication required)
       ..._buildPublicRoutes(),
-      
+
       // Authentication routes
       ..._buildAuthRoutes(),
-      
+
       // Protected routes (authentication required)
       ..._buildProtectedRoutes(),
     ];
@@ -218,18 +225,12 @@ class AppRouter {
     });
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Page Not Found'),
-      ),
+      appBar: AppBar(title: const Text('Page Not Found')),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
-              Icons.error_outline,
-              size: 64,
-              color: Colors.grey,
-            ),
+            const Icon(Icons.error_outline, size: 64, color: Colors.grey),
             const SizedBox(height: 16),
             const Text(
               'Page Not Found',

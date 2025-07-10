@@ -7,17 +7,19 @@ import '../../application/providers/health_sync_provider.dart';
 import '../../infrastructure/services/device_health_service.dart';
 
 /// Widget providing troubleshooting tools and diagnostics for health data sync
-/// 
+///
 /// Offers step-by-step troubleshooting guides, diagnostic tools, and
 /// common issue resolution with healthcare-compliant logging and privacy protection.
 class SyncTroubleshootingWidget extends ConsumerStatefulWidget {
   const SyncTroubleshootingWidget({super.key});
 
   @override
-  ConsumerState<SyncTroubleshootingWidget> createState() => _SyncTroubleshootingWidgetState();
+  ConsumerState<SyncTroubleshootingWidget> createState() =>
+      _SyncTroubleshootingWidgetState();
 }
 
-class _SyncTroubleshootingWidgetState extends ConsumerState<SyncTroubleshootingWidget> {
+class _SyncTroubleshootingWidgetState
+    extends ConsumerState<SyncTroubleshootingWidget> {
   static final _logger = BoundedContextLoggers.healthData;
   final _deviceHealthService = DeviceHealthService();
   bool _isRunningDiagnostics = false;
@@ -28,9 +30,7 @@ class _SyncTroubleshootingWidgetState extends ConsumerState<SyncTroubleshootingW
 
     return Card(
       elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -75,9 +75,9 @@ class _SyncTroubleshootingWidgetState extends ConsumerState<SyncTroubleshootingW
       children: [
         Text(
           'Quick Diagnostics',
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            fontWeight: FontWeight.w500,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
         ),
         const SizedBox(height: 8),
         Container(
@@ -118,21 +118,22 @@ class _SyncTroubleshootingWidgetState extends ConsumerState<SyncTroubleshootingW
       children: [
         Icon(
           isHealthy ? Icons.check_circle : Icons.error,
-          color: isHealthy ? CareCircleDesignTokens.healthGreen : Colors.red[600],
+          color: isHealthy
+              ? CareCircleDesignTokens.healthGreen
+              : Colors.red[600],
           size: 16,
         ),
         const SizedBox(width: 8),
         Expanded(
-          child: Text(
-            label,
-            style: Theme.of(context).textTheme.bodySmall,
-          ),
+          child: Text(label, style: Theme.of(context).textTheme.bodySmall),
         ),
         Text(
           value,
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
             fontWeight: FontWeight.w500,
-            color: isHealthy ? CareCircleDesignTokens.healthGreen : Colors.red[600],
+            color: isHealthy
+                ? CareCircleDesignTokens.healthGreen
+                : Colors.red[600],
           ),
         ),
       ],
@@ -145,9 +146,9 @@ class _SyncTroubleshootingWidgetState extends ConsumerState<SyncTroubleshootingW
       children: [
         Text(
           'Common Issues & Solutions',
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            fontWeight: FontWeight.w500,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
         ),
         const SizedBox(height: 8),
         _buildIssueItem(
@@ -178,7 +179,12 @@ class _SyncTroubleshootingWidgetState extends ConsumerState<SyncTroubleshootingW
     );
   }
 
-  Widget _buildIssueItem(String title, String description, IconData icon, VoidCallback onTap) {
+  Widget _buildIssueItem(
+    String title,
+    String description,
+    IconData icon,
+    VoidCallback onTap,
+  ) {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(8),
@@ -186,11 +192,7 @@ class _SyncTroubleshootingWidgetState extends ConsumerState<SyncTroubleshootingW
         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
         child: Row(
           children: [
-            Icon(
-              icon,
-              color: Colors.orange[600],
-              size: 18,
-            ),
+            Icon(icon, color: Colors.orange[600], size: 18),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
@@ -212,11 +214,7 @@ class _SyncTroubleshootingWidgetState extends ConsumerState<SyncTroubleshootingW
                 ],
               ),
             ),
-            Icon(
-              Icons.chevron_right,
-              color: Colors.grey[400],
-              size: 16,
-            ),
+            Icon(Icons.chevron_right, color: Colors.grey[400], size: 16),
           ],
         ),
       ),
@@ -230,7 +228,9 @@ class _SyncTroubleshootingWidgetState extends ConsumerState<SyncTroubleshootingW
           children: [
             Expanded(
               child: ElevatedButton.icon(
-                onPressed: _isRunningDiagnostics ? null : () => _runFullDiagnostics(),
+                onPressed: _isRunningDiagnostics
+                    ? null
+                    : () => _runFullDiagnostics(),
                 icon: _isRunningDiagnostics
                     ? const SizedBox(
                         width: 16,
@@ -238,7 +238,9 @@ class _SyncTroubleshootingWidgetState extends ConsumerState<SyncTroubleshootingW
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
                     : const Icon(Icons.medical_services, size: 18),
-                label: Text(_isRunningDiagnostics ? 'Running...' : 'Run Diagnostics'),
+                label: Text(
+                  _isRunningDiagnostics ? 'Running...' : 'Run Diagnostics',
+                ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: CareCircleDesignTokens.primaryMedicalBlue,
                   foregroundColor: Colors.white,
@@ -265,9 +267,7 @@ class _SyncTroubleshootingWidgetState extends ConsumerState<SyncTroubleshootingW
             onPressed: () => _resetHealthService(),
             icon: const Icon(Icons.refresh, size: 18),
             label: const Text('Reset Health Service'),
-            style: TextButton.styleFrom(
-              foregroundColor: Colors.orange[700],
-            ),
+            style: TextButton.styleFrom(foregroundColor: Colors.orange[700]),
           ),
         ),
       ],
@@ -276,43 +276,46 @@ class _SyncTroubleshootingWidgetState extends ConsumerState<SyncTroubleshootingW
 
   Future<void> _runFullDiagnostics() async {
     _logger.info('Running full health sync diagnostics');
-    
+
     setState(() {
       _isRunningDiagnostics = true;
     });
 
     try {
       final diagnostics = <String, dynamic>{};
-      
+
       // Check service status
       diagnostics['serviceReady'] = _deviceHealthService.isReady;
       diagnostics['platform'] = _deviceHealthService.platformName;
-      diagnostics['supportedMetrics'] = _deviceHealthService.supportedMetricTypes.length;
-      
+      diagnostics['supportedMetrics'] =
+          _deviceHealthService.supportedMetricTypes.length;
+
       // Check permissions
       try {
-        diagnostics['hasPermissions'] = await _deviceHealthService.hasPermissions();
+        diagnostics['hasPermissions'] = await _deviceHealthService
+            .hasPermissions();
       } catch (e) {
         diagnostics['permissionsError'] = e.toString();
       }
-      
+
       // Check platform-specific availability
       if (_deviceHealthService.platformName == 'Health Connect') {
         try {
-          diagnostics['healthConnectAvailable'] = await _deviceHealthService.isHealthConnectAvailable();
+          diagnostics['healthConnectAvailable'] = await _deviceHealthService
+              .isHealthConnectAvailable();
         } catch (e) {
           diagnostics['healthConnectError'] = e.toString();
         }
       }
-      
+
       _logger.info('Diagnostics completed: $diagnostics');
-      
+
       if (mounted) {
         _showDiagnosticsResults(diagnostics);
       }
     } catch (e) {
       _logger.error('Diagnostics failed: $e', e);
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -341,19 +344,24 @@ class _SyncTroubleshootingWidgetState extends ConsumerState<SyncTroubleshootingW
             mainAxisSize: MainAxisSize.min,
             children: diagnostics.entries.map((entry) {
               final isError = entry.key.contains('Error');
-              final isHealthy = entry.value == true || 
+              final isHealthy =
+                  entry.value == true ||
                   (entry.value is String && entry.value != 'Unknown') ||
                   (entry.value is int && entry.value > 0);
-              
+
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: 4),
                 child: Row(
                   children: [
                     Icon(
-                      isError ? Icons.error : (isHealthy ? Icons.check_circle : Icons.warning),
-                      color: isError 
-                          ? Colors.red[600] 
-                          : (isHealthy ? CareCircleDesignTokens.healthGreen : Colors.orange[600]),
+                      isError
+                          ? Icons.error
+                          : (isHealthy ? Icons.check_circle : Icons.warning),
+                      color: isError
+                          ? Colors.red[600]
+                          : (isHealthy
+                                ? CareCircleDesignTokens.healthGreen
+                                : Colors.orange[600]),
                       size: 16,
                     ),
                     const SizedBox(width: 8),
@@ -380,64 +388,52 @@ class _SyncTroubleshootingWidgetState extends ConsumerState<SyncTroubleshootingW
   }
 
   void _showSyncTroubleshooting() {
-    _showTroubleshootingDialog(
-      'Sync Troubleshooting',
-      [
-        '1. Check that health permissions are granted',
-        '2. Ensure your device supports health data',
-        '3. Try manually triggering a sync',
-        '4. Check your internet connection',
-        '5. Restart the CareCircle app',
-        '6. If issues persist, contact support',
-      ],
-    );
+    _showTroubleshootingDialog('Sync Troubleshooting', [
+      '1. Check that health permissions are granted',
+      '2. Ensure your device supports health data',
+      '3. Try manually triggering a sync',
+      '4. Check your internet connection',
+      '5. Restart the CareCircle app',
+      '6. If issues persist, contact support',
+    ]);
   }
 
   void _showDataTroubleshooting() {
-    _showTroubleshootingDialog(
-      'Missing Data Troubleshooting',
-      [
-        '1. Verify your health device is connected',
-        '2. Check that data is available in your health app',
-        '3. Ensure the metric type is supported',
-        '4. Try syncing a longer time period',
-        '5. Check if manual entries are included',
-        '6. Restart your health tracking device',
-      ],
-    );
+    _showTroubleshootingDialog('Missing Data Troubleshooting', [
+      '1. Verify your health device is connected',
+      '2. Check that data is available in your health app',
+      '3. Ensure the metric type is supported',
+      '4. Try syncing a longer time period',
+      '5. Check if manual entries are included',
+      '6. Restart your health tracking device',
+    ]);
   }
 
   void _showPermissionTroubleshooting() {
-    _showTroubleshootingDialog(
-      'Permission Troubleshooting',
-      [
-        '1. Go to device Settings > Privacy & Security',
-        '2. Find Health or Health Connect settings',
-        '3. Locate CareCircle in the app list',
-        '4. Enable all required health permissions',
-        '5. Return to CareCircle and try again',
-        '6. Restart the app if permissions don\'t take effect',
-      ],
-    );
+    _showTroubleshootingDialog('Permission Troubleshooting', [
+      '1. Go to device Settings > Privacy & Security',
+      '2. Find Health or Health Connect settings',
+      '3. Locate CareCircle in the app list',
+      '4. Enable all required health permissions',
+      '5. Return to CareCircle and try again',
+      '6. Restart the app if permissions don\'t take effect',
+    ]);
   }
 
   void _showConnectionTroubleshooting() {
-    _showTroubleshootingDialog(
-      'Connection Troubleshooting',
-      [
-        '1. Check your internet connection',
-        '2. Ensure CareCircle has network permissions',
-        '3. Try switching between WiFi and mobile data',
-        '4. Restart the CareCircle app',
-        '5. Check if the CareCircle service is available',
-        '6. Contact support if issues persist',
-      ],
-    );
+    _showTroubleshootingDialog('Connection Troubleshooting', [
+      '1. Check your internet connection',
+      '2. Ensure CareCircle has network permissions',
+      '3. Try switching between WiFi and mobile data',
+      '4. Restart the CareCircle app',
+      '5. Check if the CareCircle service is available',
+      '6. Contact support if issues persist',
+    ]);
   }
 
   void _showTroubleshootingDialog(String title, List<String> steps) {
     _logger.info('Showing troubleshooting dialog: $title');
-    
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -446,10 +442,14 @@ class _SyncTroubleshootingWidgetState extends ConsumerState<SyncTroubleshootingW
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
-            children: steps.map((step) => Padding(
-              padding: const EdgeInsets.symmetric(vertical: 2),
-              child: Text(step, style: const TextStyle(fontSize: 14)),
-            )).toList(),
+            children: steps
+                .map(
+                  (step) => Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 2),
+                    child: Text(step, style: const TextStyle(fontSize: 14)),
+                  ),
+                )
+                .toList(),
           ),
         ),
         actions: [
@@ -464,7 +464,7 @@ class _SyncTroubleshootingWidgetState extends ConsumerState<SyncTroubleshootingW
 
   void _showDetailedHelp() {
     _logger.info('Showing detailed help dialog');
-    
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -508,7 +508,9 @@ class _SyncTroubleshootingWidgetState extends ConsumerState<SyncTroubleshootingW
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               SizedBox(height: 8),
-              Text('Contact our support team through the app settings or visit our help center online.'),
+              Text(
+                'Contact our support team through the app settings or visit our help center online.',
+              ),
             ],
           ),
         ),
@@ -524,22 +526,24 @@ class _SyncTroubleshootingWidgetState extends ConsumerState<SyncTroubleshootingW
 
   Future<void> _resetHealthService() async {
     _logger.info('Resetting health service');
-    
+
     try {
       // Re-initialize the device service
       final initialized = await _deviceHealthService.initialize();
-      
+
       // Refresh all related providers
       ref.invalidate(healthSyncStatusProvider);
       ref.invalidate(healthSyncPermissionsProvider);
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(initialized 
-                ? 'Health service reset successfully'
-                : 'Failed to reset health service'),
-            backgroundColor: initialized 
+            content: Text(
+              initialized
+                  ? 'Health service reset successfully'
+                  : 'Failed to reset health service',
+            ),
+            backgroundColor: initialized
                 ? CareCircleDesignTokens.healthGreen
                 : Colors.orange,
           ),
@@ -547,7 +551,7 @@ class _SyncTroubleshootingWidgetState extends ConsumerState<SyncTroubleshootingW
       }
     } catch (e) {
       _logger.error('Failed to reset health service: $e', e);
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

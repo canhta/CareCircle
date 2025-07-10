@@ -54,7 +54,12 @@ class HealthLineChart extends BaseHealthChart {
             dotData: FlDotData(
               show: showDots,
               getDotPainter: (spot, percent, barData, index) =>
-                  FlDotCirclePainter(radius: 3, color: _getMetricColor(), strokeWidth: 1, strokeColor: Colors.white),
+                  FlDotCirclePainter(
+                    radius: 3,
+                    color: _getMetricColor(),
+                    strokeWidth: 1,
+                    strokeColor: Colors.white,
+                  ),
             ),
             belowBarData: showArea
                 ? BarAreaData(
@@ -62,13 +67,18 @@ class HealthLineChart extends BaseHealthChart {
                     gradient: LinearGradient(
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
-                      colors: [_getMetricColor().withValues(alpha: 0.3), _getMetricColor().withValues(alpha: 0.1)],
+                      colors: [
+                        _getMetricColor().withValues(alpha: 0.3),
+                        _getMetricColor().withValues(alpha: 0.1),
+                      ],
                     ),
                   )
                 : BarAreaData(show: false),
           ),
         ],
-        lineTouchData: enableTouch ? _getLineTouchData() : LineTouchData(enabled: false),
+        lineTouchData: enableTouch
+            ? _getLineTouchData()
+            : LineTouchData(enabled: false),
       ),
       duration: const Duration(milliseconds: 250),
       curve: Curves.easeInOut,
@@ -103,11 +113,17 @@ class HealthLineChart extends BaseHealthChart {
     final date = DateTime.fromMillisecondsSinceEpoch(value.toInt());
     final formatter = _getDateFormatter();
 
-    return Text(formatter.format(date), style: TextStyle(color: Colors.grey[600], fontSize: 10));
+    return Text(
+      formatter.format(date),
+      style: TextStyle(color: Colors.grey[600], fontSize: 10),
+    );
   }
 
   Widget _buildLeftTitle(double value, TitleMeta meta) {
-    return Text(_formatValue(value), style: TextStyle(color: Colors.grey[600], fontSize: 10));
+    return Text(
+      _formatValue(value),
+      style: TextStyle(color: Colors.grey[600], fontSize: 10),
+    );
   }
 
   DateFormat _getDateFormatter() {
@@ -150,21 +166,30 @@ class HealthLineChart extends BaseHealthChart {
         tooltipPadding: const EdgeInsets.all(8),
         getTooltipItems: (touchedSpots) {
           return touchedSpots.map((touchedSpot) {
-            final date = DateTime.fromMillisecondsSinceEpoch(touchedSpot.x.toInt());
+            final date = DateTime.fromMillisecondsSinceEpoch(
+              touchedSpot.x.toInt(),
+            );
             final value = touchedSpot.y;
 
             return LineTooltipItem(
               '${_formatValue(value)} ${metricType.unit}\n${DateFormat('MMM dd, HH:mm').format(date)}',
-              const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w500),
+              const TextStyle(
+                color: Colors.white,
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+              ),
             );
           }).toList();
         },
       ),
       touchCallback: (FlTouchEvent event, LineTouchResponse? touchResponse) {
         // Log touch events for analytics (with privacy protection)
-        if (event is FlTapUpEvent && touchResponse?.lineBarSpots?.isNotEmpty == true) {
+        if (event is FlTapUpEvent &&
+            touchResponse?.lineBarSpots?.isNotEmpty == true) {
           final spot = touchResponse!.lineBarSpots!.first;
-          BoundedContextLoggers.healthData.info('Health chart touched: ${metricType.displayName} at ${spot.x}');
+          BoundedContextLoggers.healthData.info(
+            'Health chart touched: ${metricType.displayName} at ${spot.x}',
+          );
         }
       },
     );
@@ -260,8 +285,12 @@ class BloodPressureLineChart extends BaseHealthChart {
 
   @override
   Widget buildChart(BuildContext context) {
-    final systolicSpots = dataPoints.map((point) => FlSpot(point.x, point.y)).toList();
-    final diastolicSpots = diastolicPoints.map((point) => FlSpot(point.x, point.y)).toList();
+    final systolicSpots = dataPoints
+        .map((point) => FlSpot(point.x, point.y))
+        .toList();
+    final diastolicSpots = diastolicPoints
+        .map((point) => FlSpot(point.x, point.y))
+        .toList();
 
     return LineChart(
       LineChartData(
@@ -282,7 +311,12 @@ class BloodPressureLineChart extends BaseHealthChart {
             dotData: FlDotData(
               show: true,
               getDotPainter: (spot, percent, barData, index) =>
-                  FlDotCirclePainter(radius: 3, color: Colors.red[600]!, strokeWidth: 1, strokeColor: Colors.white),
+                  FlDotCirclePainter(
+                    radius: 3,
+                    color: Colors.red[600]!,
+                    strokeWidth: 1,
+                    strokeColor: Colors.white,
+                  ),
             ),
           ),
           // Diastolic line
@@ -294,7 +328,12 @@ class BloodPressureLineChart extends BaseHealthChart {
             dotData: FlDotData(
               show: true,
               getDotPainter: (spot, percent, barData, index) =>
-                  FlDotCirclePainter(radius: 3, color: Colors.blue[600]!, strokeWidth: 1, strokeColor: Colors.white),
+                  FlDotCirclePainter(
+                    radius: 3,
+                    color: Colors.blue[600]!,
+                    strokeWidth: 1,
+                    strokeColor: Colors.white,
+                  ),
             ),
           ),
         ],
@@ -305,14 +344,20 @@ class BloodPressureLineChart extends BaseHealthChart {
             tooltipPadding: const EdgeInsets.all(8),
             getTooltipItems: (touchedSpots) {
               if (touchedSpots.length >= 2) {
-                final date = DateTime.fromMillisecondsSinceEpoch(touchedSpots.first.x.toInt());
+                final date = DateTime.fromMillisecondsSinceEpoch(
+                  touchedSpots.first.x.toInt(),
+                );
                 final systolic = touchedSpots.first.y;
                 final diastolic = touchedSpots.last.y;
 
                 return [
                   LineTooltipItem(
                     '${systolic.round()}/${diastolic.round()} mmHg\n${DateFormat('MMM dd, HH:mm').format(date)}',
-                    const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w500),
+                    const TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 ];
               }
@@ -337,7 +382,10 @@ class BloodPressureLineChart extends BaseHealthChart {
           reservedSize: 30,
           getTitlesWidget: (value, meta) {
             final date = DateTime.fromMillisecondsSinceEpoch(value.toInt());
-            return Text(DateFormat('MM/dd').format(date), style: TextStyle(color: Colors.grey[600], fontSize: 10));
+            return Text(
+              DateFormat('MM/dd').format(date),
+              style: TextStyle(color: Colors.grey[600], fontSize: 10),
+            );
           },
         ),
       ),
@@ -346,7 +394,10 @@ class BloodPressureLineChart extends BaseHealthChart {
           showTitles: true,
           reservedSize: 50,
           getTitlesWidget: (value, meta) {
-            return Text(value.round().toString(), style: TextStyle(color: Colors.grey[600], fontSize: 10));
+            return Text(
+              value.round().toString(),
+              style: TextStyle(color: Colors.grey[600], fontSize: 10),
+            );
           },
         ),
       ),
@@ -367,7 +418,10 @@ class BloodPressureLineChart extends BaseHealthChart {
     if (minY != null) return minY!;
     if (dataPoints.isEmpty && diastolicPoints.isEmpty) return 0;
 
-    final allValues = [...dataPoints.map((p) => p.y), ...diastolicPoints.map((p) => p.y)];
+    final allValues = [
+      ...dataPoints.map((p) => p.y),
+      ...diastolicPoints.map((p) => p.y),
+    ];
 
     if (allValues.isEmpty) return 0;
 
@@ -379,7 +433,10 @@ class BloodPressureLineChart extends BaseHealthChart {
     if (maxY != null) return maxY!;
     if (dataPoints.isEmpty && diastolicPoints.isEmpty) return 1;
 
-    final allValues = [...dataPoints.map((p) => p.y), ...diastolicPoints.map((p) => p.y)];
+    final allValues = [
+      ...dataPoints.map((p) => p.y),
+      ...diastolicPoints.map((p) => p.y),
+    ];
 
     if (allValues.isEmpty) return 1;
 

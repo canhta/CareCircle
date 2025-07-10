@@ -34,7 +34,9 @@ class HealthDataApiService {
       _logger.logHealthDataAccess('Health profile accessed', {
         'userId': userId,
         'dataType': 'health_profile',
-        'hasBasicInfo': healthProfile.baselineMetrics.height > 0 || healthProfile.baselineMetrics.weight > 0,
+        'hasBasicInfo':
+            healthProfile.baselineMetrics.height > 0 ||
+            healthProfile.baselineMetrics.weight > 0,
         'hasConditions': healthProfile.healthConditions.isNotEmpty,
         'hasAllergies': healthProfile.allergies.isNotEmpty,
         'timestamp': DateTime.now().toIso8601String(),
@@ -62,7 +64,10 @@ class HealthDataApiService {
   }
 
   /// Update user's health profile with comprehensive logging
-  Future<HealthProfile> updateHealthProfile(String userId, HealthProfile profile) async {
+  Future<HealthProfile> updateHealthProfile(
+    String userId,
+    HealthProfile profile,
+  ) async {
     _logger.info('Health profile update initiated', {
       'userId': userId,
       'operation': 'updateHealthProfile',
@@ -117,7 +122,8 @@ class HealthDataApiService {
       final queryParams = <String, dynamic>{
         if (startDate != null) 'startDate': startDate.toIso8601String(),
         if (endDate != null) 'endDate': endDate.toIso8601String(),
-        if (metricTypes != null && metricTypes.isNotEmpty) 'metricTypes': metricTypes.join(','),
+        if (metricTypes != null && metricTypes.isNotEmpty)
+          'metricTypes': metricTypes.join(','),
         if (limit != null) 'limit': limit,
       };
 
@@ -135,7 +141,9 @@ class HealthDataApiService {
         'userId': userId,
         'dataType': 'health_metrics',
         'metricCount': metrics.length,
-        'dateRange': startDate != null && endDate != null ? '${startDate.toIso8601String()} to ${endDate.toIso8601String()}' : null,
+        'dateRange': startDate != null && endDate != null
+            ? '${startDate.toIso8601String()} to ${endDate.toIso8601String()}'
+            : null,
         'timestamp': DateTime.now().toIso8601String(),
       });
 
@@ -153,7 +161,10 @@ class HealthDataApiService {
   }
 
   /// Add new health metric with validation logging
-  Future<HealthMetric> addHealthMetric(String userId, HealthMetric metric) async {
+  Future<HealthMetric> addHealthMetric(
+    String userId,
+    HealthMetric metric,
+  ) async {
     _logger.info('Health metric addition initiated', {
       'userId': userId,
       'operation': 'addHealthMetric',
@@ -227,7 +238,10 @@ class HealthDataApiService {
   }
 
   /// Add or update health device
-  Future<HealthDevice> saveHealthDevice(String userId, HealthDevice device) async {
+  Future<HealthDevice> saveHealthDevice(
+    String userId,
+    HealthDevice device,
+  ) async {
     _logger.info('Health device save initiated', {
       'userId': userId,
       'operation': 'saveHealthDevice',
@@ -299,11 +313,13 @@ class HealthDataApiService {
 
 /// Provider for health data API service
 final healthDataApiServiceProvider = Provider<HealthDataApiService>((ref) {
-  final dio = Dio(BaseOptions(
-    baseUrl: AppConfig.apiBaseUrl,
-    connectTimeout: const Duration(seconds: 30),
-    receiveTimeout: const Duration(seconds: 30),
-  ));
+  final dio = Dio(
+    BaseOptions(
+      baseUrl: AppConfig.apiBaseUrl,
+      connectTimeout: const Duration(seconds: 30),
+      receiveTimeout: const Duration(seconds: 30),
+    ),
+  );
 
   return HealthDataApiService(dio);
 });

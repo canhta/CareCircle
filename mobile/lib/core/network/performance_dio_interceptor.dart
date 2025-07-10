@@ -3,7 +3,7 @@ import '../logging/performance_monitor.dart';
 import '../logging/bounded_context_loggers.dart';
 
 /// Performance monitoring interceptor for Dio HTTP client
-/// 
+///
 /// This interceptor automatically tracks API call performance and logs
 /// metrics for healthcare-critical operations.
 class PerformanceDioInterceptor extends Interceptor {
@@ -14,7 +14,7 @@ class PerformanceDioInterceptor extends Interceptor {
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
     // Record request start time
     _requestStartTimes[options] = DateTime.now();
-    
+
     // Log request initiation
     _logger.info('API request initiated', {
       'method': options.method,
@@ -25,12 +25,16 @@ class PerformanceDioInterceptor extends Interceptor {
     });
 
     // Start performance monitoring
-    final operationId = 'api_call_${options.method}_${_sanitizePath(options.path)}';
-    PerformanceMonitor.startOperation(operationId, context: {
-      'method': options.method,
-      'path': options.path,
-      'baseUrl': options.baseUrl,
-    });
+    final operationId =
+        'api_call_${options.method}_${_sanitizePath(options.path)}';
+    PerformanceMonitor.startOperation(
+      operationId,
+      context: {
+        'method': options.method,
+        'path': options.path,
+        'baseUrl': options.baseUrl,
+      },
+    );
 
     handler.next(options);
   }
@@ -41,7 +45,7 @@ class PerformanceDioInterceptor extends Interceptor {
     if (startTime != null) {
       final duration = DateTime.now().difference(startTime);
       final options = response.requestOptions;
-      
+
       // Log API call performance
       PerformanceMonitor.logApiCall(
         options.path,
@@ -55,12 +59,16 @@ class PerformanceDioInterceptor extends Interceptor {
       );
 
       // End performance monitoring
-      final operationId = 'api_call_${options.method}_${_sanitizePath(options.path)}';
-      PerformanceMonitor.endOperation(operationId, context: {
-        'statusCode': response.statusCode,
-        'success': true,
-        'responseSize': _getResponseSize(response),
-      });
+      final operationId =
+          'api_call_${options.method}_${_sanitizePath(options.path)}';
+      PerformanceMonitor.endOperation(
+        operationId,
+        context: {
+          'statusCode': response.statusCode,
+          'success': true,
+          'responseSize': _getResponseSize(response),
+        },
+      );
 
       // Log successful response
       _logger.info('API request completed', {
@@ -93,27 +101,28 @@ class PerformanceDioInterceptor extends Interceptor {
     if (startTime != null) {
       final duration = DateTime.now().difference(startTime);
       final options = err.requestOptions;
-      
+
       // Log API call error performance
       PerformanceMonitor.logApiCall(
         options.path,
         options.method,
         duration,
         err.response?.statusCode ?? 0,
+        context: {'error': err.type.name, 'errorMessage': err.message},
+      );
+
+      // End performance monitoring with error context
+      final operationId =
+          'api_call_${options.method}_${_sanitizePath(options.path)}';
+      PerformanceMonitor.endOperation(
+        operationId,
         context: {
+          'statusCode': err.response?.statusCode ?? 0,
+          'success': false,
           'error': err.type.name,
           'errorMessage': err.message,
         },
       );
-
-      // End performance monitoring with error context
-      final operationId = 'api_call_${options.method}_${_sanitizePath(options.path)}';
-      PerformanceMonitor.endOperation(operationId, context: {
-        'statusCode': err.response?.statusCode ?? 0,
-        'success': false,
-        'error': err.type.name,
-        'errorMessage': err.message,
-      });
 
       // Log error details
       _logger.error('API request failed', {
@@ -175,11 +184,13 @@ class HealthcareApiPerformanceAnalyzer {
     final operations = stats['operations'] as Map<String, dynamic>;
 
     // Analyze healthcare-critical endpoints
-    final healthcareEndpoints = operations.entries.where((entry) =>
-        entry.key.contains('health_data') ||
-        entry.key.contains('medication') ||
-        entry.key.contains('auth') ||
-        entry.key.contains('ai_assistant'));
+    final healthcareEndpoints = operations.entries.where(
+      (entry) =>
+          entry.key.contains('health_data') ||
+          entry.key.contains('medication') ||
+          entry.key.contains('auth') ||
+          entry.key.contains('ai_assistant'),
+    );
 
     if (healthcareEndpoints.isEmpty) {
       _logger.info('No healthcare API performance data available', {
@@ -189,7 +200,7 @@ class HealthcareApiPerformanceAnalyzer {
     }
 
     final analysis = <String, dynamic>{};
-    
+
     for (final endpoint in healthcareEndpoints) {
       final endpointStats = endpoint.value as Map<String, dynamic>;
       final averageMs = endpointStats['averageMs'] as int;
@@ -226,11 +237,13 @@ class HealthcareApiPerformanceAnalyzer {
     // Identify endpoints needing optimization
     final needsOptimization = analysis.entries
         .where((entry) => entry.value['needsOptimization'] == true)
-        .map((entry) => {
-          'endpoint': entry.key,
-          'averageMs': entry.value['averageMs'],
-          'p95Ms': entry.value['p95Ms'],
-        })
+        .map(
+          (entry) => {
+            'endpoint': entry.key,
+            'averageMs': entry.value['averageMs'],
+            'p95Ms': entry.value['p95Ms'],
+          },
+        )
         .toList();
 
     if (needsOptimization.isNotEmpty) {
@@ -267,9 +280,9 @@ class HealthcareApiPerformanceAnalyzer {
     final averages = healthcareOps.values
         .map((op) => op['averageMs'] as int)
         .toList();
-    
+
     final overallAverage = averages.reduce((a, b) => a + b) / averages.length;
-    
+
     String healthStatus;
     if (overallAverage < 800) {
       healthStatus = 'healthy';
@@ -307,7 +320,9 @@ class HealthcareApiPerformanceAnalyzer {
   }
 
   /// Generate performance optimization recommendations
-  static List<String> _generateRecommendations(Map<String, dynamic> operations) {
+  static List<String> _generateRecommendations(
+    Map<String, dynamic> operations,
+  ) {
     final recommendations = <String>[];
 
     for (final entry in operations.entries) {
@@ -316,14 +331,20 @@ class HealthcareApiPerformanceAnalyzer {
       final operationId = entry.key;
 
       if (averageMs > 2000) {
-        recommendations.add('Optimize $operationId - average response time ${averageMs}ms is too high');
+        recommendations.add(
+          'Optimize $operationId - average response time ${averageMs}ms is too high',
+        );
       } else if (averageMs > 1000) {
-        recommendations.add('Monitor $operationId - response time ${averageMs}ms could be improved');
+        recommendations.add(
+          'Monitor $operationId - response time ${averageMs}ms could be improved',
+        );
       }
     }
 
     if (recommendations.isEmpty) {
-      recommendations.add('All healthcare APIs are performing within acceptable limits');
+      recommendations.add(
+        'All healthcare APIs are performing within acceptable limits',
+      );
     }
 
     return recommendations;

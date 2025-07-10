@@ -28,12 +28,16 @@ final healthSyncPermissionsProvider = FutureProvider<bool>((ref) async {
 });
 
 /// Provider for health sync status
-final healthSyncStatusProvider = StateNotifierProvider<HealthSyncStatusNotifier, HealthSyncStatus>((ref) {
-  return HealthSyncStatusNotifier(ref.read(healthDataSyncServiceProvider));
-});
+final healthSyncStatusProvider =
+    StateNotifierProvider<HealthSyncStatusNotifier, HealthSyncStatus>((ref) {
+      return HealthSyncStatusNotifier(ref.read(healthDataSyncServiceProvider));
+    });
 
 /// Provider for requesting health permissions
-final requestHealthPermissionsProvider = FutureProvider.family<bool, void>((ref, _) async {
+final requestHealthPermissionsProvider = FutureProvider.family<bool, void>((
+  ref,
+  _,
+) async {
   final syncService = ref.read(healthDataSyncServiceProvider);
   final result = await syncService.requestPermissions();
 
@@ -44,26 +48,35 @@ final requestHealthPermissionsProvider = FutureProvider.family<bool, void>((ref,
 });
 
 /// Provider for syncing health data
-final syncHealthDataProvider = FutureProvider.family<SyncResult, SyncHealthDataParams>((ref, params) async {
-  final syncService = ref.read(healthDataSyncServiceProvider);
+final syncHealthDataProvider =
+    FutureProvider.family<SyncResult, SyncHealthDataParams>((
+      ref,
+      params,
+    ) async {
+      final syncService = ref.read(healthDataSyncServiceProvider);
 
-  _logger.info('Starting health data sync with params: ${params.toString()}');
+      _logger.info(
+        'Starting health data sync with params: ${params.toString()}',
+      );
 
-  final result = await syncService.syncHealthData(
-    metricTypes: params.metricTypes,
-    startTime: params.startTime,
-    endTime: params.endTime,
-    forceSync: params.forceSync,
-  );
+      final result = await syncService.syncHealthData(
+        metricTypes: params.metricTypes,
+        startTime: params.startTime,
+        endTime: params.endTime,
+        forceSync: params.forceSync,
+      );
 
-  // Update sync status
-  ref.read(healthSyncStatusProvider.notifier).updateLastSync(result);
+      // Update sync status
+      ref.read(healthSyncStatusProvider.notifier).updateLastSync(result);
 
-  return result;
-});
+      return result;
+    });
 
 /// Provider for getting total steps for a specific day
-final dailyStepsProvider = FutureProvider.family<int?, DateTime>((ref, date) async {
+final dailyStepsProvider = FutureProvider.family<int?, DateTime>((
+  ref,
+  date,
+) async {
   final deviceService = ref.read(deviceHealthServiceProvider);
   return await deviceService.getTotalStepsForDay(date);
 });
@@ -90,7 +103,8 @@ final healthPlatformNameProvider = Provider<String>((ref) {
 class HealthSyncStatusNotifier extends StateNotifier<HealthSyncStatus> {
   final HealthDataSyncService _syncService;
 
-  HealthSyncStatusNotifier(this._syncService) : super(HealthSyncStatus.initial()) {
+  HealthSyncStatusNotifier(this._syncService)
+    : super(HealthSyncStatus.initial()) {
     _initializeStatus();
   }
 
@@ -130,13 +144,23 @@ class HealthSyncStatus {
   final DateTime? lastSyncTime;
   final SyncResult? lastSyncResult;
 
-  const HealthSyncStatus({required this.isSyncing, required this.isReady, this.lastSyncTime, this.lastSyncResult});
+  const HealthSyncStatus({
+    required this.isSyncing,
+    required this.isReady,
+    this.lastSyncTime,
+    this.lastSyncResult,
+  });
 
   factory HealthSyncStatus.initial() {
     return const HealthSyncStatus(isSyncing: false, isReady: false);
   }
 
-  HealthSyncStatus copyWith({bool? isSyncing, bool? isReady, DateTime? lastSyncTime, SyncResult? lastSyncResult}) {
+  HealthSyncStatus copyWith({
+    bool? isSyncing,
+    bool? isReady,
+    DateTime? lastSyncTime,
+    SyncResult? lastSyncResult,
+  }) {
     return HealthSyncStatus(
       isSyncing: isSyncing ?? this.isSyncing,
       isReady: isReady ?? this.isReady,
@@ -161,7 +185,12 @@ class SyncHealthDataParams {
   final DateTime? endTime;
   final bool forceSync;
 
-  const SyncHealthDataParams({this.metricTypes, this.startTime, this.endTime, this.forceSync = false});
+  const SyncHealthDataParams({
+    this.metricTypes,
+    this.startTime,
+    this.endTime,
+    this.forceSync = false,
+  });
 
   @override
   String toString() {
@@ -190,19 +219,25 @@ final syncLast7DaysProvider = FutureProvider<SyncResult>((ref) async {
 });
 
 /// Provider for syncing specific metric type for last 7 days
-final syncMetricTypeProvider = FutureProvider.family<SyncResult, HealthMetricType>((ref, metricType) async {
-  final params = SyncHealthDataParams(
-    metricTypes: [metricType],
-    startTime: DateTime.now().subtract(const Duration(days: 7)),
-    endTime: DateTime.now(),
-  );
-  return ref.read(syncHealthDataProvider(params).future);
-});
+final syncMetricTypeProvider =
+    FutureProvider.family<SyncResult, HealthMetricType>((
+      ref,
+      metricType,
+    ) async {
+      final params = SyncHealthDataParams(
+        metricTypes: [metricType],
+        startTime: DateTime.now().subtract(const Duration(days: 7)),
+        endTime: DateTime.now(),
+      );
+      return ref.read(syncHealthDataProvider(params).future);
+    });
 
 /// Provider for force syncing all data
 final forceSyncAllDataProvider = FutureProvider<SyncResult>((ref) async {
   final params = SyncHealthDataParams(
-    startTime: DateTime.now().subtract(const Duration(days: 30)), // Last 30 days
+    startTime: DateTime.now().subtract(
+      const Duration(days: 30),
+    ), // Last 30 days
     endTime: DateTime.now(),
     forceSync: true,
   );

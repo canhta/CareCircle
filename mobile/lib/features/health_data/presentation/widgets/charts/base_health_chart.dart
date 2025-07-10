@@ -46,7 +46,12 @@ abstract class BaseHealthChart extends StatelessWidget {
           children: [
             _buildHeader(context),
             const SizedBox(height: 16),
-            SizedBox(height: 200, child: dataPoints.isEmpty ? _buildEmptyState(context) : buildChart(context)),
+            SizedBox(
+              height: 200,
+              child: dataPoints.isEmpty
+                  ? _buildEmptyState(context)
+                  : buildChart(context),
+            ),
             const SizedBox(height: 8),
             _buildFooter(context),
           ],
@@ -66,9 +71,10 @@ abstract class BaseHealthChart extends StatelessWidget {
         Expanded(
           child: Text(
             title,
-            style: Theme.of(
-              context,
-            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600, color: _getMetricColor()),
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+              color: _getMetricColor(),
+            ),
           ),
         ),
         if (dateRange != null) _buildDateRangeChip(),
@@ -95,7 +101,11 @@ abstract class BaseHealthChart extends StatelessWidget {
       ),
       child: Text(
         rangeText,
-        style: TextStyle(fontSize: 12, color: _getMetricColor(), fontWeight: FontWeight.w500),
+        style: TextStyle(
+          fontSize: 12,
+          color: _getMetricColor(),
+          fontWeight: FontWeight.w500,
+        ),
       ),
     );
   }
@@ -107,11 +117,18 @@ abstract class BaseHealthChart extends StatelessWidget {
         children: [
           Icon(Icons.show_chart, size: 48, color: Colors.grey[400]),
           const SizedBox(height: 8),
-          Text('No data available', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey[600])),
+          Text(
+            'No data available',
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
+          ),
           const SizedBox(height: 4),
           Text(
             'Start tracking to see trends',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey[500]),
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: Colors.grey[500]),
           ),
         ],
       ),
@@ -122,19 +139,28 @@ abstract class BaseHealthChart extends StatelessWidget {
     if (dataPoints.isEmpty) return const SizedBox.shrink();
 
     final latest = dataPoints.last;
-    final previous = dataPoints.length > 1 ? dataPoints[dataPoints.length - 2] : null;
+    final previous = dataPoints.length > 1
+        ? dataPoints[dataPoints.length - 2]
+        : null;
 
     return Row(
       children: [
         Text(
           'Latest: ${_formatValue(latest.value)} ${metricType.unit}',
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+          style: Theme.of(
+            context,
+          ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
         ),
-        if (previous != null) ...[const SizedBox(width: 16), _buildTrendIndicator(latest.value, previous.value)],
+        if (previous != null) ...[
+          const SizedBox(width: 16),
+          _buildTrendIndicator(latest.value, previous.value),
+        ],
         const Spacer(),
         Text(
           '${dataPoints.length} readings',
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey[500]),
+          style: Theme.of(
+            context,
+          ).textTheme.bodySmall?.copyWith(color: Colors.grey[500]),
         ),
       ],
     );
@@ -143,7 +169,8 @@ abstract class BaseHealthChart extends StatelessWidget {
   Widget _buildTrendIndicator(double current, double previous) {
     final difference = current - previous;
     final isPositive = difference > 0;
-    final isNeutral = difference.abs() < 0.01; // Consider very small changes as neutral
+    final isNeutral =
+        difference.abs() < 0.01; // Consider very small changes as neutral
 
     if (isNeutral) {
       return Row(
@@ -151,7 +178,10 @@ abstract class BaseHealthChart extends StatelessWidget {
         children: [
           Icon(Icons.trending_flat, size: 16, color: Colors.grey[500]),
           const SizedBox(width: 2),
-          Text('No change', style: TextStyle(fontSize: 12, color: Colors.grey[500])),
+          Text(
+            'No change',
+            style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+          ),
         ],
       );
     }
@@ -258,14 +288,19 @@ abstract class BaseHealthChart extends StatelessWidget {
       drawHorizontalLine: true,
       horizontalInterval: null,
       verticalInterval: null,
-      getDrawingHorizontalLine: (value) => FlLine(color: Colors.grey[300]!, strokeWidth: 0.5),
-      getDrawingVerticalLine: (value) => FlLine(color: Colors.grey[300]!, strokeWidth: 0.5),
+      getDrawingHorizontalLine: (value) =>
+          FlLine(color: Colors.grey[300]!, strokeWidth: 0.5),
+      getDrawingVerticalLine: (value) =>
+          FlLine(color: Colors.grey[300]!, strokeWidth: 0.5),
     );
   }
 
   /// Get common border data for consistent styling
   FlBorderData getBorderData() {
-    return FlBorderData(show: true, border: Border.all(color: Colors.grey[300]!, width: 1));
+    return FlBorderData(
+      show: true,
+      border: Border.all(color: Colors.grey[300]!, width: 1),
+    );
   }
 }
 
@@ -275,7 +310,11 @@ class HealthDataPoint {
   final double value;
   final Map<String, dynamic>? metadata;
 
-  const HealthDataPoint({required this.timestamp, required this.value, this.metadata});
+  const HealthDataPoint({
+    required this.timestamp,
+    required this.value,
+    this.metadata,
+  });
 
   /// Get x-axis value (milliseconds since epoch)
   double get x => timestamp.millisecondsSinceEpoch.toDouble();

@@ -11,7 +11,9 @@ class HealthcareTalkerObserver extends TalkerObserver {
   @override
   void onLog(TalkerData log) {
     // Sanitize the log message before processing
-    final sanitizedMessage = HealthcareLogSanitizer.sanitizeMessage(log.message ?? '');
+    final sanitizedMessage = HealthcareLogSanitizer.sanitizeMessage(
+      log.message ?? '',
+    );
 
     // Create sanitized log data
     final sanitizedLog = _createSanitizedLog(log, sanitizedMessage);
@@ -25,7 +27,9 @@ class HealthcareTalkerObserver extends TalkerObserver {
   @override
   void onError(TalkerError err) {
     // Sanitize error message and stack trace
-    final sanitizedMessage = HealthcareLogSanitizer.sanitizeMessage(err.message ?? '');
+    final sanitizedMessage = HealthcareLogSanitizer.sanitizeMessage(
+      err.message ?? '',
+    );
     final sanitizedStackTrace = _sanitizeStackTrace(err.stackTrace);
 
     // Create sanitized error
@@ -42,12 +46,16 @@ class HealthcareTalkerObserver extends TalkerObserver {
   @override
   void onException(TalkerException err) {
     // Sanitize exception message and stack trace
-    final sanitizedMessage = HealthcareLogSanitizer.sanitizeMessage(err.message ?? '');
+    final sanitizedMessage = HealthcareLogSanitizer.sanitizeMessage(
+      err.message ?? '',
+    );
     final sanitizedStackTrace = _sanitizeStackTrace(err.stackTrace);
 
     // Create sanitized exception
     final sanitizedException = TalkerException(
-      err.exception is Exception ? err.exception as Exception : Exception('Unknown exception'),
+      err.exception is Exception
+          ? err.exception as Exception
+          : Exception('Unknown exception'),
       stackTrace: sanitizedStackTrace,
       message: sanitizedMessage,
       title: err.title,
@@ -58,7 +66,11 @@ class HealthcareTalkerObserver extends TalkerObserver {
 
   /// Create a sanitized version of TalkerData
   TalkerData _createSanitizedLog(TalkerData original, String sanitizedMessage) {
-    return TalkerLog(sanitizedMessage, title: original.title, logLevel: original.logLevel);
+    return TalkerLog(
+      sanitizedMessage,
+      title: original.title,
+      logLevel: original.logLevel,
+    );
   }
 
   /// Check if a log is critical and should always be processed
@@ -74,7 +86,9 @@ class HealthcareTalkerObserver extends TalkerObserver {
     if (stackTrace == null) return null;
 
     final stackTraceString = stackTrace.toString();
-    final sanitizedStackTrace = HealthcareLogSanitizer.sanitizeMessage(stackTraceString);
+    final sanitizedStackTrace = HealthcareLogSanitizer.sanitizeMessage(
+      stackTraceString,
+    );
 
     // Return a custom stack trace with sanitized content
     return _SanitizedStackTrace(sanitizedStackTrace);
@@ -134,7 +148,9 @@ class ContextualTalkerObserver extends HealthcareTalkerObserver {
     // Add context to exception
     final contextualMessage = '[$context] ${err.message ?? ''}';
     final contextualException = TalkerException(
-      err.exception is Exception ? err.exception as Exception : Exception('Unknown exception'),
+      err.exception is Exception
+          ? err.exception as Exception
+          : Exception('Unknown exception'),
       stackTrace: err.stackTrace,
       message: contextualMessage,
       title: err.title,
@@ -148,8 +164,15 @@ class ContextualTalkerObserver extends HealthcareTalkerObserver {
   }
 
   /// Create a contextual log with context information
-  TalkerData _createContextualLog(TalkerData original, String contextualMessage) {
-    return TalkerLog(contextualMessage, title: original.title, logLevel: original.logLevel);
+  TalkerData _createContextualLog(
+    TalkerData original,
+    String contextualMessage,
+  ) {
+    return TalkerLog(
+      contextualMessage,
+      title: original.title,
+      logLevel: original.logLevel,
+    );
   }
 }
 
@@ -183,7 +206,11 @@ class PerformanceTalkerObserver extends HealthcareTalkerObserver {
   void logMemoryUsage(String context) {
     // This would require additional memory profiling packages
     // For now, we'll log a placeholder
-    final memoryLog = TalkerLog('[$context] Memory usage check', title: 'PERFORMANCE', logLevel: LogLevel.debug);
+    final memoryLog = TalkerLog(
+      '[$context] Memory usage check',
+      title: 'PERFORMANCE',
+      logLevel: LogLevel.debug,
+    );
 
     onLog(memoryLog);
   }

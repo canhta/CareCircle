@@ -133,7 +133,9 @@ class BoundedContextLoggers {
   /// Create a context-specific logger instance
   static Talker _createContextLogger(String context) {
     return Talker(
-      settings: LogConfig.talkerSettings.copyWith(titles: {...LogConfig.talkerSettings.titles, 'context': context}),
+      settings: LogConfig.talkerSettings.copyWith(
+        titles: {...LogConfig.talkerSettings.titles, 'context': context},
+      ),
       logger: TalkerLogger(settings: LogConfig.talkerLoggerSettings),
       observer: ContextualTalkerObserver(context, null),
     );
@@ -256,7 +258,11 @@ extension BoundedContextLogging on Talker {
   }
 
   /// Log performance metric
-  void logPerformanceMetric(String metric, Duration duration, [Map<String, dynamic>? context]) {
+  void logPerformanceMetric(
+    String metric,
+    Duration duration, [
+    Map<String, dynamic>? context,
+  ]) {
     final performanceData = {
       'metric': metric,
       'durationMs': duration.inMilliseconds,

@@ -21,17 +21,26 @@ abstract class CareGroupService {
   Future<CareGroup> getCareGroup(@Path('id') String id);
 
   @PUT('/care-groups/{id}')
-  Future<CareGroup> updateCareGroup(@Path('id') String id, @Body() Map<String, dynamic> updates);
+  Future<CareGroup> updateCareGroup(
+    @Path('id') String id,
+    @Body() Map<String, dynamic> updates,
+  );
 
   @DELETE('/care-groups/{id}')
   Future<void> deleteCareGroup(@Path('id') String id);
 
   // Member Management
   @POST('/care-groups/{id}/invite')
-  Future<void> inviteMember(@Path('id') String groupId, @Body() Map<String, dynamic> request);
+  Future<void> inviteMember(
+    @Path('id') String groupId,
+    @Body() Map<String, dynamic> request,
+  );
 
   @POST('/care-groups/{id}/join')
-  Future<CareGroupMember> joinGroup(@Path('id') String groupId, @Body() Map<String, dynamic> request);
+  Future<CareGroupMember> joinGroup(
+    @Path('id') String groupId,
+    @Body() Map<String, dynamic> request,
+  );
 
   @PUT('/care-groups/{groupId}/members/{memberId}')
   Future<CareGroupMember> updateMember(
@@ -41,14 +50,23 @@ abstract class CareGroupService {
   );
 
   @DELETE('/care-groups/{groupId}/members/{memberId}')
-  Future<void> removeMember(@Path('groupId') String groupId, @Path('memberId') String memberId);
+  Future<void> removeMember(
+    @Path('groupId') String groupId,
+    @Path('memberId') String memberId,
+  );
 
   // Task Management
   @GET('/care-groups/{id}/tasks')
-  Future<List<CareTask>> getGroupTasks(@Path('id') String groupId, @Query('status') String? status);
+  Future<List<CareTask>> getGroupTasks(
+    @Path('id') String groupId,
+    @Query('status') String? status,
+  );
 
   @POST('/care-groups/{id}/tasks')
-  Future<CareTask> createTask(@Path('id') String groupId, @Body() Map<String, dynamic> request);
+  Future<CareTask> createTask(
+    @Path('id') String groupId,
+    @Body() Map<String, dynamic> request,
+  );
 
   @PUT('/care-groups/{groupId}/tasks/{taskId}')
   Future<CareTask> updateTask(
@@ -58,7 +76,10 @@ abstract class CareGroupService {
   );
 
   @DELETE('/care-groups/{groupId}/tasks/{taskId}')
-  Future<void> deleteTask(@Path('groupId') String groupId, @Path('taskId') String taskId);
+  Future<void> deleteTask(
+    @Path('groupId') String groupId,
+    @Path('taskId') String taskId,
+  );
 
   // Activity Feed
   @GET('/care-groups/{id}/activities')
@@ -73,7 +94,10 @@ abstract class CareGroupService {
   Future<List<CareRecipient>> getCareRecipients(@Path('id') String groupId);
 
   @POST('/care-groups/{id}/recipients')
-  Future<CareRecipient> addCareRecipient(@Path('id') String groupId, @Body() Map<String, dynamic> request);
+  Future<CareRecipient> addCareRecipient(
+    @Path('id') String groupId,
+    @Body() Map<String, dynamic> request,
+  );
 
   @PUT('/care-groups/{groupId}/recipients/{recipientId}')
   Future<CareRecipient> updateCareRecipient(
@@ -271,7 +295,11 @@ class CareGroupRepository {
   }
 
   /// Update task status
-  Future<CareTask> updateTask(String groupId, String taskId, UpdateTaskRequest request) async {
+  Future<CareTask> updateTask(
+    String groupId,
+    String taskId,
+    UpdateTaskRequest request,
+  ) async {
     try {
       _logger.logCareGroupEvent('Task update initiated', {
         'groupId': groupId,
@@ -303,9 +331,17 @@ class CareGroupRepository {
   }
 
   /// Get care group activities
-  Future<List<CareGroupActivity>> getGroupActivities(String groupId, {int? limit, int? offset}) async {
+  Future<List<CareGroupActivity>> getGroupActivities(
+    String groupId, {
+    int? limit,
+    int? offset,
+  }) async {
     try {
-      final activities = await _service.getGroupActivities(groupId, limit, offset);
+      final activities = await _service.getGroupActivities(
+        groupId,
+        limit,
+        offset,
+      );
 
       _logger.logCareGroupEvent('Group activities fetched successfully', {
         'groupId': groupId,
@@ -330,7 +366,9 @@ class CareGroupRepository {
     switch (e.type) {
       case DioExceptionType.connectionTimeout:
       case DioExceptionType.receiveTimeout:
-        return Exception('Connection timeout. Please check your internet connection.');
+        return Exception(
+          'Connection timeout. Please check your internet connection.',
+        );
       case DioExceptionType.badResponse:
         final statusCode = e.response?.statusCode;
         switch (statusCode) {
@@ -339,11 +377,15 @@ class CareGroupRepository {
           case 401:
             return Exception('Authentication failed. Please log in again.');
           case 403:
-            return Exception('You do not have permission to perform this action.');
+            return Exception(
+              'You do not have permission to perform this action.',
+            );
           case 404:
             return Exception('Care group not found.');
           case 409:
-            return Exception('Conflict occurred. The resource may already exist.');
+            return Exception(
+              'Conflict occurred. The resource may already exist.',
+            );
           case 500:
             return Exception('Server error. Please try again later.');
           default:

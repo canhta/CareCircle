@@ -29,7 +29,10 @@ class PerformanceMonitor {
   }
 
   /// Start timing an operation
-  static void startOperation(String operationId, {Map<String, dynamic>? context}) {
+  static void startOperation(
+    String operationId, {
+    Map<String, dynamic>? context,
+  }) {
     _operationStartTimes[operationId] = DateTime.now();
 
     _logger.logPerformanceMetric('Operation started', Duration.zero, {
@@ -40,7 +43,10 @@ class PerformanceMonitor {
   }
 
   /// End timing an operation and log performance metrics
-  static Duration endOperation(String operationId, {Map<String, dynamic>? context}) {
+  static Duration endOperation(
+    String operationId, {
+    Map<String, dynamic>? context,
+  }) {
     final startTime = _operationStartTimes.remove(operationId);
     if (startTime == null) {
       _logger.warning('Operation end called without start', {
@@ -93,7 +99,11 @@ class PerformanceMonitor {
   }
 
   /// Time a synchronous operation
-  static T timeSync<T>(String operationId, T Function() operation, {Map<String, dynamic>? context}) {
+  static T timeSync<T>(
+    String operationId,
+    T Function() operation, {
+    Map<String, dynamic>? context,
+  }) {
     startOperation(operationId, context: context);
 
     try {
@@ -253,20 +263,36 @@ class PerformanceMonitor {
     // Log top 5 slowest operations
     final operations = stats['operations'] as Map<String, dynamic>;
     final sortedOps = operations.entries.toList()
-      ..sort((a, b) => (b.value['averageMs'] as int).compareTo(a.value['averageMs'] as int));
+      ..sort(
+        (a, b) => (b.value['averageMs'] as int).compareTo(
+          a.value['averageMs'] as int,
+        ),
+      );
 
     final top5 = sortedOps
         .take(5)
-        .map((e) => {'operation': e.key, 'averageMs': e.value['averageMs'], 'count': e.value['count']})
+        .map(
+          (e) => {
+            'operation': e.key,
+            'averageMs': e.value['averageMs'],
+            'count': e.value['count'],
+          },
+        )
         .toList();
 
     if (top5.isNotEmpty) {
-      _logger.info('Top 5 slowest operations', {'operations': top5, 'timestamp': DateTime.now().toIso8601String()});
+      _logger.info('Top 5 slowest operations', {
+        'operations': top5,
+        'timestamp': DateTime.now().toIso8601String(),
+      });
     }
   }
 
   /// Check performance thresholds and alert if exceeded
-  static void _checkPerformanceThresholds(String operationId, Duration duration) {
+  static void _checkPerformanceThresholds(
+    String operationId,
+    Duration duration,
+  ) {
     final thresholds = <String, int>{
       'api_call': 5000,
       'database_query': 1000,
@@ -276,7 +302,8 @@ class PerformanceMonitor {
     };
 
     for (final entry in thresholds.entries) {
-      if (operationId.contains(entry.key) && duration.inMilliseconds > entry.value) {
+      if (operationId.contains(entry.key) &&
+          duration.inMilliseconds > entry.value) {
         _logger.warning('Performance threshold exceeded', {
           'operationId': operationId,
           'durationMs': duration.inMilliseconds,
@@ -296,6 +323,8 @@ class PerformanceMonitor {
     _operationStartTimes.clear();
     _operationHistory.clear();
 
-    _logger.info('Performance monitoring disposed', {'timestamp': DateTime.now().toIso8601String()});
+    _logger.info('Performance monitoring disposed', {
+      'timestamp': DateTime.now().toIso8601String(),
+    });
   }
 }

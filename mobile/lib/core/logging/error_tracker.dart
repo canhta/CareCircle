@@ -5,7 +5,7 @@ import 'bounded_context_loggers.dart';
 import 'healthcare_log_sanitizer.dart';
 
 /// Healthcare-compliant error tracking system with Firebase Crashlytics integration
-/// 
+///
 /// This class provides comprehensive error tracking for the CareCircle mobile
 /// application while maintaining HIPAA compliance and healthcare data privacy.
 class ErrorTracker {
@@ -19,10 +19,10 @@ class ErrorTracker {
 
     try {
       _crashlytics = FirebaseCrashlytics.instance;
-      
+
       // Enable crashlytics collection in release mode
       await _crashlytics!.setCrashlyticsCollectionEnabled(!kDebugMode);
-      
+
       // Set up Flutter error handling
       FlutterError.onError = (FlutterErrorDetails details) {
         _handleFlutterError(details);
@@ -64,7 +64,7 @@ class ErrorTracker {
     }
 
     // Sanitize context data for healthcare compliance
-    final sanitizedContext = context != null 
+    final sanitizedContext = context != null
         ? HealthcareLogSanitizer.sanitizeData(context)
         : <String, dynamic>{};
 
@@ -240,7 +240,7 @@ class ErrorTracker {
 
     try {
       await _crashlytics?.setUserIdentifier(userId);
-      
+
       _logger.info('User identifier set for error tracking', {
         'hasUserId': userId.isNotEmpty,
         'timestamp': DateTime.now().toIso8601String(),
@@ -259,7 +259,7 @@ class ErrorTracker {
 
     try {
       await _crashlytics?.setUserIdentifier('');
-      
+
       _logger.info('User identifier cleared from error tracking', {
         'timestamp': DateTime.now().toIso8601String(),
       });
@@ -285,7 +285,7 @@ class ErrorTracker {
 
     try {
       await _crashlytics?.log('$eventName: ${sanitizedParams.toString()}');
-      
+
       _logger.info('Custom event logged', {
         'eventName': eventName,
         'parameters': sanitizedParams,
@@ -342,10 +342,7 @@ class ErrorTracker {
       error,
       stack,
       reason: 'Platform error',
-      context: {
-        'errorType': error.runtimeType.toString(),
-        'platform': 'dart',
-      },
+      context: {'errorType': error.runtimeType.toString(), 'platform': 'dart'},
     );
 
     return true;

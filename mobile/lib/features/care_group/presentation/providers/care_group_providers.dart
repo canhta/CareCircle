@@ -40,22 +40,32 @@ final careGroupsProvider = FutureProvider<List<CareGroup>>((ref) async {
 });
 
 // Single care group provider
-final careGroupProvider = FutureProvider.family<CareGroup, String>((ref, id) async {
+final careGroupProvider = FutureProvider.family<CareGroup, String>((
+  ref,
+  id,
+) async {
   final repository = ref.read(careGroupRepositoryProvider);
   return repository.getCareGroup(id);
 });
 
 // Group tasks provider
-final groupTasksProvider = FutureProvider.family<List<CareTask>, String>((ref, groupId) async {
+final groupTasksProvider = FutureProvider.family<List<CareTask>, String>((
+  ref,
+  groupId,
+) async {
   final repository = ref.read(careGroupRepositoryProvider);
   return repository.getGroupTasks(groupId);
 });
 
 // Group activities provider
-final groupActivitiesProvider = FutureProvider.family<List<CareGroupActivity>, String>((ref, groupId) async {
-  final repository = ref.read(careGroupRepositoryProvider);
-  return repository.getGroupActivities(groupId, limit: 50);
-});
+final groupActivitiesProvider =
+    FutureProvider.family<List<CareGroupActivity>, String>((
+      ref,
+      groupId,
+    ) async {
+      final repository = ref.read(careGroupRepositoryProvider);
+      return repository.getGroupActivities(groupId, limit: 50);
+    });
 
 // Current selected care group provider
 final selectedCareGroupProvider = StateProvider<CareGroup?>((ref) => null);
@@ -68,7 +78,8 @@ class CareGroupNotifier extends StateNotifier<AsyncValue<List<CareGroup>>> {
   final CareGroupRepository _repository;
   final Ref _ref;
 
-  CareGroupNotifier(this._repository, this._ref) : super(const AsyncValue.loading()) {
+  CareGroupNotifier(this._repository, this._ref)
+    : super(const AsyncValue.loading()) {
     loadCareGroups();
   }
 
@@ -234,31 +245,40 @@ class CareGroupNotifier extends StateNotifier<AsyncValue<List<CareGroup>>> {
 }
 
 // Care Group notifier provider
-final careGroupNotifierProvider = StateNotifierProvider<CareGroupNotifier, AsyncValue<List<CareGroup>>>((ref) {
-  final repository = ref.read(careGroupRepositoryProvider);
-  return CareGroupNotifier(repository, ref);
-});
+final careGroupNotifierProvider =
+    StateNotifierProvider<CareGroupNotifier, AsyncValue<List<CareGroup>>>((
+      ref,
+    ) {
+      final repository = ref.read(careGroupRepositoryProvider);
+      return CareGroupNotifier(repository, ref);
+    });
 
 // Filtered tasks provider based on current filter
-final filteredTasksProvider = Provider.family<AsyncValue<List<CareTask>>, String>((ref, groupId) {
-  final tasksAsync = ref.watch(groupTasksProvider(groupId));
-  final filter = ref.watch(taskFilterProvider);
+final filteredTasksProvider =
+    Provider.family<AsyncValue<List<CareTask>>, String>((ref, groupId) {
+      final tasksAsync = ref.watch(groupTasksProvider(groupId));
+      final filter = ref.watch(taskFilterProvider);
 
-  return tasksAsync.when(
-    data: (tasks) {
-      if (filter == null) {
-        return AsyncValue.data(tasks);
-      }
-      final filteredTasks = tasks.where((task) => task.status == filter).toList();
-      return AsyncValue.data(filteredTasks);
-    },
-    loading: () => const AsyncValue.loading(),
-    error: (error, stackTrace) => AsyncValue.error(error, stackTrace),
-  );
-});
+      return tasksAsync.when(
+        data: (tasks) {
+          if (filter == null) {
+            return AsyncValue.data(tasks);
+          }
+          final filteredTasks = tasks
+              .where((task) => task.status == filter)
+              .toList();
+          return AsyncValue.data(filteredTasks);
+        },
+        loading: () => const AsyncValue.loading(),
+        error: (error, stackTrace) => AsyncValue.error(error, stackTrace),
+      );
+    });
 
 // Task statistics provider
-final taskStatsProvider = Provider.family<Map<TaskStatus, int>, String>((ref, groupId) {
+final taskStatsProvider = Provider.family<Map<TaskStatus, int>, String>((
+  ref,
+  groupId,
+) {
   final tasksAsync = ref.watch(groupTasksProvider(groupId));
 
   return tasksAsync.when(
@@ -275,7 +295,10 @@ final taskStatsProvider = Provider.family<Map<TaskStatus, int>, String>((ref, gr
 });
 
 // Member role provider for current user in a group
-final currentUserRoleProvider = Provider.family<MemberRole?, String>((ref, groupId) {
+final currentUserRoleProvider = Provider.family<MemberRole?, String>((
+  ref,
+  groupId,
+) {
   final groupAsync = ref.watch(careGroupProvider(groupId));
   // This would need to be implemented with actual user ID from auth context
   // For now, returning null as placeholder
@@ -290,22 +313,25 @@ final currentUserRoleProvider = Provider.family<MemberRole?, String>((ref, group
 });
 
 // Can perform action provider (based on user role and permissions)
-final canPerformActionProvider = Provider.family<bool, ({String groupId, String action})>((ref, params) {
-  final userRole = ref.watch(currentUserRoleProvider(params.groupId));
-  
-  if (userRole == null) return false;
+final canPerformActionProvider =
+    Provider.family<bool, ({String groupId, String action})>((ref, params) {
+      final userRole = ref.watch(currentUserRoleProvider(params.groupId));
 
-  // Define permissions based on roles
-  switch (params.action) {
-    case 'create_task':
-      return userRole == MemberRole.admin || userRole == MemberRole.caregiver;
-    case 'invite_member':
-      return userRole == MemberRole.admin;
-    case 'manage_settings':
-      return userRole == MemberRole.admin;
-    case 'complete_task':
-      return userRole == MemberRole.admin || userRole == MemberRole.caregiver;
-    default:
-      return false;
-  }
-});
+      if (userRole == null) return false;
+
+      // Define permissions based on roles
+      switch (params.action) {
+        case 'create_task':
+          return userRole == MemberRole.admin ||
+              userRole == MemberRole.caregiver;
+        case 'invite_member':
+          return userRole == MemberRole.admin;
+        case 'manage_settings':
+          return userRole == MemberRole.admin;
+        case 'complete_task':
+          return userRole == MemberRole.admin ||
+              userRole == MemberRole.caregiver;
+        default:
+          return false;
+      }
+    });

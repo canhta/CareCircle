@@ -15,7 +15,8 @@ class DeviceConnectionCard extends ConsumerStatefulWidget {
   const DeviceConnectionCard({super.key});
 
   @override
-  ConsumerState<DeviceConnectionCard> createState() => _DeviceConnectionCardState();
+  ConsumerState<DeviceConnectionCard> createState() =>
+      _DeviceConnectionCardState();
 }
 
 class _DeviceConnectionCardState extends ConsumerState<DeviceConnectionCard> {
@@ -51,7 +52,11 @@ class _DeviceConnectionCardState extends ConsumerState<DeviceConnectionCard> {
   Widget _buildHeader() {
     return Row(
       children: [
-        Icon(Icons.devices, color: CareCircleDesignTokens.primaryMedicalBlue, size: 20),
+        Icon(
+          Icons.devices,
+          color: CareCircleDesignTokens.primaryMedicalBlue,
+          size: 20,
+        ),
         const SizedBox(width: 8),
         Text(
           'Device Connection Status',
@@ -87,14 +92,17 @@ class _DeviceConnectionCardState extends ConsumerState<DeviceConnectionCard> {
                   children: [
                     Text(
                       status.title,
-                      style: Theme.of(
-                        context,
-                      ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600, color: status.color),
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: status.color,
+                      ),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       status.description,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey[700]),
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodySmall?.copyWith(color: Colors.grey[700]),
                     ),
                   ],
                 ),
@@ -105,14 +113,23 @@ class _DeviceConnectionCardState extends ConsumerState<DeviceConnectionCard> {
       },
       loading: () => Container(
         padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(color: Colors.grey[100], borderRadius: BorderRadius.circular(8)),
+        decoration: BoxDecoration(
+          color: Colors.grey[100],
+          borderRadius: BorderRadius.circular(8),
+        ),
         child: Row(
           children: [
-            const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)),
+            const SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
             const SizedBox(width: 12),
             Text(
               'Checking connection status...',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
             ),
           ],
         ),
@@ -122,11 +139,17 @@ class _DeviceConnectionCardState extends ConsumerState<DeviceConnectionCard> {
         decoration: BoxDecoration(
           color: CareCircleDesignTokens.criticalAlert.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: CareCircleDesignTokens.criticalAlert.withValues(alpha: 0.3)),
+          border: Border.all(
+            color: CareCircleDesignTokens.criticalAlert.withValues(alpha: 0.3),
+          ),
         ),
         child: Row(
           children: [
-            Icon(Icons.error, color: CareCircleDesignTokens.criticalAlert, size: 24),
+            Icon(
+              Icons.error,
+              color: CareCircleDesignTokens.criticalAlert,
+              size: 24,
+            ),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
@@ -142,7 +165,9 @@ class _DeviceConnectionCardState extends ConsumerState<DeviceConnectionCard> {
                   const SizedBox(height: 2),
                   Text(
                     'Failed to check device status: ${error.toString()}',
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey[700]),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodySmall?.copyWith(color: Colors.grey[700]),
                   ),
                 ],
               ),
@@ -161,12 +186,20 @@ class _DeviceConnectionCardState extends ConsumerState<DeviceConnectionCard> {
       children: [
         Text(
           'Device Information',
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
+          style: Theme.of(
+            context,
+          ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
         ),
         const SizedBox(height: 8),
         _buildInfoRow('Platform', platformName),
-        _buildInfoRow('Service Status', _deviceHealthService.isReady ? 'Ready' : 'Not Ready'),
-        _buildInfoRow('Supported Metrics', '${_deviceHealthService.supportedMetricTypes.length} types'),
+        _buildInfoRow(
+          'Service Status',
+          _deviceHealthService.isReady ? 'Ready' : 'Not Ready',
+        ),
+        _buildInfoRow(
+          'Supported Metrics',
+          '${_deviceHealthService.supportedMetricTypes.length} types',
+        ),
       ],
     );
   }
@@ -178,15 +211,28 @@ class _DeviceConnectionCardState extends ConsumerState<DeviceConnectionCard> {
         children: [
           SizedBox(
             width: 120,
-            child: Text(label, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey[600])),
+            child: Text(
+              label,
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+            ),
           ),
-          Text(value, style: Theme.of(context).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w500)),
+          Text(
+            value,
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w500),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildConnectionActions(AsyncValue<bool> permissionsAsync, HealthSyncStatus syncStatus) {
+  Widget _buildConnectionActions(
+    AsyncValue<bool> permissionsAsync,
+    HealthSyncStatus syncStatus,
+  ) {
     return permissionsAsync.when(
       data: (hasPermissions) {
         if (!hasPermissions) {
@@ -211,13 +257,17 @@ class _DeviceConnectionCardState extends ConsumerState<DeviceConnectionCard> {
                 onPressed: () => _testConnection(),
                 icon: const Icon(Icons.wifi_protected_setup),
                 label: const Text('Test Connection'),
-                style: OutlinedButton.styleFrom(foregroundColor: CareCircleDesignTokens.primaryMedicalBlue),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: CareCircleDesignTokens.primaryMedicalBlue,
+                ),
               ),
             ),
             const SizedBox(width: 12),
             Expanded(
               child: ElevatedButton.icon(
-                onPressed: syncStatus.isSyncing ? null : () => _reconnectDevice(),
+                onPressed: syncStatus.isSyncing
+                    ? null
+                    : () => _reconnectDevice(),
                 icon: const Icon(Icons.refresh),
                 label: const Text('Reconnect'),
                 style: ElevatedButton.styleFrom(
@@ -239,7 +289,10 @@ class _DeviceConnectionCardState extends ConsumerState<DeviceConnectionCard> {
           onPressed: () => _retryConnection(),
           icon: const Icon(Icons.refresh),
           label: const Text('Retry Connection'),
-          style: ElevatedButton.styleFrom(backgroundColor: Colors.orange[600], foregroundColor: Colors.white),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.orange[600],
+            foregroundColor: Colors.white,
+          ),
         ),
       ),
     );
@@ -293,7 +346,10 @@ class _DeviceConnectionCardState extends ConsumerState<DeviceConnectionCard> {
       } else {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Health permissions were denied'), backgroundColor: Colors.orange),
+            const SnackBar(
+              content: Text('Health permissions were denied'),
+              backgroundColor: Colors.orange,
+            ),
           );
         }
       }
@@ -322,10 +378,14 @@ class _DeviceConnectionCardState extends ConsumerState<DeviceConnectionCard> {
           ? 'Connection test successful'
           : 'Connection test failed - check permissions and service status';
 
-      final color = hasPermissions && isReady ? CareCircleDesignTokens.healthGreen : Colors.orange;
+      final color = hasPermissions && isReady
+          ? CareCircleDesignTokens.healthGreen
+          : Colors.orange;
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message), backgroundColor: color));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(message), backgroundColor: color),
+        );
       }
     } catch (e) {
       _logger.error('Connection test failed: $e', e);
@@ -363,9 +423,12 @@ class _DeviceConnectionCardState extends ConsumerState<DeviceConnectionCard> {
         }
       } else {
         if (mounted) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(const SnackBar(content: Text('Failed to reconnect device'), backgroundColor: Colors.orange));
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Failed to reconnect device'),
+              backgroundColor: Colors.orange,
+            ),
+          );
         }
       }
     } catch (e) {
@@ -406,5 +469,10 @@ class ConnectionStatus {
   final IconData icon;
   final Color color;
 
-  const ConnectionStatus({required this.title, required this.description, required this.icon, required this.color});
+  const ConnectionStatus({
+    required this.title,
+    required this.description,
+    required this.icon,
+    required this.color,
+  });
 }

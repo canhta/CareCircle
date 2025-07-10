@@ -16,7 +16,9 @@ class AppLogger {
   /// Get the singleton Talker instance
   static Talker get instance {
     if (!_initialized) {
-      throw StateError('AppLogger must be initialized before use. Call AppLogger.initialize() first.');
+      throw StateError(
+        'AppLogger must be initialized before use. Call AppLogger.initialize() first.',
+      );
     }
     return _instance!;
   }
@@ -32,7 +34,9 @@ class AppLogger {
 
       // Log successful initialization
       _instance!.info('Healthcare logging system initialized', {
-        'environment': LogConfig.talkerSettings.enabled ? 'enabled' : 'disabled',
+        'environment': LogConfig.talkerSettings.enabled
+            ? 'enabled'
+            : 'disabled',
         'logLevel': LogConfig.logLevel.name,
         'fileLogging': LogConfig.enableFileLogging,
         'maxHistory': LogConfig.maxHistoryItems,
@@ -117,7 +121,9 @@ class AppLogger {
     String? message,
     Map<String, dynamic>? data,
   ]) {
-    final sanitizedMessage = message != null ? HealthcareLogSanitizer.sanitizeMessage(message) : 'Exception occurred';
+    final sanitizedMessage = message != null
+        ? HealthcareLogSanitizer.sanitizeMessage(message)
+        : 'Exception occurred';
 
     Map<String, dynamic>? sanitizedData;
     if (data != null) {
@@ -127,7 +133,9 @@ class AppLogger {
     instance.handle(
       exception,
       stackTrace,
-      sanitizedData != null ? '$sanitizedMessage | Data: $sanitizedData' : sanitizedMessage,
+      sanitizedData != null
+          ? '$sanitizedMessage | Data: $sanitizedData'
+          : sanitizedMessage,
     );
   }
 
@@ -152,7 +160,11 @@ class AppLogger {
   }
 
   /// Log performance metrics
-  static void logPerformance(String operation, Duration duration, [Map<String, dynamic>? context]) {
+  static void logPerformance(
+    String operation,
+    Duration duration, [
+    Map<String, dynamic>? context,
+  ]) {
     final performanceData = <String, dynamic>{
       'operation': operation,
       'durationMs': duration.inMilliseconds,
@@ -177,8 +189,15 @@ class AppLogger {
   /// Get current log history (sanitized)
   static List<TalkerData> getHistory() {
     return instance.history.map((log) {
-      final sanitizedMessage = HealthcareLogSanitizer.sanitizeMessage(log.message ?? '');
-      return TalkerLog(sanitizedMessage, title: log.title, time: log.time, logLevel: log.logLevel);
+      final sanitizedMessage = HealthcareLogSanitizer.sanitizeMessage(
+        log.message ?? '',
+      );
+      return TalkerLog(
+        sanitizedMessage,
+        title: log.title,
+        time: log.time,
+        logLevel: log.logLevel,
+      );
     }).toList();
   }
 
