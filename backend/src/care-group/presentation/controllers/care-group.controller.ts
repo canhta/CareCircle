@@ -12,9 +12,25 @@ import {
   HttpStatus,
   HttpCode,
 } from '@nestjs/common';
-import { FirebaseAuthGuard } from '../../../identity-access/presentation/guards/firebase-auth.guard';
-import { CareGroupService, CreateCareGroupDto, UpdateCareGroupDto, InviteMemberDto } from '../../application/services/care-group.service';
-import { MemberRole } from '@prisma/client';
+import {
+  FirebaseAuthGuard,
+  FirebaseUserPayload,
+} from '../../../identity-access/presentation/guards/firebase-auth.guard';
+import {
+  CareGroupService,
+  CreateCareGroupDto,
+  UpdateCareGroupDto,
+  InviteMemberDto,
+} from '../../application/services/care-group.service';
+import { CareTaskService } from '../../application/services/care-task.service';
+import { CareActivityService } from '../../application/services/care-activity.service';
+import { CareRecipientService } from '../../application/services/care-recipient.service';
+import {
+  MemberRole,
+  TaskStatus,
+  TaskPriority,
+  TaskCategory,
+} from '@prisma/client';
 
 export interface CareGroupResponse {
   id: string;
@@ -47,29 +63,84 @@ export interface MemberResponse {
   lastActiveAt: string | null;
 }
 
+export interface TaskResponse {
+  id: string;
+  groupId: string;
+  recipientId: string | null;
+  assigneeId: string | null;
+  createdById: string;
+  title: string;
+  description: string | null;
+  category: TaskCategory;
+  status: TaskStatus;
+  priority: TaskPriority;
+  dueDate: string | null;
+  completedAt: string | null;
+  isRecurring: boolean;
+  recurringPattern: Record<string, any> | null;
+  metadata: Record<string, any>;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ActivityResponse {
+  id: string;
+  groupId: string;
+  userId: string;
+  type: string;
+  title: string;
+  description: string | null;
+  metadata: Record<string, any>;
+  createdAt: string;
+}
+
+export interface RecipientResponse {
+  id: string;
+  groupId: string;
+  name: string;
+  relationship: string;
+  dateOfBirth: string | null;
+  medicalConditions: string[];
+  allergies: string[];
+  medications: string[];
+  emergencyContacts: Record<string, any>[];
+  carePreferences: Record<string, any>;
+  notes: string | null;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
 @Controller('care-groups')
 @UseGuards(FirebaseAuthGuard)
 export class CareGroupController {
-  constructor(private readonly careGroupService: CareGroupService) {}
+  constructor(
+    private readonly careGroupService: CareGroupService,
+    private readonly careTaskService: CareTaskService,
+    private readonly careActivityService: CareActivityService,
+    private readonly careRecipientService: CareRecipientService,
+  ) {}
 
   /**
    * GET /care-groups
    * Get all care groups for the authenticated user
    */
   @Get()
-  async getCareGroups(@Request() req): Promise<CareGroupResponse[]> {
-    const userId = req.user.uid;
+  async getCareGroups(
+    @Request() req: { user: FirebaseUserPayload },
+  ): Promise<CareGroupResponse[]> {
+    const userId = req.user.id;
     const careGroups = await this.careGroupService.getUserCareGroups(userId);
 
-    return careGroups.map(group => ({
+    return careGroups.map((group) => ({
       id: group.id,
       name: group.name,
       description: group.description,
-      type: group.type,
       createdBy: group.createdBy,
       isActive: group.isActive,
       settings: group.settings,
-      emergencyContact: group.emergencyContact,
+      inviteCode: group.inviteCode,
+      inviteExpiration: group.inviteExpiration?.toISOString() || null,
       createdAt: group.createdAt.toISOString(),
       updatedAt: group.updatedAt.toISOString(),
     }));
@@ -82,21 +153,24 @@ export class CareGroupController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   async createCareGroup(
-    @Request() req,
+    @Request() req: { user: FirebaseUserPayload },
     @Body() createDto: CreateCareGroupDto,
   ): Promise<CareGroupResponse> {
-    const userId = req.user.uid;
-    const careGroup = await this.careGroupService.createCareGroup(userId, createDto);
+    const userId = req.user.id;
+    const careGroup = await this.careGroupService.createCareGroup(
+      userId,
+      createDto,
+    );
 
     return {
       id: careGroup.id,
       name: careGroup.name,
       description: careGroup.description,
-      type: careGroup.type,
       createdBy: careGroup.createdBy,
       isActive: careGroup.isActive,
       settings: careGroup.settings,
-      emergencyContact: careGroup.emergencyContact,
+      inviteCode: careGroup.inviteCode,
+      inviteExpiration: careGroup.inviteExpiration?.toISOString() || null,
       createdAt: careGroup.createdAt.toISOString(),
       updatedAt: careGroup.updatedAt.toISOString(),
     };
@@ -108,22 +182,28 @@ export class CareGroupController {
    */
   @Get(':id')
   async getCareGroup(
-    @Request() req,
+    @Request() req: { user: FirebaseUserPayload },
     @Param('id') groupId: string,
   ): Promise<CareGroupResponse> {
-    const userId = req.user.uid;
-    const careGroup = await this.careGroupService.getCareGroupById(groupId, userId);
-    const stats = await this.careGroupService.getCareGroupStatistics(groupId, userId);
+    const userId = req.user.id;
+    const careGroup = await this.careGroupService.getCareGroupById(
+      groupId,
+      userId,
+    );
+    const stats = await this.careGroupService.getCareGroupStatistics(
+      groupId,
+      userId,
+    );
 
     return {
       id: careGroup.id,
       name: careGroup.name,
       description: careGroup.description,
-      type: careGroup.type,
       createdBy: careGroup.createdBy,
       isActive: careGroup.isActive,
       settings: careGroup.settings,
-      emergencyContact: careGroup.emergencyContact,
+      inviteCode: careGroup.inviteCode,
+      inviteExpiration: careGroup.inviteExpiration?.toISOString() || null,
       createdAt: careGroup.createdAt.toISOString(),
       updatedAt: careGroup.updatedAt.toISOString(),
       memberCount: stats.memberCount,
@@ -138,11 +218,11 @@ export class CareGroupController {
    */
   @Put(':id')
   async updateCareGroup(
-    @Request() req,
+    @Request() req: { user: FirebaseUserPayload },
     @Param('id') groupId: string,
     @Body() updateDto: UpdateCareGroupDto,
   ): Promise<CareGroupResponse> {
-    const userId = req.user.uid;
+    const userId = req.user.id;
     const careGroup = await this.careGroupService.updateCareGroup(
       groupId,
       userId,
@@ -153,11 +233,11 @@ export class CareGroupController {
       id: careGroup.id,
       name: careGroup.name,
       description: careGroup.description,
-      type: careGroup.type,
       createdBy: careGroup.createdBy,
       isActive: careGroup.isActive,
       settings: careGroup.settings,
-      emergencyContact: careGroup.emergencyContact,
+      inviteCode: careGroup.inviteCode,
+      inviteExpiration: careGroup.inviteExpiration?.toISOString() || null,
       createdAt: careGroup.createdAt.toISOString(),
       updatedAt: careGroup.updatedAt.toISOString(),
     };
@@ -170,10 +250,10 @@ export class CareGroupController {
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteCareGroup(
-    @Request() req,
+    @Request() req: { user: FirebaseUserPayload },
     @Param('id') groupId: string,
   ): Promise<void> {
-    const userId = req.user.uid;
+    const userId = req.user.id;
     await this.careGroupService.deleteCareGroup(groupId, userId);
   }
 
@@ -183,25 +263,28 @@ export class CareGroupController {
    */
   @Get(':id/members')
   async getCareGroupMembers(
-    @Request() req,
+    @Request() req: { user: FirebaseUserPayload },
     @Param('id') groupId: string,
   ): Promise<MemberResponse[]> {
-    const userId = req.user.uid;
-    const members = await this.careGroupService.getCareGroupMembers(groupId, userId);
+    const userId = req.user.id;
+    const members = await this.careGroupService.getCareGroupMembers(
+      groupId,
+      userId,
+    );
 
-    return members.map(member => ({
+    return members.map((member) => ({
       id: member.id,
       groupId: member.groupId,
       userId: member.userId,
       role: member.role,
       customTitle: member.customTitle,
       isActive: member.isActive,
-      canInviteMembers: member.canInviteMembers,
-      canManageTasks: member.canManageTasks,
-      canViewHealthData: member.canViewHealthData,
+      canInviteMembers: member.canInviteMembers(),
+      canManageTasks: member.canManageTasks(),
+      canViewHealthData: member.canViewHealthData(),
       permissions: member.permissions,
       joinedAt: member.joinedAt.toISOString(),
-      lastActiveAt: member.lastActiveAt?.toISOString() || null,
+      lastActiveAt: member.lastActive?.toISOString() || null,
     }));
   }
 
@@ -211,11 +294,11 @@ export class CareGroupController {
    */
   @Post(':id/invite')
   async inviteMember(
-    @Request() req,
+    @Request() req: { user: FirebaseUserPayload },
     @Param('id') groupId: string,
     @Body() inviteDto: InviteMemberDto,
   ): Promise<{ success: boolean; message: string }> {
-    const userId = req.user.uid;
+    const userId = req.user.id;
     return this.careGroupService.inviteMember(groupId, userId, inviteDto);
   }
 
@@ -225,11 +308,11 @@ export class CareGroupController {
    */
   @Post(':id/join')
   async joinCareGroup(
-    @Request() req,
+    @Request() req: { user: FirebaseUserPayload },
     @Param('id') groupId: string,
     @Body() joinDto: { invitationCode?: string },
   ): Promise<MemberResponse> {
-    const userId = req.user.uid;
+    const userId = req.user.id;
     const member = await this.careGroupService.joinCareGroup(
       groupId,
       userId,
@@ -243,12 +326,12 @@ export class CareGroupController {
       role: member.role,
       customTitle: member.customTitle,
       isActive: member.isActive,
-      canInviteMembers: member.canInviteMembers,
-      canManageTasks: member.canManageTasks,
-      canViewHealthData: member.canViewHealthData,
+      canInviteMembers: member.canInviteMembers(),
+      canManageTasks: member.canManageTasks(),
+      canViewHealthData: member.canViewHealthData(),
       permissions: member.permissions,
       joinedAt: member.joinedAt.toISOString(),
-      lastActiveAt: member.lastActiveAt?.toISOString() || null,
+      lastActiveAt: member.lastActive?.toISOString() || null,
     };
   }
 
@@ -258,10 +341,11 @@ export class CareGroupController {
    */
   @Put(':groupId/members/:memberId')
   async updateMember(
-    @Request() req,
+    @Request() req: { user: FirebaseUserPayload },
     @Param('groupId') groupId: string,
     @Param('memberId') memberId: string,
-    @Body() updateDto: {
+    @Body()
+    updateDto: {
       role?: MemberRole;
       customTitle?: string;
       canInviteMembers?: boolean;
@@ -269,7 +353,7 @@ export class CareGroupController {
       canViewHealthData?: boolean;
     },
   ): Promise<MemberResponse> {
-    const userId = req.user.uid;
+    const userId = req.user.id;
     const member = await this.careGroupService.updateMember(
       groupId,
       memberId,
@@ -284,12 +368,12 @@ export class CareGroupController {
       role: member.role,
       customTitle: member.customTitle,
       isActive: member.isActive,
-      canInviteMembers: member.canInviteMembers,
-      canManageTasks: member.canManageTasks,
-      canViewHealthData: member.canViewHealthData,
+      canInviteMembers: member.canInviteMembers(),
+      canManageTasks: member.canManageTasks(),
+      canViewHealthData: member.canViewHealthData(),
       permissions: member.permissions,
       joinedAt: member.joinedAt.toISOString(),
-      lastActiveAt: member.lastActiveAt?.toISOString() || null,
+      lastActiveAt: member.lastActive?.toISOString() || null,
     };
   }
 
@@ -300,11 +384,11 @@ export class CareGroupController {
   @Delete(':groupId/members/:memberId')
   @HttpCode(HttpStatus.NO_CONTENT)
   async removeMember(
-    @Request() req,
+    @Request() req: { user: FirebaseUserPayload },
     @Param('groupId') groupId: string,
     @Param('memberId') memberId: string,
   ): Promise<void> {
-    const userId = req.user.uid;
+    const userId = req.user.id;
     await this.careGroupService.removeMember(groupId, memberId, userId);
   }
 
@@ -314,23 +398,160 @@ export class CareGroupController {
    */
   @Get('search')
   async searchCareGroups(
-    @Request() req,
+    @Request() req: { user: FirebaseUserPayload },
     @Query('q') searchTerm: string,
   ): Promise<CareGroupResponse[]> {
-    const userId = req.user.uid;
-    const careGroups = await this.careGroupService.searchCareGroups(userId, searchTerm);
+    const userId = req.user.id;
+    const careGroups = await this.careGroupService.searchCareGroups(
+      userId,
+      searchTerm,
+    );
 
-    return careGroups.map(group => ({
+    return careGroups.map((group) => ({
       id: group.id,
       name: group.name,
       description: group.description,
-      type: group.type,
       createdBy: group.createdBy,
       isActive: group.isActive,
       settings: group.settings,
-      emergencyContact: group.emergencyContact,
+      inviteCode: group.inviteCode,
+      inviteExpiration: group.inviteExpiration?.toISOString() || null,
       createdAt: group.createdAt.toISOString(),
       updatedAt: group.updatedAt.toISOString(),
     }));
   }
+
+  // ============================================================================
+  // TASK MANAGEMENT ENDPOINTS
+  // ============================================================================
+
+  /**
+   * GET /care-groups/:id/tasks
+   * Get tasks for a care group
+   */
+  @Get(':id/tasks')
+  async getGroupTasks(
+    @Request() req: { user: FirebaseUserPayload },
+    @Param('id') groupId: string,
+    @Query('status') status?: TaskStatus,
+  ): Promise<TaskResponse[]> {
+    const userId = req.user.id;
+    const tasks = await this.careTaskService.getGroupTasks(groupId, userId, {
+      status,
+    });
+
+    return tasks.map((task) => ({
+      id: task.id,
+      groupId: task.groupId,
+      recipientId: task.recipientId,
+      assigneeId: task.assigneeId,
+      createdById: task.createdById,
+      title: task.title,
+      description: task.description,
+      category: task.category,
+      status: task.status,
+      priority: task.priority,
+      dueDate: task.dueDate?.toISOString() || null,
+      completedAt: task.completedAt?.toISOString() || null,
+      isRecurring: task.isRecurring,
+      recurringPattern: task.recurringPattern,
+      metadata: task.metadata,
+      createdAt: task.createdAt.toISOString(),
+      updatedAt: task.updatedAt.toISOString(),
+    }));
+  }
+
+  // /**
+  //  * POST /care-groups/:id/tasks
+  //  * Create a new task in the care group
+  //  */
+  // @Post(':id/tasks')
+  // @HttpCode(HttpStatus.CREATED)
+  // async createTask(
+  //   @Request() req,
+  //   @Param('id') groupId: string,
+  //   @Body() createDto: CreateTaskDto,
+  // ): Promise<TaskResponse> {
+  //   const userId = req.user.uid;
+  //   const task = await this.careTaskService.createTask(
+  //     groupId,
+  //     userId,
+  //     createDto,
+  //   );
+
+  //   return {
+  //     id: task.id,
+  //     groupId: task.groupId,
+  //     recipientId: task.recipientId,
+  //     assigneeId: task.assigneeId,
+  //     createdById: task.createdById,
+  //     title: task.title,
+  //     description: task.description,
+  //     category: task.category,
+  //     status: task.status,
+  //     priority: task.priority,
+  //     dueDate: task.dueDate?.toISOString() || null,
+  //     completedAt: task.completedAt?.toISOString() || null,
+  //     isRecurring: task.isRecurring,
+  //     recurringPattern: task.recurringPattern,
+  //     metadata: task.metadata,
+  //     createdAt: task.createdAt.toISOString(),
+  //     updatedAt: task.updatedAt.toISOString(),
+  //   };
+  // }
+
+  // /**
+  //  * PUT /care-groups/:groupId/tasks/:taskId
+  //  * Update a task
+  //  */
+  // @Put(':groupId/tasks/:taskId')
+  // async updateTask(
+  //   @Request() req,
+  //   @Param('groupId') groupId: string,
+  //   @Param('taskId') taskId: string,
+  //   @Body() updateDto: UpdateTaskDto,
+  // ): Promise<TaskResponse> {
+  //   const userId = req.user.uid;
+  //   const task = await this.careTaskService.updateTask(
+  //     taskId,
+  //     groupId,
+  //     userId,
+  //     updateDto,
+  //   );
+
+  //   return {
+  //     id: task.id,
+  //     groupId: task.groupId,
+  //     recipientId: task.recipientId,
+  //     assigneeId: task.assigneeId,
+  //     createdById: task.createdById,
+  //     title: task.title,
+  //     description: task.description,
+  //     category: task.category,
+  //     status: task.status,
+  //     priority: task.priority,
+  //     dueDate: task.dueDate?.toISOString() || null,
+  //     completedAt: task.completedAt?.toISOString() || null,
+  //     isRecurring: task.isRecurring,
+  //     recurringPattern: task.recurringPattern,
+  //     metadata: task.metadata,
+  //     createdAt: task.createdAt.toISOString(),
+  //     updatedAt: task.updatedAt.toISOString(),
+  //   };
+  // }
+
+  // /**
+  //  * DELETE /care-groups/:groupId/tasks/:taskId
+  //  * Delete a task
+  //  */
+  // @Delete(':groupId/tasks/:taskId')
+  // @HttpCode(HttpStatus.NO_CONTENT)
+  // async deleteTask(
+  //   @Request() req,
+  //   @Param('groupId') groupId: string,
+  //   @Param('taskId') taskId: string,
+  // ): Promise<void> {
+  //   const userId = req.user.uid;
+  //   await this.careTaskService.deleteTask(taskId, groupId, userId);
+  // }
 }

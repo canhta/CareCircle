@@ -1,7 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { CareGroup as PrismaCareGroup, CareGroupType } from '@prisma/client';
+import { CareGroup as PrismaCareGroup } from '@prisma/client';
 import { PrismaService } from '../../../common/database/prisma.service';
-import { CareGroupRepository, CareGroupQuery } from '../../domain/repositories/care-group.repository';
+import {
+  CareGroupRepository,
+  CareGroupQuery,
+} from '../../domain/repositories/care-group.repository';
 import { CareGroupEntity } from '../../domain/entities/care-group.entity';
 
 @Injectable()
@@ -53,7 +56,7 @@ export class PrismaCareGroupRepository extends CareGroupRepository {
       orderBy: { createdAt: 'desc' },
     });
 
-    return data.map(item => CareGroupEntity.fromPrisma(item));
+    return data.map((item) => CareGroupEntity.fromPrisma(item));
   }
 
   async findByUserId(userId: string): Promise<CareGroupEntity[]> {
@@ -69,7 +72,7 @@ export class PrismaCareGroupRepository extends CareGroupRepository {
       orderBy: { createdAt: 'desc' },
     });
 
-    return data.map(item => CareGroupEntity.fromPrisma(item));
+    return data.map((item) => CareGroupEntity.fromPrisma(item));
   }
 
   async findByCreatedBy(createdBy: string): Promise<CareGroupEntity[]> {
@@ -78,7 +81,7 @@ export class PrismaCareGroupRepository extends CareGroupRepository {
       orderBy: { createdAt: 'desc' },
     });
 
-    return data.map(item => CareGroupEntity.fromPrisma(item));
+    return data.map((item) => CareGroupEntity.fromPrisma(item));
   }
 
   async update(
@@ -121,7 +124,7 @@ export class PrismaCareGroupRepository extends CareGroupRepository {
       orderBy: { createdAt: 'desc' },
     });
 
-    return data.map(item => CareGroupEntity.fromPrisma(item));
+    return data.map((item) => CareGroupEntity.fromPrisma(item));
   }
 
   async findActiveGroups(userId: string): Promise<CareGroupEntity[]> {
@@ -138,7 +141,7 @@ export class PrismaCareGroupRepository extends CareGroupRepository {
       orderBy: { createdAt: 'desc' },
     });
 
-    return data.map(item => CareGroupEntity.fromPrisma(item));
+    return data.map((item) => CareGroupEntity.fromPrisma(item));
   }
 
   async findInactiveGroups(userId: string): Promise<CareGroupEntity[]> {
@@ -155,7 +158,7 @@ export class PrismaCareGroupRepository extends CareGroupRepository {
       orderBy: { createdAt: 'desc' },
     });
 
-    return data.map(item => CareGroupEntity.fromPrisma(item));
+    return data.map((item) => CareGroupEntity.fromPrisma(item));
   }
 
   async findByType(
@@ -175,7 +178,7 @@ export class PrismaCareGroupRepository extends CareGroupRepository {
       orderBy: { createdAt: 'desc' },
     });
 
-    return data.map(item => CareGroupEntity.fromPrisma(item));
+    return data.map((item) => CareGroupEntity.fromPrisma(item));
   }
 
   // Group management operations
@@ -242,14 +245,16 @@ export class PrismaCareGroupRepository extends CareGroupRepository {
       orderBy: { createdAt: 'desc' },
     });
 
-    return data.map(item => CareGroupEntity.fromPrisma(item));
+    return data.map((item) => CareGroupEntity.fromPrisma(item));
   }
 
   async findGroupsWithRecentActivity(
     userId: string,
     hoursThreshold: number,
   ): Promise<CareGroupEntity[]> {
-    const thresholdDate = new Date(Date.now() - hoursThreshold * 60 * 60 * 1000);
+    const thresholdDate = new Date(
+      Date.now() - hoursThreshold * 60 * 60 * 1000,
+    );
 
     const data = await this.prisma.careGroup.findMany({
       where: {
@@ -270,7 +275,7 @@ export class PrismaCareGroupRepository extends CareGroupRepository {
       orderBy: { updatedAt: 'desc' },
     });
 
-    return data.map(item => CareGroupEntity.fromPrisma(item));
+    return data.map((item) => CareGroupEntity.fromPrisma(item));
   }
 
   // Count operations
@@ -412,6 +417,6 @@ export class PrismaCareGroupRepository extends CareGroupRepository {
       orderBy: { createdAt: 'desc' },
     });
 
-    return data.map(item => CareGroupEntity.fromPrisma(item));
+    return data.map((item) => CareGroupEntity.fromPrisma(item));
   }
 }

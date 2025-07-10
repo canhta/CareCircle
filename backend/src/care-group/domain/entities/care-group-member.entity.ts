@@ -1,4 +1,7 @@
-import { CareGroupMember as PrismaCareGroupMember, MemberRole } from '@prisma/client';
+import {
+  CareGroupMember as PrismaCareGroupMember,
+  MemberRole,
+} from '@prisma/client';
 
 /**
  * Simplified Care Group Member Entity matching actual Prisma schema
@@ -25,7 +28,7 @@ export class CareGroupMemberEntity {
     customTitle?: string;
     invitedBy?: string;
     permissions?: string[];
-  }): Omit<CareGroupMemberEntity, 'id' | 'joinedAt' | 'lastActive'> {
+  }) {
     return {
       groupId: data.groupId,
       userId: data.userId,
@@ -39,8 +42,8 @@ export class CareGroupMemberEntity {
   }
 
   static fromPrisma(prisma: PrismaCareGroupMember): CareGroupMemberEntity {
-    const permissions = Array.isArray(prisma.permissions) 
-      ? prisma.permissions as string[]
+    const permissions = Array.isArray(prisma.permissions)
+      ? (prisma.permissions as string[])
       : [];
 
     return new CareGroupMemberEntity(
@@ -119,7 +122,12 @@ export class CareGroupMemberEntity {
   private static getDefaultPermissions(role: MemberRole): string[] {
     switch (role) {
       case MemberRole.ADMIN:
-        return ['INVITE_MEMBERS', 'MANAGE_TASKS', 'VIEW_HEALTH_DATA', 'MANAGE_SETTINGS'];
+        return [
+          'INVITE_MEMBERS',
+          'MANAGE_TASKS',
+          'VIEW_HEALTH_DATA',
+          'MANAGE_SETTINGS',
+        ];
       case MemberRole.CAREGIVER:
         return ['MANAGE_TASKS', 'VIEW_HEALTH_DATA'];
       case MemberRole.FAMILY_MEMBER:

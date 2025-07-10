@@ -13,18 +13,63 @@ export interface RecipientQuery {
 }
 
 export abstract class CareRecipientRepository {
-  abstract create(recipient: CareRecipientEntity): Promise<CareRecipientEntity>;
+  abstract create(recipientData: {
+    groupId: string;
+    name: string;
+    relationship: string;
+    dateOfBirth: Date | null;
+    healthSummary: any;
+    carePreferences: any;
+    isActive: boolean;
+  }): Promise<CareRecipientEntity>;
   abstract findById(id: string): Promise<CareRecipientEntity | null>;
   abstract findMany(query: RecipientQuery): Promise<CareRecipientEntity[]>;
-  abstract findByGroupId(groupId: string): Promise<CareRecipientEntity[]>;
+  abstract findByGroupId(
+    groupId: string,
+    filters?: {
+      isActive?: boolean;
+      relationship?: string;
+      hasConditions?: boolean;
+      hasAllergies?: boolean;
+    },
+  ): Promise<CareRecipientEntity[]>;
   abstract update(
     id: string,
-    updates: Partial<CareRecipientEntity>,
+    updates: Partial<{
+      name: string;
+      relationship: string;
+      dateOfBirth: Date;
+      medicalConditions: string[];
+      allergies: string[];
+      medications: string[];
+      emergencyContacts: Record<string, any>[];
+      carePreferences: Record<string, any>;
+      notes: string;
+      isActive: boolean;
+    }>,
   ): Promise<CareRecipientEntity>;
   abstract delete(id: string): Promise<void>;
 
+  // Task-related operations
+  abstract hasActiveTasks(recipientId: string): Promise<boolean>;
+  abstract getRecipientTasks(recipientId: string): Promise<{
+    activeTasks: any[];
+    completedTasks: any[];
+  }>;
+  abstract getRecipientStatistics(recipientId: string): Promise<{
+    totalTasks: number;
+    completedTasks: number;
+    activeTasks: number;
+    overdueTasks: number;
+    medicalConditionsCount: number;
+    allergiesCount: number;
+    medicationsCount: number;
+  }>;
+
   // Recipient management operations
-  abstract findActiveRecipients(groupId: string): Promise<CareRecipientEntity[]>;
+  abstract findActiveRecipients(
+    groupId: string,
+  ): Promise<CareRecipientEntity[]>;
   abstract findInactiveRecipients(
     groupId: string,
   ): Promise<CareRecipientEntity[]>;
@@ -110,9 +155,7 @@ export abstract class CareRecipientRepository {
   ): Promise<number>;
 
   // Health statistics operations
-  abstract getHealthStatistics(
-    groupId: string,
-  ): Promise<{
+  abstract getHealthStatistics(groupId: string): Promise<{
     totalRecipients: number;
     activeRecipients: number;
     minors: number;
@@ -122,24 +165,24 @@ export abstract class CareRecipientRepository {
     withMedications: number;
     withEmergencyContacts: number;
   }>;
-  abstract getMedicalConditionStatistics(
-    groupId: string,
-  ): Promise<Array<{
-    condition: string;
-    count: number;
-  }>>;
-  abstract getAllergyStatistics(
-    groupId: string,
-  ): Promise<Array<{
-    allergy: string;
-    count: number;
-  }>>;
-  abstract getMedicationStatistics(
-    groupId: string,
-  ): Promise<Array<{
-    medication: string;
-    count: number;
-  }>>;
+  abstract getMedicalConditionStatistics(groupId: string): Promise<
+    Array<{
+      condition: string;
+      count: number;
+    }>
+  >;
+  abstract getAllergyStatistics(groupId: string): Promise<
+    Array<{
+      allergy: string;
+      count: number;
+    }>
+  >;
+  abstract getMedicationStatistics(groupId: string): Promise<
+    Array<{
+      medication: string;
+      count: number;
+    }>
+  >;
 
   // Validation operations
   abstract checkRecipientExists(
@@ -168,15 +211,17 @@ export abstract class CareRecipientRepository {
   abstract getRecipientTrends(
     groupId: string,
     days: number,
-  ): Promise<Array<{
-    date: Date;
-    newRecipients: number;
-    activeRecipients: number;
-  }>>;
-  abstract getAgeDistribution(
-    groupId: string,
-  ): Promise<Array<{
-    ageRange: string;
-    count: number;
-  }>>;
+  ): Promise<
+    Array<{
+      date: Date;
+      newRecipients: number;
+      activeRecipients: number;
+    }>
+  >;
+  abstract getAgeDistribution(groupId: string): Promise<
+    Array<{
+      ageRange: string;
+      count: number;
+    }>
+  >;
 }

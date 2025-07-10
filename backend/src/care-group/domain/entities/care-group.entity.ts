@@ -24,7 +24,7 @@ export class CareGroupEntity {
     settings?: Record<string, any>;
     inviteCode?: string;
     inviteExpiration?: Date;
-  }): Omit<CareGroupEntity, 'id' | 'createdAt' | 'updatedAt'> {
+  }) {
     return {
       name: data.name.trim(),
       description: data.description?.trim() || null,

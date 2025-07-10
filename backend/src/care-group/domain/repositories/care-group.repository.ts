@@ -1,9 +1,8 @@
 import { CareGroupEntity } from '../entities/care-group.entity';
-import { CareGroupType } from '@prisma/client';
+// CareGroupType removed - not in Prisma schema
 
 export interface CareGroupQuery {
   userId: string;
-  type?: CareGroupType;
   isActive?: boolean;
   limit?: number;
   offset?: number;
@@ -62,16 +61,17 @@ export abstract class CareGroupRepository {
 
   // Validation operations
   abstract checkGroupExists(id: string): Promise<boolean>;
-  abstract checkUserHasAccess(groupId: string, userId: string): Promise<boolean>;
+  abstract checkUserHasAccess(
+    groupId: string,
+    userId: string,
+  ): Promise<boolean>;
   abstract checkGroupCapacity(
     groupId: string,
     maxMembers: number,
   ): Promise<boolean>;
 
   // Analytics operations
-  abstract getGroupStatistics(
-    groupId: string,
-  ): Promise<{
+  abstract getGroupStatistics(groupId: string): Promise<{
     memberCount: number;
     taskCount: number;
     completedTaskCount: number;

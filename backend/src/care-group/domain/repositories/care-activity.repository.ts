@@ -14,11 +14,27 @@ export interface ActivityQuery {
 }
 
 export abstract class CareActivityRepository {
-  abstract create(activity: CareActivityEntity): Promise<CareActivityEntity>;
+  abstract create(activityData: {
+    groupId: string;
+    memberId: string;
+    activityType: ActivityType;
+    description: string;
+    data?: Record<string, any>;
+  }): Promise<CareActivityEntity>;
   abstract findById(id: string): Promise<CareActivityEntity | null>;
   abstract findMany(query: ActivityQuery): Promise<CareActivityEntity[]>;
-  abstract findByGroupId(groupId: string): Promise<CareActivityEntity[]>;
-  abstract findByUserId(userId: string): Promise<CareActivityEntity[]>;
+  abstract findByGroupId(
+    groupId: string,
+    filters?: any,
+  ): Promise<CareActivityEntity[]>;
+  abstract findByUserId(
+    userId: string,
+    filters?: any,
+  ): Promise<CareActivityEntity[]>;
+  abstract findRecentByGroupId(
+    groupId: string,
+    limit?: number,
+  ): Promise<CareActivityEntity[]>;
   abstract delete(id: string): Promise<void>;
 
   // Activity type operations
@@ -68,11 +84,13 @@ export abstract class CareActivityRepository {
   abstract findMostActiveUsers(
     groupId: string,
     limit: number,
-  ): Promise<Array<{
-    userId: string;
-    activityCount: number;
-    lastActivityAt: Date;
-  }>>;
+  ): Promise<
+    Array<{
+      userId: string;
+      activityCount: number;
+      lastActivityAt: Date;
+    }>
+  >;
 
   // Search operations
   abstract searchActivities(
@@ -96,9 +114,7 @@ export abstract class CareActivityRepository {
   ): Promise<number>;
 
   // Analytics operations
-  abstract getActivityStatistics(
-    groupId: string,
-  ): Promise<{
+  abstract getActivityStatistics(groupId: string): Promise<{
     totalActivities: number;
     taskActivities: number;
     memberActivities: number;
@@ -109,26 +125,30 @@ export abstract class CareActivityRepository {
   abstract getActivityTrends(
     groupId: string,
     days: number,
-  ): Promise<Array<{
-    date: Date;
-    activityCount: number;
-    uniqueUsers: number;
-    taskActivities: number;
-    memberActivities: number;
-  }>>;
+  ): Promise<
+    Array<{
+      date: Date;
+      activityCount: number;
+      uniqueUsers: number;
+      taskActivities: number;
+      memberActivities: number;
+    }>
+  >;
   abstract getUserActivitySummary(
     groupId: string,
     startDate: Date,
     endDate: Date,
-  ): Promise<Array<{
-    userId: string;
-    activityCount: number;
-    lastActivityAt: Date;
-    activityTypes: Array<{
-      type: ActivityType;
-      count: number;
-    }>;
-  }>>;
+  ): Promise<
+    Array<{
+      userId: string;
+      activityCount: number;
+      lastActivityAt: Date;
+      activityTypes: Array<{
+        type: ActivityType;
+        count: number;
+      }>;
+    }>
+  >;
 
   // Cleanup operations
   abstract deleteOldActivities(

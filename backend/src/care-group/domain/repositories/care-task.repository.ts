@@ -1,5 +1,5 @@
 import { CareTaskEntity } from '../entities/care-task.entity';
-import { TaskStatus, TaskPriority, TaskType } from '@prisma/client';
+import { TaskStatus, TaskPriority } from '@prisma/client';
 
 export interface TaskQuery {
   groupId?: string;
@@ -115,9 +115,7 @@ export abstract class CareTaskRepository {
   abstract getCompletedTaskCount(groupId: string): Promise<number>;
 
   // Analytics operations
-  abstract getTaskStatistics(
-    groupId: string,
-  ): Promise<{
+  abstract getTaskStatistics(groupId: string): Promise<{
     totalTasks: number;
     pendingTasks: number;
     inProgressTasks: number;
@@ -141,21 +139,25 @@ export abstract class CareTaskRepository {
     groupId: string,
     startDate: Date,
     endDate: Date,
-  ): Promise<Array<{
-    assigneeId: string;
-    assignedTasks: number;
-    completedTasks: number;
-    overdueTasks: number;
-    completionRate: number;
-    averageCompletionTime: number;
-  }>>;
+  ): Promise<
+    Array<{
+      assigneeId: string;
+      assignedTasks: number;
+      completedTasks: number;
+      overdueTasks: number;
+      completionRate: number;
+      averageCompletionTime: number;
+    }>
+  >;
   abstract getTaskTrends(
     groupId: string,
     days: number,
-  ): Promise<Array<{
-    date: Date;
-    createdTasks: number;
-    completedTasks: number;
-    overdueTasks: number;
-  }>>;
+  ): Promise<
+    Array<{
+      date: Date;
+      createdTasks: number;
+      completedTasks: number;
+      overdueTasks: number;
+    }>
+  >;
 }

@@ -1,10 +1,18 @@
 import { CareRecipient as PrismaCareRecipient } from '@prisma/client';
+import {
+  HealthSummary,
+  CarePreferences,
+  defaultHealthSummary,
+  defaultCarePreferences,
+  isHealthSummary,
+  isCarePreferences,
+} from '../types/healthcare-data.types';
 
 /**
  * Care Recipient Domain Entity
- * 
+ *
  * Represents a person who receives care within a care group.
- * Contains personal information, care preferences, and health-related metadata.
+ * Uses JSON fields for flexible healthcare data storage.
  */
 export class CareRecipientEntity {
   constructor(
@@ -13,12 +21,8 @@ export class CareRecipientEntity {
     public readonly name: string,
     public readonly relationship: string,
     public readonly dateOfBirth: Date | null,
-    public readonly medicalConditions: string[],
-    public readonly allergies: string[],
-    public readonly medications: string[],
-    public readonly emergencyContacts: Record<string, any>[],
-    public readonly carePreferences: Record<string, any>,
-    public readonly notes: string | null,
+    public readonly healthSummary: HealthSummary,
+    public readonly carePreferences: CarePreferences,
     public readonly isActive: boolean,
     public readonly createdAt: Date,
     public readonly updatedAt: Date,
@@ -38,23 +42,51 @@ export class CareRecipientEntity {
     emergencyContacts?: Record<string, any>[];
     carePreferences?: Record<string, any>;
     notes?: string;
-  }): Omit<CareRecipientEntity, 'id' | 'createdAt' | 'updatedAt'> {
+  }): {
+    groupId: string;
+    name: string;
+    relationship: string;
+    dateOfBirth: Date | null;
+    healthSummary: HealthSummary;
+    carePreferences: CarePreferences;
+    isActive: boolean;
+  } {
     // Validate business rules
     this.validateName(data.name);
     this.validateRelationship(data.relationship);
     this.validateDateOfBirth(data.dateOfBirth);
+
+    // Create health summary from provided data
+    const healthSummary: HealthSummary = {
+      medicalConditions: data.medicalConditions || [],
+      allergies: data.allergies || [],
+      medications: data.medications || [],
+      notes: data.notes,
+      lastUpdated: new Date().toISOString(),
+    };
+
+    // Create care preferences from provided data
+    const carePreferences: CarePreferences = {
+      emergencyContacts: (data.emergencyContacts || []) as Array<{
+        id?: string;
+        name: string;
+        phone: string;
+        email?: string;
+        relationship: string;
+        isPrimary?: boolean;
+        notes?: string;
+      }>,
+      careSettings: defaultCarePreferences().careSettings,
+      ...data.carePreferences,
+    };
 
     return {
       groupId: data.groupId,
       name: data.name.trim(),
       relationship: data.relationship.trim(),
       dateOfBirth: data.dateOfBirth || null,
-      medicalConditions: data.medicalConditions || [],
-      allergies: data.allergies || [],
-      medications: data.medications || [],
-      emergencyContacts: data.emergencyContacts || [],
-      carePreferences: data.carePreferences || {},
-      notes: data.notes?.trim() || null,
+      healthSummary,
+      carePreferences,
       isActive: true,
     };
   }
@@ -63,18 +95,31 @@ export class CareRecipientEntity {
    * Create entity from Prisma model
    */
   static fromPrisma(prisma: PrismaCareRecipient): CareRecipientEntity {
-    const medicalConditions = Array.isArray(prisma.medicalConditions) 
-      ? prisma.medicalConditions as string[]
-      : [];
-    const allergies = Array.isArray(prisma.allergies) 
-      ? prisma.allergies as string[]
-      : [];
-    const medications = Array.isArray(prisma.medications) 
-      ? prisma.medications as string[]
-      : [];
-    const emergencyContacts = Array.isArray(prisma.emergencyContacts) 
-      ? prisma.emergencyContacts as Record<string, any>[]
-      : [];
+    // Parse healthSummary JSON field
+    let healthSummary: HealthSummary;
+    try {
+      const parsed =
+        typeof prisma.healthSummary === 'string'
+          ? JSON.parse(prisma.healthSummary)
+          : prisma.healthSummary;
+      healthSummary = isHealthSummary(parsed) ? parsed : defaultHealthSummary();
+    } catch {
+      healthSummary = defaultHealthSummary();
+    }
+
+    // Parse carePreferences JSON field
+    let carePreferences: CarePreferences;
+    try {
+      const parsed =
+        typeof prisma.carePreferences === 'string'
+          ? JSON.parse(prisma.carePreferences)
+          : prisma.carePreferences;
+      carePreferences = isCarePreferences(parsed)
+        ? parsed
+        : defaultCarePreferences();
+    } catch {
+      carePreferences = defaultCarePreferences();
+    }
 
     return new CareRecipientEntity(
       prisma.id,
@@ -82,12 +127,8 @@ export class CareRecipientEntity {
       prisma.name,
       prisma.relationship,
       prisma.dateOfBirth,
-      medicalConditions,
-      allergies,
-      medications,
-      emergencyContacts,
-      prisma.carePreferences as Record<string, any>,
-      prisma.notes,
+      healthSummary,
+      carePreferences,
       prisma.isActive,
       prisma.createdAt,
       prisma.updatedAt,
@@ -103,12 +144,8 @@ export class CareRecipientEntity {
       name: this.name,
       relationship: this.relationship,
       dateOfBirth: this.dateOfBirth,
-      medicalConditions: this.medicalConditions,
-      allergies: this.allergies,
-      medications: this.medications,
-      emergencyContacts: this.emergencyContacts,
+      healthSummary: this.healthSummary,
       carePreferences: this.carePreferences,
-      notes: this.notes,
       isActive: this.isActive,
     };
   }
@@ -138,18 +175,52 @@ export class CareRecipientEntity {
       CareRecipientEntity.validateDateOfBirth(data.dateOfBirth);
     }
 
+    // Update health summary if any health-related fields are provided
+    let updatedHealthSummary = this.healthSummary;
+    if (
+      data.medicalConditions ||
+      data.allergies ||
+      data.medications ||
+      data.notes
+    ) {
+      updatedHealthSummary = {
+        ...this.healthSummary,
+        medicalConditions:
+          data.medicalConditions ?? this.healthSummary.medicalConditions,
+        allergies: data.allergies ?? this.healthSummary.allergies,
+        medications: data.medications ?? this.healthSummary.medications,
+        notes: data.notes?.trim() ?? this.healthSummary.notes,
+        lastUpdated: new Date().toISOString(),
+      };
+    }
+
+    // Update care preferences if provided
+    let updatedCarePreferences = this.carePreferences;
+    if (data.emergencyContacts || data.carePreferences) {
+      updatedCarePreferences = {
+        ...this.carePreferences,
+        emergencyContacts: (data.emergencyContacts ??
+          this.carePreferences.emergencyContacts) as Array<{
+          id?: string;
+          name: string;
+          phone: string;
+          email?: string;
+          relationship: string;
+          isPrimary?: boolean;
+          notes?: string;
+        }>,
+        ...data.carePreferences,
+      };
+    }
+
     return new CareRecipientEntity(
       this.id,
       this.groupId,
       data.name?.trim() ?? this.name,
       data.relationship?.trim() ?? this.relationship,
       data.dateOfBirth ?? this.dateOfBirth,
-      data.medicalConditions ?? this.medicalConditions,
-      data.allergies ?? this.allergies,
-      data.medications ?? this.medications,
-      data.emergencyContacts ?? this.emergencyContacts,
-      data.carePreferences ?? this.carePreferences,
-      data.notes?.trim() ?? this.notes,
+      updatedHealthSummary,
+      updatedCarePreferences,
       data.isActive ?? this.isActive,
       this.createdAt,
       new Date(), // updatedAt
@@ -157,20 +228,46 @@ export class CareRecipientEntity {
   }
 
   /**
+   * Convenience getters for accessing JSON data as arrays (for API compatibility)
+   */
+  get medicalConditions(): string[] {
+    return this.healthSummary.medicalConditions;
+  }
+
+  get allergies(): string[] {
+    return this.healthSummary.allergies;
+  }
+
+  get medications(): string[] {
+    return this.healthSummary.medications;
+  }
+
+  get emergencyContacts(): Record<string, any>[] {
+    return this.carePreferences.emergencyContacts;
+  }
+
+  get notes(): string | null {
+    return this.healthSummary.notes || null;
+  }
+
+  /**
    * Calculate age from date of birth
    */
   getAge(): number | null {
     if (!this.dateOfBirth) return null;
-    
+
     const today = new Date();
     const birthDate = new Date(this.dateOfBirth);
     let age = today.getFullYear() - birthDate.getFullYear();
     const monthDiff = today.getMonth() - birthDate.getMonth();
-    
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+
+    if (
+      monthDiff < 0 ||
+      (monthDiff === 0 && today.getDate() < birthDate.getDate())
+    ) {
       age--;
     }
-    
+
     return age;
   }
 
@@ -178,8 +275,8 @@ export class CareRecipientEntity {
    * Check if recipient has specific medical condition
    */
   hasMedicalCondition(condition: string): boolean {
-    return this.medicalConditions.some(c => 
-      c.toLowerCase().includes(condition.toLowerCase())
+    return this.medicalConditions.some((c) =>
+      c.toLowerCase().includes(condition.toLowerCase()),
     );
   }
 
@@ -187,8 +284,8 @@ export class CareRecipientEntity {
    * Check if recipient has specific allergy
    */
   hasAllergy(allergy: string): boolean {
-    return this.allergies.some(a => 
-      a.toLowerCase().includes(allergy.toLowerCase())
+    return this.allergies.some((a) =>
+      a.toLowerCase().includes(allergy.toLowerCase()),
     );
   }
 
@@ -196,8 +293,8 @@ export class CareRecipientEntity {
    * Check if recipient is on specific medication
    */
   isOnMedication(medication: string): boolean {
-    return this.medications.some(m => 
-      m.toLowerCase().includes(medication.toLowerCase())
+    return this.medications.some((m) =>
+      m.toLowerCase().includes(medication.toLowerCase()),
     );
   }
 
@@ -208,7 +305,7 @@ export class CareRecipientEntity {
     if (this.hasMedicalCondition(condition)) {
       return this; // Already exists
     }
-    
+
     return this.update({
       medicalConditions: [...this.medicalConditions, condition.trim()],
     });
@@ -221,7 +318,7 @@ export class CareRecipientEntity {
     if (this.hasAllergy(allergy)) {
       return this; // Already exists
     }
-    
+
     return this.update({
       allergies: [...this.allergies, allergy.trim()],
     });
@@ -234,7 +331,7 @@ export class CareRecipientEntity {
     if (this.isOnMedication(medication)) {
       return this; // Already exists
     }
-    
+
     return this.update({
       medications: [...this.medications, medication.trim()],
     });
@@ -244,7 +341,9 @@ export class CareRecipientEntity {
    * Get emergency contact by type
    */
   getEmergencyContact(type: string): Record<string, any> | null {
-    return this.emergencyContacts.find(contact => contact.type === type) || null;
+    return (
+      this.emergencyContacts.find((contact) => contact.type === type) || null
+    );
   }
 
   /**
