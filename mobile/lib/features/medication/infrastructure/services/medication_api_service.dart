@@ -46,7 +46,7 @@ abstract class MedicationApiService {
   Future<MedicationListResponse> searchMedications(@Query('term') String searchTerm, @Query('limit') int? limit);
 
   @GET('/medications/statistics')
-  Future<Map<String, dynamic>> getMedicationStatistics();
+  Future<MedicationStatistics> getMedicationStatistics();
 
   @GET('/medications/active')
   Future<MedicationListResponse> getActiveMedications();
@@ -59,7 +59,7 @@ abstract class MedicationApiService {
 
   // Medication Validation and Enrichment
   @POST('/medications/{id}/validate')
-  Future<Map<String, dynamic>> validateMedication(@Path('id') String id);
+  Future<MedicationResponse> validateMedication(@Path('id') String id);
 
   @POST('/medications/{id}/enrich')
   Future<MedicationResponse> enrichMedication(@Path('id') String id);
@@ -128,7 +128,7 @@ abstract class MedicationApiService {
   Future<ScheduleListResponse> getUpcomingSchedules(@Query('hours') int? hours);
 
   @GET('/medication-schedules/conflicts')
-  Future<Map<String, dynamic>> getScheduleConflicts();
+  Future<ScheduleListResponse> getScheduleConflicts();
 
   // Adherence Operations
   @GET('/adherence')
@@ -191,7 +191,7 @@ abstract class MedicationApiService {
   Future<RxNormSearchResponse> searchRxNorm(@Body() RxNormSearchRequest request);
 
   @POST('/drug-interactions/rxnorm/validate')
-  Future<Map<String, dynamic>> validateRxNormCode(@Body() Map<String, String> request);
+  Future<MedicationEnrichmentResponse> validateRxNormCode(@Body() Map<String, String> request);
 
   @POST('/drug-interactions/enrich')
   Future<MedicationEnrichmentResponse> enrichMedicationData(@Body() MedicationEnrichmentRequest request);

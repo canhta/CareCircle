@@ -319,12 +319,14 @@ class _MedicationListScreenState extends ConsumerState<MedicationListScreen>
           ),
           TextButton(
             onPressed: () async {
-              Navigator.of(context).pop();
+              final navigator = Navigator.of(context);
+              final scaffoldMessenger = ScaffoldMessenger.of(context);
+              navigator.pop();
               try {
                 await ref.read(medicationNotifierProvider.notifier)
                     .deleteMedication(medication.id);
                 if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
+                  scaffoldMessenger.showSnackBar(
                     SnackBar(
                       content: Text('${medication.name} deleted successfully'),
                       backgroundColor: Colors.green,
@@ -333,7 +335,7 @@ class _MedicationListScreenState extends ConsumerState<MedicationListScreen>
                 }
               } catch (e) {
                 if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
+                  scaffoldMessenger.showSnackBar(
                     SnackBar(
                       content: Text('Failed to delete medication: $e'),
                       backgroundColor: Colors.red,

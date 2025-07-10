@@ -4,6 +4,7 @@ import '../../../core/design/design_tokens.dart';
 
 import '../../../core/navigation/navigation_service.dart';
 import '../../ai-assistant/presentation/screens/ai_assistant_home_screen.dart';
+import '../../medication/presentation/screens/medication_list_screen.dart';
 import 'home_screen.dart';
 
 class MainAppShell extends ConsumerStatefulWidget {
@@ -29,7 +30,7 @@ class _MainAppShellState extends ConsumerState<MainAppShell> {
     const HomeScreen(),
     const Placeholder(), // Health Data Screen (placeholder)
     const AIAssistantHomeScreen(), // AI Assistant - Central position
-    const Placeholder(), // Medications Screen (placeholder)
+    const MedicationListScreen(), // Medications Screen
     const Placeholder(), // Care Circle Screen (placeholder)
   ];
 

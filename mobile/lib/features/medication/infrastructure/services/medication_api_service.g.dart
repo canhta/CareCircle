@@ -221,12 +221,12 @@ class _MedicationApiService implements MedicationApiService {
   }
 
   @override
-  Future<Map<String, dynamic>> getMedicationStatistics() async {
+  Future<MedicationStatistics> getMedicationStatistics() async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<Map<String, dynamic>>(
+    final _options = _setStreamType<MedicationStatistics>(
       Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
@@ -237,12 +237,9 @@ class _MedicationApiService implements MedicationApiService {
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late Map<String, dynamic> _value;
+    late MedicationStatistics _value;
     try {
-      _value = _result.data!.map(
-        (k, dynamic v) =>
-            MapEntry(k, dynamic.fromJson(v as Map<String, dynamic>)),
-      );
+      _value = MedicationStatistics.fromJson(_result.data!);
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options);
       rethrow;
@@ -333,12 +330,12 @@ class _MedicationApiService implements MedicationApiService {
   }
 
   @override
-  Future<Map<String, dynamic>> validateMedication(String id) async {
+  Future<MedicationResponse> validateMedication(String id) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<Map<String, dynamic>>(
+    final _options = _setStreamType<MedicationResponse>(
       Options(method: 'POST', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
@@ -349,12 +346,9 @@ class _MedicationApiService implements MedicationApiService {
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late Map<String, dynamic> _value;
+    late MedicationResponse _value;
     try {
-      _value = _result.data!.map(
-        (k, dynamic v) =>
-            MapEntry(k, dynamic.fromJson(v as Map<String, dynamic>)),
-      );
+      _value = MedicationResponse.fromJson(_result.data!);
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options);
       rethrow;
@@ -870,12 +864,12 @@ class _MedicationApiService implements MedicationApiService {
   }
 
   @override
-  Future<Map<String, dynamic>> getScheduleConflicts() async {
+  Future<ScheduleListResponse> getScheduleConflicts() async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<Map<String, dynamic>>(
+    final _options = _setStreamType<ScheduleListResponse>(
       Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
@@ -886,12 +880,9 @@ class _MedicationApiService implements MedicationApiService {
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late Map<String, dynamic> _value;
+    late ScheduleListResponse _value;
     try {
-      _value = _result.data!.map(
-        (k, dynamic v) =>
-            MapEntry(k, dynamic.fromJson(v as Map<String, dynamic>)),
-      );
+      _value = ScheduleListResponse.fromJson(_result.data!);
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options);
       rethrow;
@@ -1302,7 +1293,7 @@ class _MedicationApiService implements MedicationApiService {
   }
 
   @override
-  Future<Map<String, dynamic>> validateRxNormCode(
+  Future<MedicationEnrichmentResponse> validateRxNormCode(
     Map<String, String> request,
   ) async {
     final _extra = <String, dynamic>{};
@@ -1310,7 +1301,7 @@ class _MedicationApiService implements MedicationApiService {
     final _headers = <String, dynamic>{};
     final _data = <String, dynamic>{};
     _data.addAll(request);
-    final _options = _setStreamType<Map<String, dynamic>>(
+    final _options = _setStreamType<MedicationEnrichmentResponse>(
       Options(method: 'POST', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
@@ -1321,12 +1312,9 @@ class _MedicationApiService implements MedicationApiService {
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late Map<String, dynamic> _value;
+    late MedicationEnrichmentResponse _value;
     try {
-      _value = _result.data!.map(
-        (k, dynamic v) =>
-            MapEntry(k, dynamic.fromJson(v as Map<String, dynamic>)),
-      );
+      _value = MedicationEnrichmentResponse.fromJson(_result.data!);
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options);
       rethrow;

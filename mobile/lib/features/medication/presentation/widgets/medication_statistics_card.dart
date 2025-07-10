@@ -13,7 +13,7 @@ class MedicationStatisticsCard extends ConsumerWidget {
     return statisticsAsync.when(
       data: (stats) => _buildStatisticsCard(context, stats),
       loading: () => _buildLoadingCard(context),
-      error: (_, __) => _buildErrorCard(context),
+      error: (error, stackTrace) => _buildErrorCard(context),
     );
   }
 
