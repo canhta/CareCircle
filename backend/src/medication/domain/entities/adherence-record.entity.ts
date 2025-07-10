@@ -119,7 +119,7 @@ export class AdherenceRecord {
       throw new Error('Rescheduled time must be in the future');
     }
     
-    this.status = DoseStatus.RESCHEDULED;
+    this.status = DoseStatus.SCHEDULED;
     // Note: In a real implementation, you might want to create a new record
     // and mark this one as rescheduled, but for simplicity we'll update this one
     if (notes) {
@@ -176,7 +176,9 @@ export class AdherenceRecord {
   }
 
   wasRescheduled(): boolean {
-    return this.status === DoseStatus.RESCHEDULED;
+    // Since RESCHEDULED status doesn't exist in Prisma schema,
+    // we'll check if notes contain rescheduling information
+    return this.notes?.includes('rescheduled') || false;
   }
 
   getTimeSinceScheduled(): number {
@@ -209,8 +211,7 @@ export class AdherenceRecord {
         return this.skippedReason ? 0.5 : 0.2; // Better score if reason provided
       case DoseStatus.MISSED:
         return 0.0;
-      case DoseStatus.RESCHEDULED:
-        return 0.8; // Partial credit for proactive rescheduling
+      // RESCHEDULED status doesn't exist in Prisma schema, handled via notes
       case DoseStatus.SCHEDULED:
         return this.isOverdue() ? 0.0 : 1.0; // Pending doses get full credit unless overdue
       default:
@@ -226,8 +227,7 @@ export class AdherenceRecord {
         return this.skippedReason ? `Skipped: ${this.skippedReason}` : 'Skipped';
       case DoseStatus.MISSED:
         return 'Missed';
-      case DoseStatus.RESCHEDULED:
-        return 'Rescheduled';
+      // RESCHEDULED status doesn't exist in Prisma schema
       case DoseStatus.SCHEDULED:
         if (this.isOverdue()) return 'Overdue';
         if (this.isDue()) return 'Due now';

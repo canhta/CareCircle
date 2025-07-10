@@ -12,7 +12,7 @@ import {
   HttpStatus,
   HttpException,
 } from '@nestjs/common';
-import { FirebaseAuthGuard } from '../../../auth/guards/firebase-auth.guard';
+import { FirebaseAuthGuard } from '../../../identity-access/presentation/guards/firebase-auth.guard';
 import { MedicationScheduleService } from '../../application/services/medication-schedule.service';
 import { CreateScheduleDto, UpdateScheduleDto, ScheduleQueryDto, AddReminderTimeDto } from '../dto/medication-schedule.dto';
 

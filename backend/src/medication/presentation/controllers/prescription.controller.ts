@@ -12,7 +12,7 @@ import {
   HttpStatus,
   HttpException,
 } from '@nestjs/common';
-import { FirebaseAuthGuard } from '../../../auth/guards/firebase-auth.guard';
+import { FirebaseAuthGuard } from '../../../identity-access/presentation/guards/firebase-auth.guard';
 import { PrescriptionService } from '../../application/services/prescription.service';
 import { CreatePrescriptionDto, UpdatePrescriptionDto, PrescriptionQueryDto, AddMedicationDto, UpdateMedicationDto, SetOCRDataDto } from '../dto/prescription.dto';
 

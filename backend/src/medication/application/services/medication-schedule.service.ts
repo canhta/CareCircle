@@ -102,7 +102,18 @@ export class MedicationScheduleService {
       existingSchedule.updateInstructions(updates.instructions);
     }
 
-    return this.scheduleRepository.update(id, updates);
+    // Prepare updates with proper type handling
+    const updateData: any = { ...updates };
+
+    // Handle partial reminder settings by merging with existing settings
+    if (updates.reminderSettings && existingSchedule.reminderSettings) {
+      updateData.reminderSettings = {
+        ...existingSchedule.reminderSettings,
+        ...updates.reminderSettings,
+      };
+    }
+
+    return this.scheduleRepository.update(id, updateData);
   }
 
   async deleteSchedule(id: string): Promise<void> {

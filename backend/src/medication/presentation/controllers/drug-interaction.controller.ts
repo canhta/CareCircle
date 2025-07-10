@@ -11,7 +11,7 @@ import {
   HttpStatus,
   HttpException,
 } from '@nestjs/common';
-import { FirebaseAuthGuard } from '../../../auth/guards/firebase-auth.guard';
+import { FirebaseAuthGuard } from '../../../identity-access/presentation/guards/firebase-auth.guard';
 import { DrugInteractionService } from '../../infrastructure/services/drug-interaction.service';
 import { RxNormService } from '../../infrastructure/services/rxnorm.service';
 

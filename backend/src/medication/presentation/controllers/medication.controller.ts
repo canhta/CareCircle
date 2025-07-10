@@ -12,7 +12,7 @@ import {
   HttpStatus,
   HttpException,
 } from '@nestjs/common';
-import { FirebaseAuthGuard } from '../../../auth/guards/firebase-auth.guard';
+import { FirebaseAuthGuard } from '../../../identity-access/presentation/guards/firebase-auth.guard';
 import { MedicationService } from '../../application/services/medication.service';
 import { MedicationForm } from '@prisma/client';
 import { CreateMedicationDto, UpdateMedicationDto, MedicationQueryDto } from '../dto/medication.dto';

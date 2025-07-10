@@ -64,7 +64,15 @@ export class PrescriptionProcessingService {
         prescribedDate: prescribedDate || (ocrData.fields.prescribedDate ? new Date(ocrData.fields.prescribedDate) : new Date()),
         pharmacy: ocrData.fields.pharmacy,
         ocrData,
-        medications: ocrData.fields.medications || [],
+        medications: (ocrData.fields.medications || []).map(med => ({
+          name: med.name || 'Unknown',
+          strength: med.strength || 'Unknown',
+          form: 'Unknown', // OCR doesn't extract form, will be set later
+          dosage: med.instructions || 'As directed',
+          quantity: parseInt(med.quantity || '30', 10) || 30,
+          instructions: med.instructions || 'As directed',
+          confidence: med.confidence,
+        })),
       });
 
       // Step 4: Create medications from prescription
@@ -88,7 +96,15 @@ export class PrescriptionProcessingService {
 
       return {
         prescription,
-        extractedMedications: ocrData.fields.medications || [],
+        extractedMedications: (ocrData.fields.medications || []).map(med => ({
+          name: med.name || 'Unknown',
+          strength: med.strength || 'Unknown',
+          form: 'Unknown', // OCR doesn't extract form, will be set later
+          dosage: med.instructions || 'As directed',
+          quantity: parseInt(med.quantity || '30', 10) || 30,
+          instructions: med.instructions || 'As directed',
+          confidence: med.confidence,
+        })),
         createdMedications,
         ocrValidation,
         interactionAnalysis,
@@ -130,7 +146,15 @@ export class PrescriptionProcessingService {
         pharmacy: ocrData.fields.pharmacy,
         ocrData,
         imageUrl,
-        medications: ocrData.fields.medications || [],
+        medications: (ocrData.fields.medications || []).map(med => ({
+          name: med.name || 'Unknown',
+          strength: med.strength || 'Unknown',
+          form: 'Unknown', // OCR doesn't extract form, will be set later
+          dosage: med.instructions || 'As directed',
+          quantity: parseInt(med.quantity || '30', 10) || 30,
+          instructions: med.instructions || 'As directed',
+          confidence: med.confidence,
+        })),
       });
 
       // Step 4: Create medications from prescription
@@ -138,7 +162,15 @@ export class PrescriptionProcessingService {
       const createdMedications = await this.createMedicationsFromPrescription(
         userId,
         prescription,
-        ocrData.fields.medications || [],
+        (ocrData.fields.medications || []).map(med => ({
+          name: med.name || 'Unknown',
+          strength: med.strength || 'Unknown',
+          form: 'Unknown', // OCR doesn't extract form, will be set later
+          dosage: med.instructions || 'As directed',
+          quantity: parseInt(med.quantity || '30', 10) || 30,
+          instructions: med.instructions || 'As directed',
+          confidence: med.confidence,
+        })),
       );
       const medicationCreationTime = Date.now() - medicationStartTime;
 
@@ -198,7 +230,15 @@ export class PrescriptionProcessingService {
       return {
         prescription: updatedPrescription,
         ocrValidation,
-        updatedMedications: ocrData.fields.medications || [],
+        updatedMedications: (ocrData.fields.medications || []).map(med => ({
+          name: med.name || 'Unknown',
+          strength: med.strength || 'Unknown',
+          form: 'Unknown', // OCR doesn't extract form, will be set later
+          dosage: med.instructions || 'As directed',
+          quantity: parseInt(med.quantity || '30', 10) || 30,
+          instructions: med.instructions || 'As directed',
+          confidence: med.confidence,
+        })),
       };
     } catch (error) {
       throw new Error(`Failed to reprocess prescription OCR: ${error.message}`);
@@ -259,7 +299,8 @@ export class PrescriptionProcessingService {
     if (text.includes('capsule') || text.includes('cap')) return MedicationForm.CAPSULE;
     if (text.includes('liquid') || text.includes('syrup') || text.includes('solution')) return MedicationForm.LIQUID;
     if (text.includes('injection') || text.includes('inject')) return MedicationForm.INJECTION;
-    if (text.includes('cream') || text.includes('ointment') || text.includes('gel')) return MedicationForm.TOPICAL;
+    if (text.includes('cream')) return MedicationForm.CREAM;
+    if (text.includes('ointment')) return MedicationForm.OINTMENT;
     if (text.includes('inhaler') || text.includes('inhale')) return MedicationForm.INHALER;
     if (text.includes('patch')) return MedicationForm.PATCH;
     if (text.includes('drop') || text.includes('eye') || text.includes('ear')) return MedicationForm.DROPS;

@@ -13,7 +13,7 @@ import {
   UploadedFile,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { FirebaseAuthGuard } from '../../../auth/guards/firebase-auth.guard';
+import { FirebaseAuthGuard } from '../../../identity-access/presentation/guards/firebase-auth.guard';
 import { PrescriptionProcessingService } from '../../application/services/prescription-processing.service';
 import { OCRProcessingOptions } from '../../infrastructure/services/ocr.service';
 
