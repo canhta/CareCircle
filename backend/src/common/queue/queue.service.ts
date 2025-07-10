@@ -55,7 +55,7 @@ export class QueueService {
     } catch (error) {
       this.logger.error(
         `Failed to add health metric validation job:`,
-        error.stack,
+        error instanceof Error ? error.stack : String(error),
       );
       throw error;
     }
@@ -90,7 +90,7 @@ export class QueueService {
     } catch (error) {
       this.logger.error(
         `Failed to add health insights generation job:`,
-        error.stack,
+        error instanceof Error ? error.stack : String(error),
       );
       throw error;
     }
@@ -121,7 +121,10 @@ export class QueueService {
 
       return job;
     } catch (error) {
-      this.logger.error(`Failed to add anomaly detection job:`, error.stack);
+      this.logger.error(
+        `Failed to add anomaly detection job:`,
+        error instanceof Error ? error.stack : String(error),
+      );
       throw error;
     }
   }
@@ -151,7 +154,10 @@ export class QueueService {
 
       return job;
     } catch (error) {
-      this.logger.error(`Failed to schedule recurring analytics:`, error.stack);
+      this.logger.error(
+        `Failed to schedule recurring analytics:`,
+        error instanceof Error ? error.stack : String(error),
+      );
       throw error;
     }
   }
@@ -189,7 +195,7 @@ export class QueueService {
     } catch (error) {
       this.logger.error(
         `Failed to add critical alert notification job:`,
-        error.stack,
+        error instanceof Error ? error.stack : String(error),
       );
       throw error;
     }
@@ -227,7 +233,7 @@ export class QueueService {
     } catch (error) {
       this.logger.error(
         `Failed to add validation metrics tracking job:`,
-        error.stack,
+        error instanceof Error ? error.stack : String(error),
       );
       throw error;
     }
@@ -268,7 +274,7 @@ export class QueueService {
     } catch (error) {
       this.logger.error(
         `Failed to add healthcare provider notification job:`,
-        error.stack,
+        error instanceof Error ? error.stack : String(error),
       );
       throw error;
     }
@@ -298,7 +304,10 @@ export class QueueService {
         aiInsights: aiInsightsStats,
       };
     } catch (error) {
-      this.logger.error(`Failed to get queue statistics:`, error.stack);
+      this.logger.error(
+        `Failed to get queue statistics:`,
+        error instanceof Error ? error.stack : String(error),
+      );
       throw error;
     }
   }

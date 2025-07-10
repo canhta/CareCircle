@@ -98,7 +98,12 @@ Please analyze this health data and provide a personalized health insight follow
 
       // Try to parse JSON response
       try {
-        const parsedResponse = JSON.parse(response);
+        const parsedResponse = JSON.parse(response) as {
+          title?: string;
+          description?: string;
+          recommendations?: string[];
+          confidence?: number;
+        };
         return {
           title: parsedResponse.title || 'Health Insight',
           description: parsedResponse.description || response,
@@ -114,7 +119,7 @@ Please analyze this health data and provide a personalized health insight follow
               ? Math.min(Math.max(parsedResponse.confidence, 0), 1)
               : 0.7,
         };
-      } catch (parseError) {
+      } catch (_parseError) {
         // Fallback if JSON parsing fails
         console.warn(
           'Failed to parse OpenAI JSON response, using fallback format',
@@ -176,7 +181,11 @@ EMERGENCY INDICATORS: chest pain, difficulty breathing, severe bleeding, loss of
       );
 
       try {
-        const parsedResponse = JSON.parse(response);
+        const parsedResponse = JSON.parse(response) as {
+          intent?: string;
+          entities?: Array<{ type: string; value: string; confidence: number }>;
+          urgency?: number;
+        };
         return {
           intent: parsedResponse.intent || 'general_question',
           entities: Array.isArray(parsedResponse.entities)
@@ -187,7 +196,7 @@ EMERGENCY INDICATORS: chest pain, difficulty breathing, severe bleeding, loss of
               ? Math.min(Math.max(parsedResponse.urgency, 0), 1)
               : 0.1,
         };
-      } catch (parseError) {
+      } catch (_parseError) {
         console.warn('Failed to parse query analysis response, using fallback');
         // Simple keyword-based fallback analysis
         const urgency = this.calculateUrgencyFallback(query);

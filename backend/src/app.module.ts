@@ -5,6 +5,7 @@ import { QueueModule } from './common/queue/queue.module';
 import { IdentityAccessModule } from './identity-access/identity-access.module';
 import { AiAssistantModule } from './ai-assistant/ai-assistant.module';
 import { HealthDataModule } from './health-data/health-data.module';
+import { NotificationModule } from './notification/notification.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { HealthDataModule } from './health-data/health-data.module';
     IdentityAccessModule,
     AiAssistantModule,
     HealthDataModule,
+    NotificationModule,
   ],
   controllers: [],
   providers: [],
