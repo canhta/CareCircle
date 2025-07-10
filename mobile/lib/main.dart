@@ -5,6 +5,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'core/logging/logging.dart';
 import 'core/logging/error_tracker.dart';
+import 'core/storage/storage.dart';
 import 'core/design/design_tokens.dart';
 import 'features/auth/models/auth_models.dart';
 import 'features/auth/providers/auth_provider.dart';
@@ -26,6 +27,9 @@ void main() async {
   // Initialize healthcare-compliant logging system
   await AppLogger.initialize();
   await BoundedContextLoggers.initialize();
+
+  // Initialize storage infrastructure
+  await StorageService.initialize();
 
   // Initialize error tracking with Firebase Crashlytics
   await ErrorTracker.initialize();
