@@ -2,6 +2,43 @@ import { Injectable } from '@nestjs/common';
 import { HealthMetric } from '../../domain/entities/health-metric.entity';
 import { MetricType } from '@prisma/client';
 
+export enum AgeGroup {
+  PEDIATRIC = 'pediatric', // 0-12 years
+  ADOLESCENT = 'adolescent', // 13-17 years
+  ADULT = 'adult', // 18-64 years
+  GERIATRIC = 'geriatric', // 65+ years
+}
+
+export enum Gender {
+  MALE = 'male',
+  FEMALE = 'female',
+  OTHER = 'other',
+}
+
+export enum ValidationSeverity {
+  INFO = 'info',
+  WARNING = 'warning',
+  ERROR = 'error',
+  CRITICAL = 'critical',
+}
+
+export interface EnhancedValidationRule {
+  metricType: MetricType;
+  ageGroup?: AgeGroup;
+  gender?: Gender;
+  condition?: string;
+  minValue: number;
+  maxValue: number;
+  unit: string;
+  description: string;
+  medicalReference?: string;
+  severity: ValidationSeverity;
+  emergencyThreshold?: {
+    min?: number;
+    max?: number;
+  };
+}
+
 export interface ValidationRule {
   metricType: MetricType;
   minValue: number;
@@ -18,10 +55,15 @@ export interface ValidationResult {
   confidence: number; // 0-1 confidence score
   normalizedValue?: number; // Normalized value if unit conversion applied
   qualityScore: number; // 0-100 data quality score
+  severity: ValidationSeverity;
+  emergencyAlert?: boolean;
+  complianceFlags: string[];
+  medicalReferences: string[];
 }
 
 @Injectable()
 export class HealthDataValidationService {
+  // Legacy validation rules for backward compatibility
   private readonly validationRules: ValidationRule[] = [
     {
       metricType: MetricType.HEART_RATE,
@@ -81,6 +123,135 @@ export class HealthDataValidationService {
     },
   ];
 
+  // Enhanced validation rules with age, gender, and condition-specific ranges
+  private readonly enhancedValidationRules: EnhancedValidationRule[] = [
+    // Heart Rate - Age-specific ranges based on AHA guidelines
+    {
+      metricType: MetricType.HEART_RATE,
+      ageGroup: AgeGroup.PEDIATRIC,
+      minValue: 80,
+      maxValue: 180,
+      unit: 'bpm',
+      description: 'Pediatric heart rate (0-12 years): 80-180 bpm',
+      medicalReference: 'American Heart Association Pediatric Guidelines',
+      severity: ValidationSeverity.WARNING,
+      emergencyThreshold: { min: 60, max: 220 },
+    },
+    {
+      metricType: MetricType.HEART_RATE,
+      ageGroup: AgeGroup.ADOLESCENT,
+      minValue: 60,
+      maxValue: 120,
+      unit: 'bpm',
+      description: 'Adolescent heart rate (13-17 years): 60-120 bpm',
+      medicalReference: 'American Heart Association Pediatric Guidelines',
+      severity: ValidationSeverity.WARNING,
+      emergencyThreshold: { min: 50, max: 200 },
+    },
+    {
+      metricType: MetricType.HEART_RATE,
+      ageGroup: AgeGroup.ADULT,
+      minValue: 60,
+      maxValue: 100,
+      unit: 'bpm',
+      description: 'Adult resting heart rate (18-64 years): 60-100 bpm',
+      medicalReference: 'American Heart Association Adult Guidelines',
+      severity: ValidationSeverity.WARNING,
+      emergencyThreshold: { min: 40, max: 180 },
+    },
+    {
+      metricType: MetricType.HEART_RATE,
+      ageGroup: AgeGroup.GERIATRIC,
+      minValue: 60,
+      maxValue: 100,
+      unit: 'bpm',
+      description: 'Geriatric heart rate (65+ years): 60-100 bpm',
+      medicalReference: 'American Heart Association Geriatric Guidelines',
+      severity: ValidationSeverity.WARNING,
+      emergencyThreshold: { min: 45, max: 150 },
+    },
+    // Blood Pressure - Age and gender-specific ranges
+    {
+      metricType: MetricType.BLOOD_PRESSURE,
+      ageGroup: AgeGroup.PEDIATRIC,
+      minValue: 80,
+      maxValue: 120,
+      unit: 'mmHg',
+      description: 'Pediatric systolic BP (0-12 years): 80-120 mmHg',
+      medicalReference: 'American Academy of Pediatrics BP Guidelines',
+      severity: ValidationSeverity.WARNING,
+      emergencyThreshold: { min: 70, max: 140 },
+    },
+    {
+      metricType: MetricType.BLOOD_PRESSURE,
+      ageGroup: AgeGroup.ADULT,
+      minValue: 90,
+      maxValue: 140,
+      unit: 'mmHg',
+      description: 'Adult systolic BP (18-64 years): 90-140 mmHg',
+      medicalReference: 'American Heart Association BP Guidelines 2017',
+      severity: ValidationSeverity.WARNING,
+      emergencyThreshold: { min: 70, max: 180 },
+    },
+    {
+      metricType: MetricType.BLOOD_PRESSURE,
+      ageGroup: AgeGroup.GERIATRIC,
+      minValue: 90,
+      maxValue: 150,
+      unit: 'mmHg',
+      description: 'Geriatric systolic BP (65+ years): 90-150 mmHg',
+      medicalReference: 'American Heart Association Geriatric BP Guidelines',
+      severity: ValidationSeverity.WARNING,
+      emergencyThreshold: { min: 80, max: 200 },
+    },
+    // Blood Glucose - Condition-specific ranges
+    {
+      metricType: MetricType.BLOOD_GLUCOSE,
+      condition: 'diabetes',
+      minValue: 80,
+      maxValue: 180,
+      unit: 'mg/dL',
+      description: 'Diabetic target glucose: 80-180 mg/dL',
+      medicalReference: 'American Diabetes Association Standards 2023',
+      severity: ValidationSeverity.WARNING,
+      emergencyThreshold: { min: 50, max: 400 },
+    },
+    {
+      metricType: MetricType.BLOOD_GLUCOSE,
+      ageGroup: AgeGroup.ADULT,
+      minValue: 70,
+      maxValue: 140,
+      unit: 'mg/dL',
+      description: 'Adult normal glucose: 70-140 mg/dL',
+      medicalReference: 'American Diabetes Association Normal Ranges',
+      severity: ValidationSeverity.WARNING,
+      emergencyThreshold: { min: 40, max: 400 },
+    },
+    // Temperature - Age-specific ranges
+    {
+      metricType: MetricType.TEMPERATURE,
+      ageGroup: AgeGroup.PEDIATRIC,
+      minValue: 36.0,
+      maxValue: 37.5,
+      unit: '°C',
+      description: 'Pediatric normal temperature: 36.0-37.5°C',
+      medicalReference: 'WHO Pediatric Temperature Guidelines',
+      severity: ValidationSeverity.WARNING,
+      emergencyThreshold: { min: 35.0, max: 40.0 },
+    },
+    {
+      metricType: MetricType.TEMPERATURE,
+      ageGroup: AgeGroup.ADULT,
+      minValue: 36.1,
+      maxValue: 37.2,
+      unit: '°C',
+      description: 'Adult normal temperature: 36.1-37.2°C',
+      medicalReference: 'WHO Adult Temperature Guidelines',
+      severity: ValidationSeverity.WARNING,
+      emergencyThreshold: { min: 35.0, max: 41.0 },
+    },
+  ];
+
   validateMetric(metric: HealthMetric): ValidationResult {
     const result: ValidationResult = {
       isValid: true,
@@ -89,40 +260,86 @@ export class HealthDataValidationService {
       suggestions: [],
       confidence: 1.0,
       qualityScore: 100,
+      severity: ValidationSeverity.INFO,
+      emergencyAlert: false,
+      complianceFlags: [],
+      medicalReferences: [],
     };
 
-    const rule = this.validationRules.find(
-      (r) => r.metricType === metric.metricType,
-    );
-    if (!rule) {
-      result.warnings.push(
-        `No validation rule found for metric type: ${metric.metricType}`,
+    // Try enhanced validation first
+    const enhancedRule = this.findBestEnhancedRule(metric);
+    if (enhancedRule) {
+      this.applyEnhancedValidation(metric, enhancedRule, result);
+    } else {
+      // Fall back to legacy validation
+      const rule = this.validationRules.find(
+        (r) => r.metricType === metric.metricType,
       );
-      return result;
+      if (!rule) {
+        result.warnings.push(
+          `No validation rule found for metric type: ${metric.metricType}`,
+        );
+        return result;
+      }
+      this.applyLegacyValidation(metric, rule, result);
     }
 
-    // Basic range validation
-    if (metric.value < rule.minValue || metric.value > rule.maxValue) {
-      result.isValid = false;
-      result.errors.push(
-        `Value ${metric.value} ${metric.unit} is outside normal range (${rule.minValue}-${rule.maxValue} ${rule.unit})`,
-      );
-    }
-
-    // Unit validation
-    if (metric.unit !== rule.unit) {
-      result.warnings.push(
-        `Unit mismatch: expected ${rule.unit}, got ${metric.unit}`,
-      );
-    }
-
-    // Metric-specific validations
+    // Apply additional validations
     this.validateSpecificMetric(metric, result);
-
-    // Temporal validation
     this.validateTemporal(metric, result);
+    this.validateHealthcareCompliance(metric, result);
+    this.calculateQualityMetrics(metric, result);
 
-    // Calculate quality score and confidence
+    return result;
+  }
+
+  /**
+   * Enhanced validation method with comprehensive healthcare-specific rules
+   */
+  validateMetricEnhanced(
+    metric: HealthMetric,
+    patientAge?: number,
+    patientGender?: Gender,
+    healthConditions?: string[],
+  ): ValidationResult {
+    const result: ValidationResult = {
+      isValid: true,
+      warnings: [],
+      errors: [],
+      suggestions: [],
+      confidence: 1.0,
+      qualityScore: 100,
+      severity: ValidationSeverity.INFO,
+      emergencyAlert: false,
+      complianceFlags: [],
+      medicalReferences: [],
+    };
+
+    // Find the most specific enhanced rule
+    const enhancedRule = this.findBestEnhancedRule(
+      metric,
+      patientAge,
+      patientGender,
+      healthConditions,
+    );
+
+    if (enhancedRule) {
+      this.applyEnhancedValidation(metric, enhancedRule, result);
+    } else {
+      // Fall back to basic validation
+      const basicRule = this.validationRules.find(
+        (r) => r.metricType === metric.metricType,
+      );
+      if (basicRule) {
+        this.applyLegacyValidation(metric, basicRule, result);
+      }
+    }
+
+    // Apply comprehensive validations
+    this.validateSpecificMetric(metric, result);
+    this.validateTemporal(metric, result);
+    this.validateHealthcareCompliance(metric, result);
+    this.validateForHealthConditions(metric, healthConditions || [], result);
     this.calculateQualityMetrics(metric, result);
 
     return result;
@@ -138,6 +355,318 @@ export class HealthDataValidationService {
 
   getAllValidationRules(): ValidationRule[] {
     return [...this.validationRules];
+  }
+
+  getAllEnhancedValidationRules(): EnhancedValidationRule[] {
+    return [...this.enhancedValidationRules];
+  }
+
+  private findBestEnhancedRule(
+    metric: HealthMetric,
+    patientAge?: number,
+    patientGender?: Gender,
+    healthConditions?: string[],
+  ): EnhancedValidationRule | undefined {
+    const candidates = this.enhancedValidationRules.filter(
+      (rule) => rule.metricType === metric.metricType,
+    );
+
+    if (candidates.length === 0) return undefined;
+
+    // Score each rule based on specificity
+    let bestRule: EnhancedValidationRule | undefined;
+    let bestScore = -1;
+
+    for (const rule of candidates) {
+      let score = 0;
+
+      // Age group matching
+      if (rule.ageGroup && patientAge !== undefined) {
+        const ageGroup = this.getAgeGroup(patientAge);
+        if (rule.ageGroup === ageGroup) {
+          score += 10;
+        } else {
+          continue; // Skip if age group doesn't match
+        }
+      }
+
+      // Gender matching
+      if (rule.gender && patientGender) {
+        if (rule.gender === patientGender) {
+          score += 5;
+        } else {
+          continue; // Skip if gender doesn't match
+        }
+      }
+
+      // Condition matching
+      if (rule.condition && healthConditions) {
+        if (healthConditions.includes(rule.condition)) {
+          score += 15; // Highest priority for condition-specific rules
+        } else {
+          continue; // Skip if condition doesn't match
+        }
+      }
+
+      if (score > bestScore) {
+        bestScore = score;
+        bestRule = rule;
+      }
+    }
+
+    return bestRule || candidates[0]; // Return first rule if no specific match
+  }
+
+  private getAgeGroup(age: number): AgeGroup {
+    if (age <= 12) return AgeGroup.PEDIATRIC;
+    if (age <= 17) return AgeGroup.ADOLESCENT;
+    if (age <= 64) return AgeGroup.ADULT;
+    return AgeGroup.GERIATRIC;
+  }
+
+  private applyEnhancedValidation(
+    metric: HealthMetric,
+    rule: EnhancedValidationRule,
+    result: ValidationResult,
+  ): void {
+    // Range validation
+    if (metric.value < rule.minValue || metric.value > rule.maxValue) {
+      result.isValid = false;
+      result.errors.push(
+        `Value ${metric.value} ${metric.unit} is outside ${rule.description.toLowerCase()}`,
+      );
+      result.severity = rule.severity;
+    }
+
+    // Emergency threshold check
+    if (rule.emergencyThreshold) {
+      const { min, max } = rule.emergencyThreshold;
+      if (
+        (min !== undefined && metric.value < min) ||
+        (max !== undefined && metric.value > max)
+      ) {
+        result.emergencyAlert = true;
+        result.severity = ValidationSeverity.CRITICAL;
+        result.errors.push(
+          `EMERGENCY: Value ${metric.value} ${metric.unit} requires immediate medical attention`,
+        );
+        result.suggestions.push('Contact healthcare provider immediately');
+      }
+    }
+
+    // Unit validation
+    if (metric.unit !== rule.unit) {
+      result.warnings.push(
+        `Unit mismatch: expected ${rule.unit}, got ${metric.unit}`,
+      );
+    }
+
+    // Add medical reference
+    if (rule.medicalReference) {
+      result.medicalReferences.push(rule.medicalReference);
+    }
+  }
+
+  private applyLegacyValidation(
+    metric: HealthMetric,
+    rule: ValidationRule,
+    result: ValidationResult,
+  ): void {
+    // Basic range validation
+    if (metric.value < rule.minValue || metric.value > rule.maxValue) {
+      result.isValid = false;
+      result.errors.push(
+        `Value ${metric.value} ${metric.unit} is outside normal range (${rule.minValue}-${rule.maxValue} ${rule.unit})`,
+      );
+    }
+
+    // Unit validation
+    if (metric.unit !== rule.unit) {
+      result.warnings.push(
+        `Unit mismatch: expected ${rule.unit}, got ${metric.unit}`,
+      );
+    }
+  }
+
+  private validateHealthcareCompliance(
+    metric: HealthMetric,
+    result: ValidationResult,
+  ): void {
+    // HIPAA Data Quality Requirements
+    this.validateHIPAACompliance(metric, result);
+
+    // Medical Device Data Standards
+    this.validateMedicalDeviceStandards(metric, result);
+
+    // Clinical Data Quality Metrics
+    this.validateClinicalDataQuality(metric, result);
+  }
+
+  private validateHIPAACompliance(
+    metric: HealthMetric,
+    result: ValidationResult,
+  ): void {
+    // Data completeness validation
+    if (!metric.timestamp) {
+      result.complianceFlags.push('HIPAA: Missing timestamp');
+      result.warnings.push('Timestamp is required for HIPAA compliance');
+    }
+
+    if (!metric.source) {
+      result.complianceFlags.push('HIPAA: Missing data source');
+      result.warnings.push('Data source is required for HIPAA compliance');
+    }
+
+    // Data accuracy validation
+    if (metric.value === null || metric.value === undefined) {
+      result.complianceFlags.push('HIPAA: Missing metric value');
+      result.errors.push('Metric value is required for HIPAA compliance');
+      result.isValid = false;
+    }
+
+    // Data consistency validation
+    if (!metric.unit || metric.unit.trim() === '') {
+      result.complianceFlags.push('HIPAA: Missing unit of measurement');
+      result.warnings.push(
+        'Unit of measurement is required for HIPAA compliance',
+      );
+    }
+  }
+
+  private validateMedicalDeviceStandards(
+    metric: HealthMetric,
+    result: ValidationResult,
+  ): void {
+    // Device-specific validation
+    if (metric.deviceId) {
+      // Check if device data meets FDA standards
+      if (
+        metric.source === 'DEVICE_SYNC' &&
+        !metric.metadata?.deviceCalibrated
+      ) {
+        result.complianceFlags.push('FDA: Device calibration status unknown');
+        result.warnings.push('Device calibration status should be verified');
+      }
+
+      // Data source reliability scoring
+      const deviceReliabilityScore =
+        this.calculateDeviceReliabilityScore(metric);
+      if (deviceReliabilityScore < 0.8) {
+        result.complianceFlags.push('FDA: Low device reliability score');
+        result.warnings.push(
+          'Device data reliability is below recommended threshold',
+        );
+      }
+    }
+  }
+
+  private validateClinicalDataQuality(
+    metric: HealthMetric,
+    result: ValidationResult,
+  ): void {
+    // Completeness scoring
+    let completenessScore = 1.0;
+    if (!metric.notes) completenessScore -= 0.1;
+    if (!metric.metadata || Object.keys(metric.metadata).length === 0) {
+      completenessScore -= 0.2;
+    }
+
+    if (completenessScore < 0.8) {
+      result.complianceFlags.push('Clinical: Low data completeness');
+      result.suggestions.push('Consider adding additional context or notes');
+    }
+
+    // Consistency validation
+    if (metric.isManualEntry && metric.deviceId) {
+      result.complianceFlags.push('Clinical: Data source inconsistency');
+      result.warnings.push('Manual entry flag conflicts with device ID');
+    }
+
+    // Accuracy assessment
+    if (metric.validationStatus === 'REJECTED') {
+      result.complianceFlags.push('Clinical: Previously rejected data');
+      result.errors.push('This metric was previously marked as invalid');
+      result.isValid = false;
+    }
+  }
+
+  private calculateDeviceReliabilityScore(metric: HealthMetric): number {
+    let score = 1.0;
+
+    // Reduce score based on data source
+    switch (metric.source) {
+      case 'MANUAL_ENTRY':
+        score *= 0.7;
+        break;
+      case 'DEVICE_SYNC':
+        score *= 0.95;
+        break;
+      case 'HEALTH_KIT':
+      case 'GOOGLE_FIT':
+        score *= 0.85;
+        break;
+      default:
+        score *= 0.8;
+    }
+
+    // Adjust for manual entry flag
+    if (metric.isManualEntry) {
+      score *= 0.8;
+    }
+
+    // Adjust for device metadata
+    if (metric.metadata?.deviceCalibrated === false) {
+      score *= 0.6;
+    }
+
+    return score;
+  }
+
+  private validateForHealthConditions(
+    metric: HealthMetric,
+    healthConditions: string[],
+    result: ValidationResult,
+  ): void {
+    for (const condition of healthConditions) {
+      switch (condition.toLowerCase()) {
+        case 'diabetes':
+          this.validateForDiabetes(metric, result);
+          break;
+        case 'hypertension':
+          this.validateForHypertension(metric, result);
+          break;
+        case 'heart_disease':
+        case 'cardiac':
+          this.validateForHeartDisease(metric, result);
+          break;
+        case 'obesity':
+          this.validateForObesity(metric, result);
+          break;
+        default:
+          break;
+      }
+    }
+  }
+
+  private validateForObesity(
+    metric: HealthMetric,
+    result: ValidationResult,
+  ): void {
+    if (metric.metricType === MetricType.WEIGHT) {
+      // BMI-related validation would require height data
+      result.suggestions.push(
+        'Consider tracking BMI alongside weight for obesity management',
+      );
+    }
+
+    if (metric.metricType === MetricType.STEPS && metric.value < 5000) {
+      result.warnings.push(
+        'Low daily step count - consider increasing physical activity',
+      );
+      result.suggestions.push(
+        'Aim for at least 10,000 steps daily for weight management',
+      );
+    }
   }
 
   private validateSpecificMetric(
