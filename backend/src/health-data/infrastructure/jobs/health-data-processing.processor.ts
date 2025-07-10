@@ -1,8 +1,14 @@
 import { Processor, Process } from '@nestjs/bull';
 import { Logger } from '@nestjs/common';
 import { Job } from 'bull';
-import { HealthDataValidationService } from '../services/health-data-validation.service';
+import {
+  HealthDataValidationService,
+  Gender,
+} from '../services/health-data-validation.service';
+import { ValidationMetricsService } from '../services/validation-metrics.service';
+import { CriticalAlertService } from '../services/critical-alert.service';
 import { HealthAnalyticsService } from '../../application/services/health-analytics.service';
+import { QueueService } from '../../../common/queue/queue.service';
 
 import { MetricType, DataSource, ValidationStatus } from '@prisma/client';
 import { HealthMetric } from '../../domain/entities/health-metric.entity';
@@ -13,6 +19,9 @@ export interface HealthDataProcessingJob {
   metricType: MetricType;
   value: number;
   timestamp: Date;
+  patientAge?: number;
+  patientGender?: Gender;
+  healthConditions?: string[];
 }
 
 export interface HealthAnalyticsJob {
@@ -28,7 +37,10 @@ export class HealthDataProcessingProcessor {
 
   constructor(
     private readonly validationService: HealthDataValidationService,
+    private readonly validationMetricsService: ValidationMetricsService,
+    private readonly criticalAlertService: CriticalAlertService,
     private readonly analyticsService: HealthAnalyticsService,
+    private readonly queueService: QueueService,
   ) {}
 
   @Process('validate-metric')
@@ -56,27 +68,112 @@ export class HealthDataProcessingProcessor {
         metadata: {},
       });
 
-      // Validate the health metric (synchronous method)
+      // Enhanced validation with patient context if available
+      const patientAge = job.data.patientAge;
+      const patientGender = job.data.patientGender;
+      const healthConditions = job.data.healthConditions;
+
       const validationResult =
-        this.validationService.validateMetric(healthMetric);
+        patientAge || patientGender || healthConditions
+          ? this.validationService.validateMetricEnhanced(
+              healthMetric,
+              patientAge,
+              patientGender,
+              healthConditions,
+            )
+          : this.validationService.validateMetric(healthMetric);
 
       this.logger.log(
         `Health metric validation completed for ${metricId}: ${validationResult.isValid ? 'VALID' : 'INVALID'}`,
       );
 
-      // If validation fails, we might want to trigger alerts or notifications
+      // Record validation metrics for tracking
+      this.validationMetricsService.recordValidationResult(
+        userId,
+        metricType,
+        validationResult,
+      );
+
+      // Check for critical alerts
+      const criticalAlerts =
+        this.criticalAlertService.evaluateForCriticalAlerts(
+          healthMetric,
+          validationResult,
+          patientAge,
+          patientGender,
+          healthConditions,
+        );
+
+      // Process critical alerts
+      for (const alert of criticalAlerts) {
+        await this.processCriticalAlert(alert);
+      }
+
+      // If validation fails, trigger appropriate notifications
       if (!validationResult.isValid) {
-        // Add to notification queue for invalid data alert
-        // This would be implemented when notification system is ready
         this.logger.warn(
           `Invalid health metric detected for user ${userId}: ${validationResult.errors.join(', ')}`,
         );
+
+        // Add validation failure notification to queue
+        await this.queueService.addValidationMetricsTracking({
+          userId,
+          metricType: metricType.toString(),
+          validationResult,
+        });
       }
 
       return validationResult;
     } catch (error) {
       this.logger.error(
         `Failed to validate health metric ${metricId}:`,
+        (error as Error).stack,
+      );
+      throw error;
+    }
+  }
+
+  /**
+   * Process critical alert by sending appropriate notifications
+   */
+  private async processCriticalAlert(alert: any): Promise<void> {
+    try {
+      // Add critical alert notification to queue
+      await this.queueService.addCriticalAlertNotification({
+        userId: alert.userId,
+        alertId: alert.id,
+        alertType: alert.type,
+        priority: alert.priority,
+        message: alert.message,
+        healthcareProviderAlert: alert.healthcareProviderAlert,
+        emergencyServicesAlert: alert.emergencyServicesAlert,
+        immediateActions: alert.immediateActions,
+      });
+
+      // If healthcare provider alert is required, add to provider notification queue
+      if (alert.healthcareProviderAlert) {
+        await this.queueService.addHealthcareProviderNotification({
+          userId: alert.userId,
+          alertType: alert.type,
+          message: alert.message,
+          urgency: alert.priority,
+          patientData: {
+            metricType: alert.metricType,
+            value: alert.value,
+            unit: alert.unit,
+            timestamp: alert.timestamp,
+            medicalGuidance: alert.medicalGuidance,
+            immediateActions: alert.immediateActions,
+          },
+        });
+      }
+
+      this.logger.log(
+        `Processed critical alert ${alert.id} for user ${alert.userId}`,
+      );
+    } catch (error) {
+      this.logger.error(
+        `Failed to process critical alert ${alert.id}:`,
         (error as Error).stack,
       );
       throw error;

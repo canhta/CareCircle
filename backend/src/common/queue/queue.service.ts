@@ -157,6 +157,124 @@ export class QueueService {
   }
 
   /**
+   * Add critical alert notification job to queue
+   */
+  async addCriticalAlertNotification(
+    data: {
+      userId: string;
+      alertId: string;
+      alertType: string;
+      priority: string;
+      message: string;
+      healthcareProviderAlert: boolean;
+      emergencyServicesAlert: boolean;
+      immediateActions: string[];
+    },
+    options?: QueueJobOptions,
+  ) {
+    try {
+      const job = await this.notificationsQueue.add('critical-alert', data, {
+        delay: options?.delay || 0,
+        attempts: options?.attempts || 5, // Higher retry count for critical alerts
+        priority: options?.priority || 10, // Highest priority for critical alerts
+        removeOnComplete: options?.removeOnComplete ?? 50,
+        removeOnFail: options?.removeOnFail ?? 20,
+      });
+
+      this.logger.log(
+        `Added critical alert notification job ${job.id} for user ${data.userId}`,
+      );
+
+      return job;
+    } catch (error) {
+      this.logger.error(
+        `Failed to add critical alert notification job:`,
+        error.stack,
+      );
+      throw error;
+    }
+  }
+
+  /**
+   * Add validation metrics tracking job to queue
+   */
+  async addValidationMetricsTracking(
+    data: {
+      userId: string;
+      metricType: string;
+      validationResult: any;
+    },
+    options?: QueueJobOptions,
+  ) {
+    try {
+      const job = await this.healthAnalyticsQueue.add(
+        'track-validation-metrics',
+        data,
+        {
+          delay: options?.delay || 0,
+          attempts: options?.attempts || 3,
+          priority: options?.priority || 0,
+          removeOnComplete: options?.removeOnComplete ?? 100,
+          removeOnFail: options?.removeOnFail ?? 10,
+        },
+      );
+
+      this.logger.log(
+        `Added validation metrics tracking job ${job.id} for user ${data.userId}`,
+      );
+
+      return job;
+    } catch (error) {
+      this.logger.error(
+        `Failed to add validation metrics tracking job:`,
+        error.stack,
+      );
+      throw error;
+    }
+  }
+
+  /**
+   * Add healthcare provider notification job to queue
+   */
+  async addHealthcareProviderNotification(
+    data: {
+      userId: string;
+      providerId?: string;
+      alertType: string;
+      message: string;
+      urgency: string;
+      patientData: any;
+    },
+    options?: QueueJobOptions,
+  ) {
+    try {
+      const job = await this.notificationsQueue.add(
+        'healthcare-provider-alert',
+        data,
+        {
+          delay: options?.delay || 0,
+          attempts: options?.attempts || 5,
+          priority: options?.priority || 8, // High priority for provider alerts
+          removeOnComplete: options?.removeOnComplete ?? 50,
+          removeOnFail: options?.removeOnFail ?? 20,
+        },
+      );
+
+      this.logger.log(
+        `Added healthcare provider notification job ${job.id} for user ${data.userId}`,
+      );
+
+      return job;
+    } catch (error) {
+      this.logger.error(
+        `Failed to add healthcare provider notification job:`,
+        error.stack,
+      );
+      throw error;
+    }
+  }
+
+  /**
    * Get queue statistics
    */
   async getQueueStats() {

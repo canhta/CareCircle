@@ -16,6 +16,8 @@ import { HealthAnalyticsService } from './application/services/health-analytics.
 
 // Infrastructure services
 import { HealthDataValidationService } from './infrastructure/services/health-data-validation.service';
+import { ValidationMetricsService } from './infrastructure/services/validation-metrics.service';
+import { CriticalAlertService } from './infrastructure/services/critical-alert.service';
 
 // Repositories
 import { PrismaHealthProfileRepository } from './infrastructure/repositories/prisma-health-profile.repository';
@@ -41,6 +43,8 @@ import { QueueService } from '../common/queue/queue.service';
     HealthDeviceService,
     HealthAnalyticsService,
     HealthDataValidationService,
+    ValidationMetricsService,
+    CriticalAlertService,
     QueueService,
     HealthDataProcessingProcessor,
     {
