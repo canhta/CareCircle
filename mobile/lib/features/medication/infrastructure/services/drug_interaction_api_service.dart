@@ -15,49 +15,35 @@ part 'drug_interaction_api_service.g.dart';
 /// - Medication standardization
 @RestApi(baseUrl: AppConfig.apiBaseUrl)
 abstract class DrugInteractionApiService {
-  factory DrugInteractionApiService(Dio dio, {String baseUrl}) =
-      _DrugInteractionApiService;
+  factory DrugInteractionApiService(Dio dio, {String baseUrl}) = _DrugInteractionApiService;
 
   /// Check interactions for all user medications
-  @GET('/drug-interactions/user-medications')
+  @GET('/drug-interactions/check-user-medications')
   Future<InteractionAnalysis> checkUserMedicationInteractions();
 
   /// Check interactions between specific medications
-  @POST('/drug-interactions/check')
-  Future<InteractionAnalysis> checkMedicationInteractions(
-    @Body() List<String> medicationIds,
-  );
+  @POST('/drug-interactions/check-specific')
+  Future<InteractionAnalysis> checkSpecificMedications(@Body() Map<String, List<String>> request);
 
-  /// Check interactions for specific RxNorm codes
-  @POST('/drug-interactions/check-rxnorm')
-  Future<InteractionAnalysis> checkRxNormInteractions(
-    @Body() List<String> rxNormCodes,
-  );
+  /// Check new medication against existing user medications
+  @POST('/drug-interactions/check-new-medication')
+  Future<InteractionAnalysis> checkNewMedicationAgainstExisting(@Body() Map<String, String> request);
 
-  /// Validate medication against RxNorm database
-  @POST('/drug-interactions/validate-rxnorm')
-  Future<MedicationEnrichmentResponse> validateRxNorm(
-    @Body() Map<String, String> request,
-  );
+  /// Search RxNorm database
+  @POST('/drug-interactions/rxnorm/search')
+  Future<RxNormSearchResponse> searchRxNorm(@Body() RxNormSearchRequest request);
 
-  /// Enrich medication data with RxNorm information
-  @POST('/drug-interactions/enrich-medication')
-  Future<MedicationEnrichmentResponse> enrichMedicationData(
-    @Body() Map<String, dynamic> medicationData,
-  );
+  /// Validate RxNorm code
+  @POST('/drug-interactions/rxnorm/validate')
+  Future<MedicationEnrichmentResponse> validateRxNormCode(@Body() Map<String, String> request);
 
-  /// Search RxNorm database for medication
-  @GET('/drug-interactions/search-rxnorm')
-  Future<RxNormSearchResponse> searchRxNorm(
-    @Query('term') String searchTerm,
-    @Query('limit') int? limit,
-  );
+  /// Enrich medication data
+  @POST('/drug-interactions/enrich')
+  Future<MedicationEnrichmentResponse> enrichMedicationData(@Body() MedicationEnrichmentRequest request);
 
   /// Get medication details from RxNorm
   @GET('/drug-interactions/rxnorm/{rxcui}')
-  Future<MedicationEnrichmentResponse> getRxNormDetails(
-    @Path('rxcui') String rxcui,
-  );
+  Future<MedicationEnrichmentResponse> getRxNormDetails(@Path('rxcui') String rxcui);
 
   /// Get interaction severity levels
   @GET('/drug-interactions/severity-levels')

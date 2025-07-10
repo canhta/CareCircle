@@ -67,8 +67,7 @@ extension DoseStatusExtension on DoseStatus {
   }
 
   bool get isCompleted => this == DoseStatus.taken;
-  bool get isNegative =>
-      this == DoseStatus.missed || this == DoseStatus.skipped;
+  bool get isNegative => this == DoseStatus.missed || this == DoseStatus.skipped;
 }
 
 /// Main adherence record entity
@@ -90,14 +89,12 @@ abstract class AdherenceRecord with _$AdherenceRecord {
     required DateTime createdAt,
   }) = _AdherenceRecord;
 
-  factory AdherenceRecord.fromJson(Map<String, dynamic> json) =>
-      _$AdherenceRecordFromJson(json);
+  factory AdherenceRecord.fromJson(Map<String, dynamic> json) => _$AdherenceRecordFromJson(json);
 }
 
 /// Adherence record creation request DTO
 @freezed
-abstract class CreateAdherenceRecordRequest
-    with _$CreateAdherenceRecordRequest {
+abstract class CreateAdherenceRecordRequest with _$CreateAdherenceRecordRequest {
   const factory CreateAdherenceRecordRequest({
     required String medicationId,
     required String scheduleId,
@@ -117,8 +114,7 @@ abstract class CreateAdherenceRecordRequest
 
 /// Adherence record update request DTO
 @freezed
-abstract class UpdateAdherenceRecordRequest
-    with _$UpdateAdherenceRecordRequest {
+abstract class UpdateAdherenceRecordRequest with _$UpdateAdherenceRecordRequest {
   const factory UpdateAdherenceRecordRequest({
     DoseStatus? status,
     DateTime? takenAt,
@@ -149,8 +145,7 @@ abstract class AdherenceStatistics with _$AdherenceStatistics {
     @Default({}) Map<String, double> monthlyTrends,
   }) = _AdherenceStatistics;
 
-  factory AdherenceStatistics.fromJson(Map<String, dynamic> json) =>
-      _$AdherenceStatisticsFromJson(json);
+  factory AdherenceStatistics.fromJson(Map<String, dynamic> json) => _$AdherenceStatisticsFromJson(json);
 }
 
 /// Adherence trend data point
@@ -163,8 +158,7 @@ abstract class AdherenceTrendPoint with _$AdherenceTrendPoint {
     required int completedDoses,
   }) = _AdherenceTrendPoint;
 
-  factory AdherenceTrendPoint.fromJson(Map<String, dynamic> json) =>
-      _$AdherenceTrendPointFromJson(json);
+  factory AdherenceTrendPoint.fromJson(Map<String, dynamic> json) => _$AdherenceTrendPointFromJson(json);
 }
 
 /// Adherence report DTO
@@ -180,8 +174,7 @@ abstract class AdherenceReport with _$AdherenceReport {
     @Default([]) List<AdherenceRecord> recentRecords,
   }) = _AdherenceReport;
 
-  factory AdherenceReport.fromJson(Map<String, dynamic> json) =>
-      _$AdherenceReportFromJson(json);
+  factory AdherenceReport.fromJson(Map<String, dynamic> json) => _$AdherenceReportFromJson(json);
 }
 
 /// Adherence query parameters DTO
@@ -199,8 +192,7 @@ abstract class AdherenceQueryParams with _$AdherenceQueryParams {
     @Default('desc') String sortOrder,
   }) = _AdherenceQueryParams;
 
-  factory AdherenceQueryParams.fromJson(Map<String, dynamic> json) =>
-      _$AdherenceQueryParamsFromJson(json);
+  factory AdherenceQueryParams.fromJson(Map<String, dynamic> json) => _$AdherenceQueryParamsFromJson(json);
 }
 
 /// API response wrapper for adherence record operations
@@ -213,8 +205,7 @@ abstract class AdherenceRecordResponse with _$AdherenceRecordResponse {
     String? error,
   }) = _AdherenceRecordResponse;
 
-  factory AdherenceRecordResponse.fromJson(Map<String, dynamic> json) =>
-      _$AdherenceRecordResponseFromJson(json);
+  factory AdherenceRecordResponse.fromJson(Map<String, dynamic> json) => _$AdherenceRecordResponseFromJson(json);
 }
 
 /// API response wrapper for adherence record list operations
@@ -247,7 +238,7 @@ abstract class AdherenceStatisticsResponse with _$AdherenceStatisticsResponse {
       _$AdherenceStatisticsResponseFromJson(json);
 }
 
-/// API response wrapper for adherence report
+/// API response wrapper for adherence reports
 @freezed
 abstract class AdherenceReportResponse with _$AdherenceReportResponse {
   const factory AdherenceReportResponse({
@@ -257,6 +248,5 @@ abstract class AdherenceReportResponse with _$AdherenceReportResponse {
     String? error,
   }) = _AdherenceReportResponse;
 
-  factory AdherenceReportResponse.fromJson(Map<String, dynamic> json) =>
-      _$AdherenceReportResponseFromJson(json);
+  factory AdherenceReportResponse.fromJson(Map<String, dynamic> json) => _$AdherenceReportResponseFromJson(json);
 }

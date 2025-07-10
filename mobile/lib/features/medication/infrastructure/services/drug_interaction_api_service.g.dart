@@ -29,7 +29,7 @@ class _DrugInteractionApiService implements DrugInteractionApiService {
       Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/drug-interactions/user-medications',
+            '/drug-interactions/check-user-medications',
             queryParameters: queryParameters,
             data: _data,
           )
@@ -47,18 +47,19 @@ class _DrugInteractionApiService implements DrugInteractionApiService {
   }
 
   @override
-  Future<InteractionAnalysis> checkMedicationInteractions(
-    List<String> medicationIds,
+  Future<InteractionAnalysis> checkSpecificMedications(
+    Map<String, List<String>> request,
   ) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
-    final _data = medicationIds;
+    final _data = <String, dynamic>{};
+    _data.addAll(request);
     final _options = _setStreamType<InteractionAnalysis>(
       Options(method: 'POST', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/drug-interactions/check',
+            '/drug-interactions/check-specific',
             queryParameters: queryParameters,
             data: _data,
           )
@@ -76,18 +77,19 @@ class _DrugInteractionApiService implements DrugInteractionApiService {
   }
 
   @override
-  Future<InteractionAnalysis> checkRxNormInteractions(
-    List<String> rxNormCodes,
+  Future<InteractionAnalysis> checkNewMedicationAgainstExisting(
+    Map<String, String> request,
   ) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
-    final _data = rxNormCodes;
+    final _data = <String, dynamic>{};
+    _data.addAll(request);
     final _options = _setStreamType<InteractionAnalysis>(
       Options(method: 'POST', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/drug-interactions/check-rxnorm',
+            '/drug-interactions/check-new-medication',
             queryParameters: queryParameters,
             data: _data,
           )
@@ -105,7 +107,34 @@ class _DrugInteractionApiService implements DrugInteractionApiService {
   }
 
   @override
-  Future<MedicationEnrichmentResponse> validateRxNorm(
+  Future<RxNormSearchResponse> searchRxNorm(RxNormSearchRequest request) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    final _data = request;
+    final _options = _setStreamType<RxNormSearchResponse>(
+      Options(method: 'POST', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/drug-interactions/rxnorm/search',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late RxNormSearchResponse _value;
+    try {
+      _value = RxNormSearchResponse.fromJson(_result.data!);
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<MedicationEnrichmentResponse> validateRxNormCode(
     Map<String, String> request,
   ) async {
     final _extra = <String, dynamic>{};
@@ -117,7 +146,7 @@ class _DrugInteractionApiService implements DrugInteractionApiService {
       Options(method: 'POST', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/drug-interactions/validate-rxnorm',
+            '/drug-interactions/rxnorm/validate',
             queryParameters: queryParameters,
             data: _data,
           )
@@ -136,18 +165,17 @@ class _DrugInteractionApiService implements DrugInteractionApiService {
 
   @override
   Future<MedicationEnrichmentResponse> enrichMedicationData(
-    Map<String, dynamic> medicationData,
+    MedicationEnrichmentRequest request,
   ) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
-    final _data = <String, dynamic>{};
-    _data.addAll(medicationData);
+    final _data = request;
     final _options = _setStreamType<MedicationEnrichmentResponse>(
       Options(method: 'POST', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/drug-interactions/enrich-medication',
+            '/drug-interactions/enrich',
             queryParameters: queryParameters,
             data: _data,
           )
@@ -157,40 +185,6 @@ class _DrugInteractionApiService implements DrugInteractionApiService {
     late MedicationEnrichmentResponse _value;
     try {
       _value = MedicationEnrichmentResponse.fromJson(_result.data!);
-    } on Object catch (e, s) {
-      errorLogger?.logError(e, s, _options);
-      rethrow;
-    }
-    return _value;
-  }
-
-  @override
-  Future<RxNormSearchResponse> searchRxNorm(
-    String searchTerm,
-    int? limit,
-  ) async {
-    final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{
-      r'term': searchTerm,
-      r'limit': limit,
-    };
-    queryParameters.removeWhere((k, v) => v == null);
-    final _headers = <String, dynamic>{};
-    const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<RxNormSearchResponse>(
-      Options(method: 'GET', headers: _headers, extra: _extra)
-          .compose(
-            _dio.options,
-            '/drug-interactions/search-rxnorm',
-            queryParameters: queryParameters,
-            data: _data,
-          )
-          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
-    );
-    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late RxNormSearchResponse _value;
-    try {
-      _value = RxNormSearchResponse.fromJson(_result.data!);
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options);
       rethrow;

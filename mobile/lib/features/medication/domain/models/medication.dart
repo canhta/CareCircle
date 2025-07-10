@@ -127,8 +127,7 @@ abstract class Medication with _$Medication {
     required DateTime updatedAt,
   }) = _Medication;
 
-  factory Medication.fromJson(Map<String, dynamic> json) =>
-      _$MedicationFromJson(json);
+  factory Medication.fromJson(Map<String, dynamic> json) => _$MedicationFromJson(json);
 }
 
 /// Medication creation request DTO
@@ -150,8 +149,7 @@ abstract class CreateMedicationRequest with _$CreateMedicationRequest {
     String? notes,
   }) = _CreateMedicationRequest;
 
-  factory CreateMedicationRequest.fromJson(Map<String, dynamic> json) =>
-      _$CreateMedicationRequestFromJson(json);
+  factory CreateMedicationRequest.fromJson(Map<String, dynamic> json) => _$CreateMedicationRequestFromJson(json);
 }
 
 /// Medication update request DTO
@@ -173,8 +171,7 @@ abstract class UpdateMedicationRequest with _$UpdateMedicationRequest {
     String? notes,
   }) = _UpdateMedicationRequest;
 
-  factory UpdateMedicationRequest.fromJson(Map<String, dynamic> json) =>
-      _$UpdateMedicationRequestFromJson(json);
+  factory UpdateMedicationRequest.fromJson(Map<String, dynamic> json) => _$UpdateMedicationRequestFromJson(json);
 }
 
 /// Medication query parameters DTO
@@ -195,8 +192,7 @@ abstract class MedicationQueryParams with _$MedicationQueryParams {
     @Default('asc') String sortOrder,
   }) = _MedicationQueryParams;
 
-  factory MedicationQueryParams.fromJson(Map<String, dynamic> json) =>
-      _$MedicationQueryParamsFromJson(json);
+  factory MedicationQueryParams.fromJson(Map<String, dynamic> json) => _$MedicationQueryParamsFromJson(json);
 }
 
 /// Medication statistics DTO
@@ -214,22 +210,16 @@ abstract class MedicationStatistics with _$MedicationStatistics {
     required int missedDoses,
   }) = _MedicationStatistics;
 
-  factory MedicationStatistics.fromJson(Map<String, dynamic> json) =>
-      _$MedicationStatisticsFromJson(json);
+  factory MedicationStatistics.fromJson(Map<String, dynamic> json) => _$MedicationStatisticsFromJson(json);
 }
 
 /// API response wrapper for medication operations
 @freezed
 abstract class MedicationResponse with _$MedicationResponse {
-  const factory MedicationResponse({
-    required bool success,
-    Medication? data,
-    String? message,
-    String? error,
-  }) = _MedicationResponse;
+  const factory MedicationResponse({required bool success, Medication? data, String? message, String? error}) =
+      _MedicationResponse;
 
-  factory MedicationResponse.fromJson(Map<String, dynamic> json) =>
-      _$MedicationResponseFromJson(json);
+  factory MedicationResponse.fromJson(Map<String, dynamic> json) => _$MedicationResponseFromJson(json);
 }
 
 /// API response wrapper for medication list operations
@@ -244,6 +234,5 @@ abstract class MedicationListResponse with _$MedicationListResponse {
     String? error,
   }) = _MedicationListResponse;
 
-  factory MedicationListResponse.fromJson(Map<String, dynamic> json) =>
-      _$MedicationListResponseFromJson(json);
+  factory MedicationListResponse.fromJson(Map<String, dynamic> json) => _$MedicationListResponseFromJson(json);
 }
