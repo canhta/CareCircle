@@ -25,17 +25,21 @@ export class OCRService {
 
   constructor(private readonly configService: ConfigService) {
     // Initialize Google Vision API client
-    const credentials = this.configService.get('GOOGLE_CLOUD_CREDENTIALS');
-    const projectId = this.configService.get('GOOGLE_CLOUD_PROJECT_ID');
+    const credentials = this.configService.get<string>(
+      'GOOGLE_CLOUD_CREDENTIALS',
+    );
+    const projectId = this.configService.get<string>('GOOGLE_CLOUD_PROJECT_ID');
 
     if (credentials) {
       this.visionClient = new ImageAnnotatorClient({
-        projectId,
+        projectId: projectId || undefined,
         keyFilename: credentials, // Path to service account key file
       });
     } else {
       // Use default credentials (for production with service account)
-      this.visionClient = new ImageAnnotatorClient({ projectId });
+      this.visionClient = new ImageAnnotatorClient({
+        projectId: projectId || undefined,
+      });
     }
   }
 
@@ -131,22 +135,27 @@ export class OCRService {
     }
   }
 
-  private calculateConfidence(detections: any[]): number {
+  private calculateConfidence(detections: unknown[]): number {
     if (detections.length === 0) return 0;
 
     // Skip the first detection (full text) and calculate average confidence
     const wordDetections = detections.slice(1);
     if (wordDetections.length === 0) return 0.5; // Default confidence for full text only
 
-    const totalConfidence = wordDetections.reduce((sum, detection) => {
-      return sum + (detection.confidence || 0.5);
+    const totalConfidence = wordDetections.reduce((sum: number, detection) => {
+      const confidence =
+        (detection as { confidence?: number }).confidence || 0.5;
+      return sum + confidence;
     }, 0);
 
-    return Math.min(1, totalConfidence / wordDetections.length);
+    return Math.min(1, (totalConfidence as number) / wordDetections.length);
   }
 
-  private extractMedicalFields(fullText: string, _detections: any[]): any {
-    const fields: any = {
+  private extractMedicalFields(
+    fullText: string,
+    _detections: unknown[],
+  ): Record<string, unknown> {
+    const fields: Record<string, unknown> = {
       medications: [],
     };
 
@@ -169,7 +178,7 @@ export class OCRService {
     }
 
     // Extract medication information
-    const medications = this.extractMedications(fullText, detections);
+    const medications = this.extractMedications(fullText, _detections);
     if (medications.length > 0) {
       fields.medications = medications;
     }
@@ -233,8 +242,11 @@ export class OCRService {
     return null;
   }
 
-  private extractMedications(text: string, detections: any[]): any[] {
-    const medications: any[] = [];
+  private extractMedications(
+    text: string,
+    _detections: unknown[],
+  ): Record<string, unknown>[] {
+    const medications: Record<string, unknown>[] = [];
 
     // Split text into lines for better parsing
     const lines = text.split('\n').filter((line) => line.trim().length > 0);
@@ -249,7 +261,7 @@ export class OCRService {
     return medications;
   }
 
-  private parseMedicationLine(line: string): any | null {
+  private parseMedicationLine(line: string): Record<string, unknown> | null {
     // Common medication line patterns
     const patterns = [
       // Pattern: "Medication Name 10mg - Take 1 tablet daily - Qty: 30"
@@ -290,14 +302,16 @@ export class OCRService {
     return null;
   }
 
-  private assessImageQuality(result: any): number {
+  private assessImageQuality(result: unknown): number {
     // Assess image quality based on detection confidence and text clarity
-    const detections = result.textAnnotations || [];
+    const detections =
+      (result as { textAnnotations?: unknown[] }).textAnnotations || [];
 
     if (detections.length === 0) return 0.1;
 
     const avgConfidence = this.calculateConfidence(detections);
-    const textLength = detections[0]?.description?.length || 0;
+    const textLength =
+      (detections[0] as { description?: string })?.description?.length || 0;
 
     // Quality score based on confidence and text amount
     let quality = avgConfidence;

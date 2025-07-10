@@ -37,6 +37,10 @@ export class MedicationController {
     try {
       const medication = await this.medicationService.createMedication({
         ...createMedicationDto,
+        startDate: new Date(createMedicationDto.startDate),
+        endDate: createMedicationDto.endDate
+          ? new Date(createMedicationDto.endDate)
+          : undefined,
         userId: req.user.id,
       });
 
@@ -45,7 +49,7 @@ export class MedicationController {
         data: medication.toJSON(),
         message: 'Medication created successfully',
       };
-    } catch (error) {
+    } catch (error: unknown) {
       const errorMessage =
         error instanceof Error ? error.message : 'Failed to create medication';
       throw new HttpException(
@@ -67,6 +71,8 @@ export class MedicationController {
       const medications = await this.medicationService.createMedications(
         createMedicationsDto.medications.map((med) => ({
           ...med,
+          startDate: new Date(med.startDate),
+          endDate: med.endDate ? new Date(med.endDate) : undefined,
           userId: req.user.id,
         })),
       );
@@ -76,11 +82,13 @@ export class MedicationController {
         data: medications.map((med) => med.toJSON()),
         message: `${medications.length} medications created successfully`,
       };
-    } catch (error) {
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Failed to create medications';
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to create medications',
+          message: errorMessage,
         },
         HttpStatus.BAD_REQUEST,
       );
@@ -96,6 +104,8 @@ export class MedicationController {
       const medications = await this.medicationService.searchMedications({
         userId: req.user.id,
         ...query,
+        startDate: query.startDate ? new Date(query.startDate) : undefined,
+        endDate: query.endDate ? new Date(query.endDate) : undefined,
       });
 
       return {
@@ -103,11 +113,13 @@ export class MedicationController {
         data: medications.map((med) => med.toJSON()),
         count: medications.length,
       };
-    } catch (error) {
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Failed to fetch medications';
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to fetch medications',
+          message: errorMessage,
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -126,11 +138,15 @@ export class MedicationController {
         data: medications.map((med) => med.toJSON()),
         count: medications.length,
       };
-    } catch (error) {
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : 'Failed to fetch active medications';
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to fetch active medications',
+          message: errorMessage,
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -149,11 +165,15 @@ export class MedicationController {
         data: medications.map((med) => med.toJSON()),
         count: medications.length,
       };
-    } catch (error) {
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : 'Failed to fetch inactive medications';
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to fetch inactive medications',
+          message: errorMessage,
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -178,11 +198,13 @@ export class MedicationController {
         data: medications.map((med) => med.toJSON()),
         count: medications.length,
       };
-    } catch (error) {
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Failed to search medications';
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to search medications',
+          message: errorMessage,
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -205,11 +227,15 @@ export class MedicationController {
         data: medications.map((med) => med.toJSON()),
         count: medications.length,
       };
-    } catch (error) {
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : 'Failed to fetch medications by form';
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to fetch medications by form',
+          message: errorMessage,
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -228,11 +254,15 @@ export class MedicationController {
         data: medications.map((med) => med.toJSON()),
         count: medications.length,
       };
-    } catch (error) {
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : 'Failed to fetch expired medications';
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to fetch expired medications',
+          message: errorMessage,
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -255,11 +285,15 @@ export class MedicationController {
         data: medications.map((med) => med.toJSON()),
         count: medications.length,
       };
-    } catch (error) {
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : 'Failed to fetch expiring medications';
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to fetch expiring medications',
+          message: errorMessage,
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -277,11 +311,15 @@ export class MedicationController {
         success: true,
         data: statistics,
       };
-    } catch (error) {
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : 'Failed to fetch medication statistics';
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to fetch medication statistics',
+          message: errorMessage,
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -300,11 +338,15 @@ export class MedicationController {
         data: duplicates.map((group) => group.map((med) => med.toJSON())),
         count: duplicates.length,
       };
-    } catch (error) {
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : 'Failed to fetch duplicate medications';
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to fetch duplicate medications',
+          message: errorMessage,
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -329,11 +371,15 @@ export class MedicationController {
         success: true,
         data: recentMedications,
       };
-    } catch (error) {
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : 'Failed to fetch recent medications';
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to fetch recent medications',
+          message: errorMessage,
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -359,7 +405,7 @@ export class MedicationController {
         success: true,
         data: medication.toJSON(),
       };
-    } catch (error) {
+    } catch (error: unknown) {
       if (error instanceof HttpException) {
         throw error;
       }
@@ -367,7 +413,10 @@ export class MedicationController {
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to fetch medication',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Failed to fetch medication',
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -380,21 +429,25 @@ export class MedicationController {
     @Body() updateMedicationDto: UpdateMedicationDto,
   ) {
     try {
-      const medication = await this.medicationService.updateMedication(
-        id,
-        updateMedicationDto,
-      );
+      const medication = await this.medicationService.updateMedication(id, {
+        ...updateMedicationDto,
+        endDate: updateMedicationDto.endDate
+          ? new Date(updateMedicationDto.endDate)
+          : undefined,
+      });
 
       return {
         success: true,
         data: medication.toJSON(),
         message: 'Medication updated successfully',
       };
-    } catch (error) {
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Failed to update medication';
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to update medication',
+          message: errorMessage,
         },
         HttpStatus.BAD_REQUEST,
       );
@@ -417,11 +470,15 @@ export class MedicationController {
         data: medication.toJSON(),
         message: 'Medication deactivated successfully',
       };
-    } catch (error) {
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : 'Failed to deactivate medication';
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to deactivate medication',
+          message: errorMessage,
         },
         HttpStatus.BAD_REQUEST,
       );
@@ -438,11 +495,15 @@ export class MedicationController {
         data: medication.toJSON(),
         message: 'Medication reactivated successfully',
       };
-    } catch (error) {
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : 'Failed to reactivate medication';
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to reactivate medication',
+          message: errorMessage,
         },
         HttpStatus.BAD_REQUEST,
       );
@@ -458,11 +519,13 @@ export class MedicationController {
         success: true,
         message: 'Medication deleted successfully',
       };
-    } catch (error) {
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Failed to delete medication';
       throw new HttpException(
         {
           success: false,
-          message: error.message || 'Failed to delete medication',
+          message: errorMessage,
         },
         HttpStatus.BAD_REQUEST,
       );

@@ -1,11 +1,7 @@
 import { Module } from '@nestjs/common';
 import { PrismaModule } from '../common/database/prisma.module';
 
-// Domain Repositories
-import { MedicationRepository } from './domain/repositories/medication.repository';
-import { PrescriptionRepository } from './domain/repositories/prescription.repository';
-import { MedicationScheduleRepository } from './domain/repositories/medication-schedule.repository';
-import { AdherenceRecordRepository } from './domain/repositories/adherence-record.repository';
+// Domain Repositories (imported as string tokens in providers)
 
 // Infrastructure Repositories
 import { PrismaMedicationRepository } from './infrastructure/repositories/prisma-medication.repository';

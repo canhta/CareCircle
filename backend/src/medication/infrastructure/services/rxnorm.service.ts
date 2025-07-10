@@ -84,7 +84,13 @@ export class RxNormService {
         },
       });
 
-      const drugGroup = response.data?.drugGroup;
+      const drugGroup = (
+        response.data as {
+          drugGroup?: {
+            conceptGroup?: Array<{ conceptProperties?: RxNormConcept[] }>;
+          };
+        }
+      )?.drugGroup;
       if (!drugGroup || !drugGroup.conceptGroup) {
         return [];
       }
@@ -113,7 +119,22 @@ export class RxNormService {
       const conceptResponse = await this.httpClient.get(
         `/rxcui/${rxcui}/properties.json`,
       );
-      const properties = conceptResponse.data?.properties;
+      const properties = (
+        conceptResponse.data as {
+          properties?: {
+            name?: string;
+            synonym?: string;
+            tty?: string;
+            language?: string;
+            suppress?: string;
+            umlscui?: string;
+            strength?: string;
+            dosageForm?: string;
+            route?: string;
+            rxtty?: string;
+          };
+        }
+      )?.properties;
 
       if (!properties) {
         return null;
@@ -129,7 +150,16 @@ export class RxNormService {
         },
       );
 
-      const relatedGroup = relatedResponse.data?.relatedGroup;
+      const relatedGroup = (
+        relatedResponse.data as {
+          relatedGroup?: {
+            conceptGroup?: Array<{
+              tty?: string;
+              conceptProperties?: Array<{ name: string }>;
+            }>;
+          };
+        }
+      )?.relatedGroup;
       const brandNames: string[] = [];
       let genericName: string | undefined;
 
@@ -138,7 +168,9 @@ export class RxNormService {
           if (group.tty === 'BN' && group.conceptProperties) {
             // Brand names
             brandNames.push(
-              ...group.conceptProperties.map((prop: any) => prop.name),
+              ...group.conceptProperties.map(
+                (prop: { name: string }) => prop.name,
+              ),
             );
           } else if (group.tty === 'IN' && group.conceptProperties) {
             // Generic/ingredient names
@@ -153,12 +185,23 @@ export class RxNormService {
       );
       const ingredients: string[] = [];
 
-      const allRelated = ingredientsResponse.data?.allRelatedGroup;
+      const allRelated = (
+        ingredientsResponse.data as {
+          allRelatedGroup?: {
+            conceptGroup?: Array<{
+              tty?: string;
+              conceptProperties?: Array<{ name: string }>;
+            }>;
+          };
+        }
+      )?.allRelatedGroup;
       if (allRelated && allRelated.conceptGroup) {
         for (const group of allRelated.conceptGroup) {
           if (group.tty === 'IN' && group.conceptProperties) {
             ingredients.push(
-              ...group.conceptProperties.map((prop: any) => prop.name),
+              ...group.conceptProperties.map(
+                (prop: { name: string }) => prop.name,
+              ),
             );
           }
         }
@@ -166,7 +209,7 @@ export class RxNormService {
 
       return {
         rxcui,
-        name: properties.name,
+        name: properties.name || '',
         genericName,
         brandNames,
         strength: properties.strength,
@@ -175,9 +218,11 @@ export class RxNormService {
         classification: properties.rxtty,
         ingredients: [...new Set(ingredients)], // Remove duplicates
       };
-    } catch (error) {
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
       throw new HttpException(
-        `Failed to get medication info: ${error.message}`,
+        `Failed to get medication info: ${errorMessage}`,
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
@@ -195,15 +240,19 @@ export class RxNormService {
         },
       });
 
-      const fullInteractionTypeGroup = response.data?.fullInteractionTypeGroup;
+      const fullInteractionTypeGroup = (
+        response.data as { fullInteractionTypeGroup?: DrugInteraction[] }
+      )?.fullInteractionTypeGroup;
       if (!fullInteractionTypeGroup) {
         return [];
       }
 
       return fullInteractionTypeGroup;
-    } catch (error) {
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
       throw new HttpException(
-        `Failed to check drug interactions: ${error.message}`,
+        `Failed to check drug interactions: ${errorMessage}`,
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
@@ -225,9 +274,11 @@ export class RxNormService {
 
       // Fall back to first result if available
       return concepts.length > 0 ? concepts[0].rxcui : null;
-    } catch (error) {
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
       throw new HttpException(
-        `Failed to find RxCUI: ${error.message}`,
+        `Failed to find RxCUI: ${errorMessage}`,
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
@@ -241,15 +292,21 @@ export class RxNormService {
         },
       });
 
-      const suggestionGroup = response.data?.suggestionGroup;
+      const suggestionGroup = (
+        response.data as {
+          suggestionGroup?: { suggestionList?: { suggestion?: string[] } };
+        }
+      )?.suggestionGroup;
       if (!suggestionGroup || !suggestionGroup.suggestionList) {
         return [];
       }
 
       return suggestionGroup.suggestionList.suggestion || [];
-    } catch (error) {
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
       throw new HttpException(
-        `Failed to get spelling corrections: ${error.message}`,
+        `Failed to get spelling corrections: ${errorMessage}`,
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
@@ -267,15 +324,19 @@ export class RxNormService {
         },
       });
 
-      const approximateGroup = response.data?.approximateGroup;
+      const approximateGroup = (
+        response.data as { approximateGroup?: { candidate?: RxNormConcept[] } }
+      )?.approximateGroup;
       if (!approximateGroup || !approximateGroup.candidate) {
         return [];
       }
 
       return approximateGroup.candidate;
-    } catch (error) {
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
       throw new HttpException(
-        `Failed to get approximate matches: ${error.message}`,
+        `Failed to get approximate matches: ${errorMessage}`,
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
@@ -311,9 +372,11 @@ export class RxNormService {
         suggestions,
         approximateMatches,
       };
-    } catch (error) {
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
       throw new HttpException(
-        `Failed to validate medication name: ${error.message}`,
+        `Failed to validate medication name: ${errorMessage}`,
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
@@ -410,9 +473,11 @@ export class RxNormService {
         severityAnalysis,
         recommendations,
       };
-    } catch (error) {
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
       throw new HttpException(
-        `Failed to analyze drug interactions: ${error.message}`,
+        `Failed to analyze drug interactions: ${errorMessage}`,
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
