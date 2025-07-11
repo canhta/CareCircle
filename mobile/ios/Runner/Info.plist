@@ -52,6 +52,14 @@
 	<key>NSHealthUpdateUsageDescription</key>
 	<string>CareCircle needs access to write health data to sync your manually entered health metrics with Apple Health.</string>
 
+	<!-- Speech Recognition Permission -->
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>CareCircle uses speech recognition to allow you to interact with the AI assistant using voice commands for hands-free health management.</string>
+
+	<!-- Microphone Permission -->
+	<key>NSMicrophoneUsageDescription</key>
+	<string>CareCircle needs access to your microphone to enable voice input for the AI assistant, allowing hands-free interaction for health management.</string>
+
 	<!-- Google Sign-In Configuration -->
 	<key>GIDClientID</key>
 	<string>630059752294-0s96d9jp5hn1jn103a701lbsh1ce1ree.apps.googleusercontent.com</string>

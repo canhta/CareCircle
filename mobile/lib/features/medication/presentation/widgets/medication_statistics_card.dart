@@ -179,8 +179,8 @@ class MedicationStatisticsCard extends ConsumerWidget {
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Container(
-        padding: const EdgeInsets.all(16),
-        height: 120,
+        padding: const EdgeInsets.all(24),
+        constraints: const BoxConstraints(minHeight: 120),
         child: const Center(
           child: CircularProgressIndicator(
             color: CareCircleDesignTokens.primaryMedicalBlue,
@@ -195,10 +195,11 @@ class MedicationStatisticsCard extends ConsumerWidget {
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Container(
-        padding: const EdgeInsets.all(16),
-        height: 120,
+        padding: const EdgeInsets.all(20),
+        constraints: const BoxConstraints(minHeight: 120),
         child: Center(
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(Icons.error_outline, color: Colors.red[400], size: 32),
@@ -206,6 +207,7 @@ class MedicationStatisticsCard extends ConsumerWidget {
               Text(
                 'Failed to load statistics',
                 style: TextStyle(color: Colors.red[600], fontSize: 12),
+                textAlign: TextAlign.center,
               ),
             ],
           ),

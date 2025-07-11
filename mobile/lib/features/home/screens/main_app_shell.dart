@@ -49,7 +49,7 @@ class _MainAppShellState extends ConsumerState<MainAppShell> {
       shape: const CircularNotchedRectangle(),
       notchMargin: 8.0,
       child: SizedBox(
-        height: 60,
+        height: 70,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
@@ -90,18 +90,19 @@ class _MainAppShellState extends ConsumerState<MainAppShell> {
       },
       borderRadius: BorderRadius.circular(12),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, color: color, size: 24),
-            const SizedBox(height: 4),
+            Icon(icon, color: color, size: 22),
+            const SizedBox(height: 2),
             Text(
               label,
               style: TextStyle(
                 color: color,
-                fontSize: 12,
+                fontSize: 11,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                height: 1.2, // Tighter line height
               ),
             ),
           ],
