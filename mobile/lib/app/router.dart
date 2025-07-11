@@ -24,6 +24,10 @@ import '../features/medication/presentation/screens/medication_form_screen.dart'
 import '../features/medication/presentation/screens/prescription_scan_screen.dart';
 import '../features/medication/presentation/screens/schedule_management_screen.dart';
 import '../features/medication/presentation/screens/adherence_dashboard_screen.dart';
+import '../features/notification/presentation/screens/notification_center_screen.dart';
+import '../features/notification/presentation/screens/notification_detail_screen.dart';
+import '../features/notification/presentation/screens/notification_preferences_screen.dart';
+import '../features/notification/presentation/screens/emergency_alert_screen.dart';
 
 /// Healthcare-compliant logger for navigation context
 final _logger = BoundedContextLoggers.navigation;
@@ -106,7 +110,7 @@ class AppRouter {
 
   /// Checks if a route requires authentication
   static bool _isProtectedRoute(String location) {
-    final protectedRoutes = ['/home', '/health_data', '/onboarding'];
+    final protectedRoutes = ['/home', '/health_data', '/onboarding', '/notifications'];
     return protectedRoutes.any((route) => location.startsWith(route));
   }
 
@@ -308,6 +312,51 @@ class AppRouter {
                 {'timestamp': DateTime.now().toIso8601String()},
               );
               return const AdherenceDashboardScreen();
+            },
+          ),
+        ],
+      ),
+      // Notification Management Routes
+      GoRoute(
+        path: '/notifications',
+        name: 'notifications',
+        builder: (context, state) {
+          _logger.logNavigationEvent('Notification center accessed', {
+            'timestamp': DateTime.now().toIso8601String(),
+          });
+          return const NotificationCenterScreen();
+        },
+        routes: [
+          GoRoute(
+            path: '/:id',
+            name: 'notification-detail',
+            builder: (context, state) {
+              final notificationId = state.pathParameters['id']!;
+              _logger.logNavigationEvent('Notification detail accessed', {
+                'notificationId': notificationId,
+                'timestamp': DateTime.now().toIso8601String(),
+              });
+              return NotificationDetailScreen(notificationId: notificationId);
+            },
+          ),
+          GoRoute(
+            path: '/preferences',
+            name: 'notification-preferences',
+            builder: (context, state) {
+              _logger.logNavigationEvent('Notification preferences accessed', {
+                'timestamp': DateTime.now().toIso8601String(),
+              });
+              return const NotificationPreferencesScreen();
+            },
+          ),
+          GoRoute(
+            path: '/emergency-alerts',
+            name: 'emergency-alerts',
+            builder: (context, state) {
+              _logger.logNavigationEvent('Emergency alerts accessed', {
+                'timestamp': DateTime.now().toIso8601String(),
+              });
+              return const EmergencyAlertScreen();
             },
           ),
         ],
