@@ -11,7 +11,9 @@ export interface MemberQuery {
 }
 
 export abstract class CareGroupMemberRepository {
-  abstract create(member: CareGroupMemberEntity): Promise<CareGroupMemberEntity>;
+  abstract create(
+    member: CareGroupMemberEntity,
+  ): Promise<CareGroupMemberEntity>;
   abstract findById(id: string): Promise<CareGroupMemberEntity | null>;
   abstract findMany(query: MemberQuery): Promise<CareGroupMemberEntity[]>;
   abstract findByGroupId(groupId: string): Promise<CareGroupMemberEntity[]>;
@@ -34,14 +36,18 @@ export abstract class CareGroupMemberRepository {
   abstract findAdmins(groupId: string): Promise<CareGroupMemberEntity[]>;
   abstract findCaregivers(groupId: string): Promise<CareGroupMemberEntity[]>;
   abstract findActiveMembers(groupId: string): Promise<CareGroupMemberEntity[]>;
-  abstract findInactiveMembers(groupId: string): Promise<CareGroupMemberEntity[]>;
+  abstract findInactiveMembers(
+    groupId: string,
+  ): Promise<CareGroupMemberEntity[]>;
 
   // Permission operations
   abstract findMembersWithPermission(
     groupId: string,
     permission: string,
   ): Promise<CareGroupMemberEntity[]>;
-  abstract findMembersCanInvite(groupId: string): Promise<CareGroupMemberEntity[]>;
+  abstract findMembersCanInvite(
+    groupId: string,
+  ): Promise<CareGroupMemberEntity[]>;
   abstract findMembersCanManageTasks(
     groupId: string,
   ): Promise<CareGroupMemberEntity[]>;
@@ -83,10 +89,7 @@ export abstract class CareGroupMemberRepository {
   abstract getCaregiverCount(groupId: string): Promise<number>;
 
   // Validation operations
-  abstract checkMemberExists(
-    groupId: string,
-    userId: string,
-  ): Promise<boolean>;
+  abstract checkMemberExists(groupId: string, userId: string): Promise<boolean>;
   abstract checkMemberHasPermission(
     groupId: string,
     userId: string,
@@ -111,9 +114,7 @@ export abstract class CareGroupMemberRepository {
   ): Promise<CareGroupMemberEntity[]>;
 
   // Analytics operations
-  abstract getMemberStatistics(
-    groupId: string,
-  ): Promise<{
+  abstract getMemberStatistics(groupId: string): Promise<{
     totalMembers: number;
     activeMembers: number;
     adminCount: number;
@@ -126,11 +127,13 @@ export abstract class CareGroupMemberRepository {
     groupId: string,
     startDate: Date,
     endDate: Date,
-  ): Promise<Array<{
-    memberId: string;
-    userId: string;
-    role: MemberRole;
-    lastActiveAt: Date | null;
-    activityCount: number;
-  }>>;
+  ): Promise<
+    Array<{
+      memberId: string;
+      userId: string;
+      role: MemberRole;
+      lastActiveAt: Date | null;
+      activityCount: number;
+    }>
+  >;
 }

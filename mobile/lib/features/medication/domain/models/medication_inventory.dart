@@ -87,8 +87,7 @@ abstract class MedicationInventory with _$MedicationInventory {
     required DateTime createdAt,
   }) = _MedicationInventory;
 
-  factory MedicationInventory.fromJson(Map<String, dynamic> json) =>
-      _$MedicationInventoryFromJson(json);
+  factory MedicationInventory.fromJson(Map<String, dynamic> json) => _$MedicationInventoryFromJson(json);
 }
 
 /// Medication inventory creation request DTO
@@ -108,8 +107,7 @@ abstract class CreateInventoryRequest with _$CreateInventoryRequest {
     RefillStatus? refillStatus,
   }) = _CreateInventoryRequest;
 
-  factory CreateInventoryRequest.fromJson(Map<String, dynamic> json) =>
-      _$CreateInventoryRequestFromJson(json);
+  factory CreateInventoryRequest.fromJson(Map<String, dynamic> json) => _$CreateInventoryRequestFromJson(json);
 }
 
 /// Medication inventory update request DTO
@@ -128,21 +126,16 @@ abstract class UpdateInventoryRequest with _$UpdateInventoryRequest {
     RefillStatus? refillStatus,
   }) = _UpdateInventoryRequest;
 
-  factory UpdateInventoryRequest.fromJson(Map<String, dynamic> json) =>
-      _$UpdateInventoryRequestFromJson(json);
+  factory UpdateInventoryRequest.fromJson(Map<String, dynamic> json) => _$UpdateInventoryRequestFromJson(json);
 }
 
 /// Inventory adjustment request DTO
 @freezed
 abstract class InventoryAdjustmentRequest with _$InventoryAdjustmentRequest {
-  const factory InventoryAdjustmentRequest({
-    required double adjustment,
-    required String reason,
-    String? notes,
-  }) = _InventoryAdjustmentRequest;
+  const factory InventoryAdjustmentRequest({required double adjustment, required String reason, String? notes}) =
+      _InventoryAdjustmentRequest;
 
-  factory InventoryAdjustmentRequest.fromJson(Map<String, dynamic> json) =>
-      _$InventoryAdjustmentRequestFromJson(json);
+  factory InventoryAdjustmentRequest.fromJson(Map<String, dynamic> json) => _$InventoryAdjustmentRequestFromJson(json);
 }
 
 /// Inventory alert types
@@ -173,8 +166,7 @@ abstract class InventoryAlert with _$InventoryAlert {
     String? resolvedBy,
   }) = _InventoryAlert;
 
-  factory InventoryAlert.fromJson(Map<String, dynamic> json) =>
-      _$InventoryAlertFromJson(json);
+  factory InventoryAlert.fromJson(Map<String, dynamic> json) => _$InventoryAlertFromJson(json);
 }
 
 /// Inventory statistics DTO
@@ -191,22 +183,16 @@ abstract class InventoryStatistics with _$InventoryStatistics {
     required int reorderNeededCount,
   }) = _InventoryStatistics;
 
-  factory InventoryStatistics.fromJson(Map<String, dynamic> json) =>
-      _$InventoryStatisticsFromJson(json);
+  factory InventoryStatistics.fromJson(Map<String, dynamic> json) => _$InventoryStatisticsFromJson(json);
 }
 
 /// API response wrapper for inventory operations
 @freezed
 abstract class InventoryResponse with _$InventoryResponse {
-  const factory InventoryResponse({
-    required bool success,
-    MedicationInventory? data,
-    String? message,
-    String? error,
-  }) = _InventoryResponse;
+  const factory InventoryResponse({required bool success, MedicationInventory? data, String? message, String? error}) =
+      _InventoryResponse;
 
-  factory InventoryResponse.fromJson(Map<String, dynamic> json) =>
-      _$InventoryResponseFromJson(json);
+  factory InventoryResponse.fromJson(Map<String, dynamic> json) => _$InventoryResponseFromJson(json);
 }
 
 /// API response wrapper for inventory list operations
@@ -221,28 +207,5 @@ abstract class InventoryListResponse with _$InventoryListResponse {
     String? error,
   }) = _InventoryListResponse;
 
-  factory InventoryListResponse.fromJson(Map<String, dynamic> json) =>
-      _$InventoryListResponseFromJson(json);
-}
-
-/// Inventory query parameters DTO
-@freezed
-abstract class InventoryQueryParams with _$InventoryQueryParams {
-  const factory InventoryQueryParams({
-    String? medicationId,
-    String? location,
-    RefillStatus? refillStatus,
-    bool? lowStock,
-    bool? expiringSoon,
-    bool? expired,
-    DateTime? expirationDateFrom,
-    DateTime? expirationDateTo,
-    @Default(50) int limit,
-    @Default(0) int offset,
-    @Default('lastUpdated') String sortBy,
-    @Default('desc') String sortOrder,
-  }) = _InventoryQueryParams;
-
-  factory InventoryQueryParams.fromJson(Map<String, dynamic> json) =>
-      _$InventoryQueryParamsFromJson(json);
+  factory InventoryListResponse.fromJson(Map<String, dynamic> json) => _$InventoryListResponseFromJson(json);
 }

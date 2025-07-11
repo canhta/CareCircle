@@ -177,24 +177,6 @@ abstract class AdherenceReport with _$AdherenceReport {
   factory AdherenceReport.fromJson(Map<String, dynamic> json) => _$AdherenceReportFromJson(json);
 }
 
-/// Adherence query parameters DTO
-@freezed
-abstract class AdherenceQueryParams with _$AdherenceQueryParams {
-  const factory AdherenceQueryParams({
-    String? medicationId,
-    String? scheduleId,
-    DoseStatus? status,
-    DateTime? startDate,
-    DateTime? endDate,
-    @Default(50) int limit,
-    @Default(0) int offset,
-    @Default('scheduledTime') String sortBy,
-    @Default('desc') String sortOrder,
-  }) = _AdherenceQueryParams;
-
-  factory AdherenceQueryParams.fromJson(Map<String, dynamic> json) => _$AdherenceQueryParamsFromJson(json);
-}
-
 /// API response wrapper for adherence record operations
 @freezed
 abstract class AdherenceRecordResponse with _$AdherenceRecordResponse {

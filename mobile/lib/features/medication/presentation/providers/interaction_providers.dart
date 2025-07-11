@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/logging/bounded_context_loggers.dart';
+import '../../../../core/network/dio_provider.dart';
 import '../../domain/models/models.dart';
 import '../../infrastructure/services/drug_interaction_api_service.dart';
 
@@ -9,8 +10,8 @@ final _logger = BoundedContextLoggers.medication;
 
 /// Provider for drug interaction API service
 final drugInteractionApiServiceProvider = Provider<DrugInteractionApiService>((ref) {
-  // TODO: Get Dio instance from existing provider
-  throw UnimplementedError('Dio provider not yet implemented');
+  final dio = ref.read(medicationDioProvider);
+  return DrugInteractionApiService(dio);
 });
 
 /// Provider for user medication interactions analysis

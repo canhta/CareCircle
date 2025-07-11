@@ -2,83 +2,38 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/logging/bounded_context_loggers.dart';
 import '../../domain/models/models.dart';
-import '../../infrastructure/repositories/medication_repository.dart';
+
+import '../../infrastructure/repositories/adherence_repository.dart';
 
 // Healthcare-compliant logger for adherence context
 final _logger = BoundedContextLoggers.medication;
 
 /// Provider for user adherence records
-final adherenceRecordsProvider = FutureProvider<List<AdherenceRecord>>((
-  ref,
-) async {
-  // TODO: Implement adherence repository when available
-  _logger.info('Fetching user adherence records - not yet implemented', {
-    'operation': 'getAdherenceRecords',
-    'timestamp': DateTime.now().toIso8601String(),
-  });
-
-  // Return empty list for now
-  return <AdherenceRecord>[];
+final adherenceRecordsProvider = FutureProvider<List<AdherenceRecord>>((ref) async {
+  final repository = ref.read(adherenceRepositoryProvider);
+  return repository.getAdherenceRecords();
 });
 
 /// Provider for adherence records by medication ID
-final medicationAdherenceProvider =
-    FutureProvider.family<List<AdherenceRecord>, String>((
-      ref,
-      medicationId,
-    ) async {
-      // TODO: Implement adherence repository when available
-      _logger.info(
-        'Fetching adherence records for medication - not yet implemented',
-        {
-          'operation': 'getMedicationAdherence',
-          'medicationId': medicationId,
-          'timestamp': DateTime.now().toIso8601String(),
-        },
-      );
-
-      // Return empty list for now
-      return <AdherenceRecord>[];
-    });
+final medicationAdherenceProvider = FutureProvider.family<List<AdherenceRecord>, String>((ref, medicationId) async {
+  final repository = ref.read(adherenceRepositoryProvider);
+  return repository.getAdherenceForMedication(medicationId);
+});
 
 /// Provider for adherence statistics
-final adherenceStatisticsProvider = FutureProvider<AdherenceStatistics>((
-  ref,
-) async {
-  // TODO: Implement adherence repository when available
-  _logger.info('Fetching adherence statistics - not yet implemented', {
-    'operation': 'getAdherenceStatistics',
-    'timestamp': DateTime.now().toIso8601String(),
-  });
-
-  // Return default statistics for now
-  return const AdherenceStatistics(
-    medicationId: '',
-    totalDoses: 0,
-    takenDoses: 0,
-    missedDoses: 0,
-    skippedDoses: 0,
-    lateDoses: 0,
-    adherencePercentage: 0.0,
-    currentStreak: 0,
-    longestStreak: 0,
-    lastDoseTime: null,
-    nextDoseTime: null,
-  );
+final adherenceStatisticsProvider = FutureProvider<AdherenceStatistics>((ref) async {
+  final repository = ref.read(adherenceRepositoryProvider);
+  return repository.getAdherenceStatistics();
 });
 
 /// Provider for today's adherence records
-final todayAdherenceProvider = FutureProvider<List<AdherenceRecord>>((
-  ref,
-) async {
+final todayAdherenceProvider = FutureProvider<List<AdherenceRecord>>((ref) async {
   final allRecords = await ref.read(adherenceRecordsProvider.future);
   final today = DateTime.now();
 
   final todayRecords = allRecords.where((record) {
     final recordDate = record.scheduledTime;
-    return recordDate.year == today.year &&
-        recordDate.month == today.month &&
-        recordDate.day == today.day;
+    return recordDate.year == today.year && recordDate.month == today.month && recordDate.day == today.day;
   }).toList();
 
   _logger.info('Filtered today\'s adherence records', {
@@ -93,40 +48,83 @@ final todayAdherenceProvider = FutureProvider<List<AdherenceRecord>>((
 });
 
 /// Provider for adherence trends (last 30 days)
-final adherenceTrendsProvider = FutureProvider<List<AdherenceTrendPoint>>((
-  ref,
-) async {
-  // TODO: Implement adherence repository when available
+final adherenceTrendsProvider = FutureProvider<List<AdherenceTrendPoint>>((ref) async {
+  final repository = ref.read(adherenceRepositoryProvider);
   final endDate = DateTime.now();
   final startDate = endDate.subtract(const Duration(days: 30));
 
-  _logger.info('Fetching adherence trends - not yet implemented', {
+  _logger.info('Fetching adherence trends', {
     'operation': 'getAdherenceTrends',
     'startDate': startDate.toIso8601String().split('T')[0],
     'endDate': endDate.toIso8601String().split('T')[0],
     'timestamp': DateTime.now().toIso8601String(),
   });
 
-  // Return empty list for now
-  return <AdherenceTrendPoint>[];
+  try {
+    // Get adherence records for the date range
+    final records = await repository.getAdherenceRecords(
+      params: AdherenceQueryParams(startDate: startDate, endDate: endDate),
+    );
+
+    // Group records by date and calculate daily adherence rates
+    final Map<DateTime, List<AdherenceRecord>> recordsByDate = {};
+    for (final record in records) {
+      final date = DateTime(record.scheduledTime.year, record.scheduledTime.month, record.scheduledTime.day);
+      recordsByDate.putIfAbsent(date, () => []).add(record);
+    }
+
+    // Create trend points for each day
+    final trendPoints = <AdherenceTrendPoint>[];
+    for (int i = 0; i < 30; i++) {
+      final date = startDate.add(Duration(days: i));
+      final dayRecords = recordsByDate[DateTime(date.year, date.month, date.day)] ?? [];
+
+      final totalDoses = dayRecords.length;
+      final completedDoses = dayRecords.where((r) => r.status == DoseStatus.taken).length;
+      final adherenceRate = totalDoses > 0 ? completedDoses / totalDoses : 0.0;
+
+      trendPoints.add(
+        AdherenceTrendPoint(
+          date: date,
+          adherenceRate: adherenceRate,
+          totalDoses: totalDoses,
+          completedDoses: completedDoses,
+        ),
+      );
+    }
+
+    _logger.info('Adherence trends calculated successfully', {
+      'operation': 'getAdherenceTrends',
+      'trendPointCount': trendPoints.length,
+      'totalRecords': records.length,
+      'timestamp': DateTime.now().toIso8601String(),
+    });
+
+    return trendPoints;
+  } catch (error) {
+    _logger.error('Failed to fetch adherence trends', {
+      'operation': 'getAdherenceTrends',
+      'error': error.toString(),
+      'timestamp': DateTime.now().toIso8601String(),
+    });
+
+    // Return empty list on error to prevent UI crashes
+    return <AdherenceTrendPoint>[];
+  }
 });
 
 /// Provider for adherence management operations
-final adherenceManagementProvider =
-    StateNotifierProvider<AdherenceManagementNotifier, AsyncValue<void>>((ref) {
-      final repository = ref.read(medicationRepositoryProvider);
-      return AdherenceManagementNotifier(repository, ref);
-    });
+final adherenceManagementProvider = StateNotifierProvider<AdherenceManagementNotifier, AsyncValue<void>>((ref) {
+  final repository = ref.read(adherenceRepositoryProvider);
+  return AdherenceManagementNotifier(repository, ref);
+});
 
 /// State notifier for adherence management operations
 class AdherenceManagementNotifier extends StateNotifier<AsyncValue<void>> {
-  // ignore: unused_field
-  final MedicationRepository
-  _repository; // TODO: Will be used when adherence repository is implemented
+  final AdherenceRepository _repository;
   final Ref _ref;
 
-  AdherenceManagementNotifier(this._repository, this._ref)
-    : super(const AsyncValue.data(null));
+  AdherenceManagementNotifier(this._repository, this._ref) : super(const AsyncValue.data(null));
 
   /// Record dose taken
   Future<void> recordDoseTaken(
@@ -158,13 +156,7 @@ class AdherenceManagementNotifier extends StateNotifier<AsyncValue<void>> {
         notes: notes,
       );
 
-      // TODO: Implement adherence record creation when repository is available
-      // await _repository.createAdherenceRecord(request);
-      // Temporary: Log the request to avoid unused variable warning
-      _logger.info('Adherence record request prepared', {
-        'medicationId': request.medicationId,
-        'status': request.status.name,
-      });
+      await _repository.createAdherenceRecord(request);
 
       // Refresh adherence data
       _refreshAdherenceData();
@@ -217,13 +209,7 @@ class AdherenceManagementNotifier extends StateNotifier<AsyncValue<void>> {
         notes: reason,
       );
 
-      // TODO: Implement adherence record creation when repository is available
-      // await _repository.createAdherenceRecord(request);
-      // Temporary: Log the request to avoid unused variable warning
-      _logger.info('Adherence record request prepared', {
-        'medicationId': request.medicationId,
-        'status': request.status.name,
-      });
+      await _repository.createAdherenceRecord(request);
 
       // Refresh adherence data
       _refreshAdherenceData();
@@ -276,13 +262,7 @@ class AdherenceManagementNotifier extends StateNotifier<AsyncValue<void>> {
         notes: reason,
       );
 
-      // TODO: Implement adherence record creation when repository is available
-      // await _repository.createAdherenceRecord(request);
-      // Temporary: Log the request to avoid unused variable warning
-      _logger.info('Adherence record request prepared', {
-        'medicationId': request.medicationId,
-        'status': request.status.name,
-      });
+      await _repository.createAdherenceRecord(request);
 
       // Refresh adherence data
       _refreshAdherenceData();

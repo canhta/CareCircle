@@ -22,6 +22,7 @@ class BoundedContextLoggers {
   static late final Talker _performance;
   static late final Talker _security;
   static late final Talker _compliance;
+  static late final Talker _network;
 
   /// Initialize all bounded context loggers
   static Future<void> initialize() async {
@@ -42,6 +43,7 @@ class BoundedContextLoggers {
     _performance = _createContextLogger('PERFORMANCE');
     _security = _createContextLogger('SECURITY');
     _compliance = _createContextLogger('COMPLIANCE');
+    _network = _createContextLogger('NETWORK');
 
     _initialized = true;
 
@@ -59,8 +61,9 @@ class BoundedContextLoggers {
         'PERFORMANCE',
         'SECURITY',
         'COMPLIANCE',
+        'NETWORK',
       ],
-      'totalContexts': 11,
+      'totalContexts': 12,
     });
   }
 
@@ -130,12 +133,16 @@ class BoundedContextLoggers {
     return _compliance;
   }
 
+  /// Network context logger
+  static Talker get network {
+    _ensureInitialized();
+    return _network;
+  }
+
   /// Create a context-specific logger instance
   static Talker _createContextLogger(String context) {
     return Talker(
-      settings: LogConfig.talkerSettings.copyWith(
-        titles: {...LogConfig.talkerSettings.titles, 'context': context},
-      ),
+      settings: LogConfig.talkerSettings.copyWith(titles: {...LogConfig.talkerSettings.titles, 'context': context}),
       logger: TalkerLogger(settings: LogConfig.talkerLoggerSettings),
       observer: ContextualTalkerObserver(context, null),
     );
@@ -166,6 +173,7 @@ class BoundedContextLoggers {
       'PERFORMANCE': _performance,
       'SECURITY': _security,
       'COMPLIANCE': _compliance,
+      'NETWORK': _network,
     };
   }
 
@@ -258,11 +266,7 @@ extension BoundedContextLogging on Talker {
   }
 
   /// Log performance metric
-  void logPerformanceMetric(
-    String metric,
-    Duration duration, [
-    Map<String, dynamic>? context,
-  ]) {
+  void logPerformanceMetric(String metric, Duration duration, [Map<String, dynamic>? context]) {
     final performanceData = {
       'metric': metric,
       'durationMs': duration.inMilliseconds,
@@ -280,5 +284,10 @@ extension BoundedContextLogging on Talker {
   /// Log compliance event
   void logComplianceEvent(String event, Map<String, dynamic> context) {
     info('[COMPLIANCE] $event', context);
+  }
+
+  /// Log network event
+  void logNetworkEvent(String event, Map<String, dynamic> context) {
+    info('[NETWORK] $event', context);
   }
 }

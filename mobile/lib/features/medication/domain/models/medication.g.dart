@@ -156,48 +156,6 @@ Map<String, dynamic> _$UpdateMedicationRequestToJson(
   'notes': instance.notes,
 };
 
-_MedicationQueryParams _$MedicationQueryParamsFromJson(
-  Map<String, dynamic> json,
-) => _MedicationQueryParams(
-  isActive: json['isActive'] as bool?,
-  form: $enumDecodeNullable(_$MedicationFormEnumMap, json['form']),
-  classification: json['classification'] as String?,
-  startDateFrom: json['startDateFrom'] == null
-      ? null
-      : DateTime.parse(json['startDateFrom'] as String),
-  startDateTo: json['startDateTo'] == null
-      ? null
-      : DateTime.parse(json['startDateTo'] as String),
-  endDateFrom: json['endDateFrom'] == null
-      ? null
-      : DateTime.parse(json['endDateFrom'] as String),
-  endDateTo: json['endDateTo'] == null
-      ? null
-      : DateTime.parse(json['endDateTo'] as String),
-  prescriptionId: json['prescriptionId'] as String?,
-  limit: (json['limit'] as num?)?.toInt() ?? 50,
-  offset: (json['offset'] as num?)?.toInt() ?? 0,
-  sortBy: json['sortBy'] as String? ?? 'name',
-  sortOrder: json['sortOrder'] as String? ?? 'asc',
-);
-
-Map<String, dynamic> _$MedicationQueryParamsToJson(
-  _MedicationQueryParams instance,
-) => <String, dynamic>{
-  'isActive': instance.isActive,
-  'form': _$MedicationFormEnumMap[instance.form],
-  'classification': instance.classification,
-  'startDateFrom': instance.startDateFrom?.toIso8601String(),
-  'startDateTo': instance.startDateTo?.toIso8601String(),
-  'endDateFrom': instance.endDateFrom?.toIso8601String(),
-  'endDateTo': instance.endDateTo?.toIso8601String(),
-  'prescriptionId': instance.prescriptionId,
-  'limit': instance.limit,
-  'offset': instance.offset,
-  'sortBy': instance.sortBy,
-  'sortOrder': instance.sortOrder,
-};
-
 _MedicationStatistics _$MedicationStatisticsFromJson(
   Map<String, dynamic> json,
 ) => _MedicationStatistics(

@@ -174,27 +174,6 @@ abstract class UpdateMedicationRequest with _$UpdateMedicationRequest {
   factory UpdateMedicationRequest.fromJson(Map<String, dynamic> json) => _$UpdateMedicationRequestFromJson(json);
 }
 
-/// Medication query parameters DTO
-@freezed
-abstract class MedicationQueryParams with _$MedicationQueryParams {
-  const factory MedicationQueryParams({
-    bool? isActive,
-    MedicationForm? form,
-    String? classification,
-    DateTime? startDateFrom,
-    DateTime? startDateTo,
-    DateTime? endDateFrom,
-    DateTime? endDateTo,
-    String? prescriptionId,
-    @Default(50) int limit,
-    @Default(0) int offset,
-    @Default('name') String sortBy,
-    @Default('asc') String sortOrder,
-  }) = _MedicationQueryParams;
-
-  factory MedicationQueryParams.fromJson(Map<String, dynamic> json) => _$MedicationQueryParamsFromJson(json);
-}
-
 /// Medication statistics DTO
 @freezed
 abstract class MedicationStatistics with _$MedicationStatistics {

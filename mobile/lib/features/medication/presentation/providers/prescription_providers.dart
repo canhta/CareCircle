@@ -2,7 +2,9 @@ import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/logging/bounded_context_loggers.dart';
+import '../../../../core/network/dio_provider.dart';
 import '../../domain/models/models.dart';
+import '../../infrastructure/repositories/prescription_repository.dart';
 import '../../infrastructure/services/prescription_processing_api_service.dart';
 import '../../infrastructure/services/image_processing_service.dart';
 
@@ -10,11 +12,10 @@ import '../../infrastructure/services/image_processing_service.dart';
 final _logger = BoundedContextLoggers.medication;
 
 /// Provider for prescription processing API service
-final prescriptionProcessingApiServiceProvider =
-    Provider<PrescriptionProcessingApiService>((ref) {
-      // TODO: Get Dio instance from existing provider
-      throw UnimplementedError('Dio provider not yet implemented');
-    });
+final prescriptionProcessingApiServiceProvider = Provider<PrescriptionProcessingApiService>((ref) {
+  final dio = ref.read(medicationDioProvider);
+  return PrescriptionProcessingApiService(dio);
+});
 
 /// Provider for image processing service
 final imageProcessingServiceProvider = Provider<ImageProcessingService>((ref) {
@@ -24,49 +25,27 @@ final imageProcessingServiceProvider = Provider<ImageProcessingService>((ref) {
 
 /// Provider for user prescriptions list
 final prescriptionsProvider = FutureProvider<List<Prescription>>((ref) async {
-  // TODO: Implement prescription repository when available
-  _logger.info('Fetching user prescriptions - not yet implemented', {
-    'operation': 'getPrescriptions',
-    'timestamp': DateTime.now().toIso8601String(),
-  });
-
-  // Return empty list for now
-  return <Prescription>[];
+  final repository = ref.read(prescriptionRepositoryProvider);
+  return repository.getPrescriptions();
 });
 
 /// Provider for prescription by ID
-final prescriptionProvider = FutureProvider.family<Prescription?, String>((
-  ref,
-  prescriptionId,
-) async {
-  // TODO: Implement prescription repository when available
-  _logger.info('Fetching prescription by ID - not yet implemented', {
-    'operation': 'getPrescription',
-    'prescriptionId': prescriptionId,
-    'timestamp': DateTime.now().toIso8601String(),
-  });
-
-  // Return null for now
-  return null;
+final prescriptionProvider = FutureProvider.family<Prescription?, String>((ref, prescriptionId) async {
+  final repository = ref.read(prescriptionRepositoryProvider);
+  return repository.getPrescriptionById(prescriptionId);
 });
 
 /// Provider for OCR processing state
-final ocrProcessingProvider =
-    StateNotifierProvider<
-      OCRProcessingNotifier,
-      AsyncValue<OCRProcessingResult?>
-    >((ref) {
-      final imageProcessingService = ref.read(imageProcessingServiceProvider);
-      return OCRProcessingNotifier(imageProcessingService);
-    });
+final ocrProcessingProvider = StateNotifierProvider<OCRProcessingNotifier, AsyncValue<OCRProcessingResult?>>((ref) {
+  final imageProcessingService = ref.read(imageProcessingServiceProvider);
+  return OCRProcessingNotifier(imageProcessingService);
+});
 
 /// State notifier for OCR processing operations
-class OCRProcessingNotifier
-    extends StateNotifier<AsyncValue<OCRProcessingResult?>> {
+class OCRProcessingNotifier extends StateNotifier<AsyncValue<OCRProcessingResult?>> {
   final ImageProcessingService _imageProcessingService;
 
-  OCRProcessingNotifier(this._imageProcessingService)
-    : super(const AsyncValue.data(null));
+  OCRProcessingNotifier(this._imageProcessingService) : super(const AsyncValue.data(null));
 
   /// Process image file for OCR
   Future<void> processImageFile(File imageFile) async {
@@ -129,10 +108,7 @@ class OCRProcessingNotifier
   /// Clear OCR results
   void clearResults() {
     state = const AsyncValue.data(null);
-    _logger.info('OCR results cleared', {
-      'operation': 'clearResults',
-      'timestamp': DateTime.now().toIso8601String(),
-    });
+    _logger.info('OCR results cleared', {'operation': 'clearResults', 'timestamp': DateTime.now().toIso8601String()});
   }
 }
 
@@ -140,21 +116,16 @@ class OCRProcessingNotifier
 final prescriptionOCRProvider = ocrProcessingProvider;
 
 /// Provider for prescription creation
-final prescriptionCreateProvider =
-    StateNotifierProvider<PrescriptionCreateNotifier, AsyncValue<Prescription?>>(
-  (ref) {
-    final apiService = ref.read(prescriptionProcessingApiServiceProvider);
-    return PrescriptionCreateNotifier(apiService);
-  },
-);
+final prescriptionCreateProvider = StateNotifierProvider<PrescriptionCreateNotifier, AsyncValue<Prescription?>>((ref) {
+  final apiService = ref.read(prescriptionProcessingApiServiceProvider);
+  return PrescriptionCreateNotifier(apiService);
+});
 
 /// State notifier for prescription creation
-class PrescriptionCreateNotifier
-    extends StateNotifier<AsyncValue<Prescription?>> {
+class PrescriptionCreateNotifier extends StateNotifier<AsyncValue<Prescription?>> {
   final PrescriptionProcessingApiService _apiService;
 
-  PrescriptionCreateNotifier(this._apiService)
-      : super(const AsyncValue.data(null));
+  PrescriptionCreateNotifier(this._apiService) : super(const AsyncValue.data(null));
 
   /// Create a new prescription from OCR result
   Future<Prescription> createFromOCR({

@@ -205,38 +205,6 @@ Map<String, dynamic> _$AdherenceReportToJson(_AdherenceReport instance) =>
       'recentRecords': instance.recentRecords,
     };
 
-_AdherenceQueryParams _$AdherenceQueryParamsFromJson(
-  Map<String, dynamic> json,
-) => _AdherenceQueryParams(
-  medicationId: json['medicationId'] as String?,
-  scheduleId: json['scheduleId'] as String?,
-  status: $enumDecodeNullable(_$DoseStatusEnumMap, json['status']),
-  startDate: json['startDate'] == null
-      ? null
-      : DateTime.parse(json['startDate'] as String),
-  endDate: json['endDate'] == null
-      ? null
-      : DateTime.parse(json['endDate'] as String),
-  limit: (json['limit'] as num?)?.toInt() ?? 50,
-  offset: (json['offset'] as num?)?.toInt() ?? 0,
-  sortBy: json['sortBy'] as String? ?? 'scheduledTime',
-  sortOrder: json['sortOrder'] as String? ?? 'desc',
-);
-
-Map<String, dynamic> _$AdherenceQueryParamsToJson(
-  _AdherenceQueryParams instance,
-) => <String, dynamic>{
-  'medicationId': instance.medicationId,
-  'scheduleId': instance.scheduleId,
-  'status': _$DoseStatusEnumMap[instance.status],
-  'startDate': instance.startDate?.toIso8601String(),
-  'endDate': instance.endDate?.toIso8601String(),
-  'limit': instance.limit,
-  'offset': instance.offset,
-  'sortBy': instance.sortBy,
-  'sortOrder': instance.sortOrder,
-};
-
 _AdherenceRecordResponse _$AdherenceRecordResponseFromJson(
   Map<String, dynamic> json,
 ) => _AdherenceRecordResponse(
