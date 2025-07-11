@@ -15,12 +15,12 @@ import '../providers/schedule_providers.dart';
 /// - Calendar/timeline view for schedules
 /// - Material Design 3 healthcare adaptations
 class ScheduleManagementScreen extends ConsumerStatefulWidget {
-  final String medicationId;
+  final String? medicationId; // null for all schedules, non-null for specific medication
   final MedicationSchedule? schedule; // null for new schedule
 
   const ScheduleManagementScreen({
     super.key,
-    required this.medicationId,
+    this.medicationId,
     this.schedule,
   });
 
@@ -624,8 +624,22 @@ class _ScheduleManagementScreenState
       });
 
       // Create schedule request
+      final medicationId = widget.medicationId;
+      if (medicationId == null) {
+        _logger.error('Cannot create schedule without medication ID');
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Cannot create schedule without selecting a medication'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+        return;
+      }
+
       final scheduleRequest = CreateScheduleRequest(
-        medicationId: widget.medicationId,
+        medicationId: medicationId,
         instructions: _instructionsController.text.trim(),
         remindersEnabled: _remindersEnabled,
         startDate: _startDate!,

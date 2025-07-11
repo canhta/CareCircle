@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import '../../../../core/design/design_tokens.dart';
 import '../../domain/models/models.dart';
 
@@ -7,6 +8,7 @@ class MedicationCard extends StatelessWidget {
   final VoidCallback? onTap;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
+  final int? animationDelay;
 
   const MedicationCard({
     super.key,
@@ -14,6 +16,7 @@ class MedicationCard extends StatelessWidget {
     this.onTap,
     this.onEdit,
     this.onDelete,
+    this.animationDelay,
   });
 
   @override
@@ -38,6 +41,23 @@ class MedicationCard extends StatelessWidget {
           ),
         ),
       ),
+    )
+    // Healthcare-appropriate subtle animations
+    .animate(delay: Duration(milliseconds: (animationDelay ?? 0) * 100))
+    .fadeIn(duration: 400.ms, curve: Curves.easeOut)
+    .slideX(
+      begin: 0.2,
+      end: 0,
+      duration: 400.ms,
+      curve: Curves.easeOut,
+    )
+    // Hover/tap animations for better interaction feedback
+    .animate(target: onTap != null ? 1 : 0)
+    .scaleXY(
+      begin: 1.0,
+      end: 1.02,
+      duration: 150.ms,
+      curve: Curves.easeInOut,
     );
   }
 

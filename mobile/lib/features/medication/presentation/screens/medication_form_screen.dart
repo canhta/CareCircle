@@ -7,8 +7,16 @@ import '../providers/medication_providers.dart';
 
 class MedicationFormScreen extends ConsumerStatefulWidget {
   final Medication? medication; // null for add, non-null for edit
+  final String? medicationId; // Alternative way to specify medication for editing
 
-  const MedicationFormScreen({super.key, this.medication});
+  const MedicationFormScreen({
+    super.key,
+    this.medication,
+    this.medicationId,
+  }) : assert(
+         medication == null || medicationId == null,
+         'Cannot provide both medication and medicationId',
+       );
 
   @override
   ConsumerState<MedicationFormScreen> createState() =>
@@ -50,19 +58,64 @@ class _MedicationFormScreenState extends ConsumerState<MedicationFormScreen> {
 
   void _initializeForm() {
     if (widget.medication != null) {
-      final med = widget.medication!;
-      _nameController.text = med.name;
-      _genericNameController.text = med.genericName ?? '';
-      _strengthController.text = med.strength;
-      _manufacturerController.text = med.manufacturer ?? '';
-      _notesController.text = med.notes ?? '';
-      _selectedForm = med.form;
-      _selectedClassification = med.classification ?? 'Other';
-      _isActive = med.isActive;
-      _startDate = med.startDate;
-      _endDate = med.endDate;
+      _populateFormWithMedication(widget.medication!);
+    } else if (widget.medicationId != null) {
+      // Load medication by ID and populate form
+      _loadMedicationById(widget.medicationId!);
     } else {
+      // New medication form
       _startDate = DateTime.now();
+    }
+  }
+
+  void _populateFormWithMedication(Medication med) {
+    _nameController.text = med.name;
+    _genericNameController.text = med.genericName ?? '';
+    _strengthController.text = med.strength;
+    _manufacturerController.text = med.manufacturer ?? '';
+    _notesController.text = med.notes ?? '';
+    _selectedForm = med.form;
+    _selectedClassification = med.classification ?? 'Other';
+    _isActive = med.isActive;
+    _startDate = med.startDate;
+    _endDate = med.endDate;
+  }
+
+  Future<void> _loadMedicationById(String medicationId) async {
+    setState(() => _isLoading = true);
+
+    try {
+      final medicationAsync = ref.read(medicationProvider(medicationId));
+      medicationAsync.when(
+        data: (medication) {
+          if (medication != null) {
+            _populateFormWithMedication(medication);
+          }
+        },
+        loading: () {
+          // Keep loading state
+        },
+        error: (error, stack) {
+          _logger.error('Failed to load medication for editing', {
+            'medicationId': medicationId,
+            'error': error.toString(),
+            'timestamp': DateTime.now().toIso8601String(),
+          });
+          // Show error to user
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Failed to load medication: ${error.toString()}'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        },
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 

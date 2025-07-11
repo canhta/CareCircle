@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/logging/bounded_context_loggers.dart';
 import '../../domain/models/models.dart';
 import '../../infrastructure/repositories/medication_repository.dart';
+import '../../infrastructure/services/medication_notification_service.dart';
 
 // Healthcare-compliant logger for medication context
 final _logger = BoundedContextLoggers.medication;
@@ -266,4 +267,59 @@ final medicationStatisticsProvider = FutureProvider<Map<String, dynamic>>((ref) 
   }
 
   return stats;
+});
+
+// ============================================================================
+// NOTIFICATION PROVIDERS
+// ============================================================================
+
+/// Provider for medication notification service
+final medicationNotificationServiceProvider = Provider<MedicationNotificationService>((ref) {
+  return MedicationNotificationService();
+});
+
+/// Provider for notification initialization status
+final notificationInitializationProvider = FutureProvider<bool>((ref) async {
+  final service = ref.read(medicationNotificationServiceProvider);
+  final initialized = await service.initialize();
+
+  if (initialized) {
+    // Request permissions after initialization
+    await service.requestPermissions();
+  }
+
+  return initialized;
+});
+
+/// Provider for pending notifications count
+final pendingNotificationsCountProvider = FutureProvider<int>((ref) async {
+  final service = ref.read(medicationNotificationServiceProvider);
+  return service.getPendingNotificationsCount();
+});
+
+/// Provider for scheduling medication reminders
+final scheduleReminderProvider = Provider<Future<bool> Function({
+  required String medicationId,
+  required String medicationName,
+  required String dosage,
+  required DateTime scheduledTime,
+  String? instructions,
+})>((ref) {
+  final service = ref.read(medicationNotificationServiceProvider);
+
+  return ({
+    required String medicationId,
+    required String medicationName,
+    required String dosage,
+    required DateTime scheduledTime,
+    String? instructions,
+  }) async {
+    return service.scheduleMedicationReminder(
+      medicationId: medicationId,
+      medicationName: medicationName,
+      dosage: dosage,
+      scheduledTime: scheduledTime,
+      instructions: instructions,
+    );
+  };
 });
