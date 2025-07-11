@@ -1,80 +1,39 @@
-# CareCircle Vietnamese Healthcare Crawler System
+# CareCircle Vietnamese Healthcare Crawler
 
-A comprehensive local Python crawler system for extracting Vietnamese healthcare content and uploading it to the CareCircle backend via API endpoints.
+Docker-based web crawler for Vietnamese healthcare websites with Vietnamese NLP processing.
 
-## 🏗️ Architecture Overview
-
-This crawler system uses a **local execution architecture** where data extraction is performed by standalone Python scripts running in a virtual environment outside the backend server. This provides better resource management, easier debugging, and more flexible deployment options.
-
-### Key Benefits
-
-- **No Server Resources**: Crawling doesn't consume backend server CPU/memory
-- **Easier Development**: Debug and test crawlers independently with Python tools
-- **Flexible Scheduling**: Run crawlers on different machines or schedules
-- **Rich Ecosystem**: Leverage Python's extensive web scraping and Vietnamese NLP libraries
-- **Simpler Deployment**: No Chromium/Playwright dependencies on production servers
-
-## 📁 Project Structure
-
-```
-./crawlers/
-├── README.md                          # This file
-├── requirements.txt                   # Python dependencies
-├── setup.py                          # Setup script
-├── .env.example                      # Environment variables template
-├── .venv/                            # Python virtual environment (created during setup)
-├── config/
-│   ├── sources.json                   # Vietnamese healthcare sources configuration
-│   ├── crawler_settings.json         # Rate limiting, retry settings
-│   └── api_config.json               # Backend API endpoints and auth
-├── src/
-│   ├── core/
-│   │   ├── base_crawler.py           # Base crawler class with common functionality
-│   │   ├── content_processor.py      # Text cleaning and processing
-│   │   ├── api_client.py             # Backend API communication
-│   │   └── logger.py                 # Crawler logging system
-│   ├── extractors/
-│   │   ├── ministry_health.py        # Ministry of Health extractor
-│   │   ├── hospital_sites.py         # Hospital website extractors
-│   │   └── health_news.py            # Health news portal extractors
-│   └── utils/
-│       ├── vietnamese_nlp.py         # Vietnamese text processing
-│       ├── file_manager.py           # Local file storage management
-│       └── validation.py             # Content validation utilities
-├── scripts/
-│   ├── crawl_all.py                  # Run all configured crawlers
-│   ├── crawl_source.py               # Run specific source crawler
-│   ├── upload_data.py                # Upload crawled data to backend
-│   └── validate_sources.py           # Test source accessibility
-└── output/
-    ├── raw/                          # Raw crawled content (by date/source)
-    ├── processed/                    # Cleaned and processed content
-    ├── logs/                         # Crawler execution logs
-    └── uploads/                      # Data prepared for API upload
-```
-
-## 🚀 Quick Start
-
-### Prerequisites
-
-- Python 3.9+ installed
-- Access to CareCircle backend API
-- Valid Firebase JWT authentication token
-
-### 1. Setup
-
-Run the automated setup script:
+## Setup
 
 ```bash
 cd crawlers
-python setup.py
+./setup.sh
 ```
 
+## Manual Commands
+
+```bash
+# Build and start
+docker build -t carecircle-crawler:latest .
+docker-compose up -d
+
+# Access container
+docker-compose exec carecircle-crawler bash
+
+# Test Vietnamese NLP
+docker-compose exec carecircle-crawler python -c "
+from pyvi import ViTokenizer
+print(ViTokenizer.tokenize('Thuốc paracetamol giảm đau'))
+"
+```
+- Test the installation
+
+> **Note**: Docker setup provides a clean, isolated environment for Vietnamese NLP libraries without complex compilation issues.
+
 This will:
-- Create Python virtual environment
-- Install all dependencies
-- Create necessary directories
-- Set up configuration templates
+- Check Docker installation
+- Build Docker image with Vietnamese NLP libraries
+- Start Docker services
+- Test the installation
 
 ### 2. Configuration
 
@@ -90,6 +49,50 @@ cp .env.example .env
 
 # Configure Vietnamese healthcare sources
 # Edit config/sources.json to customize sources
+```
+
+### 3. Docker Usage
+
+#### Basic Commands
+
+```bash
+# Start services
+docker-compose up -d
+
+# Check status
+docker-compose ps
+
+# View logs
+docker-compose logs -f carecircle-crawler
+
+# Stop services
+docker-compose down
+```
+
+#### Running Crawlers
+
+```bash
+# Validate sources
+docker-compose exec carecircle-crawler python scripts/validate_sources.py
+
+# Run crawler
+docker-compose exec carecircle-crawler python scripts/crawl_source.py ministry-health --limit 5
+
+# Upload data
+docker-compose exec carecircle-crawler python scripts/upload_data.py --source ministry-health
+```
+
+#### Development
+
+```bash
+# Access container shell
+docker-compose exec carecircle-crawler bash
+
+# Python shell with Vietnamese NLP
+docker-compose exec carecircle-crawler python
+
+# Rebuild after code changes
+docker-compose build && docker-compose up -d
 ```
 
 ### 3. Validate Setup

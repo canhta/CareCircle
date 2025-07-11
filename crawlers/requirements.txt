@@ -5,8 +5,7 @@ lxml>=4.9.0
 scrapy>=2.11.0
 
 # Vietnamese Text Processing
-underthesea>=6.7.0
-pyvi>=0.1.1
+# Note: pyvi is installed in Docker image for Vietnamese word segmentation
 
 # Data Processing and Validation
 pandas>=2.0.0

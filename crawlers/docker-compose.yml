@@ -1,0 +1,81 @@
+# Docker Compose file for CareCircle Crawler
+
+services:
+  carecircle-crawler:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: carecircle-crawler:latest
+    container_name: carecircle-crawler
+    restart: unless-stopped
+    
+    # Environment variables
+    environment:
+      - PYTHONPATH=/app/src
+      - PYTHONUNBUFFERED=1
+    
+    # Load environment variables from .env file
+    env_file:
+      - .env
+    
+    # Volume mounts for development and data persistence
+    volumes:
+      # Mount source code for development (comment out for production)
+      - ./src:/app/src:ro
+      - ./scripts:/app/scripts:ro
+      - ./config:/app/config:ro
+      
+      # Mount data directories for persistence
+      - ./output:/app/output
+      - ./models:/app/models
+      
+      # Mount logs for debugging
+      - crawler-logs:/app/output/logs
+    
+    # Network configuration
+    networks:
+      - carecircle-network
+    
+    # Port mapping (if needed for API endpoints)
+    ports:
+      - "8080:8080"
+    
+    # Health check
+    healthcheck:
+      test: ["CMD", "python", "-c", "import pyvi; print('OK')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '1.0'
+        reservations:
+          memory: 512M
+          cpus: '0.5'
+    
+    # Command override for different modes
+    # Uncomment one of these or override with docker-compose run
+    # command: ["python", "scripts/crawl_source.py", "ministry-health", "--limit", "10"]
+    # command: ["python", "scripts/validate_sources.py"]
+    # command: ["python", "scripts/upload_data.py", "--source", "ministry-health"]
+    
+    # Keep container running for development
+    command: ["tail", "-f", "/dev/null"]
+
+# Named volumes
+volumes:
+  crawler-logs:
+    driver: local
+
+# Networks
+networks:
+  carecircle-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.25.0.0/16
