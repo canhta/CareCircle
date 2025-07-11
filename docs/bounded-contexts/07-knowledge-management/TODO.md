@@ -2,11 +2,19 @@
 
 ## Implementation Status: 🚀 Ready to Begin
 
-**Current State**: Design phase completed, ready for implementation
-**Target**: Vietnamese healthcare data crawler system with RAG integration
+**Current State**: Architecture refactored to local crawler execution
+**Target**: Vietnamese healthcare data ingestion system with RAG integration via local crawlers
 **Priority**: High - Critical for Vietnamese market adaptation
 
-## Phase 1: Foundation Setup (2-3 weeks) 🏗️
+## Architecture Overview
+
+**New Local Crawler Architecture:**
+- **Local Execution**: Standalone crawler scripts in `./crawlers/` directory
+- **Data Ingestion**: Backend APIs for receiving crawled content
+- **Vector Processing**: Backend handles embedding generation and storage
+- **Benefits**: No server-side Chromium, easier debugging, scalable execution
+
+## Phase 1: Backend Foundation Setup (2-3 weeks) 🏗️
 
 ### 1.1 Bounded Context Structure Setup
 
@@ -18,13 +26,13 @@
 - [ ] **Domain Layer Implementation**
   - [ ] Create KnowledgeItem entity with Vietnamese medical content support
   - [ ] Create DataSource entity for Vietnamese healthcare sources
-  - [ ] Create CrawlJob entity for background processing
+  - [ ] Create ContentBatch entity for batch upload tracking
   - [ ] Create MedicalEntity value object for Vietnamese medical terms
   - [ ] Implement repository interfaces following DDD patterns
 
 - [ ] **Database Schema Design**
   - [ ] Add Knowledge Management tables to Prisma schema
-  - [ ] Create migrations for knowledge_items, data_sources, crawl_jobs tables
+  - [ ] Create migrations for knowledge_items, data_sources, content_batches tables
   - [ ] Add indexes for Vietnamese text search and medical entity queries
   - [ ] Implement soft delete and audit trail support
 
@@ -47,24 +55,25 @@
   - [ ] Add metadata fields: source_type, medical_specialty, authority_score, language
   - [ ] Implement vector indexing strategies for optimal search performance
 
-### 1.3 Basic Crawler Infrastructure
+### 1.3 Data Ingestion API Infrastructure
 
-- [ ] **Web Crawler Service Implementation**
-  - **Location**: `backend/src/knowledge-management/infrastructure/services/web-crawler.service.ts`
-  - **Dependencies**: puppeteer, axios, cheerio
-  - **Features**: Rate limiting, robots.txt compliance, content extraction
+- [ ] **Data Ingestion Controller Implementation**
+  - **Location**: `backend/src/knowledge-management/presentation/controllers/data-ingestion.controller.ts`
+  - **Features**: Content upload endpoints, batch processing, validation
+  - **Authentication**: Firebase JWT for secure access
 
-- [ ] **Rate Limiting and Politeness**
-  - [ ] Implement configurable request delays (default: 1-2 seconds)
-  - [ ] Add concurrent request limiting (default: 2-3 concurrent)
-  - [ ] Create robots.txt parser and compliance checker
-  - [ ] Implement exponential backoff for failed requests
+- [ ] **API Endpoints**
+  - [ ] POST /knowledge-management/content/upload - Single content upload
+  - [ ] POST /knowledge-management/content/bulk-upload - Batch content upload
+  - [ ] GET /knowledge-management/sources - List configured sources
+  - [ ] POST /knowledge-management/sources/validate - Validate source configuration
+  - [ ] GET /knowledge-management/content/status - Check processing status
 
-- [ ] **Content Extraction Pipeline**
-  - [ ] Create HTML content extraction with CSS selectors
-  - [ ] Implement PDF text extraction for government documents
-  - [ ] Add content deduplication using hash-based detection
-  - [ ] Create content cleaning and normalization
+- [ ] **Content Validation Pipeline**
+  - [ ] Validate uploaded content structure and format
+  - [ ] Implement content deduplication using hash-based detection
+  - [ ] Create content quality assessment
+  - [ ] Add medical content validation rules
 
 ### 1.4 Vietnamese Text Processing Pipeline
 
@@ -88,62 +97,167 @@
 
 - [ ] **Data Source Repository Implementation**
   - **Location**: `backend/src/knowledge-management/infrastructure/repositories/prisma-data-source.repository.ts`
-  - **Features**: CRUD operations, source configuration, crawl scheduling
+  - **Features**: CRUD operations, source configuration, metadata tracking
 
-- [ ] **Initial Vietnamese Healthcare Sources**
-  - [ ] Add Vietnam Ministry of Health official website
-  - [ ] Add major Vietnamese hospital websites
-  - [ ] Add Vietnamese pharmaceutical information sources
-  - [ ] Add Vietnamese health news portals
-  - [ ] Configure crawl frequencies and content selectors
+- [ ] **Vietnamese Healthcare Sources Configuration**
+  - [ ] Define Vietnam Ministry of Health source metadata
+  - [ ] Configure major Vietnamese hospital source definitions
+  - [ ] Add Vietnamese pharmaceutical information source configs
+  - [ ] Define Vietnamese health news portal sources
+  - [ ] Create source authority scoring system
 
-## Phase 2: Core Crawling Implementation (3-4 weeks) 🕷️
+## Phase 2: Local Python Crawler Development (3-4 weeks) 🐍
 
-### 2.1 Web Scraping for Vietnamese Healthcare Sources
+### 2.1 Python Crawler Project Setup
 
-- [ ] **Source-Specific Extractors**
-  - [ ] Implement Ministry of Health content extractor
-  - [ ] Create hospital website content extractors
-  - [ ] Build pharmaceutical database extractors
-  - [ ] Develop health news portal extractors
+- [ ] **Python Virtual Environment Setup**
+  - [ ] Create `./crawlers/` directory in project root
+  - [ ] Set up Python virtual environment (.venv)
+  - [ ] Create requirements.txt with Python dependencies (requests, beautifulsoup4, underthesea, etc.)
+  - [ ] Configure Python project structure with proper __init__.py files
 
-- [ ] **Dynamic Content Handling**
-  - [ ] Implement Puppeteer for JavaScript-heavy sites
-  - [ ] Add wait strategies for dynamic content loading
-  - [ ] Create screenshot capture for debugging
-  - [ ] Implement session management for authenticated sources
+- [ ] **Core Python Components**
+  - [ ] Implement BaseCrawler class with rate limiting and error handling
+  - [ ] Create ContentProcessor for Vietnamese text processing
+  - [ ] Build APIClient for backend communication
+  - [ ] Set up logging system with loguru
 
-### 2.2 Content Extraction and Cleaning Pipelines
+- [ ] **Source-Specific Python Extractors**
+  - [ ] Create ministry_health.py extractor for Ministry of Health
+  - [ ] Build hospital_sites.py for Vietnamese hospital websites
+  - [ ] Develop pharma_db.py for pharmaceutical databases
+  - [ ] Create health_news.py for Vietnamese health news portals
+### 2.2 Vietnamese Language Processing with Python
 
-- [ ] **Content Processing Service**
-  - **Location**: `backend/src/knowledge-management/application/services/content-processing.service.ts`
-  - **Features**: Content extraction, cleaning, medical validation
+- [ ] **Vietnamese NLP Integration**
+  - [ ] Set up underthesea library for Vietnamese text processing
+  - [ ] Configure pyvi for additional Vietnamese NLP features
+  - [ ] Implement Vietnamese text normalization and cleaning
+  - [ ] Add diacritic handling and character encoding support
 
-- [ ] **Content Cleaning Pipeline**
-  - [ ] Remove navigation, ads, and non-content elements
-  - [ ] Extract main content using readability algorithms
-  - [ ] Clean up formatting and normalize text structure
-  - [ ] Remove duplicate paragraphs and redundant content
+- [ ] **Medical Entity Recognition**
+  - [ ] Create Vietnamese medical terminology dictionaries
+  - [ ] Implement drug name recognition for Vietnamese pharmaceuticals
+  - [ ] Add disease and symptom extraction in Vietnamese
+  - [ ] Build medical abbreviation expansion system
 
-- [ ] **Medical Content Validation**
-  - [ ] Implement medical content detection algorithms
-  - [ ] Create content quality scoring (0-100 scale)
-  - [ ] Add medical accuracy validation against known standards
-  - [ ] Implement content categorization by medical specialty
+- [ ] **Content Quality Assessment**
+  - [ ] Implement authority scoring based on source credibility
+  - [ ] Create content freshness detection algorithms
+  - [ ] Add duplicate content detection using content hashing
+  - [ ] Build medical accuracy validation rules
 
-### 2.3 Medical Entity Recognition for Vietnamese Content
+### 2.3 Local Data Processing and Storage
 
-- [ ] **Vietnamese Medical Entity Recognition**
-  - [ ] Implement medication name recognition (Vietnamese and international)
-  - [ ] Add medical condition and symptom detection
-  - [ ] Create treatment procedure and protocol recognition
-  - [ ] Implement dosage information extraction
+- [ ] **JSON Data Management**
+  - [ ] Implement local JSON file storage for crawled content
+  - [ ] Create structured data formats for different content types
+  - [ ] Add data validation using Pydantic models
+  - [ ] Implement data compression and archiving
 
-- [ ] **Entity Confidence Scoring**
-  - [ ] Calculate entity recognition confidence scores
-  - [ ] Implement context-based validation
-  - [ ] Add cross-reference validation with medical databases
-  - [ ] Create entity disambiguation for similar terms
+- [ ] **Batch Processing System**
+  - [ ] Create batch upload preparation scripts
+  - [ ] Implement data chunking for large datasets
+  - [ ] Add progress tracking and resumable uploads
+  - [ ] Build error handling and retry mechanisms
+
+## Phase 3: Python Crawler Implementation (2-3 weeks) 🔧
+
+### 3.1 Core Python Crawler Components
+
+- [ ] **Base Crawler Implementation**
+  - **Location**: `./crawlers/src/core/base_crawler.py`
+  - **Features**: Rate limiting, error handling, session management
+  - **Dependencies**: requests, beautifulsoup4, loguru
+
+- [ ] **Content Processor Implementation**
+  - **Location**: `./crawlers/src/core/content_processor.py`
+  - **Features**: Vietnamese text processing, entity extraction
+  - **Dependencies**: underthesea, pyvi, pydantic
+
+- [ ] **API Client Implementation**
+  - **Location**: `./crawlers/src/core/api_client.py`
+  - **Features**: Backend communication, batch uploads, authentication
+  - **Dependencies**: requests, python-dotenv
+
+### 3.2 Vietnamese Healthcare Source Extractors
+
+- [ ] **Ministry of Health Extractor**
+  - **Location**: `./crawlers/src/extractors/ministry_health.py`
+  - **Target**: https://moh.gov.vn
+  - **Content**: Official health policies, guidelines, announcements
+
+- [ ] **Hospital Website Extractors**
+  - **Location**: `./crawlers/src/extractors/hospital_sites.py`
+  - **Targets**: Bach Mai, Cho Ray, K Hospital, etc.
+  - **Content**: Treatment protocols, medical information
+
+- [ ] **Pharmaceutical Database Extractor**
+  - **Location**: `./crawlers/src/extractors/pharma_db.py`
+  - **Targets**: Vietnamese drug databases
+  - **Content**: Drug information, interactions, dosages
+
+- [ ] **Health News Extractor**
+  - **Location**: `./crawlers/src/extractors/health_news.py`
+  - **Targets**: VnExpress Health, Sức khỏe & Đời sống
+  - **Content**: Health news, medical research updates
+
+### 3.3 Python Crawler Scripts and Utilities
+
+- [ ] **Crawler Execution Scripts**
+  - **Location**: `./crawlers/scripts/`
+  - [ ] crawl_all.py - Execute all configured crawlers
+  - [ ] crawl_source.py - Run specific source crawler with options
+  - [ ] upload_data.py - Upload processed data to backend API
+  - [ ] validate_sources.py - Test source accessibility and configuration
+  - [ ] cleanup.py - Clean old crawled data and logs
+
+- [ ] **Configuration Management**
+  - **Location**: `./crawlers/config/`
+  - [ ] sources.json - Vietnamese healthcare source definitions
+  - [ ] crawler_settings.json - Rate limiting and processing settings
+  - [ ] api_config.json - Backend API endpoints and authentication
+
+- [ ] **Vietnamese NLP Utilities**
+  - **Location**: `./crawlers/src/utils/vietnamese_nlp.py`
+  - [ ] Text normalization and cleaning functions
+  - [ ] Medical entity extraction using underthesea
+  - [ ] Vietnamese medical terminology processing
+  - [ ] Content quality assessment algorithms
+
+## Phase 4: Backend Data Ingestion API (2-3 weeks) 🔄
+
+### 4.1 Data Ingestion Controller Implementation
+
+- [ ] **API Endpoints**
+  - **Location**: `backend/src/knowledge-management/presentation/controllers/data-ingestion.controller.ts`
+  - [ ] POST /knowledge-management/content/upload - Single content upload
+  - [ ] POST /knowledge-management/content/bulk-upload - Batch content upload
+  - [ ] GET /knowledge-management/sources - List configured sources
+  - [ ] POST /knowledge-management/sources/validate - Validate source configuration
+  - [ ] GET /knowledge-management/content/status - Check processing status
+
+- [ ] **Request Validation and Authentication**
+  - [ ] Firebase JWT authentication for all endpoints
+  - [ ] Content structure validation using DTOs
+  - [ ] Rate limiting for API endpoints
+  - [ ] Request logging and monitoring
+
+### 4.2 Content Processing Service
+
+- [ ] **Content Validation Service**
+  - **Location**: `backend/src/knowledge-management/application/services/content-validation.service.ts`
+  - [ ] Validate uploaded content structure and format
+  - [ ] Check content quality and medical relevance
+  - [ ] Implement duplicate detection using content hashing
+  - [ ] Medical content accuracy validation
+
+- [ ] **Batch Processing Service**
+  - **Location**: `backend/src/knowledge-management/application/services/batch-processing.service.ts`
+  - [ ] Handle large batch uploads efficiently
+  - [ ] Implement chunked processing for memory management
+  - [ ] Progress tracking and status reporting
+  - [ ] Error handling and partial failure recovery
 
 ### 2.4 Vector Embedding Generation and Storage
 

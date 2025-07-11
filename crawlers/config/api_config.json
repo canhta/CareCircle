@@ -1,0 +1,41 @@
+{
+  "backend_url": "http://localhost:3000",
+  "api_endpoints": {
+    "content_upload": "/knowledge-management/content/upload",
+    "bulk_upload": "/knowledge-management/content/bulk-upload",
+    "sources": "/knowledge-management/sources",
+    "source_validate": "/knowledge-management/sources/validate",
+    "status": "/knowledge-management/content/status"
+  },
+  "authentication": {
+    "type": "firebase_jwt",
+    "token_env_var": "FIREBASE_JWT_TOKEN",
+    "token_header": "Authorization",
+    "token_prefix": "Bearer"
+  },
+  "rate_limiting": {
+    "requests_per_minute": 60,
+    "batch_requests_per_minute": 10,
+    "status_requests_per_minute": 120,
+    "validate_requests_per_minute": 5
+  },
+  "request_settings": {
+    "timeout": 60,
+    "max_retries": 3,
+    "retry_delay": 10,
+    "backoff_factor": 2.0,
+    "verify_ssl": true
+  },
+  "upload_settings": {
+    "batch_size": 100,
+    "max_batch_size": 500,
+    "chunk_size": 50,
+    "parallel_uploads": 2,
+    "compress_payload": true
+  },
+  "headers": {
+    "User-Agent": "CareCircle-Crawler/1.0",
+    "Content-Type": "application/json",
+    "Accept": "application/json"
+  }
+}

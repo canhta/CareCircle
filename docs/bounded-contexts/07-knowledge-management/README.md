@@ -2,17 +2,17 @@
 
 ## Module Overview
 
-The Knowledge Management Context is responsible for crawling, processing, and managing Vietnamese healthcare data sources to enhance the AI Assistant's capabilities with localized medical knowledge. This context implements a comprehensive RAG (Retrieval-Augmented Generation) system that integrates Vietnamese medical databases, government health policies, pharmaceutical information, and healthcare news.
+The Knowledge Management Context is responsible for processing and managing Vietnamese healthcare data sources to enhance the AI Assistant's capabilities with localized medical knowledge. This context implements a comprehensive RAG (Retrieval-Augmented Generation) system that integrates Vietnamese medical databases, government health policies, pharmaceutical information, and healthcare news through a **local crawler architecture** where data extraction is performed by standalone scripts and ingested via API endpoints.
 
 ### Responsibilities
 
-- Vietnamese healthcare data source crawling and monitoring
-- Medical content extraction, processing, and validation
-- Vector database management for semantic search
-- Knowledge base maintenance and quality assurance
-- Content freshness tracking and automated updates
-- Medical authority verification and source ranking
-- Integration with AI Assistant for enhanced responses
+- **Data Ingestion API**: RESTful endpoints for receiving crawled Vietnamese healthcare content from local extraction scripts
+- **Content Processing and Validation**: Vietnamese language processing, medical entity recognition, and content quality assessment
+- **Vector Database Management**: Semantic indexing and retrieval using Milvus for Vietnamese medical content
+- **Knowledge Integration**: Enhanced AI Assistant responses with localized Vietnamese medical knowledge
+- **Source Authority Management**: Tracking and ranking of Vietnamese healthcare information sources
+- **Medical Content Curation**: Quality control and expert validation of uploaded medical information
+- **Batch Processing**: Efficient handling of large-scale content uploads from local crawlers
 
 ### Role in Overall Architecture
 
@@ -309,19 +309,20 @@ interface VietnameseNLPService {
 
 - **AI Assistant Context**: Enhanced with Vietnamese medical knowledge for localized responses
 - **Health Data Context**: Provides context for relevant medical content filtering
-- **Identity & Access Context**: Authentication for crawler operations and content access
-- **Notification Context**: Alerts for crawler status, content updates, and quality issues
+- **Identity & Access Context**: Authentication for data ingestion API access
+- **Notification Context**: Alerts for content processing status and quality issues
 - **Milvus Vector Database**: Semantic search and similarity matching
 - **OpenAI API**: Embedding generation and content validation
-- **Background Job Processing**: BullMQ for crawler scheduling and content processing
+- **Background Job Processing**: BullMQ for content processing and vector generation
+- **Local Crawler Scripts**: Standalone scripts in `./crawlers/` directory for data extraction
 
 ### Backend Implementation Notes
 
-1. **Crawler Infrastructure**
-   - Implement polite crawling with rate limiting and robots.txt compliance
-   - Use Puppeteer/Playwright for dynamic content extraction
-   - Implement content deduplication using hash-based detection
-   - Create robust error handling and retry mechanisms
+1. **Data Ingestion API**
+   - RESTful endpoints for receiving crawled content from local scripts
+   - Batch upload support for large datasets
+   - Content validation and quality assessment
+   - Authentication and rate limiting for API access
 
 2. **Vietnamese Language Processing**
    - Integrate Vietnamese NLP libraries for text normalization
@@ -342,10 +343,10 @@ interface VietnameseNLPService {
    - Optimize query performance for real-time AI Assistant integration
 
 5. **Background Processing**
-   - Schedule regular crawling jobs based on source update frequencies
+   - Process uploaded content for vector generation
    - Implement batch processing for large content volumes
-   - Create monitoring and alerting for crawler performance
-   - Build administrative interfaces for crawler management
+   - Create monitoring and alerting for processing performance
+   - Build administrative interfaces for content management
 
 ## To-do Checklist
 
