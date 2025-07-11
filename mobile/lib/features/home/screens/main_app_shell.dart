@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/design/care_circle_icons.dart';
+import '../../../core/design/design_tokens.dart';
 import '../../../core/widgets/navigation/care_circle_tab_bar.dart';
 
 import '../../../core/navigation/navigation_service.dart';
@@ -39,7 +40,12 @@ class _MainAppShellState extends ConsumerState<MainAppShell> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(index: _currentIndex, children: _screens),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: CareCircleGradientTokens.softBackground,
+        ),
+        child: IndexedStack(index: _currentIndex, children: _screens),
+      ),
       bottomNavigationBar: _buildHealthcareTabBar(),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
@@ -120,23 +126,5 @@ class _MainAppShellState extends ConsumerState<MainAppShell> {
   }
 
   // Healthcare AI Assistant helper methods
-  bool _hasUrgentHealthNotifications() {
-    // TODO: Implement urgent health notifications check
-    return false;
-  }
-
-  DateTime? _getLastAIInteraction() {
-    // TODO: Implement last AI interaction tracking
-    return null;
-  }
-
-  String? _getCurrentHealthContext() {
-    // TODO: Implement current health context
-    return null;
-  }
-
-  bool _isEmergencyModeActive() {
-    // TODO: Implement emergency mode detection
-    return false;
-  }
+  // Note: These methods will be implemented when AI assistant features are fully integrated
 }

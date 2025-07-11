@@ -46,34 +46,26 @@ class HealthcareActionCard extends StatelessWidget {
       hint: semanticHint ?? 'Tap to access $title',
       button: true,
       enabled: isEnabled,
-      child: Card(
-        elevation: _getCardElevation(),
-        color: _getCardColor(context),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(CareCircleSpacingTokens.md),
-          side: _getCardBorder(),
-        ),
-        child: InkWell(
-          onTap: isEnabled ? onTap : null,
-          borderRadius: BorderRadius.circular(CareCircleSpacingTokens.md),
-          child: Container(
-            padding: EdgeInsets.all(CareCircleSpacingTokens.md),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildHeader(context),
+      child: GestureDetector(
+        onTap: isEnabled ? onTap : null,
+        child: Container(
+          decoration: _getModernCardDecoration(context),
+          padding: EdgeInsets.all(CareCircleSpacingTokens.md),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildHeader(context),
+              SizedBox(height: CareCircleSpacingTokens.sm),
+              _buildContent(context),
+              if (showProgress && progressValue != null) ...[
                 SizedBox(height: CareCircleSpacingTokens.sm),
-                _buildContent(context),
-                if (showProgress && progressValue != null) ...[
-                  SizedBox(height: CareCircleSpacingTokens.sm),
-                  _buildProgressIndicator(context),
-                ],
-                if (lastUpdated != null) ...[
-                  SizedBox(height: CareCircleSpacingTokens.xs),
-                  _buildLastUpdated(context),
-                ],
+                _buildProgressIndicator(context),
               ],
-            ),
+              if (lastUpdated != null) ...[
+                SizedBox(height: CareCircleSpacingTokens.xs),
+                _buildLastUpdated(context),
+              ],
+            ],
           ),
         ),
       ),
@@ -85,13 +77,10 @@ class HealthcareActionCard extends StatelessWidget {
       children: [
         Container(
           padding: EdgeInsets.all(CareCircleSpacingTokens.sm),
-          decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(CareCircleSpacingTokens.sm),
-          ),
+          decoration: _getIconContainerDecoration(),
           child: Stack(
             children: [
-              Icon(icon, color: color, size: 24),
+              Icon(icon, color: _getIconColor(), size: 24),
               if (urgencyLevel != UrgencyLevel.none) _buildUrgencyIndicator(),
             ],
           ),
@@ -220,43 +209,11 @@ class HealthcareActionCard extends StatelessWidget {
   }
 
   // Helper methods
-  double _getCardElevation() {
-    if (!isEnabled) return 1;
 
-    switch (urgencyLevel) {
-      case UrgencyLevel.critical:
-        return 8;
-      case UrgencyLevel.high:
-        return 6;
-      case UrgencyLevel.medium:
-        return 4;
-      default:
-        return 2;
-    }
-  }
 
-  Color _getCardColor(BuildContext context) {
-    if (!isEnabled) {
-      return CareCircleColorTokens.lightColorScheme.surfaceContainerHighest;
-    }
 
-    if (urgencyLevel == UrgencyLevel.critical) {
-      return CareCircleColorTokens.criticalAlert.withValues(alpha: 0.05);
-    }
 
-    return CareCircleColorTokens.lightColorScheme.surface;
-  }
 
-  BorderSide _getCardBorder() {
-    if (urgencyLevel == UrgencyLevel.critical) {
-      return BorderSide(
-        color: CareCircleColorTokens.criticalAlert.withValues(alpha: 0.3),
-        width: 1,
-      );
-    }
-
-    return BorderSide.none;
-  }
 
   Color _getTextColor(BuildContext context) {
     if (!isEnabled) {
@@ -306,5 +263,110 @@ class HealthcareActionCard extends StatelessWidget {
     } else {
       return '${difference.inDays}d ago';
     }
+  }
+
+  /// Get modern icon container decoration
+  BoxDecoration _getIconContainerDecoration() {
+    // AI-related icons get special gradient treatment
+    if (title.toLowerCase().contains('ai') || title.toLowerCase().contains('assistant')) {
+      return BoxDecoration(
+        gradient: CareCircleGradientTokens.createHealthcareGradient(
+          primaryColor: const Color(0xFF7C4DFF),
+          lightenFactor: 0.3,
+          darkenFactor: 0.1,
+        ),
+        borderRadius: CareCircleModernEffectsTokens.radiusSM,
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF7C4DFF).withValues(alpha: 0.2),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      );
+    }
+
+    // High urgency items get glassmorphism
+    if (urgencyLevel == UrgencyLevel.critical || urgencyLevel == UrgencyLevel.high) {
+      return CareCircleGlassmorphismTokens.getUrgencyGlass(
+        urgencyLevel.name,
+        borderRadius: CareCircleModernEffectsTokens.radiusSM,
+      );
+    }
+
+    // Default modern gradient background
+    return BoxDecoration(
+      gradient: CareCircleGradientTokens.createHealthcareGradient(
+        primaryColor: color,
+        lightenFactor: 0.4,
+        darkenFactor: 0.1,
+      ),
+      borderRadius: CareCircleModernEffectsTokens.radiusSM,
+      boxShadow: CareCircleModernEffectsTokens.subtleShadow,
+    );
+  }
+
+  /// Get icon color based on container decoration
+  Color _getIconColor() {
+    // AI icons use white for better contrast on gradient
+    if (title.toLowerCase().contains('ai') || title.toLowerCase().contains('assistant')) {
+      return Colors.white;
+    }
+
+    // High urgency items use the original color
+    if (urgencyLevel == UrgencyLevel.critical || urgencyLevel == UrgencyLevel.high) {
+      return color;
+    }
+
+    // Default uses white for better contrast on gradient
+    return Colors.white;
+  }
+
+  /// Get modern card decoration with glassmorphism and gradients
+  BoxDecoration _getModernCardDecoration(BuildContext context) {
+    // Use glassmorphism for high urgency items
+    if (urgencyLevel == UrgencyLevel.critical || urgencyLevel == UrgencyLevel.high) {
+      return CareCircleGlassmorphismTokens.getUrgencyGlass(
+        urgencyLevel.name,
+        borderRadius: CareCircleModernEffectsTokens.radiusMD,
+      );
+    }
+
+    // Use gradient background for AI-related cards
+    if (title.toLowerCase().contains('ai') || title.toLowerCase().contains('assistant')) {
+      return BoxDecoration(
+        gradient: CareCircleGradientTokens.aiChat,
+        borderRadius: CareCircleModernEffectsTokens.radiusMD,
+        boxShadow: CareCircleModernEffectsTokens.aiShadow,
+        border: Border.all(
+          color: const Color(0x337C4DFF),
+          width: 1.5,
+        ),
+      );
+    }
+
+    // Use subtle gradient for health-related cards
+    if (title.toLowerCase().contains('health') || title.toLowerCase().contains('vital')) {
+      return BoxDecoration(
+        gradient: CareCircleGradientTokens.healthMetrics,
+        borderRadius: CareCircleModernEffectsTokens.radiusMD,
+        boxShadow: CareCircleModernEffectsTokens.softShadow,
+        border: Border.all(
+          color: color.withValues(alpha: 0.3),
+          width: 1.0,
+        ),
+      );
+    }
+
+    // Default modern card with subtle gradient
+    return BoxDecoration(
+      gradient: CareCircleGradientTokens.cardBackground,
+      borderRadius: CareCircleModernEffectsTokens.radiusMD,
+      boxShadow: CareCircleModernEffectsTokens.softShadow,
+      border: Border.all(
+        color: color.withValues(alpha: 0.2),
+        width: 1.0,
+      ),
+    );
   }
 }

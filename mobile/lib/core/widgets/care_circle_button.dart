@@ -12,9 +12,16 @@ enum CareCircleButtonVariant {
   medication,
   appointment,
   vitals,
+  // Modern gradient variants
+  primaryGradient,
+  aiAssistant,
+  aiGradient,
+  emergencyGradient,
+  healthGradient,
+  glassmorphism,
 }
 
-class CareCircleButton extends StatelessWidget {
+class CareCircleButton extends StatefulWidget {
   final VoidCallback? onPressed;
   final String text;
   final CareCircleButtonVariant variant;
@@ -27,6 +34,11 @@ class CareCircleButton extends StatelessWidget {
   final bool isUrgent;
   final String? medicalContext;
   final String? healthcareType;
+
+  // Modern styling properties
+  final bool enableModernEffects;
+  final bool enableHoverEffects;
+  final bool enablePressAnimation;
 
   // Accessibility properties
   final String? semanticLabel;
@@ -45,85 +57,194 @@ class CareCircleButton extends StatelessWidget {
     this.isUrgent = false,
     this.medicalContext,
     this.healthcareType,
+    this.enableModernEffects = true,
+    this.enableHoverEffects = true,
+    this.enablePressAnimation = true,
     this.semanticLabel,
     this.semanticHint,
     this.excludeSemantics = false,
   });
 
   @override
+  State<CareCircleButton> createState() => _CareCircleButtonState();
+}
+
+class _CareCircleButtonState extends State<CareCircleButton>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _animationController;
+  late Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 150),
+      vsync: this,
+    );
+    _scaleAnimation = Tween<double>(
+      begin: 1.0,
+      end: 0.95,
+    ).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeInOut,
+    ));
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  void _handleTapDown(TapDownDetails details) {
+    if (widget.enablePressAnimation && widget.onPressed != null) {
+      _animationController.forward();
+    }
+  }
+
+  void _handleTapUp(TapUpDetails details) {
+    if (widget.enablePressAnimation) {
+      _animationController.reverse();
+    }
+  }
+
+  void _handleTapCancel() {
+    if (widget.enablePressAnimation) {
+      _animationController.reverse();
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isDisabled = onPressed == null || isLoading;
+    final isDisabled = widget.onPressed == null || widget.isLoading;
 
-    // Determine button colors based on variant
+    // Determine button configuration based on variant
     final buttonConfig = _getButtonConfiguration(isDisabled, theme);
     final buttonHeight = _getButtonHeight();
     final textStyle = _getTextStyle(theme, buttonConfig['foregroundColor']);
 
-    Widget buttonChild = Row(
-      mainAxisSize: isFullWidth ? MainAxisSize.max : MainAxisSize.min,
+    // Build the button content
+    Widget buttonContent = _buildButtonContent(context, textStyle);
+
+    // Apply modern effects if enabled
+    if (widget.enableModernEffects) {
+      buttonContent = AnimatedBuilder(
+        animation: _scaleAnimation,
+        builder: (context, child) {
+          return Transform.scale(
+            scale: widget.enablePressAnimation ? _scaleAnimation.value : 1.0,
+            child: child,
+          );
+        },
+        child: buttonContent,
+      );
+    }
+
+    return Semantics(
+      label: widget.semanticLabel ?? _getDefaultSemanticLabel(),
+      hint: widget.semanticHint ?? _getDefaultSemanticHint(),
+      button: true,
+      enabled: !isDisabled,
+      excludeSemantics: widget.excludeSemantics,
+      child: Container(
+        height: buttonHeight,
+        width: widget.isFullWidth ? double.infinity : null,
+        padding: widget.padding,
+        child: GestureDetector(
+          onTapDown: _handleTapDown,
+          onTapUp: _handleTapUp,
+          onTapCancel: _handleTapCancel,
+          onTap: isDisabled ? null : widget.onPressed,
+          child: Container(
+            decoration: _getButtonDecoration(buttonConfig),
+            padding: EdgeInsets.symmetric(
+              horizontal: CareCircleSpacingTokens.md,
+              vertical: CareCircleSpacingTokens.sm,
+            ),
+            child: buttonContent,
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Build button content with icon and text
+  Widget _buildButtonContent(BuildContext context, TextStyle textStyle) {
+    return Row(
+      mainAxisSize: widget.isFullWidth ? MainAxisSize.max : MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        if (isLoading) ...[
+        if (widget.isLoading) ...[
           SizedBox(
             width: 20,
             height: 20,
             child: CircularProgressIndicator(
               strokeWidth: 2,
               valueColor: AlwaysStoppedAnimation<Color>(
-                buttonConfig['foregroundColor'],
+                textStyle.color ?? Colors.white,
               ),
             ),
           ),
           SizedBox(width: CareCircleSpacingTokens.sm),
-        ] else if (icon != null) ...[
-          Icon(icon, size: 20, color: buttonConfig['foregroundColor']),
+        ] else if (widget.icon != null) ...[
+          Icon(widget.icon, size: 20, color: textStyle.color),
           SizedBox(width: CareCircleSpacingTokens.sm),
         ],
-        if (isUrgent) ...[
+        if (widget.isUrgent) ...[
           Icon(
             Icons.priority_high,
             size: 16,
-            color: buttonConfig['foregroundColor'],
+            color: textStyle.color,
           ),
           SizedBox(width: CareCircleSpacingTokens.xs),
         ],
-        Text(text, style: textStyle),
+        Text(widget.text, style: textStyle),
       ],
     );
+  }
 
-    return Semantics(
-      label: semanticLabel ?? _getDefaultSemanticLabel(),
-      hint: semanticHint ?? _getDefaultSemanticHint(),
-      button: true,
-      enabled: !isDisabled,
-      excludeSemantics: excludeSemantics,
-      child: Container(
-        height: buttonHeight,
-        width: isFullWidth ? double.infinity : null,
-        padding: padding,
-        child: ElevatedButton(
-          onPressed: isDisabled ? null : onPressed,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: buttonConfig['backgroundColor'],
-            foregroundColor: buttonConfig['foregroundColor'],
-            elevation: _getElevation(),
-            shadowColor: buttonConfig['backgroundColor'].withValues(alpha: 0.3),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(CareCircleSpacingTokens.sm),
-              side: buttonConfig['borderColor'] != null
-                  ? BorderSide(color: buttonConfig['borderColor'], width: 1.5)
-                  : BorderSide.none,
-            ),
-            padding: EdgeInsets.symmetric(
-              horizontal: CareCircleSpacingTokens.md,
-              vertical: CareCircleSpacingTokens.sm,
-            ),
-          ),
-          child: buttonChild,
-        ),
-      ),
-    );
+  /// Get modern button decoration based on variant
+  BoxDecoration _getButtonDecoration(Map<String, dynamic> buttonConfig) {
+    // Import the new design tokens
+    switch (widget.variant) {
+      case CareCircleButtonVariant.primaryGradient:
+        return BoxDecoration(
+          gradient: CareCircleGradientTokens.primaryMedical,
+          borderRadius: CareCircleModernEffectsTokens.radiusSM,
+          boxShadow: CareCircleModernEffectsTokens.medicalShadow,
+        );
+      case CareCircleButtonVariant.aiAssistant:
+      case CareCircleButtonVariant.aiGradient:
+        return BoxDecoration(
+          gradient: CareCircleGradientTokens.aiAssistant,
+          borderRadius: CareCircleModernEffectsTokens.radiusLG,
+          boxShadow: CareCircleModernEffectsTokens.aiShadow,
+        );
+      case CareCircleButtonVariant.emergencyGradient:
+        return BoxDecoration(
+          gradient: CareCircleGradientTokens.criticalAlert,
+          borderRadius: CareCircleModernEffectsTokens.radiusSM,
+          boxShadow: CareCircleModernEffectsTokens.emergencyShadow,
+        );
+      case CareCircleButtonVariant.healthGradient:
+        return BoxDecoration(
+          gradient: CareCircleGradientTokens.healthSuccess,
+          borderRadius: CareCircleModernEffectsTokens.radiusSM,
+          boxShadow: CareCircleModernEffectsTokens.softShadow,
+        );
+      case CareCircleButtonVariant.glassmorphism:
+        return CareCircleGlassmorphismTokens.medicalCardGlass();
+      default:
+        return BoxDecoration(
+          color: buttonConfig['backgroundColor'],
+          borderRadius: CareCircleModernEffectsTokens.radiusSM,
+          boxShadow: CareCircleModernEffectsTokens.getShadowForElevation(_getElevation().round()),
+          border: buttonConfig['borderColor'] != null
+              ? Border.all(color: buttonConfig['borderColor'], width: 1.5)
+              : null,
+        );
+    }
   }
 
   // Helper Methods
@@ -137,7 +258,7 @@ class CareCircleButton extends StatelessWidget {
     Color foregroundColor;
     Color? borderColor;
 
-    switch (variant) {
+    switch (widget.variant) {
       case CareCircleButtonVariant.primary:
         backgroundColor = isDisabled
             ? CareCircleColorTokens.primaryMedicalBlue.withValues(alpha: 0.3)
@@ -197,6 +318,28 @@ class CareCircleButton extends StatelessWidget {
             ? CareCircleColorTokens.primaryMedicalBlue.withValues(alpha: 0.3)
             : CareCircleColorTokens.primaryMedicalBlue;
         break;
+      // Modern gradient variants
+      case CareCircleButtonVariant.primaryGradient:
+        backgroundColor = Colors.transparent; // Gradient will be applied in decoration
+        foregroundColor = Colors.white;
+        break;
+      case CareCircleButtonVariant.aiAssistant:
+      case CareCircleButtonVariant.aiGradient:
+        backgroundColor = Colors.transparent; // Gradient will be applied in decoration
+        foregroundColor = Colors.white;
+        break;
+      case CareCircleButtonVariant.emergencyGradient:
+        backgroundColor = Colors.transparent; // Gradient will be applied in decoration
+        foregroundColor = Colors.white;
+        break;
+      case CareCircleButtonVariant.healthGradient:
+        backgroundColor = Colors.transparent; // Gradient will be applied in decoration
+        foregroundColor = Colors.white;
+        break;
+      case CareCircleButtonVariant.glassmorphism:
+        backgroundColor = Colors.transparent; // Glassmorphism will be applied in decoration
+        foregroundColor = CareCircleColorTokens.primaryMedicalBlue;
+        break;
     }
 
     return {
@@ -208,7 +351,7 @@ class CareCircleButton extends StatelessWidget {
 
   /// Get button height based on variant
   double _getButtonHeight() {
-    switch (variant) {
+    switch (widget.variant) {
       case CareCircleButtonVariant.emergency:
       case CareCircleButtonVariant.critical:
         return CareCircleSpacingTokens.emergencyButtonMin;
@@ -223,7 +366,7 @@ class CareCircleButton extends StatelessWidget {
 
   /// Get text style based on variant
   TextStyle _getTextStyle(ThemeData theme, Color foregroundColor) {
-    switch (variant) {
+    switch (widget.variant) {
       case CareCircleButtonVariant.emergency:
       case CareCircleButtonVariant.critical:
         return CareCircleTypographyTokens.emergencyButton.copyWith(
@@ -245,7 +388,7 @@ class CareCircleButton extends StatelessWidget {
 
   /// Get elevation based on variant
   double _getElevation() {
-    switch (variant) {
+    switch (widget.variant) {
       case CareCircleButtonVariant.ghost:
         return 0;
       case CareCircleButtonVariant.emergency:
@@ -258,18 +401,18 @@ class CareCircleButton extends StatelessWidget {
 
   /// Get default semantic label
   String _getDefaultSemanticLabel() {
-    String baseLabel = text;
+    String baseLabel = widget.text;
 
-    if (isUrgent) {
+    if (widget.isUrgent) {
       baseLabel = 'Urgent: $baseLabel';
     }
 
-    if (medicalContext != null) {
-      baseLabel = '$baseLabel, $medicalContext';
+    if (widget.medicalContext != null) {
+      baseLabel = '$baseLabel, ${widget.medicalContext}';
     }
 
-    if (healthcareType != null) {
-      baseLabel = '$baseLabel, $healthcareType';
+    if (widget.healthcareType != null) {
+      baseLabel = '$baseLabel, ${widget.healthcareType}';
     }
 
     return baseLabel;
@@ -277,7 +420,7 @@ class CareCircleButton extends StatelessWidget {
 
   /// Get default semantic hint
   String _getDefaultSemanticHint() {
-    switch (variant) {
+    switch (widget.variant) {
       case CareCircleButtonVariant.emergency:
         return 'Emergency action button. Double-tap to activate.';
       case CareCircleButtonVariant.critical:

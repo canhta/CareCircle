@@ -39,6 +39,7 @@ class CareCircleTabBar extends StatelessWidget {
     this.selectedItemColor,
     this.unselectedItemColor,
     this.semanticLabel,
+    this.enableModernEffects = true,
   });
 
   final List<CareCircleTab> tabs;
@@ -48,25 +49,27 @@ class CareCircleTabBar extends StatelessWidget {
   final Color? selectedItemColor;
   final Color? unselectedItemColor;
   final String? semanticLabel;
+  final bool enableModernEffects;
 
   @override
   Widget build(BuildContext context) {
     return Semantics(
       label: semanticLabel ?? 'Healthcare navigation tabs',
       child: Container(
-        decoration: BoxDecoration(
-          color:
-              backgroundColor ?? CareCircleColorTokens.lightColorScheme.surface,
-          boxShadow: [
-            BoxShadow(
-              color: CareCircleColorTokens.lightColorScheme.shadow.withValues(
-                alpha: 0.1,
+        decoration: enableModernEffects
+            ? _getModernTabBarDecoration()
+            : BoxDecoration(
+                color: backgroundColor ??
+                    CareCircleColorTokens.lightColorScheme.surface,
+                boxShadow: [
+                  BoxShadow(
+                    color: CareCircleColorTokens.lightColorScheme.shadow
+                        .withValues(alpha: 0.1),
+                    blurRadius: 8,
+                    offset: const Offset(0, -2),
+                  ),
+                ],
               ),
-              blurRadius: 8,
-              offset: const Offset(0, -2),
-            ),
-          ],
-        ),
         child: SafeArea(
           child: Container(
             height: 80,
@@ -83,6 +86,20 @@ class CareCircleTabBar extends StatelessWidget {
               }).toList(),
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  /// Get modern tab bar decoration with glassmorphism
+  BoxDecoration _getModernTabBarDecoration() {
+    return BoxDecoration(
+      gradient: CareCircleGradientTokens.cardBackground,
+      boxShadow: CareCircleModernEffectsTokens.softShadow,
+      border: Border(
+        top: BorderSide(
+          color: CareCircleColorTokens.primaryMedicalBlue.withValues(alpha: 0.1),
+          width: 1.0,
         ),
       ),
     );
@@ -280,38 +297,60 @@ class HealthcareAIAssistantFAB extends StatelessWidget {
   Widget build(BuildContext context) {
     return Semantics(
       label: semanticLabel ?? 'AI Health Assistant',
-      hint:
-          semanticHint ??
-          'Open AI health assistant for personalized healthcare guidance',
+      hint: semanticHint ?? 'Open AI health assistant for personalized healthcare guidance',
       button: true,
-      child: FloatingActionButton(
-        heroTag: 'ai_assistant_fab',
-        onPressed: onPressed,
-        backgroundColor: emergencyMode
-            ? CareCircleColorTokens.emergencyRed
-            : CareCircleColorTokens.primaryMedicalBlue,
-        foregroundColor: Colors.white,
-        elevation: hasUrgentNotifications ? 8 : 6,
-        child: Stack(
-          children: [
-            Icon(emergencyMode ? Icons.emergency : Icons.psychology, size: 28),
-            if (hasUrgentNotifications)
-              Positioned(
-                top: 0,
-                right: 0,
-                child: Container(
-                  width: 12,
-                  height: 12,
-                  decoration: BoxDecoration(
-                    color: CareCircleColorTokens.criticalAlert,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white, width: 2),
-                  ),
+      child: GestureDetector(
+        onTap: onPressed,
+        child: Container(
+          width: 56,
+          height: 56,
+          decoration: _getModernFABDecoration(),
+          child: Stack(
+            children: [
+              Center(
+                child: Icon(
+                  emergencyMode ? Icons.emergency : Icons.psychology,
+                  size: 28,
+                  color: Colors.white,
                 ),
               ),
-          ],
+              if (hasUrgentNotifications)
+                Positioned(
+                  top: 8,
+                  right: 8,
+                  child: Container(
+                    width: 12,
+                    height: 12,
+                    decoration: BoxDecoration(
+                      color: CareCircleColorTokens.criticalAlert,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white, width: 2),
+                    ),
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
+    );
+  }
+
+  /// Get modern FAB decoration with AI gradient
+  BoxDecoration _getModernFABDecoration() {
+    if (emergencyMode) {
+      return BoxDecoration(
+        gradient: CareCircleGradientTokens.criticalAlert,
+        borderRadius: CareCircleModernEffectsTokens.radiusPill,
+        boxShadow: CareCircleModernEffectsTokens.emergencyShadow,
+      );
+    }
+
+    return BoxDecoration(
+      gradient: CareCircleGradientTokens.aiAssistant,
+      borderRadius: CareCircleModernEffectsTokens.radiusPill,
+      boxShadow: hasUrgentNotifications
+          ? CareCircleModernEffectsTokens.aiShadow
+          : CareCircleModernEffectsTokens.mediumShadow,
     );
   }
 }
