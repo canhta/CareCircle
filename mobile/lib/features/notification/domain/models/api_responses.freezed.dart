@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$NotificationResponse {
 
- bool get success; String get message; Notification? get data; Map<String, dynamic>? get errors;@JsonKey(name: 'timestamp') DateTime? get timestamp;
+ bool get success; String get message; Notification? get data; Map<String, dynamic>? get errors; DateTime? get timestamp;
 /// Create a copy of NotificationResponse
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -48,7 +48,7 @@ abstract mixin class $NotificationResponseCopyWith<$Res>  {
   factory $NotificationResponseCopyWith(NotificationResponse value, $Res Function(NotificationResponse) _then) = _$NotificationResponseCopyWithImpl;
 @useResult
 $Res call({
- bool success, String message, Notification? data, Map<String, dynamic>? errors,@JsonKey(name: 'timestamp') DateTime? timestamp
+ bool success, String message, Notification? data, Map<String, dynamic>? errors, DateTime? timestamp
 });
 
 
@@ -169,7 +169,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool success,  String message,  Notification? data,  Map<String, dynamic>? errors, @JsonKey(name: 'timestamp')  DateTime? timestamp)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool success,  String message,  Notification? data,  Map<String, dynamic>? errors,  DateTime? timestamp)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _NotificationResponse() when $default != null:
 return $default(_that.success,_that.message,_that.data,_that.errors,_that.timestamp);case _:
@@ -190,7 +190,7 @@ return $default(_that.success,_that.message,_that.data,_that.errors,_that.timest
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool success,  String message,  Notification? data,  Map<String, dynamic>? errors, @JsonKey(name: 'timestamp')  DateTime? timestamp)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool success,  String message,  Notification? data,  Map<String, dynamic>? errors,  DateTime? timestamp)  $default,) {final _that = this;
 switch (_that) {
 case _NotificationResponse():
 return $default(_that.success,_that.message,_that.data,_that.errors,_that.timestamp);case _:
@@ -210,7 +210,7 @@ return $default(_that.success,_that.message,_that.data,_that.errors,_that.timest
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool success,  String message,  Notification? data,  Map<String, dynamic>? errors, @JsonKey(name: 'timestamp')  DateTime? timestamp)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool success,  String message,  Notification? data,  Map<String, dynamic>? errors,  DateTime? timestamp)?  $default,) {final _that = this;
 switch (_that) {
 case _NotificationResponse() when $default != null:
 return $default(_that.success,_that.message,_that.data,_that.errors,_that.timestamp);case _:
@@ -225,7 +225,7 @@ return $default(_that.success,_that.message,_that.data,_that.errors,_that.timest
 @JsonSerializable()
 
 class _NotificationResponse implements NotificationResponse {
-  const _NotificationResponse({required this.success, required this.message, this.data, final  Map<String, dynamic>? errors, @JsonKey(name: 'timestamp') this.timestamp}): _errors = errors;
+  const _NotificationResponse({required this.success, required this.message, this.data, final  Map<String, dynamic>? errors, this.timestamp}): _errors = errors;
   factory _NotificationResponse.fromJson(Map<String, dynamic> json) => _$NotificationResponseFromJson(json);
 
 @override final  bool success;
@@ -240,7 +240,7 @@ class _NotificationResponse implements NotificationResponse {
   return EqualUnmodifiableMapView(value);
 }
 
-@override@JsonKey(name: 'timestamp') final  DateTime? timestamp;
+@override final  DateTime? timestamp;
 
 /// Create a copy of NotificationResponse
 /// with the given fields replaced by the non-null parameter values.
@@ -275,7 +275,7 @@ abstract mixin class _$NotificationResponseCopyWith<$Res> implements $Notificati
   factory _$NotificationResponseCopyWith(_NotificationResponse value, $Res Function(_NotificationResponse) _then) = __$NotificationResponseCopyWithImpl;
 @override @useResult
 $Res call({
- bool success, String message, Notification? data, Map<String, dynamic>? errors,@JsonKey(name: 'timestamp') DateTime? timestamp
+ bool success, String message, Notification? data, Map<String, dynamic>? errors, DateTime? timestamp
 });
 
 
@@ -322,7 +322,7 @@ $NotificationCopyWith<$Res>? get data {
 /// @nodoc
 mixin _$NotificationListResponse {
 
- bool get success; String get message; List<Notification> get data; Map<String, dynamic>? get errors;@JsonKey(name: 'timestamp') DateTime? get timestamp; PaginationMeta? get pagination;
+ bool get success; String get message; List<Notification> get data; Map<String, dynamic>? get errors; DateTime? get timestamp; PaginationMeta? get pagination;
 /// Create a copy of NotificationListResponse
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -355,7 +355,7 @@ abstract mixin class $NotificationListResponseCopyWith<$Res>  {
   factory $NotificationListResponseCopyWith(NotificationListResponse value, $Res Function(NotificationListResponse) _then) = _$NotificationListResponseCopyWithImpl;
 @useResult
 $Res call({
- bool success, String message, List<Notification> data, Map<String, dynamic>? errors,@JsonKey(name: 'timestamp') DateTime? timestamp, PaginationMeta? pagination
+ bool success, String message, List<Notification> data, Map<String, dynamic>? errors, DateTime? timestamp, PaginationMeta? pagination
 });
 
 
@@ -477,7 +477,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool success,  String message,  List<Notification> data,  Map<String, dynamic>? errors, @JsonKey(name: 'timestamp')  DateTime? timestamp,  PaginationMeta? pagination)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool success,  String message,  List<Notification> data,  Map<String, dynamic>? errors,  DateTime? timestamp,  PaginationMeta? pagination)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _NotificationListResponse() when $default != null:
 return $default(_that.success,_that.message,_that.data,_that.errors,_that.timestamp,_that.pagination);case _:
@@ -498,7 +498,7 @@ return $default(_that.success,_that.message,_that.data,_that.errors,_that.timest
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool success,  String message,  List<Notification> data,  Map<String, dynamic>? errors, @JsonKey(name: 'timestamp')  DateTime? timestamp,  PaginationMeta? pagination)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool success,  String message,  List<Notification> data,  Map<String, dynamic>? errors,  DateTime? timestamp,  PaginationMeta? pagination)  $default,) {final _that = this;
 switch (_that) {
 case _NotificationListResponse():
 return $default(_that.success,_that.message,_that.data,_that.errors,_that.timestamp,_that.pagination);case _:
@@ -518,7 +518,7 @@ return $default(_that.success,_that.message,_that.data,_that.errors,_that.timest
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool success,  String message,  List<Notification> data,  Map<String, dynamic>? errors, @JsonKey(name: 'timestamp')  DateTime? timestamp,  PaginationMeta? pagination)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool success,  String message,  List<Notification> data,  Map<String, dynamic>? errors,  DateTime? timestamp,  PaginationMeta? pagination)?  $default,) {final _that = this;
 switch (_that) {
 case _NotificationListResponse() when $default != null:
 return $default(_that.success,_that.message,_that.data,_that.errors,_that.timestamp,_that.pagination);case _:
@@ -533,7 +533,7 @@ return $default(_that.success,_that.message,_that.data,_that.errors,_that.timest
 @JsonSerializable()
 
 class _NotificationListResponse implements NotificationListResponse {
-  const _NotificationListResponse({required this.success, required this.message, final  List<Notification> data = const [], final  Map<String, dynamic>? errors, @JsonKey(name: 'timestamp') this.timestamp, this.pagination}): _data = data,_errors = errors;
+  const _NotificationListResponse({required this.success, required this.message, final  List<Notification> data = const [], final  Map<String, dynamic>? errors, this.timestamp, this.pagination}): _data = data,_errors = errors;
   factory _NotificationListResponse.fromJson(Map<String, dynamic> json) => _$NotificationListResponseFromJson(json);
 
 @override final  bool success;
@@ -554,7 +554,7 @@ class _NotificationListResponse implements NotificationListResponse {
   return EqualUnmodifiableMapView(value);
 }
 
-@override@JsonKey(name: 'timestamp') final  DateTime? timestamp;
+@override final  DateTime? timestamp;
 @override final  PaginationMeta? pagination;
 
 /// Create a copy of NotificationListResponse
@@ -590,7 +590,7 @@ abstract mixin class _$NotificationListResponseCopyWith<$Res> implements $Notifi
   factory _$NotificationListResponseCopyWith(_NotificationListResponse value, $Res Function(_NotificationListResponse) _then) = __$NotificationListResponseCopyWithImpl;
 @override @useResult
 $Res call({
- bool success, String message, List<Notification> data, Map<String, dynamic>? errors,@JsonKey(name: 'timestamp') DateTime? timestamp, PaginationMeta? pagination
+ bool success, String message, List<Notification> data, Map<String, dynamic>? errors, DateTime? timestamp, PaginationMeta? pagination
 });
 
 
@@ -638,7 +638,7 @@ $PaginationMetaCopyWith<$Res>? get pagination {
 /// @nodoc
 mixin _$NotificationSummaryResponse {
 
- bool get success; String get message; NotificationSummary? get data; Map<String, dynamic>? get errors;@JsonKey(name: 'timestamp') DateTime? get timestamp;
+ bool get success; String get message; NotificationSummary? get data; Map<String, dynamic>? get errors; DateTime? get timestamp;
 /// Create a copy of NotificationSummaryResponse
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -671,7 +671,7 @@ abstract mixin class $NotificationSummaryResponseCopyWith<$Res>  {
   factory $NotificationSummaryResponseCopyWith(NotificationSummaryResponse value, $Res Function(NotificationSummaryResponse) _then) = _$NotificationSummaryResponseCopyWithImpl;
 @useResult
 $Res call({
- bool success, String message, NotificationSummary? data, Map<String, dynamic>? errors,@JsonKey(name: 'timestamp') DateTime? timestamp
+ bool success, String message, NotificationSummary? data, Map<String, dynamic>? errors, DateTime? timestamp
 });
 
 
@@ -792,7 +792,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool success,  String message,  NotificationSummary? data,  Map<String, dynamic>? errors, @JsonKey(name: 'timestamp')  DateTime? timestamp)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool success,  String message,  NotificationSummary? data,  Map<String, dynamic>? errors,  DateTime? timestamp)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _NotificationSummaryResponse() when $default != null:
 return $default(_that.success,_that.message,_that.data,_that.errors,_that.timestamp);case _:
@@ -813,7 +813,7 @@ return $default(_that.success,_that.message,_that.data,_that.errors,_that.timest
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool success,  String message,  NotificationSummary? data,  Map<String, dynamic>? errors, @JsonKey(name: 'timestamp')  DateTime? timestamp)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool success,  String message,  NotificationSummary? data,  Map<String, dynamic>? errors,  DateTime? timestamp)  $default,) {final _that = this;
 switch (_that) {
 case _NotificationSummaryResponse():
 return $default(_that.success,_that.message,_that.data,_that.errors,_that.timestamp);case _:
@@ -833,7 +833,7 @@ return $default(_that.success,_that.message,_that.data,_that.errors,_that.timest
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool success,  String message,  NotificationSummary? data,  Map<String, dynamic>? errors, @JsonKey(name: 'timestamp')  DateTime? timestamp)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool success,  String message,  NotificationSummary? data,  Map<String, dynamic>? errors,  DateTime? timestamp)?  $default,) {final _that = this;
 switch (_that) {
 case _NotificationSummaryResponse() when $default != null:
 return $default(_that.success,_that.message,_that.data,_that.errors,_that.timestamp);case _:
@@ -848,7 +848,7 @@ return $default(_that.success,_that.message,_that.data,_that.errors,_that.timest
 @JsonSerializable()
 
 class _NotificationSummaryResponse implements NotificationSummaryResponse {
-  const _NotificationSummaryResponse({required this.success, required this.message, this.data, final  Map<String, dynamic>? errors, @JsonKey(name: 'timestamp') this.timestamp}): _errors = errors;
+  const _NotificationSummaryResponse({required this.success, required this.message, this.data, final  Map<String, dynamic>? errors, this.timestamp}): _errors = errors;
   factory _NotificationSummaryResponse.fromJson(Map<String, dynamic> json) => _$NotificationSummaryResponseFromJson(json);
 
 @override final  bool success;
@@ -863,7 +863,7 @@ class _NotificationSummaryResponse implements NotificationSummaryResponse {
   return EqualUnmodifiableMapView(value);
 }
 
-@override@JsonKey(name: 'timestamp') final  DateTime? timestamp;
+@override final  DateTime? timestamp;
 
 /// Create a copy of NotificationSummaryResponse
 /// with the given fields replaced by the non-null parameter values.
@@ -898,7 +898,7 @@ abstract mixin class _$NotificationSummaryResponseCopyWith<$Res> implements $Not
   factory _$NotificationSummaryResponseCopyWith(_NotificationSummaryResponse value, $Res Function(_NotificationSummaryResponse) _then) = __$NotificationSummaryResponseCopyWithImpl;
 @override @useResult
 $Res call({
- bool success, String message, NotificationSummary? data, Map<String, dynamic>? errors,@JsonKey(name: 'timestamp') DateTime? timestamp
+ bool success, String message, NotificationSummary? data, Map<String, dynamic>? errors, DateTime? timestamp
 });
 
 
@@ -945,7 +945,7 @@ $NotificationSummaryCopyWith<$Res>? get data {
 /// @nodoc
 mixin _$NotificationPreferencesResponse {
 
- bool get success; String get message; NotificationPreferences? get data; Map<String, dynamic>? get errors;@JsonKey(name: 'timestamp') DateTime? get timestamp;
+ bool get success; String get message; NotificationPreferences? get data; Map<String, dynamic>? get errors; DateTime? get timestamp;
 /// Create a copy of NotificationPreferencesResponse
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -978,7 +978,7 @@ abstract mixin class $NotificationPreferencesResponseCopyWith<$Res>  {
   factory $NotificationPreferencesResponseCopyWith(NotificationPreferencesResponse value, $Res Function(NotificationPreferencesResponse) _then) = _$NotificationPreferencesResponseCopyWithImpl;
 @useResult
 $Res call({
- bool success, String message, NotificationPreferences? data, Map<String, dynamic>? errors,@JsonKey(name: 'timestamp') DateTime? timestamp
+ bool success, String message, NotificationPreferences? data, Map<String, dynamic>? errors, DateTime? timestamp
 });
 
 
@@ -1099,7 +1099,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool success,  String message,  NotificationPreferences? data,  Map<String, dynamic>? errors, @JsonKey(name: 'timestamp')  DateTime? timestamp)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool success,  String message,  NotificationPreferences? data,  Map<String, dynamic>? errors,  DateTime? timestamp)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _NotificationPreferencesResponse() when $default != null:
 return $default(_that.success,_that.message,_that.data,_that.errors,_that.timestamp);case _:
@@ -1120,7 +1120,7 @@ return $default(_that.success,_that.message,_that.data,_that.errors,_that.timest
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool success,  String message,  NotificationPreferences? data,  Map<String, dynamic>? errors, @JsonKey(name: 'timestamp')  DateTime? timestamp)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool success,  String message,  NotificationPreferences? data,  Map<String, dynamic>? errors,  DateTime? timestamp)  $default,) {final _that = this;
 switch (_that) {
 case _NotificationPreferencesResponse():
 return $default(_that.success,_that.message,_that.data,_that.errors,_that.timestamp);case _:
@@ -1140,7 +1140,7 @@ return $default(_that.success,_that.message,_that.data,_that.errors,_that.timest
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool success,  String message,  NotificationPreferences? data,  Map<String, dynamic>? errors, @JsonKey(name: 'timestamp')  DateTime? timestamp)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool success,  String message,  NotificationPreferences? data,  Map<String, dynamic>? errors,  DateTime? timestamp)?  $default,) {final _that = this;
 switch (_that) {
 case _NotificationPreferencesResponse() when $default != null:
 return $default(_that.success,_that.message,_that.data,_that.errors,_that.timestamp);case _:
@@ -1155,7 +1155,7 @@ return $default(_that.success,_that.message,_that.data,_that.errors,_that.timest
 @JsonSerializable()
 
 class _NotificationPreferencesResponse implements NotificationPreferencesResponse {
-  const _NotificationPreferencesResponse({required this.success, required this.message, this.data, final  Map<String, dynamic>? errors, @JsonKey(name: 'timestamp') this.timestamp}): _errors = errors;
+  const _NotificationPreferencesResponse({required this.success, required this.message, this.data, final  Map<String, dynamic>? errors, this.timestamp}): _errors = errors;
   factory _NotificationPreferencesResponse.fromJson(Map<String, dynamic> json) => _$NotificationPreferencesResponseFromJson(json);
 
 @override final  bool success;
@@ -1170,7 +1170,7 @@ class _NotificationPreferencesResponse implements NotificationPreferencesRespons
   return EqualUnmodifiableMapView(value);
 }
 
-@override@JsonKey(name: 'timestamp') final  DateTime? timestamp;
+@override final  DateTime? timestamp;
 
 /// Create a copy of NotificationPreferencesResponse
 /// with the given fields replaced by the non-null parameter values.
@@ -1205,7 +1205,7 @@ abstract mixin class _$NotificationPreferencesResponseCopyWith<$Res> implements 
   factory _$NotificationPreferencesResponseCopyWith(_NotificationPreferencesResponse value, $Res Function(_NotificationPreferencesResponse) _then) = __$NotificationPreferencesResponseCopyWithImpl;
 @override @useResult
 $Res call({
- bool success, String message, NotificationPreferences? data, Map<String, dynamic>? errors,@JsonKey(name: 'timestamp') DateTime? timestamp
+ bool success, String message, NotificationPreferences? data, Map<String, dynamic>? errors, DateTime? timestamp
 });
 
 
@@ -1252,7 +1252,7 @@ $NotificationPreferencesCopyWith<$Res>? get data {
 /// @nodoc
 mixin _$EmergencyAlertResponse {
 
- bool get success; String get message; EmergencyAlert? get data; Map<String, dynamic>? get errors;@JsonKey(name: 'timestamp') DateTime? get timestamp;
+ bool get success; String get message; EmergencyAlert? get data; Map<String, dynamic>? get errors; DateTime? get timestamp;
 /// Create a copy of EmergencyAlertResponse
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -1285,7 +1285,7 @@ abstract mixin class $EmergencyAlertResponseCopyWith<$Res>  {
   factory $EmergencyAlertResponseCopyWith(EmergencyAlertResponse value, $Res Function(EmergencyAlertResponse) _then) = _$EmergencyAlertResponseCopyWithImpl;
 @useResult
 $Res call({
- bool success, String message, EmergencyAlert? data, Map<String, dynamic>? errors,@JsonKey(name: 'timestamp') DateTime? timestamp
+ bool success, String message, EmergencyAlert? data, Map<String, dynamic>? errors, DateTime? timestamp
 });
 
 
@@ -1406,7 +1406,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool success,  String message,  EmergencyAlert? data,  Map<String, dynamic>? errors, @JsonKey(name: 'timestamp')  DateTime? timestamp)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool success,  String message,  EmergencyAlert? data,  Map<String, dynamic>? errors,  DateTime? timestamp)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _EmergencyAlertResponse() when $default != null:
 return $default(_that.success,_that.message,_that.data,_that.errors,_that.timestamp);case _:
@@ -1427,7 +1427,7 @@ return $default(_that.success,_that.message,_that.data,_that.errors,_that.timest
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool success,  String message,  EmergencyAlert? data,  Map<String, dynamic>? errors, @JsonKey(name: 'timestamp')  DateTime? timestamp)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool success,  String message,  EmergencyAlert? data,  Map<String, dynamic>? errors,  DateTime? timestamp)  $default,) {final _that = this;
 switch (_that) {
 case _EmergencyAlertResponse():
 return $default(_that.success,_that.message,_that.data,_that.errors,_that.timestamp);case _:
@@ -1447,7 +1447,7 @@ return $default(_that.success,_that.message,_that.data,_that.errors,_that.timest
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool success,  String message,  EmergencyAlert? data,  Map<String, dynamic>? errors, @JsonKey(name: 'timestamp')  DateTime? timestamp)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool success,  String message,  EmergencyAlert? data,  Map<String, dynamic>? errors,  DateTime? timestamp)?  $default,) {final _that = this;
 switch (_that) {
 case _EmergencyAlertResponse() when $default != null:
 return $default(_that.success,_that.message,_that.data,_that.errors,_that.timestamp);case _:
@@ -1462,7 +1462,7 @@ return $default(_that.success,_that.message,_that.data,_that.errors,_that.timest
 @JsonSerializable()
 
 class _EmergencyAlertResponse implements EmergencyAlertResponse {
-  const _EmergencyAlertResponse({required this.success, required this.message, this.data, final  Map<String, dynamic>? errors, @JsonKey(name: 'timestamp') this.timestamp}): _errors = errors;
+  const _EmergencyAlertResponse({required this.success, required this.message, this.data, final  Map<String, dynamic>? errors, this.timestamp}): _errors = errors;
   factory _EmergencyAlertResponse.fromJson(Map<String, dynamic> json) => _$EmergencyAlertResponseFromJson(json);
 
 @override final  bool success;
@@ -1477,7 +1477,7 @@ class _EmergencyAlertResponse implements EmergencyAlertResponse {
   return EqualUnmodifiableMapView(value);
 }
 
-@override@JsonKey(name: 'timestamp') final  DateTime? timestamp;
+@override final  DateTime? timestamp;
 
 /// Create a copy of EmergencyAlertResponse
 /// with the given fields replaced by the non-null parameter values.
@@ -1512,7 +1512,7 @@ abstract mixin class _$EmergencyAlertResponseCopyWith<$Res> implements $Emergenc
   factory _$EmergencyAlertResponseCopyWith(_EmergencyAlertResponse value, $Res Function(_EmergencyAlertResponse) _then) = __$EmergencyAlertResponseCopyWithImpl;
 @override @useResult
 $Res call({
- bool success, String message, EmergencyAlert? data, Map<String, dynamic>? errors,@JsonKey(name: 'timestamp') DateTime? timestamp
+ bool success, String message, EmergencyAlert? data, Map<String, dynamic>? errors, DateTime? timestamp
 });
 
 
@@ -1559,7 +1559,7 @@ $EmergencyAlertCopyWith<$Res>? get data {
 /// @nodoc
 mixin _$EmergencyAlertListResponse {
 
- bool get success; String get message; List<EmergencyAlert> get data; Map<String, dynamic>? get errors;@JsonKey(name: 'timestamp') DateTime? get timestamp; PaginationMeta? get pagination;
+ bool get success; String get message; List<EmergencyAlert> get data; Map<String, dynamic>? get errors; DateTime? get timestamp; PaginationMeta? get pagination;
 /// Create a copy of EmergencyAlertListResponse
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -1592,7 +1592,7 @@ abstract mixin class $EmergencyAlertListResponseCopyWith<$Res>  {
   factory $EmergencyAlertListResponseCopyWith(EmergencyAlertListResponse value, $Res Function(EmergencyAlertListResponse) _then) = _$EmergencyAlertListResponseCopyWithImpl;
 @useResult
 $Res call({
- bool success, String message, List<EmergencyAlert> data, Map<String, dynamic>? errors,@JsonKey(name: 'timestamp') DateTime? timestamp, PaginationMeta? pagination
+ bool success, String message, List<EmergencyAlert> data, Map<String, dynamic>? errors, DateTime? timestamp, PaginationMeta? pagination
 });
 
 
@@ -1714,7 +1714,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool success,  String message,  List<EmergencyAlert> data,  Map<String, dynamic>? errors, @JsonKey(name: 'timestamp')  DateTime? timestamp,  PaginationMeta? pagination)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool success,  String message,  List<EmergencyAlert> data,  Map<String, dynamic>? errors,  DateTime? timestamp,  PaginationMeta? pagination)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _EmergencyAlertListResponse() when $default != null:
 return $default(_that.success,_that.message,_that.data,_that.errors,_that.timestamp,_that.pagination);case _:
@@ -1735,7 +1735,7 @@ return $default(_that.success,_that.message,_that.data,_that.errors,_that.timest
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool success,  String message,  List<EmergencyAlert> data,  Map<String, dynamic>? errors, @JsonKey(name: 'timestamp')  DateTime? timestamp,  PaginationMeta? pagination)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool success,  String message,  List<EmergencyAlert> data,  Map<String, dynamic>? errors,  DateTime? timestamp,  PaginationMeta? pagination)  $default,) {final _that = this;
 switch (_that) {
 case _EmergencyAlertListResponse():
 return $default(_that.success,_that.message,_that.data,_that.errors,_that.timestamp,_that.pagination);case _:
@@ -1755,7 +1755,7 @@ return $default(_that.success,_that.message,_that.data,_that.errors,_that.timest
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool success,  String message,  List<EmergencyAlert> data,  Map<String, dynamic>? errors, @JsonKey(name: 'timestamp')  DateTime? timestamp,  PaginationMeta? pagination)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool success,  String message,  List<EmergencyAlert> data,  Map<String, dynamic>? errors,  DateTime? timestamp,  PaginationMeta? pagination)?  $default,) {final _that = this;
 switch (_that) {
 case _EmergencyAlertListResponse() when $default != null:
 return $default(_that.success,_that.message,_that.data,_that.errors,_that.timestamp,_that.pagination);case _:
@@ -1770,7 +1770,7 @@ return $default(_that.success,_that.message,_that.data,_that.errors,_that.timest
 @JsonSerializable()
 
 class _EmergencyAlertListResponse implements EmergencyAlertListResponse {
-  const _EmergencyAlertListResponse({required this.success, required this.message, final  List<EmergencyAlert> data = const [], final  Map<String, dynamic>? errors, @JsonKey(name: 'timestamp') this.timestamp, this.pagination}): _data = data,_errors = errors;
+  const _EmergencyAlertListResponse({required this.success, required this.message, final  List<EmergencyAlert> data = const [], final  Map<String, dynamic>? errors, this.timestamp, this.pagination}): _data = data,_errors = errors;
   factory _EmergencyAlertListResponse.fromJson(Map<String, dynamic> json) => _$EmergencyAlertListResponseFromJson(json);
 
 @override final  bool success;
@@ -1791,7 +1791,7 @@ class _EmergencyAlertListResponse implements EmergencyAlertListResponse {
   return EqualUnmodifiableMapView(value);
 }
 
-@override@JsonKey(name: 'timestamp') final  DateTime? timestamp;
+@override final  DateTime? timestamp;
 @override final  PaginationMeta? pagination;
 
 /// Create a copy of EmergencyAlertListResponse
@@ -1827,7 +1827,7 @@ abstract mixin class _$EmergencyAlertListResponseCopyWith<$Res> implements $Emer
   factory _$EmergencyAlertListResponseCopyWith(_EmergencyAlertListResponse value, $Res Function(_EmergencyAlertListResponse) _then) = __$EmergencyAlertListResponseCopyWithImpl;
 @override @useResult
 $Res call({
- bool success, String message, List<EmergencyAlert> data, Map<String, dynamic>? errors,@JsonKey(name: 'timestamp') DateTime? timestamp, PaginationMeta? pagination
+ bool success, String message, List<EmergencyAlert> data, Map<String, dynamic>? errors, DateTime? timestamp, PaginationMeta? pagination
 });
 
 
@@ -1875,7 +1875,7 @@ $PaginationMetaCopyWith<$Res>? get pagination {
 /// @nodoc
 mixin _$EmergencyContactResponse {
 
- bool get success; String get message; EmergencyContact? get data; Map<String, dynamic>? get errors;@JsonKey(name: 'timestamp') DateTime? get timestamp;
+ bool get success; String get message; EmergencyContact? get data; Map<String, dynamic>? get errors; DateTime? get timestamp;
 /// Create a copy of EmergencyContactResponse
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -1908,7 +1908,7 @@ abstract mixin class $EmergencyContactResponseCopyWith<$Res>  {
   factory $EmergencyContactResponseCopyWith(EmergencyContactResponse value, $Res Function(EmergencyContactResponse) _then) = _$EmergencyContactResponseCopyWithImpl;
 @useResult
 $Res call({
- bool success, String message, EmergencyContact? data, Map<String, dynamic>? errors,@JsonKey(name: 'timestamp') DateTime? timestamp
+ bool success, String message, EmergencyContact? data, Map<String, dynamic>? errors, DateTime? timestamp
 });
 
 
@@ -2029,7 +2029,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool success,  String message,  EmergencyContact? data,  Map<String, dynamic>? errors, @JsonKey(name: 'timestamp')  DateTime? timestamp)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool success,  String message,  EmergencyContact? data,  Map<String, dynamic>? errors,  DateTime? timestamp)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _EmergencyContactResponse() when $default != null:
 return $default(_that.success,_that.message,_that.data,_that.errors,_that.timestamp);case _:
@@ -2050,7 +2050,7 @@ return $default(_that.success,_that.message,_that.data,_that.errors,_that.timest
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool success,  String message,  EmergencyContact? data,  Map<String, dynamic>? errors, @JsonKey(name: 'timestamp')  DateTime? timestamp)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool success,  String message,  EmergencyContact? data,  Map<String, dynamic>? errors,  DateTime? timestamp)  $default,) {final _that = this;
 switch (_that) {
 case _EmergencyContactResponse():
 return $default(_that.success,_that.message,_that.data,_that.errors,_that.timestamp);case _:
@@ -2070,7 +2070,7 @@ return $default(_that.success,_that.message,_that.data,_that.errors,_that.timest
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool success,  String message,  EmergencyContact? data,  Map<String, dynamic>? errors, @JsonKey(name: 'timestamp')  DateTime? timestamp)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool success,  String message,  EmergencyContact? data,  Map<String, dynamic>? errors,  DateTime? timestamp)?  $default,) {final _that = this;
 switch (_that) {
 case _EmergencyContactResponse() when $default != null:
 return $default(_that.success,_that.message,_that.data,_that.errors,_that.timestamp);case _:
@@ -2085,7 +2085,7 @@ return $default(_that.success,_that.message,_that.data,_that.errors,_that.timest
 @JsonSerializable()
 
 class _EmergencyContactResponse implements EmergencyContactResponse {
-  const _EmergencyContactResponse({required this.success, required this.message, this.data, final  Map<String, dynamic>? errors, @JsonKey(name: 'timestamp') this.timestamp}): _errors = errors;
+  const _EmergencyContactResponse({required this.success, required this.message, this.data, final  Map<String, dynamic>? errors, this.timestamp}): _errors = errors;
   factory _EmergencyContactResponse.fromJson(Map<String, dynamic> json) => _$EmergencyContactResponseFromJson(json);
 
 @override final  bool success;
@@ -2100,7 +2100,7 @@ class _EmergencyContactResponse implements EmergencyContactResponse {
   return EqualUnmodifiableMapView(value);
 }
 
-@override@JsonKey(name: 'timestamp') final  DateTime? timestamp;
+@override final  DateTime? timestamp;
 
 /// Create a copy of EmergencyContactResponse
 /// with the given fields replaced by the non-null parameter values.
@@ -2135,7 +2135,7 @@ abstract mixin class _$EmergencyContactResponseCopyWith<$Res> implements $Emerge
   factory _$EmergencyContactResponseCopyWith(_EmergencyContactResponse value, $Res Function(_EmergencyContactResponse) _then) = __$EmergencyContactResponseCopyWithImpl;
 @override @useResult
 $Res call({
- bool success, String message, EmergencyContact? data, Map<String, dynamic>? errors,@JsonKey(name: 'timestamp') DateTime? timestamp
+ bool success, String message, EmergencyContact? data, Map<String, dynamic>? errors, DateTime? timestamp
 });
 
 
@@ -2182,7 +2182,7 @@ $EmergencyContactCopyWith<$Res>? get data {
 /// @nodoc
 mixin _$EmergencyContactListResponse {
 
- bool get success; String get message; List<EmergencyContact> get data; Map<String, dynamic>? get errors;@JsonKey(name: 'timestamp') DateTime? get timestamp; PaginationMeta? get pagination;
+ bool get success; String get message; List<EmergencyContact> get data; Map<String, dynamic>? get errors; DateTime? get timestamp; PaginationMeta? get pagination;
 /// Create a copy of EmergencyContactListResponse
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -2215,7 +2215,7 @@ abstract mixin class $EmergencyContactListResponseCopyWith<$Res>  {
   factory $EmergencyContactListResponseCopyWith(EmergencyContactListResponse value, $Res Function(EmergencyContactListResponse) _then) = _$EmergencyContactListResponseCopyWithImpl;
 @useResult
 $Res call({
- bool success, String message, List<EmergencyContact> data, Map<String, dynamic>? errors,@JsonKey(name: 'timestamp') DateTime? timestamp, PaginationMeta? pagination
+ bool success, String message, List<EmergencyContact> data, Map<String, dynamic>? errors, DateTime? timestamp, PaginationMeta? pagination
 });
 
 
@@ -2337,7 +2337,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool success,  String message,  List<EmergencyContact> data,  Map<String, dynamic>? errors, @JsonKey(name: 'timestamp')  DateTime? timestamp,  PaginationMeta? pagination)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool success,  String message,  List<EmergencyContact> data,  Map<String, dynamic>? errors,  DateTime? timestamp,  PaginationMeta? pagination)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _EmergencyContactListResponse() when $default != null:
 return $default(_that.success,_that.message,_that.data,_that.errors,_that.timestamp,_that.pagination);case _:
@@ -2358,7 +2358,7 @@ return $default(_that.success,_that.message,_that.data,_that.errors,_that.timest
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool success,  String message,  List<EmergencyContact> data,  Map<String, dynamic>? errors, @JsonKey(name: 'timestamp')  DateTime? timestamp,  PaginationMeta? pagination)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool success,  String message,  List<EmergencyContact> data,  Map<String, dynamic>? errors,  DateTime? timestamp,  PaginationMeta? pagination)  $default,) {final _that = this;
 switch (_that) {
 case _EmergencyContactListResponse():
 return $default(_that.success,_that.message,_that.data,_that.errors,_that.timestamp,_that.pagination);case _:
@@ -2378,7 +2378,7 @@ return $default(_that.success,_that.message,_that.data,_that.errors,_that.timest
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool success,  String message,  List<EmergencyContact> data,  Map<String, dynamic>? errors, @JsonKey(name: 'timestamp')  DateTime? timestamp,  PaginationMeta? pagination)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool success,  String message,  List<EmergencyContact> data,  Map<String, dynamic>? errors,  DateTime? timestamp,  PaginationMeta? pagination)?  $default,) {final _that = this;
 switch (_that) {
 case _EmergencyContactListResponse() when $default != null:
 return $default(_that.success,_that.message,_that.data,_that.errors,_that.timestamp,_that.pagination);case _:
@@ -2393,7 +2393,7 @@ return $default(_that.success,_that.message,_that.data,_that.errors,_that.timest
 @JsonSerializable()
 
 class _EmergencyContactListResponse implements EmergencyContactListResponse {
-  const _EmergencyContactListResponse({required this.success, required this.message, final  List<EmergencyContact> data = const [], final  Map<String, dynamic>? errors, @JsonKey(name: 'timestamp') this.timestamp, this.pagination}): _data = data,_errors = errors;
+  const _EmergencyContactListResponse({required this.success, required this.message, final  List<EmergencyContact> data = const [], final  Map<String, dynamic>? errors, this.timestamp, this.pagination}): _data = data,_errors = errors;
   factory _EmergencyContactListResponse.fromJson(Map<String, dynamic> json) => _$EmergencyContactListResponseFromJson(json);
 
 @override final  bool success;
@@ -2414,7 +2414,7 @@ class _EmergencyContactListResponse implements EmergencyContactListResponse {
   return EqualUnmodifiableMapView(value);
 }
 
-@override@JsonKey(name: 'timestamp') final  DateTime? timestamp;
+@override final  DateTime? timestamp;
 @override final  PaginationMeta? pagination;
 
 /// Create a copy of EmergencyContactListResponse
@@ -2450,7 +2450,7 @@ abstract mixin class _$EmergencyContactListResponseCopyWith<$Res> implements $Em
   factory _$EmergencyContactListResponseCopyWith(_EmergencyContactListResponse value, $Res Function(_EmergencyContactListResponse) _then) = __$EmergencyContactListResponseCopyWithImpl;
 @override @useResult
 $Res call({
- bool success, String message, List<EmergencyContact> data, Map<String, dynamic>? errors,@JsonKey(name: 'timestamp') DateTime? timestamp, PaginationMeta? pagination
+ bool success, String message, List<EmergencyContact> data, Map<String, dynamic>? errors, DateTime? timestamp, PaginationMeta? pagination
 });
 
 
@@ -2498,7 +2498,7 @@ $PaginationMetaCopyWith<$Res>? get pagination {
 /// @nodoc
 mixin _$NotificationTemplateResponse {
 
- bool get success; String get message; NotificationTemplate? get data; Map<String, dynamic>? get errors;@JsonKey(name: 'timestamp') DateTime? get timestamp;
+ bool get success; String get message; NotificationTemplate? get data; Map<String, dynamic>? get errors; DateTime? get timestamp;
 /// Create a copy of NotificationTemplateResponse
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -2531,7 +2531,7 @@ abstract mixin class $NotificationTemplateResponseCopyWith<$Res>  {
   factory $NotificationTemplateResponseCopyWith(NotificationTemplateResponse value, $Res Function(NotificationTemplateResponse) _then) = _$NotificationTemplateResponseCopyWithImpl;
 @useResult
 $Res call({
- bool success, String message, NotificationTemplate? data, Map<String, dynamic>? errors,@JsonKey(name: 'timestamp') DateTime? timestamp
+ bool success, String message, NotificationTemplate? data, Map<String, dynamic>? errors, DateTime? timestamp
 });
 
 
@@ -2652,7 +2652,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool success,  String message,  NotificationTemplate? data,  Map<String, dynamic>? errors, @JsonKey(name: 'timestamp')  DateTime? timestamp)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool success,  String message,  NotificationTemplate? data,  Map<String, dynamic>? errors,  DateTime? timestamp)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _NotificationTemplateResponse() when $default != null:
 return $default(_that.success,_that.message,_that.data,_that.errors,_that.timestamp);case _:
@@ -2673,7 +2673,7 @@ return $default(_that.success,_that.message,_that.data,_that.errors,_that.timest
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool success,  String message,  NotificationTemplate? data,  Map<String, dynamic>? errors, @JsonKey(name: 'timestamp')  DateTime? timestamp)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool success,  String message,  NotificationTemplate? data,  Map<String, dynamic>? errors,  DateTime? timestamp)  $default,) {final _that = this;
 switch (_that) {
 case _NotificationTemplateResponse():
 return $default(_that.success,_that.message,_that.data,_that.errors,_that.timestamp);case _:
@@ -2693,7 +2693,7 @@ return $default(_that.success,_that.message,_that.data,_that.errors,_that.timest
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool success,  String message,  NotificationTemplate? data,  Map<String, dynamic>? errors, @JsonKey(name: 'timestamp')  DateTime? timestamp)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool success,  String message,  NotificationTemplate? data,  Map<String, dynamic>? errors,  DateTime? timestamp)?  $default,) {final _that = this;
 switch (_that) {
 case _NotificationTemplateResponse() when $default != null:
 return $default(_that.success,_that.message,_that.data,_that.errors,_that.timestamp);case _:
@@ -2708,7 +2708,7 @@ return $default(_that.success,_that.message,_that.data,_that.errors,_that.timest
 @JsonSerializable()
 
 class _NotificationTemplateResponse implements NotificationTemplateResponse {
-  const _NotificationTemplateResponse({required this.success, required this.message, this.data, final  Map<String, dynamic>? errors, @JsonKey(name: 'timestamp') this.timestamp}): _errors = errors;
+  const _NotificationTemplateResponse({required this.success, required this.message, this.data, final  Map<String, dynamic>? errors, this.timestamp}): _errors = errors;
   factory _NotificationTemplateResponse.fromJson(Map<String, dynamic> json) => _$NotificationTemplateResponseFromJson(json);
 
 @override final  bool success;
@@ -2723,7 +2723,7 @@ class _NotificationTemplateResponse implements NotificationTemplateResponse {
   return EqualUnmodifiableMapView(value);
 }
 
-@override@JsonKey(name: 'timestamp') final  DateTime? timestamp;
+@override final  DateTime? timestamp;
 
 /// Create a copy of NotificationTemplateResponse
 /// with the given fields replaced by the non-null parameter values.
@@ -2758,7 +2758,7 @@ abstract mixin class _$NotificationTemplateResponseCopyWith<$Res> implements $No
   factory _$NotificationTemplateResponseCopyWith(_NotificationTemplateResponse value, $Res Function(_NotificationTemplateResponse) _then) = __$NotificationTemplateResponseCopyWithImpl;
 @override @useResult
 $Res call({
- bool success, String message, NotificationTemplate? data, Map<String, dynamic>? errors,@JsonKey(name: 'timestamp') DateTime? timestamp
+ bool success, String message, NotificationTemplate? data, Map<String, dynamic>? errors, DateTime? timestamp
 });
 
 
@@ -2805,7 +2805,7 @@ $NotificationTemplateCopyWith<$Res>? get data {
 /// @nodoc
 mixin _$NotificationTemplateListResponse {
 
- bool get success; String get message; List<NotificationTemplate> get data; Map<String, dynamic>? get errors;@JsonKey(name: 'timestamp') DateTime? get timestamp; PaginationMeta? get pagination;
+ bool get success; String get message; List<NotificationTemplate> get data; Map<String, dynamic>? get errors; DateTime? get timestamp; PaginationMeta? get pagination;
 /// Create a copy of NotificationTemplateListResponse
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -2838,7 +2838,7 @@ abstract mixin class $NotificationTemplateListResponseCopyWith<$Res>  {
   factory $NotificationTemplateListResponseCopyWith(NotificationTemplateListResponse value, $Res Function(NotificationTemplateListResponse) _then) = _$NotificationTemplateListResponseCopyWithImpl;
 @useResult
 $Res call({
- bool success, String message, List<NotificationTemplate> data, Map<String, dynamic>? errors,@JsonKey(name: 'timestamp') DateTime? timestamp, PaginationMeta? pagination
+ bool success, String message, List<NotificationTemplate> data, Map<String, dynamic>? errors, DateTime? timestamp, PaginationMeta? pagination
 });
 
 
@@ -2960,7 +2960,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool success,  String message,  List<NotificationTemplate> data,  Map<String, dynamic>? errors, @JsonKey(name: 'timestamp')  DateTime? timestamp,  PaginationMeta? pagination)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool success,  String message,  List<NotificationTemplate> data,  Map<String, dynamic>? errors,  DateTime? timestamp,  PaginationMeta? pagination)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _NotificationTemplateListResponse() when $default != null:
 return $default(_that.success,_that.message,_that.data,_that.errors,_that.timestamp,_that.pagination);case _:
@@ -2981,7 +2981,7 @@ return $default(_that.success,_that.message,_that.data,_that.errors,_that.timest
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool success,  String message,  List<NotificationTemplate> data,  Map<String, dynamic>? errors, @JsonKey(name: 'timestamp')  DateTime? timestamp,  PaginationMeta? pagination)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool success,  String message,  List<NotificationTemplate> data,  Map<String, dynamic>? errors,  DateTime? timestamp,  PaginationMeta? pagination)  $default,) {final _that = this;
 switch (_that) {
 case _NotificationTemplateListResponse():
 return $default(_that.success,_that.message,_that.data,_that.errors,_that.timestamp,_that.pagination);case _:
@@ -3001,7 +3001,7 @@ return $default(_that.success,_that.message,_that.data,_that.errors,_that.timest
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool success,  String message,  List<NotificationTemplate> data,  Map<String, dynamic>? errors, @JsonKey(name: 'timestamp')  DateTime? timestamp,  PaginationMeta? pagination)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool success,  String message,  List<NotificationTemplate> data,  Map<String, dynamic>? errors,  DateTime? timestamp,  PaginationMeta? pagination)?  $default,) {final _that = this;
 switch (_that) {
 case _NotificationTemplateListResponse() when $default != null:
 return $default(_that.success,_that.message,_that.data,_that.errors,_that.timestamp,_that.pagination);case _:
@@ -3016,7 +3016,7 @@ return $default(_that.success,_that.message,_that.data,_that.errors,_that.timest
 @JsonSerializable()
 
 class _NotificationTemplateListResponse implements NotificationTemplateListResponse {
-  const _NotificationTemplateListResponse({required this.success, required this.message, final  List<NotificationTemplate> data = const [], final  Map<String, dynamic>? errors, @JsonKey(name: 'timestamp') this.timestamp, this.pagination}): _data = data,_errors = errors;
+  const _NotificationTemplateListResponse({required this.success, required this.message, final  List<NotificationTemplate> data = const [], final  Map<String, dynamic>? errors, this.timestamp, this.pagination}): _data = data,_errors = errors;
   factory _NotificationTemplateListResponse.fromJson(Map<String, dynamic> json) => _$NotificationTemplateListResponseFromJson(json);
 
 @override final  bool success;
@@ -3037,7 +3037,7 @@ class _NotificationTemplateListResponse implements NotificationTemplateListRespo
   return EqualUnmodifiableMapView(value);
 }
 
-@override@JsonKey(name: 'timestamp') final  DateTime? timestamp;
+@override final  DateTime? timestamp;
 @override final  PaginationMeta? pagination;
 
 /// Create a copy of NotificationTemplateListResponse
@@ -3073,7 +3073,7 @@ abstract mixin class _$NotificationTemplateListResponseCopyWith<$Res> implements
   factory _$NotificationTemplateListResponseCopyWith(_NotificationTemplateListResponse value, $Res Function(_NotificationTemplateListResponse) _then) = __$NotificationTemplateListResponseCopyWithImpl;
 @override @useResult
 $Res call({
- bool success, String message, List<NotificationTemplate> data, Map<String, dynamic>? errors,@JsonKey(name: 'timestamp') DateTime? timestamp, PaginationMeta? pagination
+ bool success, String message, List<NotificationTemplate> data, Map<String, dynamic>? errors, DateTime? timestamp, PaginationMeta? pagination
 });
 
 
@@ -3121,7 +3121,7 @@ $PaginationMetaCopyWith<$Res>? get pagination {
 /// @nodoc
 mixin _$RenderedTemplateResponse {
 
- bool get success; String get message; RenderedTemplate? get data; Map<String, dynamic>? get errors;@JsonKey(name: 'timestamp') DateTime? get timestamp;
+ bool get success; String get message; RenderedTemplate? get data; Map<String, dynamic>? get errors; DateTime? get timestamp;
 /// Create a copy of RenderedTemplateResponse
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -3154,7 +3154,7 @@ abstract mixin class $RenderedTemplateResponseCopyWith<$Res>  {
   factory $RenderedTemplateResponseCopyWith(RenderedTemplateResponse value, $Res Function(RenderedTemplateResponse) _then) = _$RenderedTemplateResponseCopyWithImpl;
 @useResult
 $Res call({
- bool success, String message, RenderedTemplate? data, Map<String, dynamic>? errors,@JsonKey(name: 'timestamp') DateTime? timestamp
+ bool success, String message, RenderedTemplate? data, Map<String, dynamic>? errors, DateTime? timestamp
 });
 
 
@@ -3275,7 +3275,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool success,  String message,  RenderedTemplate? data,  Map<String, dynamic>? errors, @JsonKey(name: 'timestamp')  DateTime? timestamp)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool success,  String message,  RenderedTemplate? data,  Map<String, dynamic>? errors,  DateTime? timestamp)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _RenderedTemplateResponse() when $default != null:
 return $default(_that.success,_that.message,_that.data,_that.errors,_that.timestamp);case _:
@@ -3296,7 +3296,7 @@ return $default(_that.success,_that.message,_that.data,_that.errors,_that.timest
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool success,  String message,  RenderedTemplate? data,  Map<String, dynamic>? errors, @JsonKey(name: 'timestamp')  DateTime? timestamp)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool success,  String message,  RenderedTemplate? data,  Map<String, dynamic>? errors,  DateTime? timestamp)  $default,) {final _that = this;
 switch (_that) {
 case _RenderedTemplateResponse():
 return $default(_that.success,_that.message,_that.data,_that.errors,_that.timestamp);case _:
@@ -3316,7 +3316,7 @@ return $default(_that.success,_that.message,_that.data,_that.errors,_that.timest
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool success,  String message,  RenderedTemplate? data,  Map<String, dynamic>? errors, @JsonKey(name: 'timestamp')  DateTime? timestamp)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool success,  String message,  RenderedTemplate? data,  Map<String, dynamic>? errors,  DateTime? timestamp)?  $default,) {final _that = this;
 switch (_that) {
 case _RenderedTemplateResponse() when $default != null:
 return $default(_that.success,_that.message,_that.data,_that.errors,_that.timestamp);case _:
@@ -3331,7 +3331,7 @@ return $default(_that.success,_that.message,_that.data,_that.errors,_that.timest
 @JsonSerializable()
 
 class _RenderedTemplateResponse implements RenderedTemplateResponse {
-  const _RenderedTemplateResponse({required this.success, required this.message, this.data, final  Map<String, dynamic>? errors, @JsonKey(name: 'timestamp') this.timestamp}): _errors = errors;
+  const _RenderedTemplateResponse({required this.success, required this.message, this.data, final  Map<String, dynamic>? errors, this.timestamp}): _errors = errors;
   factory _RenderedTemplateResponse.fromJson(Map<String, dynamic> json) => _$RenderedTemplateResponseFromJson(json);
 
 @override final  bool success;
@@ -3346,7 +3346,7 @@ class _RenderedTemplateResponse implements RenderedTemplateResponse {
   return EqualUnmodifiableMapView(value);
 }
 
-@override@JsonKey(name: 'timestamp') final  DateTime? timestamp;
+@override final  DateTime? timestamp;
 
 /// Create a copy of RenderedTemplateResponse
 /// with the given fields replaced by the non-null parameter values.
@@ -3381,7 +3381,7 @@ abstract mixin class _$RenderedTemplateResponseCopyWith<$Res> implements $Render
   factory _$RenderedTemplateResponseCopyWith(_RenderedTemplateResponse value, $Res Function(_RenderedTemplateResponse) _then) = __$RenderedTemplateResponseCopyWithImpl;
 @override @useResult
 $Res call({
- bool success, String message, RenderedTemplate? data, Map<String, dynamic>? errors,@JsonKey(name: 'timestamp') DateTime? timestamp
+ bool success, String message, RenderedTemplate? data, Map<String, dynamic>? errors, DateTime? timestamp
 });
 
 
@@ -3706,7 +3706,7 @@ as bool?,
 /// @nodoc
 mixin _$RenderedTemplate {
 
- String get templateId; String get renderedContent; String get subject; Map<String, dynamic>? get variables;@JsonKey(name: 'rendered_at') DateTime? get renderedAt;
+ String get templateId; String get renderedContent; String get subject; Map<String, dynamic>? get variables; DateTime? get renderedAt;
 /// Create a copy of RenderedTemplate
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -3739,7 +3739,7 @@ abstract mixin class $RenderedTemplateCopyWith<$Res>  {
   factory $RenderedTemplateCopyWith(RenderedTemplate value, $Res Function(RenderedTemplate) _then) = _$RenderedTemplateCopyWithImpl;
 @useResult
 $Res call({
- String templateId, String renderedContent, String subject, Map<String, dynamic>? variables,@JsonKey(name: 'rendered_at') DateTime? renderedAt
+ String templateId, String renderedContent, String subject, Map<String, dynamic>? variables, DateTime? renderedAt
 });
 
 
@@ -3848,7 +3848,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String templateId,  String renderedContent,  String subject,  Map<String, dynamic>? variables, @JsonKey(name: 'rendered_at')  DateTime? renderedAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String templateId,  String renderedContent,  String subject,  Map<String, dynamic>? variables,  DateTime? renderedAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _RenderedTemplate() when $default != null:
 return $default(_that.templateId,_that.renderedContent,_that.subject,_that.variables,_that.renderedAt);case _:
@@ -3869,7 +3869,7 @@ return $default(_that.templateId,_that.renderedContent,_that.subject,_that.varia
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String templateId,  String renderedContent,  String subject,  Map<String, dynamic>? variables, @JsonKey(name: 'rendered_at')  DateTime? renderedAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String templateId,  String renderedContent,  String subject,  Map<String, dynamic>? variables,  DateTime? renderedAt)  $default,) {final _that = this;
 switch (_that) {
 case _RenderedTemplate():
 return $default(_that.templateId,_that.renderedContent,_that.subject,_that.variables,_that.renderedAt);case _:
@@ -3889,7 +3889,7 @@ return $default(_that.templateId,_that.renderedContent,_that.subject,_that.varia
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String templateId,  String renderedContent,  String subject,  Map<String, dynamic>? variables, @JsonKey(name: 'rendered_at')  DateTime? renderedAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String templateId,  String renderedContent,  String subject,  Map<String, dynamic>? variables,  DateTime? renderedAt)?  $default,) {final _that = this;
 switch (_that) {
 case _RenderedTemplate() when $default != null:
 return $default(_that.templateId,_that.renderedContent,_that.subject,_that.variables,_that.renderedAt);case _:
@@ -3904,7 +3904,7 @@ return $default(_that.templateId,_that.renderedContent,_that.subject,_that.varia
 @JsonSerializable()
 
 class _RenderedTemplate implements RenderedTemplate {
-  const _RenderedTemplate({required this.templateId, required this.renderedContent, required this.subject, final  Map<String, dynamic>? variables, @JsonKey(name: 'rendered_at') this.renderedAt}): _variables = variables;
+  const _RenderedTemplate({required this.templateId, required this.renderedContent, required this.subject, final  Map<String, dynamic>? variables, this.renderedAt}): _variables = variables;
   factory _RenderedTemplate.fromJson(Map<String, dynamic> json) => _$RenderedTemplateFromJson(json);
 
 @override final  String templateId;
@@ -3919,7 +3919,7 @@ class _RenderedTemplate implements RenderedTemplate {
   return EqualUnmodifiableMapView(value);
 }
 
-@override@JsonKey(name: 'rendered_at') final  DateTime? renderedAt;
+@override final  DateTime? renderedAt;
 
 /// Create a copy of RenderedTemplate
 /// with the given fields replaced by the non-null parameter values.
@@ -3954,7 +3954,7 @@ abstract mixin class _$RenderedTemplateCopyWith<$Res> implements $RenderedTempla
   factory _$RenderedTemplateCopyWith(_RenderedTemplate value, $Res Function(_RenderedTemplate) _then) = __$RenderedTemplateCopyWithImpl;
 @override @useResult
 $Res call({
- String templateId, String renderedContent, String subject, Map<String, dynamic>? variables,@JsonKey(name: 'rendered_at') DateTime? renderedAt
+ String templateId, String renderedContent, String subject, Map<String, dynamic>? variables, DateTime? renderedAt
 });
 
 

@@ -80,7 +80,7 @@ class _PreferenceSectionState extends State<PreferenceSection>
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -115,7 +115,7 @@ class _PreferenceSectionState extends State<PreferenceSection>
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: (widget.iconColor ?? CareCircleDesignTokens.primaryMedicalBlue)
-              .withOpacity(0.05),
+              .withValues(alpha: 0.05),
           borderRadius: BorderRadius.vertical(
             top: const Radius.circular(16),
             bottom: _isExpanded ? Radius.zero : const Radius.circular(16),
@@ -130,7 +130,7 @@ class _PreferenceSectionState extends State<PreferenceSection>
                 color:
                     (widget.iconColor ??
                             CareCircleDesignTokens.primaryMedicalBlue)
-                        .withOpacity(0.1),
+                        .withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Icon(
@@ -207,7 +207,7 @@ class SimplePreferenceSection extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -222,7 +222,7 @@ class SimplePreferenceSection extends StatelessWidget {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: (iconColor ?? CareCircleDesignTokens.primaryMedicalBlue)
-            .withOpacity(0.05),
+            .withValues(alpha: 0.05),
         borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
       ),
       child: Row(
@@ -232,7 +232,7 @@ class SimplePreferenceSection extends StatelessWidget {
             height: 40,
             decoration: BoxDecoration(
               color: (iconColor ?? CareCircleDesignTokens.primaryMedicalBlue)
-                  .withOpacity(0.1),
+                  .withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Icon(
@@ -308,7 +308,7 @@ class PreferenceItem extends StatelessWidget {
               style: TextStyle(
                 color: enabled
                     ? CareCircleDesignTokens.textSecondary
-                    : CareCircleDesignTokens.textSecondary.withOpacity(0.6),
+                    : CareCircleDesignTokens.textSecondary.withValues(alpha: 0.6),
               ),
             )
           : null,
@@ -357,7 +357,7 @@ class SwitchPreferenceItem extends StatelessWidget {
               style: TextStyle(
                 color: onChanged != null
                     ? CareCircleDesignTokens.textSecondary
-                    : CareCircleDesignTokens.textSecondary.withOpacity(0.6),
+                    : CareCircleDesignTokens.textSecondary.withValues(alpha: 0.6),
               ),
             )
           : null,
@@ -414,7 +414,7 @@ class SliderPreferenceItem extends StatelessWidget {
                   style: TextStyle(
                     color: onChanged != null
                         ? CareCircleDesignTokens.textSecondary
-                        : CareCircleDesignTokens.textSecondary.withOpacity(0.6),
+                        : CareCircleDesignTokens.textSecondary.withValues(alpha: 0.6),
                   ),
                 )
               : null,
@@ -437,7 +437,7 @@ class SliderPreferenceItem extends StatelessWidget {
             onChanged: onChanged,
             activeColor: CareCircleDesignTokens.primaryMedicalBlue,
             inactiveColor: CareCircleDesignTokens.primaryMedicalBlue
-                .withOpacity(0.3),
+                .withValues(alpha: 0.3),
           ),
         ),
       ],

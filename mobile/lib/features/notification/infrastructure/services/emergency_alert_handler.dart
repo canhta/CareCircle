@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
@@ -156,7 +155,7 @@ class EmergencyAlertHandler {
         categoryIdentifier: 'EMERGENCY_ALERT',
       );
 
-      const notificationDetails = NotificationDetails(
+      final notificationDetails = NotificationDetails(
         android: androidDetails,
         iOS: iosDetails,
       );

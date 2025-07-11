@@ -1,13 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:dio/dio.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
-import '../../../../core/config/app_config.dart';
 import '../../../../core/logging/bounded_context_loggers.dart';
 import '../../../../core/network/dio_provider.dart';
 import '../../../../core/storage/secure_storage_service.dart';
-import '../../../../features/auth/infrastructure/services/firebase_auth_service.dart';
 import '../../domain/models/models.dart' as notification_models;
 import '../../infrastructure/repositories/notification_repository.dart';
 import '../../infrastructure/services/notification_api_service.dart';

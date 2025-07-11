@@ -126,40 +126,6 @@ const _$InteractionTypeEnumMap = {
   InteractionType.snoozed: 'SNOOZED',
 };
 
-_CreateNotificationRequest _$CreateNotificationRequestFromJson(
-  Map<String, dynamic> json,
-) => _CreateNotificationRequest(
-  title: json['title'] as String,
-  message: json['message'] as String,
-  type: $enumDecode(_$NotificationTypeEnumMap, json['type']),
-  priority:
-      $enumDecodeNullable(_$NotificationPriorityEnumMap, json['priority']) ??
-      NotificationPriority.normal,
-  channel:
-      $enumDecodeNullable(_$NotificationChannelEnumMap, json['channel']) ??
-      NotificationChannel.inApp,
-  scheduledFor: json['scheduledFor'] == null
-      ? null
-      : DateTime.parse(json['scheduledFor'] as String),
-  expiresAt: json['expiresAt'] == null
-      ? null
-      : DateTime.parse(json['expiresAt'] as String),
-  context: json['context'] as Map<String, dynamic>?,
-);
-
-Map<String, dynamic> _$CreateNotificationRequestToJson(
-  _CreateNotificationRequest instance,
-) => <String, dynamic>{
-  'title': instance.title,
-  'message': instance.message,
-  'type': _$NotificationTypeEnumMap[instance.type]!,
-  'priority': _$NotificationPriorityEnumMap[instance.priority]!,
-  'channel': _$NotificationChannelEnumMap[instance.channel]!,
-  'scheduledFor': instance.scheduledFor?.toIso8601String(),
-  'expiresAt': instance.expiresAt?.toIso8601String(),
-  'context': instance.context,
-};
-
 _NotificationSummary _$NotificationSummaryFromJson(Map<String, dynamic> json) =>
     _NotificationSummary(
       total: (json['total'] as num).toInt(),
@@ -175,54 +141,4 @@ Map<String, dynamic> _$NotificationSummaryToJson(
   'unread': instance.unread,
   'byType': instance.byType,
   'byPriority': instance.byPriority,
-};
-
-_NotificationResponse _$NotificationResponseFromJson(
-  Map<String, dynamic> json,
-) => _NotificationResponse(
-  success: json['success'] as bool,
-  data: Notification.fromJson(json['data'] as Map<String, dynamic>),
-  message: json['message'] as String?,
-);
-
-Map<String, dynamic> _$NotificationResponseToJson(
-  _NotificationResponse instance,
-) => <String, dynamic>{
-  'success': instance.success,
-  'data': instance.data,
-  'message': instance.message,
-};
-
-_NotificationListResponse _$NotificationListResponseFromJson(
-  Map<String, dynamic> json,
-) => _NotificationListResponse(
-  success: json['success'] as bool,
-  data: (json['data'] as List<dynamic>)
-      .map((e) => Notification.fromJson(e as Map<String, dynamic>))
-      .toList(),
-  message: json['message'] as String?,
-);
-
-Map<String, dynamic> _$NotificationListResponseToJson(
-  _NotificationListResponse instance,
-) => <String, dynamic>{
-  'success': instance.success,
-  'data': instance.data,
-  'message': instance.message,
-};
-
-_NotificationSummaryResponse _$NotificationSummaryResponseFromJson(
-  Map<String, dynamic> json,
-) => _NotificationSummaryResponse(
-  success: json['success'] as bool,
-  data: NotificationSummary.fromJson(json['data'] as Map<String, dynamic>),
-  message: json['message'] as String?,
-);
-
-Map<String, dynamic> _$NotificationSummaryResponseToJson(
-  _NotificationSummaryResponse instance,
-) => <String, dynamic>{
-  'success': instance.success,
-  'data': instance.data,
-  'message': instance.message,
 };

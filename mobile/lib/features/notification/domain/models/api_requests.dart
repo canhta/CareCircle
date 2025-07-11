@@ -10,7 +10,7 @@ part 'api_requests.g.dart';
 
 /// Create notification request
 @freezed
-class CreateNotificationRequest with _$CreateNotificationRequest {
+abstract class CreateNotificationRequest with _$CreateNotificationRequest {
   const factory CreateNotificationRequest({
     required String title,
     required String message,
@@ -29,7 +29,7 @@ class CreateNotificationRequest with _$CreateNotificationRequest {
 
 /// Update notification preferences request
 @freezed
-class UpdateNotificationPreferencesRequest
+abstract class UpdateNotificationPreferencesRequest
     with _$UpdateNotificationPreferencesRequest {
   const factory UpdateNotificationPreferencesRequest({
     bool? globalEnabled,
@@ -47,7 +47,7 @@ class UpdateNotificationPreferencesRequest
 
 /// Update specific preference request
 @freezed
-class UpdatePreferenceRequest with _$UpdatePreferenceRequest {
+abstract class UpdatePreferenceRequest with _$UpdatePreferenceRequest {
   const factory UpdatePreferenceRequest({
     required bool enabled,
     Map<String, dynamic>? settings,
@@ -59,7 +59,7 @@ class UpdatePreferenceRequest with _$UpdatePreferenceRequest {
 
 /// Create emergency alert request
 @freezed
-class CreateEmergencyAlertRequest with _$CreateEmergencyAlertRequest {
+abstract class CreateEmergencyAlertRequest with _$CreateEmergencyAlertRequest {
   const factory CreateEmergencyAlertRequest({
     required String title,
     required String message,
@@ -79,12 +79,12 @@ class CreateEmergencyAlertRequest with _$CreateEmergencyAlertRequest {
 
 /// Emergency alert action request
 @freezed
-class EmergencyAlertActionRequest with _$EmergencyAlertActionRequest {
+abstract class EmergencyAlertActionRequest with _$EmergencyAlertActionRequest {
   const factory EmergencyAlertActionRequest({
     required String actionType,
     String? notes,
     Map<String, dynamic>? actionData,
-    @JsonKey(name: 'performed_by') String? performedBy,
+    String? performedBy,
   }) = _EmergencyAlertActionRequest;
 
   factory EmergencyAlertActionRequest.fromJson(Map<String, dynamic> json) =>
@@ -93,7 +93,7 @@ class EmergencyAlertActionRequest with _$EmergencyAlertActionRequest {
 
 /// Create template request
 @freezed
-class CreateTemplateRequest with _$CreateTemplateRequest {
+abstract class CreateTemplateRequest with _$CreateTemplateRequest {
   const factory CreateTemplateRequest({
     required String name,
     required String subject,
@@ -112,7 +112,7 @@ class CreateTemplateRequest with _$CreateTemplateRequest {
 
 /// Update template request
 @freezed
-class UpdateTemplateRequest with _$UpdateTemplateRequest {
+abstract class UpdateTemplateRequest with _$UpdateTemplateRequest {
   const factory UpdateTemplateRequest({
     String? name,
     String? subject,
@@ -129,7 +129,7 @@ class UpdateTemplateRequest with _$UpdateTemplateRequest {
 
 /// Render template request
 @freezed
-class RenderTemplateRequest with _$RenderTemplateRequest {
+abstract class RenderTemplateRequest with _$RenderTemplateRequest {
   const factory RenderTemplateRequest({
     required Map<String, dynamic> variables,
     String? locale,

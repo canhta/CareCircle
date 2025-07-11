@@ -320,9 +320,9 @@ _RenderedTemplate _$RenderedTemplateFromJson(Map<String, dynamic> json) =>
       renderedContent: json['renderedContent'] as String,
       subject: json['subject'] as String,
       variables: json['variables'] as Map<String, dynamic>?,
-      renderedAt: json['rendered_at'] == null
+      renderedAt: json['renderedAt'] == null
           ? null
-          : DateTime.parse(json['rendered_at'] as String),
+          : DateTime.parse(json['renderedAt'] as String),
     );
 
 Map<String, dynamic> _$RenderedTemplateToJson(_RenderedTemplate instance) =>
@@ -331,5 +331,5 @@ Map<String, dynamic> _$RenderedTemplateToJson(_RenderedTemplate instance) =>
       'renderedContent': instance.renderedContent,
       'subject': instance.subject,
       'variables': instance.variables,
-      'rendered_at': instance.renderedAt?.toIso8601String(),
+      'renderedAt': instance.renderedAt?.toIso8601String(),
     };

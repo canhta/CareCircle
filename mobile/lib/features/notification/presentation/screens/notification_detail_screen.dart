@@ -219,7 +219,7 @@ class _NotificationDetailScreenState
     );
   }
 
-  Widget _buildNotificationDetail(Notification notification) {
+  Widget _buildNotificationDetail(notification_models.Notification notification) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -242,7 +242,7 @@ class _NotificationDetailScreenState
     );
   }
 
-  Widget _buildNotificationHeader(Notification notification) {
+  Widget _buildNotificationHeader(notification_models.Notification notification) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -251,7 +251,7 @@ class _NotificationDetailScreenState
         border: Border.all(color: _getTypeColor(notification.type), width: 2),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -266,7 +266,7 @@ class _NotificationDetailScreenState
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: _getTypeColor(notification.type).withOpacity(0.1),
+                  color: _getTypeColor(notification.type).withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(24),
                 ),
                 child: Center(
@@ -311,9 +311,9 @@ class _NotificationDetailScreenState
     );
   }
 
-  Widget _buildPriorityBadge(NotificationPriority priority) {
-    if (priority == NotificationPriority.normal ||
-        priority == NotificationPriority.low) {
+  Widget _buildPriorityBadge(notification_models.NotificationPriority priority) {
+    if (priority == notification_models.NotificationPriority.normal ||
+        priority == notification_models.NotificationPriority.low) {
       return const SizedBox.shrink();
     }
 
@@ -334,38 +334,38 @@ class _NotificationDetailScreenState
     );
   }
 
-  Widget _buildStatusIndicator(Notification notification) {
+  Widget _buildStatusIndicator(notification_models.Notification notification) {
     IconData icon;
     Color color;
     String text;
 
     switch (notification.status) {
-      case NotificationStatus.read:
+      case notification_models.NotificationStatus.read:
         icon = Icons.check_circle;
         color = CareCircleDesignTokens.successGreen;
         text = 'Read';
         break;
-      case NotificationStatus.delivered:
+      case notification_models.NotificationStatus.delivered:
         icon = Icons.check;
         color = CareCircleDesignTokens.primaryMedicalBlue;
         text = 'Delivered';
         break;
-      case NotificationStatus.pending:
+      case notification_models.NotificationStatus.pending:
         icon = Icons.schedule;
         color = CareCircleDesignTokens.warningOrange;
         text = 'Pending';
         break;
-      case NotificationStatus.failed:
+      case notification_models.NotificationStatus.failed:
         icon = Icons.error;
         color = CareCircleDesignTokens.errorRed;
         text = 'Failed';
         break;
-      case NotificationStatus.expired:
+      case notification_models.NotificationStatus.expired:
         icon = Icons.access_time;
         color = CareCircleDesignTokens.textSecondary;
         text = 'Expired';
         break;
-      case NotificationStatus.sent:
+      case notification_models.NotificationStatus.sent:
         icon = Icons.send;
         color = CareCircleDesignTokens.primaryMedicalBlue;
         text = 'Sent';
@@ -396,7 +396,7 @@ class _NotificationDetailScreenState
     );
   }
 
-  Widget _buildNotificationContent(Notification notification) {
+  Widget _buildNotificationContent(notification_models.Notification notification) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
@@ -405,7 +405,7 @@ class _NotificationDetailScreenState
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -436,7 +436,7 @@ class _NotificationDetailScreenState
     );
   }
 
-  Widget _buildNotificationMetadata(Notification notification) {
+  Widget _buildNotificationMetadata(notification_models.Notification notification) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
@@ -445,7 +445,7 @@ class _NotificationDetailScreenState
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -540,7 +540,7 @@ class _NotificationDetailScreenState
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -566,10 +566,10 @@ class _NotificationDetailScreenState
     );
   }
 
-  Widget _buildActionButtons(Notification notification) {
+  Widget _buildActionButtons(notification_models.Notification notification) {
     return Column(
       children: [
-        if (notification.status != NotificationStatus.read)
+        if (notification.status != notification_models.NotificationStatus.read)
           SizedBox(
             width: double.infinity,
             child: ElevatedButton.icon(
@@ -628,12 +628,12 @@ class _NotificationDetailScreenState
     );
   }
 
-  Future<Notification> _getNotification() async {
+  Future<notification_models.Notification> _getNotification() async {
     final repository = ref.read(notificationRepositoryProvider);
     return repository.getNotification(widget.notificationId);
   }
 
-  Future<void> _markAsRead(Notification notification) async {
+  Future<void> _markAsRead(notification_models.Notification notification) async {
     try {
       await ref
           .read(notificationNotifierProvider.notifier)
@@ -660,7 +660,7 @@ class _NotificationDetailScreenState
     }
   }
 
-  void _deleteNotification(Notification notification) {
+  void _deleteNotification(notification_models.Notification notification) {
     // TODO: Implement delete notification
     _logger.info('Delete notification requested', {
       'notificationId': notification.id,
@@ -668,7 +668,7 @@ class _NotificationDetailScreenState
     });
   }
 
-  void _shareNotification(Notification notification) {
+  void _shareNotification(notification_models.Notification notification) {
     // TODO: Implement share notification
     _logger.info('Share notification requested', {
       'notificationId': notification.id,
@@ -685,47 +685,47 @@ class _NotificationDetailScreenState
     });
   }
 
-  Color _getTypeColor(NotificationType type) {
+  Color _getTypeColor(notification_models.NotificationType type) {
     switch (type) {
-      case NotificationType.medicationReminder:
+      case notification_models.NotificationType.medicationReminder:
         return CareCircleDesignTokens.primaryMedicalBlue;
-      case NotificationType.healthAlert:
+      case notification_models.NotificationType.healthAlert:
         return CareCircleDesignTokens.warningOrange;
-      case NotificationType.emergencyAlert:
+      case notification_models.NotificationType.emergencyAlert:
         return CareCircleDesignTokens.errorRed;
-      case NotificationType.appointmentReminder:
+      case notification_models.NotificationType.appointmentReminder:
         return CareCircleDesignTokens.primaryMedicalBlue;
-      case NotificationType.taskReminder:
+      case notification_models.NotificationType.taskReminder:
         return CareCircleDesignTokens.successGreen;
-      case NotificationType.careGroupUpdate:
+      case notification_models.NotificationType.careGroupUpdate:
         return CareCircleDesignTokens.primaryMedicalBlue;
-      case NotificationType.systemNotification:
+      case notification_models.NotificationType.systemNotification:
         return CareCircleDesignTokens.textSecondary;
     }
   }
 
-  Color _getPriorityColor(NotificationPriority priority) {
+  Color _getPriorityColor(notification_models.NotificationPriority priority) {
     switch (priority) {
-      case NotificationPriority.low:
+      case notification_models.NotificationPriority.low:
         return CareCircleDesignTokens.successGreen;
-      case NotificationPriority.normal:
+      case notification_models.NotificationPriority.normal:
         return CareCircleDesignTokens.primaryMedicalBlue;
-      case NotificationPriority.high:
+      case notification_models.NotificationPriority.high:
         return CareCircleDesignTokens.warningOrange;
-      case NotificationPriority.urgent:
+      case notification_models.NotificationPriority.urgent:
         return CareCircleDesignTokens.errorRed;
     }
   }
 
-  String _getChannelDisplayName(NotificationChannel channel) {
+  String _getChannelDisplayName(notification_models.NotificationChannel channel) {
     switch (channel) {
-      case NotificationChannel.push:
+      case notification_models.NotificationChannel.push:
         return 'Push Notification';
-      case NotificationChannel.email:
+      case notification_models.NotificationChannel.email:
         return 'Email';
-      case NotificationChannel.sms:
+      case notification_models.NotificationChannel.sms:
         return 'SMS';
-      case NotificationChannel.inApp:
+      case notification_models.NotificationChannel.inApp:
         return 'In-App';
     }
   }

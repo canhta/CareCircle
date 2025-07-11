@@ -166,7 +166,7 @@ _EmergencyAlertActionRequest _$EmergencyAlertActionRequestFromJson(
   actionType: json['actionType'] as String,
   notes: json['notes'] as String?,
   actionData: json['actionData'] as Map<String, dynamic>?,
-  performedBy: json['performed_by'] as String?,
+  performedBy: json['performedBy'] as String?,
 );
 
 Map<String, dynamic> _$EmergencyAlertActionRequestToJson(
@@ -175,7 +175,7 @@ Map<String, dynamic> _$EmergencyAlertActionRequestToJson(
   'actionType': instance.actionType,
   'notes': instance.notes,
   'actionData': instance.actionData,
-  'performed_by': instance.performedBy,
+  'performedBy': instance.performedBy,
 };
 
 _CreateTemplateRequest _$CreateTemplateRequestFromJson(

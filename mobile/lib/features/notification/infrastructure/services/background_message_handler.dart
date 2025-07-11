@@ -223,7 +223,7 @@ class BackgroundMessageHandler {
           playSound: true,
           enableVibration: true,
           enableLights: true,
-          ledColor: const Color.fromARGB(255, 255, 0, 0),
+          ledColor: Color.fromARGB(255, 255, 0, 0),
         ),
       );
     }
