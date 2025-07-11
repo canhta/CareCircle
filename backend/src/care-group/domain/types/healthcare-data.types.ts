@@ -230,20 +230,22 @@ export interface CareGroupSettings {
 /**
  * Type guards for runtime type checking
  */
-export const isHealthSummary = (obj: any): obj is HealthSummary => {
+export const isHealthSummary = (obj: unknown): obj is HealthSummary => {
   return (
-    obj &&
-    Array.isArray(obj.medicalConditions) &&
-    Array.isArray(obj.allergies) &&
-    Array.isArray(obj.medications)
+    obj !== null &&
+    typeof obj === 'object' &&
+    Array.isArray((obj as Record<string, unknown>).medicalConditions) &&
+    Array.isArray((obj as Record<string, unknown>).allergies) &&
+    Array.isArray((obj as Record<string, unknown>).medications)
   );
 };
 
-export const isCarePreferences = (obj: any): obj is CarePreferences => {
+export const isCarePreferences = (obj: unknown): obj is CarePreferences => {
   return (
-    obj &&
-    Array.isArray(obj.emergencyContacts) &&
-    typeof obj.careSettings === 'object'
+    obj !== null &&
+    typeof obj === 'object' &&
+    Array.isArray((obj as Record<string, unknown>).emergencyContacts) &&
+    typeof (obj as Record<string, unknown>).careSettings === 'object'
   );
 };
 

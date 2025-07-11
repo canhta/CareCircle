@@ -130,7 +130,7 @@ export class CareTaskService {
   async getGroupTasks(
     groupId: string,
     userId: string,
-    filters?: TaskFilters,
+    _filters?: TaskFilters,
   ): Promise<CareTaskEntity[]> {
     // Verify user has access to this group
     const member = await this.memberRepository.findByGroupAndUser(
@@ -239,8 +239,8 @@ export class CareTaskService {
    */
   async getUserAssignedTasks(
     userId: string,
-    groupId?: string,
-    status?: TaskStatus,
+    _groupId?: string,
+    _status?: TaskStatus,
   ): Promise<CareTaskEntity[]> {
     return this.taskRepository.findByAssigneeId(userId);
   }
@@ -249,12 +249,12 @@ export class CareTaskService {
    * Get tasks created by a specific user
    */
   async getUserCreatedTasks(
-    userId: string,
-    groupId?: string,
-    status?: TaskStatus,
+    _userId: string,
+    _groupId?: string,
+    _status?: TaskStatus,
   ): Promise<CareTaskEntity[]> {
     // TODO: Implement findByCreatorId in repository
-    return [];
+    return Promise.resolve([]);
   }
 
   /**

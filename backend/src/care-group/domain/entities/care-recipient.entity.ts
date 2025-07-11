@@ -100,7 +100,7 @@ export class CareRecipientEntity {
     try {
       const parsed =
         typeof prisma.healthSummary === 'string'
-          ? JSON.parse(prisma.healthSummary)
+          ? (JSON.parse(prisma.healthSummary) as unknown)
           : prisma.healthSummary;
       healthSummary = isHealthSummary(parsed) ? parsed : defaultHealthSummary();
     } catch {
@@ -112,7 +112,7 @@ export class CareRecipientEntity {
     try {
       const parsed =
         typeof prisma.carePreferences === 'string'
-          ? JSON.parse(prisma.carePreferences)
+          ? (JSON.parse(prisma.carePreferences) as unknown)
           : prisma.carePreferences;
       carePreferences = isCarePreferences(parsed)
         ? parsed

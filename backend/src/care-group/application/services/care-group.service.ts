@@ -227,7 +227,7 @@ export class CareGroupService {
   async joinCareGroup(
     groupId: string,
     userId: string,
-    invitationCode?: string,
+    _invitationCode?: string,
   ): Promise<CareGroupMemberEntity> {
     const careGroup = await this.careGroupRepository.findById(groupId);
     if (!careGroup) {

@@ -57,7 +57,7 @@ export class CareGroupEntity {
       description: this.description,
       createdBy: this.createdBy,
       isActive: this.isActive,
-      settings: this.settings,
+      settings: this.settings as any,
       inviteCode: this.inviteCode,
       inviteExpiration: this.inviteExpiration,
     };

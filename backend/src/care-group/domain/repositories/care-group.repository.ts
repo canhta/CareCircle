@@ -24,21 +24,12 @@ export abstract class CareGroupRepository {
   abstract findByMemberId(memberId: string): Promise<CareGroupEntity[]>;
   abstract findActiveGroups(userId: string): Promise<CareGroupEntity[]>;
   abstract findInactiveGroups(userId: string): Promise<CareGroupEntity[]>;
-  abstract findByType(
-    userId: string,
-    type: CareGroupType,
-  ): Promise<CareGroupEntity[]>;
-
   // Group management operations
   abstract activateGroup(id: string): Promise<CareGroupEntity>;
   abstract deactivateGroup(id: string): Promise<CareGroupEntity>;
   abstract updateSettings(
     id: string,
     settings: Record<string, any>,
-  ): Promise<CareGroupEntity>;
-  abstract updateEmergencyContact(
-    id: string,
-    emergencyContact: Record<string, any>,
   ): Promise<CareGroupEntity>;
 
   // Search operations
@@ -54,10 +45,6 @@ export abstract class CareGroupRepository {
   // Count operations
   abstract getGroupCount(userId: string): Promise<number>;
   abstract getActiveGroupCount(userId: string): Promise<number>;
-  abstract getGroupCountByType(
-    userId: string,
-    type: CareGroupType,
-  ): Promise<number>;
 
   // Validation operations
   abstract checkGroupExists(id: string): Promise<boolean>;

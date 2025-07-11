@@ -1,11 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { CareGroup as PrismaCareGroup } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../../common/database/prisma.service';
-import {
-  CareGroupRepository,
-  CareGroupQuery,
-} from '../../domain/repositories/care-group.repository';
+import { CareGroupRepository } from '../../domain/repositories/care-group.repository';
 import { CareGroupEntity } from '../../domain/entities/care-group.entity';
+import { CareGroupQuery } from '../../domain/types/repository-query.types';
 
 @Injectable()
 export class PrismaCareGroupRepository extends CareGroupRepository {
@@ -14,8 +12,12 @@ export class PrismaCareGroupRepository extends CareGroupRepository {
   }
 
   async create(careGroup: CareGroupEntity): Promise<CareGroupEntity> {
+    const prismaData = careGroup.toPrisma();
     const data = await this.prisma.careGroup.create({
-      data: careGroup.toPrisma(),
+      data: {
+        ...prismaData,
+        settings: prismaData.settings || {},
+      },
     });
 
     return CareGroupEntity.fromPrisma(data);
@@ -30,11 +32,8 @@ export class PrismaCareGroupRepository extends CareGroupRepository {
   }
 
   async findMany(query: CareGroupQuery): Promise<CareGroupEntity[]> {
-    const where: any = {};
+    const where: Prisma.CareGroupWhereInput = {};
 
-    if (query.type) {
-      where.type = query.type;
-    }
     if (query.isActive !== undefined) {
       where.isActive = query.isActive;
     }
@@ -93,10 +92,8 @@ export class PrismaCareGroupRepository extends CareGroupRepository {
       data: {
         name: updates.name,
         description: updates.description,
-        type: updates.type,
         isActive: updates.isActive,
         settings: updates.settings,
-        emergencyContact: updates.emergencyContact,
         updatedAt: new Date(),
       },
     });
@@ -161,26 +158,6 @@ export class PrismaCareGroupRepository extends CareGroupRepository {
     return data.map((item) => CareGroupEntity.fromPrisma(item));
   }
 
-  async findByType(
-    userId: string,
-    type: CareGroupType,
-  ): Promise<CareGroupEntity[]> {
-    const data = await this.prisma.careGroup.findMany({
-      where: {
-        type,
-        members: {
-          some: {
-            userId,
-            isActive: true,
-          },
-        },
-      },
-      orderBy: { createdAt: 'desc' },
-    });
-
-    return data.map((item) => CareGroupEntity.fromPrisma(item));
-  }
-
   // Group management operations
   async activateGroup(id: string): Promise<CareGroupEntity> {
     const data = await this.prisma.careGroup.update({
@@ -207,18 +184,6 @@ export class PrismaCareGroupRepository extends CareGroupRepository {
     const data = await this.prisma.careGroup.update({
       where: { id },
       data: { settings, updatedAt: new Date() },
-    });
-
-    return CareGroupEntity.fromPrisma(data);
-  }
-
-  async updateEmergencyContact(
-    id: string,
-    emergencyContact: Record<string, any>,
-  ): Promise<CareGroupEntity> {
-    const data = await this.prisma.careGroup.update({
-      where: { id },
-      data: { emergencyContact, updatedAt: new Date() },
     });
 
     return CareGroupEntity.fromPrisma(data);
@@ -266,7 +231,7 @@ export class PrismaCareGroupRepository extends CareGroupRepository {
         },
         activities: {
           some: {
-            createdAt: {
+            timestamp: {
               gte: thresholdDate,
             },
           },
@@ -296,23 +261,6 @@ export class PrismaCareGroupRepository extends CareGroupRepository {
     return this.prisma.careGroup.count({
       where: {
         isActive: true,
-        members: {
-          some: {
-            userId,
-            isActive: true,
-          },
-        },
-      },
-    });
-  }
-
-  async getGroupCountByType(
-    userId: string,
-    type: CareGroupType,
-  ): Promise<number> {
-    return this.prisma.careGroup.count({
-      where: {
-        type,
         members: {
           some: {
             userId,

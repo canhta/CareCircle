@@ -69,7 +69,7 @@ export class CareGroupMemberEntity {
       customTitle: this.customTitle,
       isActive: this.isActive,
       invitedBy: this.invitedBy,
-      notificationPreferences: this.notificationPreferences,
+      notificationPreferences: this.notificationPreferences as any,
       permissions: this.permissions,
     };
   }

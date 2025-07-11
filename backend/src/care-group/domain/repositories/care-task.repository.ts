@@ -1,5 +1,5 @@
 import { CareTaskEntity } from '../entities/care-task.entity';
-import { TaskStatus, TaskPriority } from '@prisma/client';
+import { TaskStatus, TaskPriority, TaskCategory } from '@prisma/client';
 
 export interface TaskQuery {
   groupId?: string;
@@ -8,8 +8,7 @@ export interface TaskQuery {
   createdById?: string;
   status?: TaskStatus;
   priority?: TaskPriority;
-  type?: TaskType;
-  isRecurring?: boolean;
+  category?: TaskCategory;
   dueDateFrom?: Date;
   dueDateTo?: Date;
   limit?: number;
@@ -47,10 +46,10 @@ export abstract class CareTaskRepository {
   abstract findHighPriorityTasks(groupId: string): Promise<CareTaskEntity[]>;
   abstract findUrgentTasks(groupId: string): Promise<CareTaskEntity[]>;
 
-  // Task type operations
-  abstract findByType(
+  // Task category operations
+  abstract findByCategory(
     groupId: string,
-    type: TaskType,
+    category: TaskCategory,
   ): Promise<CareTaskEntity[]>;
   abstract findMedicationTasks(groupId: string): Promise<CareTaskEntity[]>;
   abstract findAppointmentTasks(groupId: string): Promise<CareTaskEntity[]>;
