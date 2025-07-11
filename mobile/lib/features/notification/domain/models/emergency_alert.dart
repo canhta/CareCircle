@@ -125,64 +125,6 @@ abstract class EmergencyEscalation with _$EmergencyEscalation {
       _$EmergencyEscalationFromJson(json);
 }
 
-/// Create emergency alert request
-@freezed
-abstract class CreateEmergencyAlertRequest with _$CreateEmergencyAlertRequest {
-  const factory CreateEmergencyAlertRequest({
-    required String title,
-    required String message,
-    required EmergencyAlertType alertType,
-    @Default(EmergencyAlertSeverity.high) EmergencyAlertSeverity severity,
-    Map<String, dynamic>? metadata,
-    String? location,
-    List<String>? attachments,
-    @Default(true) bool autoEscalate,
-    @Default(5) int escalationDelayMinutes,
-  }) = _CreateEmergencyAlertRequest;
-
-  factory CreateEmergencyAlertRequest.fromJson(Map<String, dynamic> json) =>
-      _$CreateEmergencyAlertRequestFromJson(json);
-}
-
-/// Emergency alert action request
-@freezed
-abstract class EmergencyAlertActionRequest with _$EmergencyAlertActionRequest {
-  const factory EmergencyAlertActionRequest({
-    required String alertId,
-    required String actionType,
-    Map<String, dynamic>? parameters,
-    String? notes,
-  }) = _EmergencyAlertActionRequest;
-
-  factory EmergencyAlertActionRequest.fromJson(Map<String, dynamic> json) =>
-      _$EmergencyAlertActionRequestFromJson(json);
-}
-
-/// API response wrappers
-@freezed
-abstract class EmergencyAlertResponse with _$EmergencyAlertResponse {
-  const factory EmergencyAlertResponse({
-    required bool success,
-    required EmergencyAlert data,
-    String? message,
-  }) = _EmergencyAlertResponse;
-
-  factory EmergencyAlertResponse.fromJson(Map<String, dynamic> json) =>
-      _$EmergencyAlertResponseFromJson(json);
-}
-
-@freezed
-abstract class EmergencyAlertListResponse with _$EmergencyAlertListResponse {
-  const factory EmergencyAlertListResponse({
-    required bool success,
-    required List<EmergencyAlert> data,
-    String? message,
-  }) = _EmergencyAlertListResponse;
-
-  factory EmergencyAlertListResponse.fromJson(Map<String, dynamic> json) =>
-      _$EmergencyAlertListResponseFromJson(json);
-}
-
 /// Extensions for emergency alert utilities
 extension EmergencyAlertSeverityExtension on EmergencyAlertSeverity {
   String get displayName {

@@ -3,8 +3,12 @@ import 'package:hive_flutter/hive_flutter.dart';
 
 import '../../../../core/logging/bounded_context_loggers.dart';
 import '../../../../core/storage/secure_storage_service.dart';
+import '../../domain/exceptions/notification_exceptions.dart';
 import '../../domain/models/models.dart' as notification_models;
 import '../services/notification_api_service.dart';
+import '../services/notification_error_handler.dart';
+import '../services/notification_retry_service.dart';
+import '../services/notification_validator.dart';
 
 /// Repository for notification data management
 ///
@@ -131,7 +135,10 @@ class NotificationRepository {
       });
 
       final response = await _apiService.getNotificationSummary();
-      return response.data;
+      if (response.data == null) {
+        throw Exception('Failed to fetch notification summary: No data received');
+      }
+      return response.data!;
     } on DioException catch (e) {
       _logger.error('Failed to fetch notification summary', {
         'errorType': e.type.name,
@@ -152,7 +159,10 @@ class NotificationRepository {
       });
 
       final response = await _apiService.getNotification(id);
-      return response.data;
+      if (response.data == null) {
+        throw Exception('Failed to fetch notification: No data received');
+      }
+      return response.data!;
     } on DioException catch (e) {
       _logger.error('Failed to fetch notification details', {
         'notificationId': id,
@@ -175,8 +185,12 @@ class NotificationRepository {
 
       final response = await _apiService.markAsRead(id);
 
+      if (response.data == null) {
+        throw Exception('Failed to mark notification as read: No data received');
+      }
+
       // Update cache
-      await _updateNotificationInCache(response.data);
+      await _updateNotificationInCache(response.data!);
 
       _logger.logHealthDataAccess('Notification marked as read', {
         'dataType': 'notification_interaction',
@@ -185,7 +199,7 @@ class NotificationRepository {
         'timestamp': DateTime.now().toIso8601String(),
       });
 
-      return response.data;
+      return response.data!;
     } on DioException catch (e) {
       _logger.error('Failed to mark notification as read', {
         'notificationId': id,
@@ -197,40 +211,65 @@ class NotificationRepository {
     }
   }
 
-  /// Create new notification
+  /// Create new notification with comprehensive validation and error handling
   Future<notification_models.Notification> createNotification(
     notification_models.CreateNotificationRequest request,
   ) async {
-    try {
-      _logger.info('Creating new notification', {
-        'operation': 'createNotification',
+    // Validate request
+    NotificationValidator.validateCreateNotificationRequest(request);
+
+    return NotificationRetryService.executeWithRetry(
+      () async {
+        try {
+          _logger.info('Creating new notification', {
+            'operation': 'createNotification',
+            'type': request.type.name,
+            'priority': request.priority.name,
+            'timestamp': DateTime.now().toIso8601String(),
+          });
+
+          final response = await _apiService.createNotification(request);
+          final notification = response.data;
+
+          if (notification == null) {
+            throw NotificationServiceException(
+              'Failed to create notification: No data received from server',
+              code: 'NO_DATA_RECEIVED',
+              details: {'operation': 'createNotification'},
+            );
+          }
+
+          // Clear cache to force refresh
+          await _clearNotificationCache();
+
+          _logger.logHealthDataAccess('Notification created successfully', {
+            'dataType': 'notification',
+            'notificationId': notification.id,
+            'type': notification.type.name,
+            'priority': notification.priority.name,
+            'timestamp': DateTime.now().toIso8601String(),
+          });
+
+          return notification;
+        } catch (error, stackTrace) {
+          throw NotificationErrorHandler.handleException(
+            error,
+            stackTrace: stackTrace,
+            context: {
+              'operation': 'createNotification',
+              'requestType': request.type.name,
+              'requestPriority': request.priority.name,
+            },
+          );
+        }
+      },
+      operationName: 'createNotification',
+      maxAttempts: 3,
+      context: {
         'type': request.type.name,
         'priority': request.priority.name,
-        'timestamp': DateTime.now().toIso8601String(),
-      });
-
-      final response = await _apiService.createNotification(request);
-      final notification = response.data;
-
-      // Clear cache to force refresh
-      await _clearNotificationCache();
-
-      _logger.logHealthDataAccess('Notification created', {
-        'dataType': 'notification',
-        'notificationId': notification.id,
-        'type': notification.type.name,
-        'timestamp': DateTime.now().toIso8601String(),
-      });
-
-      return notification;
-    } on DioException catch (e) {
-      _logger.error('Failed to create notification', {
-        'errorType': e.type.name,
-        'statusCode': e.response?.statusCode,
-        'timestamp': DateTime.now().toIso8601String(),
-      });
-      throw _handleError(e);
-    }
+      },
+    );
   }
 
   /// Get notification preferences
@@ -254,6 +293,10 @@ class NotificationRepository {
 
       final response = await _apiService.getNotificationPreferences();
       final preferences = response.data;
+
+      if (preferences == null) {
+        throw Exception('Failed to fetch notification preferences: No data received');
+      }
 
       // Cache the results
       await _cachePreferences(preferences);
@@ -289,6 +332,10 @@ class NotificationRepository {
 
       final response = await _apiService.updateNotificationPreferences(request);
       final preferences = response.data;
+
+      if (preferences == null) {
+        throw Exception('Failed to update notification preferences: No data received');
+      }
 
       // Update cache
       await _cachePreferences(preferences);

@@ -420,7 +420,7 @@ class _NotificationPreferencesScreenState
     setState(() => _isLoading = true);
     try {
       final request = UpdateNotificationPreferencesRequest(
-        doNotDisturbEnabled: enabled,
+        globalEnabled: enabled,
       );
       await ref
           .read(notificationPreferencesNotifierProvider.notifier)

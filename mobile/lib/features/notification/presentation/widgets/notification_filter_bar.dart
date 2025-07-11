@@ -235,8 +235,8 @@ class NotificationFilterBar extends ConsumerWidget {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
         color: isActive
-            ? (color ?? CareCircleDesignTokens.primaryMedicalBlue).withOpacity(
-                0.1,
+            ? (color ?? CareCircleDesignTokens.primaryMedicalBlue).withValues(
+                alpha: 0.1,
               )
             : CareCircleDesignTokens.backgroundSecondary,
         border: Border.all(
@@ -331,7 +331,7 @@ class ActiveFiltersIndicator extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: CareCircleDesignTokens.primaryMedicalBlue.withOpacity(0.05),
+        color: CareCircleDesignTokens.primaryMedicalBlue.withValues(alpha: 0.05),
         border: Border(
           bottom: BorderSide(
             color: CareCircleDesignTokens.borderLight,

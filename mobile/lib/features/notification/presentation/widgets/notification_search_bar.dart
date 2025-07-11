@@ -139,10 +139,10 @@ class _NotificationSearchBarState extends ConsumerState<NotificationSearchBar> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: CareCircleDesignTokens.primaryMedicalBlue.withOpacity(0.05),
+        color: CareCircleDesignTokens.primaryMedicalBlue.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: CareCircleDesignTokens.primaryMedicalBlue.withOpacity(0.2),
+          color: CareCircleDesignTokens.primaryMedicalBlue.withValues(alpha: 0.2),
           width: 1,
         ),
       ),

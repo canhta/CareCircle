@@ -211,8 +211,8 @@ class _QuietHoursSettingState extends State<QuietHoursSetting> {
             newActiveDays.sort();
             _updateSettings(_settings.copyWith(activeDays: newActiveDays));
           },
-          selectedColor: CareCircleDesignTokens.primaryMedicalBlue.withOpacity(
-            0.2,
+          selectedColor: CareCircleDesignTokens.primaryMedicalBlue.withValues(
+            alpha: 0.2,
           ),
           checkmarkColor: CareCircleDesignTokens.primaryMedicalBlue,
         );
@@ -369,7 +369,7 @@ class _TimeRangePickerDialogState extends State<_TimeRangePickerDialog> {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: CareCircleDesignTokens.primaryMedicalBlue.withOpacity(0.1),
+              color: CareCircleDesignTokens.primaryMedicalBlue.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Row(

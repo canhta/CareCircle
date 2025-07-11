@@ -102,81 +102,10 @@ abstract class EmergencyContact with _$EmergencyContact {
       _$EmergencyContactFromJson(json);
 }
 
-/// Request DTOs for updating preferences
-@freezed
-abstract class UpdateNotificationPreferencesRequest
-    with _$UpdateNotificationPreferencesRequest {
-  const factory UpdateNotificationPreferencesRequest({
-    bool? globalEnabled,
-    bool? doNotDisturbEnabled,
-    DateTime? doNotDisturbStart,
-    DateTime? doNotDisturbEnd,
-    List<NotificationPreference>? preferences,
-    EmergencyAlertSettings? emergencySettings,
-    QuietHoursSettings? quietHours,
-  }) = _UpdateNotificationPreferencesRequest;
 
-  factory UpdateNotificationPreferencesRequest.fromJson(
-    Map<String, dynamic> json,
-  ) => _$UpdateNotificationPreferencesRequestFromJson(json);
-}
 
-/// Request for updating specific preference
-@freezed
-abstract class UpdatePreferenceRequest with _$UpdatePreferenceRequest {
-  const factory UpdatePreferenceRequest({
-    required ContextType contextType,
-    required NotificationChannel channel,
-    bool? enabled,
-    NotificationFrequency? frequency,
-    bool? quietHoursEnabled,
-    DateTime? quietHoursStart,
-    DateTime? quietHoursEnd,
-    Map<String, dynamic>? settings,
-  }) = _UpdatePreferenceRequest;
 
-  factory UpdatePreferenceRequest.fromJson(Map<String, dynamic> json) =>
-      _$UpdatePreferenceRequestFromJson(json);
-}
 
-/// API response wrappers
-@freezed
-abstract class NotificationPreferencesResponse
-    with _$NotificationPreferencesResponse {
-  const factory NotificationPreferencesResponse({
-    required bool success,
-    required NotificationPreferences data,
-    String? message,
-  }) = _NotificationPreferencesResponse;
-
-  factory NotificationPreferencesResponse.fromJson(Map<String, dynamic> json) =>
-      _$NotificationPreferencesResponseFromJson(json);
-}
-
-@freezed
-abstract class EmergencyContactResponse with _$EmergencyContactResponse {
-  const factory EmergencyContactResponse({
-    required bool success,
-    required EmergencyContact data,
-    String? message,
-  }) = _EmergencyContactResponse;
-
-  factory EmergencyContactResponse.fromJson(Map<String, dynamic> json) =>
-      _$EmergencyContactResponseFromJson(json);
-}
-
-@freezed
-abstract class EmergencyContactListResponse
-    with _$EmergencyContactListResponse {
-  const factory EmergencyContactListResponse({
-    required bool success,
-    required List<EmergencyContact> data,
-    String? message,
-  }) = _EmergencyContactListResponse;
-
-  factory EmergencyContactListResponse.fromJson(Map<String, dynamic> json) =>
-      _$EmergencyContactListResponseFromJson(json);
-}
 
 /// Extensions for convenience methods
 extension NotificationPreferencesExtension on NotificationPreferences {
@@ -186,12 +115,12 @@ extension NotificationPreferencesExtension on NotificationPreferences {
 
     final preference = preferences.firstWhere(
       (p) => p.contextType == context && p.channel == channel,
-      orElse: () => const NotificationPreference(
+      orElse: () => NotificationPreference(
         id: '',
         userId: '',
         contextType: ContextType.system,
         channel: NotificationChannel.inApp,
-        createdAt: null,
+        createdAt: DateTime.now(),
       ),
     );
 

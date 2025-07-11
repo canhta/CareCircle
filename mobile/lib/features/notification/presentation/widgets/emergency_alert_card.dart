@@ -50,7 +50,7 @@ class EmergencyAlertCard extends StatelessWidget {
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      _getSeverityColor(alert.severity).withOpacity(0.05),
+                      _getSeverityColor(alert.severity).withValues(alpha: 0.05),
                       Colors.white,
                     ],
                   )
@@ -121,7 +121,7 @@ class EmergencyAlertCard extends StatelessWidget {
       width: 48,
       height: 48,
       decoration: BoxDecoration(
-        color: _getSeverityColor(alert.severity).withOpacity(0.1),
+        color: _getSeverityColor(alert.severity).withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(24),
         border: Border.all(color: _getSeverityColor(alert.severity), width: 2),
       ),
@@ -258,9 +258,9 @@ class EmergencyAlertCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Text(
         text,

@@ -1248,7 +1248,7 @@ as int?,
 /// @nodoc
 mixin _$EmergencyAlertActionRequest {
 
- String get actionType; String? get notes; Map<String, dynamic>? get actionData;@JsonKey(name: 'performed_by') String? get performedBy;
+ String get actionType; String? get notes; Map<String, dynamic>? get actionData; String? get performedBy;
 /// Create a copy of EmergencyAlertActionRequest
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -1281,7 +1281,7 @@ abstract mixin class $EmergencyAlertActionRequestCopyWith<$Res>  {
   factory $EmergencyAlertActionRequestCopyWith(EmergencyAlertActionRequest value, $Res Function(EmergencyAlertActionRequest) _then) = _$EmergencyAlertActionRequestCopyWithImpl;
 @useResult
 $Res call({
- String actionType, String? notes, Map<String, dynamic>? actionData,@JsonKey(name: 'performed_by') String? performedBy
+ String actionType, String? notes, Map<String, dynamic>? actionData, String? performedBy
 });
 
 
@@ -1389,7 +1389,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String actionType,  String? notes,  Map<String, dynamic>? actionData, @JsonKey(name: 'performed_by')  String? performedBy)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String actionType,  String? notes,  Map<String, dynamic>? actionData,  String? performedBy)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _EmergencyAlertActionRequest() when $default != null:
 return $default(_that.actionType,_that.notes,_that.actionData,_that.performedBy);case _:
@@ -1410,7 +1410,7 @@ return $default(_that.actionType,_that.notes,_that.actionData,_that.performedBy)
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String actionType,  String? notes,  Map<String, dynamic>? actionData, @JsonKey(name: 'performed_by')  String? performedBy)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String actionType,  String? notes,  Map<String, dynamic>? actionData,  String? performedBy)  $default,) {final _that = this;
 switch (_that) {
 case _EmergencyAlertActionRequest():
 return $default(_that.actionType,_that.notes,_that.actionData,_that.performedBy);case _:
@@ -1430,7 +1430,7 @@ return $default(_that.actionType,_that.notes,_that.actionData,_that.performedBy)
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String actionType,  String? notes,  Map<String, dynamic>? actionData, @JsonKey(name: 'performed_by')  String? performedBy)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String actionType,  String? notes,  Map<String, dynamic>? actionData,  String? performedBy)?  $default,) {final _that = this;
 switch (_that) {
 case _EmergencyAlertActionRequest() when $default != null:
 return $default(_that.actionType,_that.notes,_that.actionData,_that.performedBy);case _:
@@ -1445,7 +1445,7 @@ return $default(_that.actionType,_that.notes,_that.actionData,_that.performedBy)
 @JsonSerializable()
 
 class _EmergencyAlertActionRequest implements EmergencyAlertActionRequest {
-  const _EmergencyAlertActionRequest({required this.actionType, this.notes, final  Map<String, dynamic>? actionData, @JsonKey(name: 'performed_by') this.performedBy}): _actionData = actionData;
+  const _EmergencyAlertActionRequest({required this.actionType, this.notes, final  Map<String, dynamic>? actionData, this.performedBy}): _actionData = actionData;
   factory _EmergencyAlertActionRequest.fromJson(Map<String, dynamic> json) => _$EmergencyAlertActionRequestFromJson(json);
 
 @override final  String actionType;
@@ -1459,7 +1459,7 @@ class _EmergencyAlertActionRequest implements EmergencyAlertActionRequest {
   return EqualUnmodifiableMapView(value);
 }
 
-@override@JsonKey(name: 'performed_by') final  String? performedBy;
+@override final  String? performedBy;
 
 /// Create a copy of EmergencyAlertActionRequest
 /// with the given fields replaced by the non-null parameter values.
@@ -1494,7 +1494,7 @@ abstract mixin class _$EmergencyAlertActionRequestCopyWith<$Res> implements $Eme
   factory _$EmergencyAlertActionRequestCopyWith(_EmergencyAlertActionRequest value, $Res Function(_EmergencyAlertActionRequest) _then) = __$EmergencyAlertActionRequestCopyWithImpl;
 @override @useResult
 $Res call({
- String actionType, String? notes, Map<String, dynamic>? actionData,@JsonKey(name: 'performed_by') String? performedBy
+ String actionType, String? notes, Map<String, dynamic>? actionData, String? performedBy
 });
 
 

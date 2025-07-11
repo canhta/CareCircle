@@ -1,8 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     as local_notifications;
 
@@ -342,8 +340,8 @@ class FCMService {
       final notificationType = _getNotificationTypeFromData(message.data);
       final channelId = _getChannelIdForType(notificationType);
 
-      const androidDetails = local_notifications.AndroidNotificationDetails(
-        'general_notifications',
+      final androidDetails = local_notifications.AndroidNotificationDetails(
+        channelId,
         'General Notifications',
         channelDescription: 'General app notifications',
         importance: local_notifications.Importance.defaultImportance,
@@ -356,7 +354,7 @@ class FCMService {
         presentSound: true,
       );
 
-      const notificationDetails = local_notifications.NotificationDetails(
+      final notificationDetails = local_notifications.NotificationDetails(
         android: androidDetails,
         iOS: iosDetails,
       );

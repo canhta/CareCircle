@@ -11,13 +11,13 @@ part 'api_responses.g.dart';
 
 /// Notification response wrapper
 @freezed
-class NotificationResponse with _$NotificationResponse {
+abstract class NotificationResponse with _$NotificationResponse {
   const factory NotificationResponse({
     required bool success,
     required String message,
     Notification? data,
     Map<String, dynamic>? errors,
-    @JsonKey(name: 'timestamp') DateTime? timestamp,
+    DateTime? timestamp,
   }) = _NotificationResponse;
 
   factory NotificationResponse.fromJson(Map<String, dynamic> json) =>
@@ -26,13 +26,13 @@ class NotificationResponse with _$NotificationResponse {
 
 /// Notification list response wrapper
 @freezed
-class NotificationListResponse with _$NotificationListResponse {
+abstract class NotificationListResponse with _$NotificationListResponse {
   const factory NotificationListResponse({
     required bool success,
     required String message,
     @Default([]) List<Notification> data,
     Map<String, dynamic>? errors,
-    @JsonKey(name: 'timestamp') DateTime? timestamp,
+    DateTime? timestamp,
     PaginationMeta? pagination,
   }) = _NotificationListResponse;
 
@@ -42,13 +42,13 @@ class NotificationListResponse with _$NotificationListResponse {
 
 /// Notification summary response wrapper
 @freezed
-class NotificationSummaryResponse with _$NotificationSummaryResponse {
+abstract class NotificationSummaryResponse with _$NotificationSummaryResponse {
   const factory NotificationSummaryResponse({
     required bool success,
     required String message,
     NotificationSummary? data,
     Map<String, dynamic>? errors,
-    @JsonKey(name: 'timestamp') DateTime? timestamp,
+    DateTime? timestamp,
   }) = _NotificationSummaryResponse;
 
   factory NotificationSummaryResponse.fromJson(Map<String, dynamic> json) =>
@@ -57,13 +57,13 @@ class NotificationSummaryResponse with _$NotificationSummaryResponse {
 
 /// Notification preferences response wrapper
 @freezed
-class NotificationPreferencesResponse with _$NotificationPreferencesResponse {
+abstract class NotificationPreferencesResponse with _$NotificationPreferencesResponse {
   const factory NotificationPreferencesResponse({
     required bool success,
     required String message,
     NotificationPreferences? data,
     Map<String, dynamic>? errors,
-    @JsonKey(name: 'timestamp') DateTime? timestamp,
+    DateTime? timestamp,
   }) = _NotificationPreferencesResponse;
 
   factory NotificationPreferencesResponse.fromJson(Map<String, dynamic> json) =>
@@ -72,13 +72,13 @@ class NotificationPreferencesResponse with _$NotificationPreferencesResponse {
 
 /// Emergency alert response wrapper
 @freezed
-class EmergencyAlertResponse with _$EmergencyAlertResponse {
+abstract class EmergencyAlertResponse with _$EmergencyAlertResponse {
   const factory EmergencyAlertResponse({
     required bool success,
     required String message,
     EmergencyAlert? data,
     Map<String, dynamic>? errors,
-    @JsonKey(name: 'timestamp') DateTime? timestamp,
+    DateTime? timestamp,
   }) = _EmergencyAlertResponse;
 
   factory EmergencyAlertResponse.fromJson(Map<String, dynamic> json) =>
@@ -87,13 +87,13 @@ class EmergencyAlertResponse with _$EmergencyAlertResponse {
 
 /// Emergency alert list response wrapper
 @freezed
-class EmergencyAlertListResponse with _$EmergencyAlertListResponse {
+abstract class EmergencyAlertListResponse with _$EmergencyAlertListResponse {
   const factory EmergencyAlertListResponse({
     required bool success,
     required String message,
     @Default([]) List<EmergencyAlert> data,
     Map<String, dynamic>? errors,
-    @JsonKey(name: 'timestamp') DateTime? timestamp,
+    DateTime? timestamp,
     PaginationMeta? pagination,
   }) = _EmergencyAlertListResponse;
 
@@ -103,13 +103,13 @@ class EmergencyAlertListResponse with _$EmergencyAlertListResponse {
 
 /// Emergency contact response wrapper
 @freezed
-class EmergencyContactResponse with _$EmergencyContactResponse {
+abstract class EmergencyContactResponse with _$EmergencyContactResponse {
   const factory EmergencyContactResponse({
     required bool success,
     required String message,
     EmergencyContact? data,
     Map<String, dynamic>? errors,
-    @JsonKey(name: 'timestamp') DateTime? timestamp,
+    DateTime? timestamp,
   }) = _EmergencyContactResponse;
 
   factory EmergencyContactResponse.fromJson(Map<String, dynamic> json) =>
@@ -118,13 +118,13 @@ class EmergencyContactResponse with _$EmergencyContactResponse {
 
 /// Emergency contact list response wrapper
 @freezed
-class EmergencyContactListResponse with _$EmergencyContactListResponse {
+abstract class EmergencyContactListResponse with _$EmergencyContactListResponse {
   const factory EmergencyContactListResponse({
     required bool success,
     required String message,
     @Default([]) List<EmergencyContact> data,
     Map<String, dynamic>? errors,
-    @JsonKey(name: 'timestamp') DateTime? timestamp,
+    DateTime? timestamp,
     PaginationMeta? pagination,
   }) = _EmergencyContactListResponse;
 
@@ -134,13 +134,13 @@ class EmergencyContactListResponse with _$EmergencyContactListResponse {
 
 /// Notification template response wrapper
 @freezed
-class NotificationTemplateResponse with _$NotificationTemplateResponse {
+abstract class NotificationTemplateResponse with _$NotificationTemplateResponse {
   const factory NotificationTemplateResponse({
     required bool success,
     required String message,
     NotificationTemplate? data,
     Map<String, dynamic>? errors,
-    @JsonKey(name: 'timestamp') DateTime? timestamp,
+    DateTime? timestamp,
   }) = _NotificationTemplateResponse;
 
   factory NotificationTemplateResponse.fromJson(Map<String, dynamic> json) =>
@@ -149,13 +149,13 @@ class NotificationTemplateResponse with _$NotificationTemplateResponse {
 
 /// Notification template list response wrapper
 @freezed
-class NotificationTemplateListResponse with _$NotificationTemplateListResponse {
+abstract class NotificationTemplateListResponse with _$NotificationTemplateListResponse {
   const factory NotificationTemplateListResponse({
     required bool success,
     required String message,
     @Default([]) List<NotificationTemplate> data,
     Map<String, dynamic>? errors,
-    @JsonKey(name: 'timestamp') DateTime? timestamp,
+    DateTime? timestamp,
     PaginationMeta? pagination,
   }) = _NotificationTemplateListResponse;
 
@@ -166,13 +166,13 @@ class NotificationTemplateListResponse with _$NotificationTemplateListResponse {
 
 /// Rendered template response wrapper
 @freezed
-class RenderedTemplateResponse with _$RenderedTemplateResponse {
+abstract class RenderedTemplateResponse with _$RenderedTemplateResponse {
   const factory RenderedTemplateResponse({
     required bool success,
     required String message,
     RenderedTemplate? data,
     Map<String, dynamic>? errors,
-    @JsonKey(name: 'timestamp') DateTime? timestamp,
+    DateTime? timestamp,
   }) = _RenderedTemplateResponse;
 
   factory RenderedTemplateResponse.fromJson(Map<String, dynamic> json) =>
@@ -181,7 +181,7 @@ class RenderedTemplateResponse with _$RenderedTemplateResponse {
 
 /// Pagination metadata
 @freezed
-class PaginationMeta with _$PaginationMeta {
+abstract class PaginationMeta with _$PaginationMeta {
   const factory PaginationMeta({
     required int currentPage,
     required int totalPages,
@@ -197,13 +197,13 @@ class PaginationMeta with _$PaginationMeta {
 
 /// Rendered template data
 @freezed
-class RenderedTemplate with _$RenderedTemplate {
+abstract class RenderedTemplate with _$RenderedTemplate {
   const factory RenderedTemplate({
     required String templateId,
     required String renderedContent,
     required String subject,
     Map<String, dynamic>? variables,
-    @JsonKey(name: 'rendered_at') DateTime? renderedAt,
+    DateTime? renderedAt,
   }) = _RenderedTemplate;
 
   factory RenderedTemplate.fromJson(Map<String, dynamic> json) =>

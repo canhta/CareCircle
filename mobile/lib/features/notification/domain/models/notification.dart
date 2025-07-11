@@ -211,24 +211,6 @@ abstract class NotificationInteraction with _$NotificationInteraction {
       _$NotificationInteractionFromJson(json);
 }
 
-/// Create notification request DTO
-@freezed
-abstract class CreateNotificationRequest with _$CreateNotificationRequest {
-  const factory CreateNotificationRequest({
-    required String title,
-    required String message,
-    required NotificationType type,
-    @Default(NotificationPriority.normal) NotificationPriority priority,
-    @Default(NotificationChannel.inApp) NotificationChannel channel,
-    DateTime? scheduledFor,
-    DateTime? expiresAt,
-    Map<String, dynamic>? context,
-  }) = _CreateNotificationRequest;
-
-  factory CreateNotificationRequest.fromJson(Map<String, dynamic> json) =>
-      _$CreateNotificationRequestFromJson(json);
-}
-
 /// Notification summary response
 @freezed
 abstract class NotificationSummary with _$NotificationSummary {
@@ -243,41 +225,4 @@ abstract class NotificationSummary with _$NotificationSummary {
       _$NotificationSummaryFromJson(json);
 }
 
-/// API response wrapper for notifications
-@freezed
-abstract class NotificationResponse with _$NotificationResponse {
-  const factory NotificationResponse({
-    required bool success,
-    required Notification data,
-    String? message,
-  }) = _NotificationResponse;
 
-  factory NotificationResponse.fromJson(Map<String, dynamic> json) =>
-      _$NotificationResponseFromJson(json);
-}
-
-/// API response wrapper for notification lists
-@freezed
-abstract class NotificationListResponse with _$NotificationListResponse {
-  const factory NotificationListResponse({
-    required bool success,
-    required List<Notification> data,
-    String? message,
-  }) = _NotificationListResponse;
-
-  factory NotificationListResponse.fromJson(Map<String, dynamic> json) =>
-      _$NotificationListResponseFromJson(json);
-}
-
-/// API response wrapper for notification summary
-@freezed
-abstract class NotificationSummaryResponse with _$NotificationSummaryResponse {
-  const factory NotificationSummaryResponse({
-    required bool success,
-    required NotificationSummary data,
-    String? message,
-  }) = _NotificationSummaryResponse;
-
-  factory NotificationSummaryResponse.fromJson(Map<String, dynamic> json) =>
-      _$NotificationSummaryResponseFromJson(json);
-}

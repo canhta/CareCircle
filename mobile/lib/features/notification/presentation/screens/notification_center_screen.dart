@@ -274,7 +274,7 @@ class _NotificationCenterScreenState
         // Set priority filter for important notifications
         WidgetsBinding.instance.addPostFrameCallback((_) {
           ref.read(notificationPriorityFilterProvider.notifier).state =
-              NotificationPriority.high;
+              notification_models.NotificationPriority.high;
         });
 
         final notificationsAsync = ref.watch(filteredNotificationsProvider);

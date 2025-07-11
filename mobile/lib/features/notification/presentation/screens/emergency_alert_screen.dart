@@ -281,7 +281,7 @@ class _EmergencyAlertScreenState extends ConsumerState<EmergencyAlertScreen>
             width: 80,
             height: 80,
             decoration: BoxDecoration(
-              color: CareCircleDesignTokens.successGreen.withOpacity(0.1),
+              color: CareCircleDesignTokens.successGreen.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(40),
             ),
             child: Icon(
