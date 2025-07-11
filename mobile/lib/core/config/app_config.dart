@@ -2,7 +2,7 @@ abstract class AppConfig {
   static const String appName = 'CareCircle';
   static const String apiBaseUrl = String.fromEnvironment(
     'API_BASE_URL',
-    defaultValue: 'http://192.168.1.237:3000/api/v1',
+    defaultValue: 'http://192.168.9.103:3000/api/v1',
   );
   static const bool enableLogging = bool.fromEnvironment(
     'ENABLE_LOGGING',

@@ -101,25 +101,11 @@ async function bootstrap() {
     console.log(`   Environment: ${process.env.NODE_ENV}`);
     console.log(`   Port: ${port}`);
     console.log(`   API Prefix: ${apiPrefix}`);
-    console.log(`   Health Check: /api/v1/health`);
-    console.log('');
-    console.log('📱 Mobile App Configuration:');
-    console.log('   Use the Cloud Run service URL as your API base URL');
-    console.log('   Example: https://your-service-url/api/v1');
   } else {
     // Development logging
     console.log(`   Local:    http://localhost:${port}/${apiPrefix}`);
     console.log(`   Network:  http://${localIP}:${port}/${apiPrefix}`);
-    console.log('');
-    console.log('📱 For mobile development, use the Network URL:');
-    console.log(
-      `   Mobile API Base URL: http://${localIP}:${port}/${apiPrefix}`,
-    );
   }
-
-  console.log('');
-  console.log('🏥 Healthcare Platform Ready');
-  console.log('✅ HIPAA-compliant infrastructure active');
 }
 
 // Graceful shutdown handling
