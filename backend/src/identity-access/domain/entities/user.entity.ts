@@ -37,13 +37,14 @@ export class UserAccount {
   ) {}
 
   static create(data: {
+    id?: string;
     email?: string;
     phoneNumber?: string;
     isGuest?: boolean;
     deviceId?: string;
   }): UserAccount {
     return new UserAccount(
-      crypto.randomUUID(),
+      data.id || crypto.randomUUID(),
       data.email,
       data.phoneNumber,
       false,

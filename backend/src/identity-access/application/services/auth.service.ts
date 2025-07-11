@@ -40,16 +40,14 @@ export class AuthService {
     private readonly firebaseAuthService: FirebaseAuthService,
   ) {}
 
-  async loginAsGuest(deviceId: string): Promise<LoginResult> {
-    // Check if guest user already exists for this device
-    let user = await this.userRepository.findByDeviceId(deviceId);
+  async loginAsGuest(firebaseUid: string, deviceId: string): Promise<LoginResult> {
+    // Check if guest user already exists by Firebase UID (using ID as Firebase UID)
+    let user = await this.userRepository.findById(firebaseUid);
 
     if (!user) {
-      // Create anonymous Firebase user
-      await this.firebaseAuthService.signInAnonymously();
-
-      // Create guest user account
+      // Create guest user account (Firebase anonymous user already created on client)
       user = UserAccount.create({
+        id: firebaseUid,
         isGuest: true,
         deviceId,
       });
@@ -129,12 +127,13 @@ export class AuthService {
       const decodedToken =
         await this.firebaseAuthService.verifyIdToken(idToken);
 
-      // Check if user already exists
-      let user = await this.userRepository.findByEmail(decodedToken.email!);
+      // Check if user already exists by Firebase UID
+      let user = await this.userRepository.findById(decodedToken.uid);
 
       if (!user) {
-        // Create new user account
+        // Create new user account with Firebase UID as ID
         user = UserAccount.create({
+          id: decodedToken.uid,
           email: decodedToken.email,
         });
         // Set email verification status after creation
@@ -207,16 +206,15 @@ export class AuthService {
       const decodedToken =
         await this.firebaseAuthService.verifyIdToken(idToken);
 
-      // Check if user already exists
-      const existingUser = await this.userRepository.findByEmail(
-        decodedToken.email!,
-      );
+      // Check if user already exists by Firebase UID
+      const existingUser = await this.userRepository.findById(decodedToken.uid);
       if (existingUser) {
-        throw new ConflictException('User already exists with this email');
+        throw new ConflictException('User already exists with this Firebase UID');
       }
 
-      // Create new user account
+      // Create new user account with Firebase UID as ID
       const user = UserAccount.create({
+        id: decodedToken.uid,
         email: decodedToken.email,
       });
       // Set email verification status after creation
@@ -279,12 +277,13 @@ export class AuthService {
       const decodedToken =
         await this.firebaseAuthService.verifyIdToken(idToken);
 
-      // Check if user already exists
-      let user = await this.userRepository.findByEmail(decodedToken.email!);
+      // Check if user already exists by Firebase UID
+      let user = await this.userRepository.findById(decodedToken.uid);
 
       if (!user) {
-        // Create new user account
+        // Create new user account with Firebase UID as ID
         user = UserAccount.create({
+          id: decodedToken.uid,
           email: decodedToken.email,
         });
         // Set email verification status after creation
@@ -367,12 +366,13 @@ export class AuthService {
       const decodedToken =
         await this.firebaseAuthService.verifyIdToken(idToken);
 
-      // Check if user already exists
-      let user = await this.userRepository.findByEmail(decodedToken.email!);
+      // Check if user already exists by Firebase UID
+      let user = await this.userRepository.findById(decodedToken.uid);
 
       if (!user) {
-        // Create new user account
+        // Create new user account with Firebase UID as ID
         user = UserAccount.create({
+          id: decodedToken.uid,
           email: decodedToken.email,
         });
         // Set email verification status after creation

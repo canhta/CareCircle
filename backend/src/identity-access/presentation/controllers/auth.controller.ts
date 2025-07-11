@@ -110,11 +110,16 @@ export class AuthController {
   }
 
   @Post('guest')
+  @UseGuards(FirebaseAuthGuard)
   @HttpCode(HttpStatus.OK)
   async loginAsGuest(
+    @Request() req: { user: { firebaseUid: string } },
     @Body() guestLoginDto: GuestLoginDto,
   ): Promise<AuthResponseDto> {
-    const result = await this.authService.loginAsGuest(guestLoginDto.deviceId);
+    const result = await this.authService.loginAsGuest(
+      req.user.firebaseUid,
+      guestLoginDto.deviceId,
+    );
 
     return {
       user: {

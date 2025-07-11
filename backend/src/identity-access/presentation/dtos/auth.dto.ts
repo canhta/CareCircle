@@ -10,6 +10,9 @@ import { Gender, Language } from '@prisma/client';
 export class GuestLoginDto {
   @IsString()
   deviceId: string;
+
+  @IsString()
+  idToken: string;
 }
 
 export class ConvertGuestDto {
