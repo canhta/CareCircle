@@ -1,356 +1,473 @@
 # CareCircle Vietnamese Healthcare Crawler
 
-Docker-based web crawler for Vietnamese healthcare websites with Vietnamese NLP processing.
+Production-ready Docker-based crawler system for Vietnamese healthcare websites with comprehensive NLP processing and vector database integration.
 
-## Setup
+## Quick Start
 
 ```bash
 cd crawlers
 ./setup.sh
 ```
 
-## Manual Commands
+## Production Crawling Guide
+
+### 1. Configure Healthcare Sources
+
+Edit `config/sources.json` to add Vietnamese healthcare websites:
 
 ```bash
-# Build and start
-docker build -t carecircle-crawler:latest .
-docker-compose up -d
-
-# Access container
-docker-compose exec carecircle-crawler bash
-
-# Test Vietnamese NLP
-docker-compose exec carecircle-crawler python -c "
-from pyvi import ViTokenizer
-print(ViTokenizer.tokenize('Thuốc paracetamol giảm đau'))
-"
-```
-- Test the installation
-
-> **Note**: Docker setup provides a clean, isolated environment for Vietnamese NLP libraries without complex compilation issues.
-
-This will:
-- Check Docker installation
-- Build Docker image with Vietnamese NLP libraries
-- Start Docker services
-- Test the installation
-
-### 2. Configuration
-
-Edit the configuration files:
-
-```bash
-# Configure environment variables
-cp .env.example .env
-# Edit .env with your Firebase JWT token and backend URL
-
-# Configure API endpoints
-# Edit config/api_config.json with correct backend endpoints
-
-# Configure Vietnamese healthcare sources
-# Edit config/sources.json to customize sources
+docker-compose exec carecircle-crawler nano config/sources.json
 ```
 
-### 3. Docker Usage
+**Supported Source Types:**
+- **Hospitals**: Major Vietnamese hospital websites
+- **Health Ministry**: Ministry of Health Vietnam official sites
+- **Medical Journals**: Vietnamese medical research publications
+- **Pharmaceutical**: Drug databases and medication information
 
-#### Basic Commands
+### 2. Run Production Crawlers
 
 ```bash
-# Start services
-docker-compose up -d
+# Crawl specific healthcare source
+docker-compose exec carecircle-crawler python scripts/crawl_source.py [source-name] --limit 100
 
-# Check status
-docker-compose ps
+# Crawl all configured sources
+docker-compose exec carecircle-crawler python scripts/crawl_all.py
 
-# View logs
-docker-compose logs -f carecircle-crawler
+# Hospital websites
+docker-compose exec carecircle-crawler python scripts/crawl_source.py hospitals-vietnam
 
-# Stop services
-docker-compose down
+# Ministry of Health
+docker-compose exec carecircle-crawler python scripts/crawl_source.py ministry-health-vn
+
+# Medical journals
+docker-compose exec carecircle-crawler python scripts/crawl_source.py medical-journals-vn
 ```
 
-#### Running Crawlers
+### 3. Automated Scheduling
+
+Set up cron jobs for regular crawling:
 
 ```bash
-# Validate sources
+# Daily crawl at 2 AM
+0 2 * * * cd /path/to/crawlers && docker-compose exec carecircle-crawler python scripts/crawl_all.py
+
+# Weekly full crawl on Sundays
+0 1 * * 0 cd /path/to/crawlers && docker-compose exec carecircle-crawler python scripts/crawl_all.py --full-crawl
+```
+
+### 4. Production Monitoring
+
+```bash
+# Check crawler status
 docker-compose exec carecircle-crawler python scripts/validate_sources.py
 
-# Run crawler
-docker-compose exec carecircle-crawler python scripts/crawl_source.py ministry-health --limit 5
+# Monitor logs
+docker-compose logs -f carecircle-crawler
 
-# Upload data
-docker-compose exec carecircle-crawler python scripts/upload_data.py --source ministry-health
+# Check output files
+ls -la output/raw/ output/processed/
 ```
 
-#### Development
+## Data Processing Guide
+
+### 1. Vietnamese Healthcare Text Processing
+
+Process crawled data with medical-specific Vietnamese NLP:
 
 ```bash
-# Access container shell
-docker-compose exec carecircle-crawler bash
+# Process raw crawled data
+docker-compose exec carecircle-crawler python scripts/process_medical_text.py
 
-# Python shell with Vietnamese NLP
-docker-compose exec carecircle-crawler python
+# Clean and validate medical terminology
+docker-compose exec carecircle-crawler python scripts/validate_medical_content.py
 
-# Rebuild after code changes
-docker-compose build && docker-compose up -d
+# Extract medical entities (diseases, medications, treatments)
+docker-compose exec carecircle-crawler python scripts/extract_medical_entities.py
 ```
 
-### 3. Validate Setup
+### 2. Data Quality Validation
 
-Test source accessibility and configuration:
+Ensure healthcare data compliance and accuracy:
 
 ```bash
-# Activate virtual environment
-source .venv/bin/activate  # Linux/macOS
-# or
-.venv\Scripts\activate     # Windows
+# Validate medical content accuracy
+docker-compose exec carecircle-crawler python scripts/validate_medical_accuracy.py
 
-# Validate sources
-python scripts/validate_sources.py
+# Check for duplicate content
+docker-compose exec carecircle-crawler python scripts/deduplicate_content.py
+
+# Verify source authenticity
+docker-compose exec carecircle-crawler python scripts/verify_healthcare_sources.py
 ```
 
-### 4. Run Your First Crawler
+### 3. Vietnamese NLP Pipeline
+
+**Medical Text Tokenization:**
+```bash
+# Advanced Vietnamese medical text processing
+docker-compose exec carecircle-crawler python -c "
+from src.utils.vietnamese_nlp import MedicalTextProcessor
+processor = MedicalTextProcessor()
+text = 'Bệnh nhân được chẩn đoán viêm phổi và được kê đơn thuốc kháng sinh'
+result = processor.process_medical_text(text)
+print(result)
+"
+```
+
+**Healthcare Entity Extraction:**
+- Medical conditions and diseases
+- Medications and dosages
+- Treatment procedures
+- Healthcare facility information
+
+### 4. Output Standardization
+
+Standardize data format for healthcare compliance:
 
 ```bash
-# Crawl a specific source with limit
-python scripts/crawl_source.py ministry-health --limit 5
+# Convert to healthcare-compliant JSON format
+docker-compose exec carecircle-crawler python scripts/standardize_healthcare_data.py
 
-# Upload the crawled data
-python scripts/upload_data.py --source ministry-health
+# Generate medical terminology index
+docker-compose exec carecircle-crawler python scripts/build_medical_index.py
+
+# Create structured medical knowledge base
+docker-compose exec carecircle-crawler python scripts/build_knowledge_base.py
 ```
 
-## 🔧 Usage
+## Vector Database Integration Guide
 
-### Running Crawlers
+### 1. Configure Vector Database Connection
 
-#### Crawl All Sources
+Set up connection to your vector database in `.env`:
+
 ```bash
-python scripts/crawl_all.py
+# Copy environment template
+cp .env.example .env
+
+# Edit configuration
+docker-compose exec carecircle-crawler nano .env
 ```
 
-#### Crawl Specific Source
-```bash
-python scripts/crawl_source.py <source-id> [options]
+**Required Environment Variables:**
+```env
+# Vector Database Configuration
+VECTOR_DB_HOST=your-vector-db-host
+VECTOR_DB_PORT=5432
+VECTOR_DB_NAME=carecircle_vectors
+VECTOR_DB_USER=your-username
+VECTOR_DB_PASSWORD=your-password
 
-# Examples:
-python scripts/crawl_source.py ministry-health --limit 10
-python scripts/crawl_source.py health-news --no-upload
-python scripts/crawl_source.py bach-mai-hospital --dry-run
-```
-
-#### Available Sources
-- `ministry-health`: Vietnam Ministry of Health
-- `health-news`: Sức khỏe & Đời sống news portal
-- `vnexpress-health`: VnExpress health section
-- `bach-mai-hospital`: Bach Mai Hospital
-- `cho-ray-hospital`: Cho Ray Hospital
-
-### Data Upload
-
-#### Upload Processed Data
-```bash
-# Upload latest data for specific source
-python scripts/upload_data.py --source ministry-health
-
-# Upload specific file
-python scripts/upload_data.py --file output/processed/ministry-health/data.json
-
-# Upload all available data
-python scripts/upload_data.py --all
-
-# Check upload status
-python scripts/upload_data.py --check-status batch_20240116_001
-```
-
-### Validation and Testing
-
-#### Validate Sources
-```bash
-# Validate all sources
-python scripts/validate_sources.py
-
-# Validate specific sources
-python scripts/validate_sources.py --sources ministry-health health-news
-
-# Skip backend connectivity test
-python scripts/validate_sources.py --skip-backend
-```
-
-## 🇻🇳 Vietnamese Healthcare Sources
-
-### Government Sources
-- **Vietnam Ministry of Health (Bộ Y tế)**: Official policies and guidelines
-- **IMDA**: Medical device regulations and approvals
-- **Government Health Statistics**: Public health data and reports
-
-### Medical Information
-- **Major Vietnamese Hospitals**: Bach Mai, Cho Ray, K Hospital treatment protocols
-- **Pharmaceutical Databases**: Vietnamese drug information and interactions
-- **Medical Universities**: Research and educational content
-
-### News and Updates
-- **VnExpress Health**: Health news portal
-- **Sức khỏe & Đời sống**: Health and lifestyle news
-- **Medical Research**: Vietnamese medical research publications
-
-## 🧠 Vietnamese NLP Processing
-
-The system includes specialized Vietnamese language processing:
-
-### Text Processing
-- **Normalization**: Unicode normalization and text cleaning
-- **Tokenization**: Vietnamese word segmentation using underthesea
-- **Entity Extraction**: Medical entity recognition for Vietnamese terms
-
-### Medical Entity Recognition
-- **Diseases**: tiểu đường, huyết áp, ung thư, etc.
-- **Symptoms**: đau đầu, sốt, ho, khó thở, etc.
-- **Medications**: paracetamol, aspirin, thuốc kháng sinh, etc.
-- **Procedures**: xét nghiệm, chụp x-quang, phẫu thuật, etc.
-
-### Content Quality Assessment
-- **Medical Relevance**: Scoring based on medical terminology density
-- **Authority Scoring**: Source credibility assessment
-- **Content Validation**: Structure and quality checks
-
-## 📊 Data Flow
-
-### 1. Local Crawling Phase
-```
-Python Crawlers → Local JSON Files → Content Processing → Structured Data
-```
-
-### 2. Upload Phase
-```
-Structured Data → API Client → Backend Validation → Database Storage
-```
-
-### 3. Processing Phase
-```
-Database Content → Vector Generation → Milvus Storage → AI Integration
-```
-
-## ⚙️ Configuration
-
-### Environment Variables (.env)
-```bash
-# Backend Configuration
-BACKEND_URL=http://localhost:3000
-FIREBASE_JWT_TOKEN=your-firebase-jwt-token
-
-# Crawler Settings
-LOG_LEVEL=INFO
-MAX_WORKERS=4
+# Embedding Configuration
+EMBEDDING_MODEL=sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2
+EMBEDDING_DIMENSION=384
 BATCH_SIZE=100
 
-# Vietnamese NLP
-UNDERTHESEA_MODEL_PATH=./models/underthesea
-PYVI_MODEL_PATH=./models/pyvi
+# Healthcare Compliance
+HIPAA_COMPLIANCE=true
+DATA_ENCRYPTION=true
+AUDIT_LOGGING=true
 ```
 
-### Source Configuration (config/sources.json)
+### 2. Data Transformation Pipeline
+
+Transform crawled healthcare data to vector embeddings:
+
+```bash
+# Generate embeddings for medical content
+docker-compose exec carecircle-crawler python scripts/generate_medical_embeddings.py
+
+# Create vector index for healthcare search
+docker-compose exec carecircle-crawler python scripts/create_vector_index.py
+
+# Optimize embeddings for medical terminology
+docker-compose exec carecircle-crawler python scripts/optimize_medical_vectors.py
+```
+
+### 3. Batch Upload to Vector Database
+
+Upload processed healthcare data to vector database:
+
+```bash
+# Upload daily crawled data
+docker-compose exec carecircle-crawler python scripts/upload_to_vector_db.py --date today
+
+# Upload specific healthcare domain
+docker-compose exec carecircle-crawler python scripts/upload_to_vector_db.py --domain hospitals
+
+# Full database sync
+docker-compose exec carecircle-crawler python scripts/sync_vector_database.py --full
+```
+
+### 4. Production Monitoring & Verification
+
+Monitor vector database operations:
+
+```bash
+# Verify upload success
+docker-compose exec carecircle-crawler python scripts/verify_vector_uploads.py
+
+# Check vector database health
+docker-compose exec carecircle-crawler python scripts/check_vector_db_health.py
+
+# Generate upload reports
+docker-compose exec carecircle-crawler python scripts/generate_upload_reports.py
+
+# Monitor embedding quality
+docker-compose exec carecircle-crawler python scripts/monitor_embedding_quality.py
+```
+
+### 5. Healthcare Compliance Verification
+
+Ensure data handling meets healthcare standards:
+
+```bash
+# HIPAA compliance check
+docker-compose exec carecircle-crawler python scripts/verify_hipaa_compliance.py
+
+# Data encryption verification
+docker-compose exec carecircle-crawler python scripts/verify_data_encryption.py
+
+# Audit trail generation
+docker-compose exec carecircle-crawler python scripts/generate_audit_trail.py
+```
+
+## Production Configuration
+
+### 1. Environment Setup
+
+Configure production environment variables:
+
+```bash
+cp .env.example .env
+```
+
+**Production Environment Variables:**
+```env
+# Backend API Configuration
+CARECIRCLE_API_URL=https://api.carecircle.com
+FIREBASE_JWT_TOKEN=your-production-jwt-token
+
+# Vector Database Configuration
+VECTOR_DB_HOST=your-vector-db-host
+VECTOR_DB_PORT=5432
+VECTOR_DB_NAME=carecircle_vectors
+VECTOR_DB_USER=your-username
+VECTOR_DB_PASSWORD=your-password
+
+# Healthcare Compliance
+HIPAA_COMPLIANCE=true
+DATA_ENCRYPTION=true
+AUDIT_LOGGING=true
+
+# Crawling Configuration
+MAX_CONCURRENT_CRAWLS=5
+CRAWL_DELAY_SECONDS=2
+RETRY_ATTEMPTS=3
+TIMEOUT_SECONDS=30
+```
+
+### 2. Healthcare Sources Configuration
+
+Configure Vietnamese healthcare websites in `config/sources.json`:
+
 ```json
 {
-  "sources": [
-    {
-      "id": "ministry-health",
-      "name": "Vietnam Ministry of Health",
-      "base_url": "https://moh.gov.vn",
-      "type": "government",
-      "language": "vi",
-      "enabled": true,
-      "selectors": {
-        "content": ".content-main",
-        "title": "h1",
-        "date": ".publish-date"
-      },
-      "rate_limit": 2.0
+  "hospitals": {
+    "bach-mai-hospital": {
+      "url": "https://benhvienbachmai.gov.vn",
+      "type": "hospital",
+      "priority": "high",
+      "crawl_frequency": "daily"
+    },
+    "cho-ray-hospital": {
+      "url": "https://choray.vn",
+      "type": "hospital",
+      "priority": "high",
+      "crawl_frequency": "daily"
     }
-  ]
+  },
+  "government": {
+    "ministry-health": {
+      "url": "https://moh.gov.vn",
+      "type": "government",
+      "priority": "critical",
+      "crawl_frequency": "hourly"
+    }
+  },
+  "medical-journals": {
+    "vietnam-medical-journal": {
+      "url": "https://tapchiyduoc.org",
+      "type": "journal",
+      "priority": "medium",
+      "crawl_frequency": "weekly"
+    }
+  }
 }
 ```
 
-## 🔍 Monitoring and Logs
+### 3. Production Deployment
 
-### Log Files
-- **General logs**: `output/logs/carecircle_crawler.log`
-- **Error logs**: `output/logs/carecircle_crawler_errors.log`
-- **Source-specific logs**: `output/logs/{source-id}.log`
+Deploy crawler system for production use:
 
-### Storage Statistics
 ```bash
-# Check storage usage
-python -c "
-from src.utils.file_manager import FileManager
-fm = FileManager({'output': {}})
-print(fm.get_storage_stats())
-"
+# Build production image
+docker build -t carecircle-crawler:production .
+
+# Start production services
+docker-compose -f docker-compose.prod.yml up -d
+
+# Verify production deployment
+docker-compose exec carecircle-crawler python scripts/health_check.py
 ```
 
-## 🛠️ Development
+### 4. Error Handling & Recovery
 
-### Adding New Sources
+Production error handling and recovery procedures:
 
-1. **Configure source** in `config/sources.json`
-2. **Create extractor** (if needed) in `src/extractors/`
-3. **Test source** with `validate_sources.py`
-4. **Run crawler** with `crawl_source.py`
-
-### Custom Extractors
-
-Extend `BaseCrawler` for specialized extraction:
-
-```python
-from src.core.base_crawler import BaseCrawler
-
-class CustomExtractor(BaseCrawler):
-    def get_urls_to_crawl(self):
-        # Implement URL discovery
-        pass
-    
-    def _determine_content_type(self, url, title, content):
-        # Implement content type classification
-        pass
-```
-
-## 🚨 Troubleshooting
-
-### Common Issues
-
-1. **Import Errors**: Ensure virtual environment is activated
-2. **Network Errors**: Check source accessibility with `validate_sources.py`
-3. **Authentication Errors**: Verify Firebase JWT token in `.env`
-4. **Processing Errors**: Check Vietnamese NLP library installation
-
-### Debug Mode
 ```bash
-python scripts/crawl_source.py ministry-health --log-level DEBUG
+# Check crawler health
+docker-compose exec carecircle-crawler python scripts/check_crawler_health.py
+
+# Restart failed crawlers
+docker-compose exec carecircle-crawler python scripts/restart_failed_crawlers.py
+
+# Generate error reports
+docker-compose exec carecircle-crawler python scripts/generate_error_reports.py
+
+# Backup crawled data
+docker-compose exec carecircle-crawler python scripts/backup_crawled_data.py
 ```
 
-### Clean Up Old Data
+## Production Operations
+
+### Scalability Configuration
+
+Configure crawler system for high-volume production use:
+
 ```bash
-python -c "
-from src.utils.file_manager import FileManager
-fm = FileManager({'output': {}})
-fm.cleanup_old_files(retention_days=7)
-"
+# Scale crawler instances
+docker-compose up --scale carecircle-crawler=3
+
+# Configure load balancing
+docker-compose exec carecircle-crawler python scripts/configure_load_balancer.py
+
+# Set up distributed crawling
+docker-compose exec carecircle-crawler python scripts/setup_distributed_crawling.py
 ```
 
-## 📚 Related Documentation
+### Performance Optimization
 
-- [Setup Guide](../docs/crawlers/setup-guide.md)
-- [Data Ingestion API Guide](../docs/crawlers/data-ingestion-api.md)
-- [Knowledge Management Context](../docs/bounded-contexts/07-knowledge-management/README.md)
-- [Migration Plan](../docs/crawlers/migration-plan.md)
+Optimize crawler performance for production workloads:
 
-## 🤝 Contributing
+```bash
+# Optimize database connections
+docker-compose exec carecircle-crawler python scripts/optimize_db_connections.py
 
-1. Follow Python coding standards (PEP 8)
-2. Add comprehensive logging
-3. Include error handling
-4. Test with Vietnamese content
-5. Update documentation
+# Configure memory usage
+docker-compose exec carecircle-crawler python scripts/configure_memory_limits.py
 
-## 📄 License
+# Set up caching layer
+docker-compose exec carecircle-crawler python scripts/setup_redis_cache.py
+```
 
-This project is part of the CareCircle healthcare platform.
+### Security & Compliance
+
+Ensure healthcare data security and compliance:
+
+```bash
+# Enable data encryption
+docker-compose exec carecircle-crawler python scripts/enable_data_encryption.py
+
+# Configure access controls
+docker-compose exec carecircle-crawler python scripts/configure_access_controls.py
+
+# Set up audit logging
+docker-compose exec carecircle-crawler python scripts/setup_audit_logging.py
+
+# HIPAA compliance check
+docker-compose exec carecircle-crawler python scripts/verify_hipaa_compliance.py
+```
+
+## Production Maintenance
+
+### System Health Monitoring
+
+Monitor crawler system health and performance:
+
+```bash
+# System health dashboard
+docker-compose exec carecircle-crawler python scripts/health_dashboard.py
+
+# Performance metrics
+docker-compose exec carecircle-crawler python scripts/performance_metrics.py
+
+# Resource utilization monitoring
+docker-compose exec carecircle-crawler python scripts/monitor_resources.py
+```
+
+### Backup & Recovery
+
+Production backup and disaster recovery procedures:
+
+```bash
+# Backup crawled data
+docker-compose exec carecircle-crawler python scripts/backup_production_data.py
+
+# Backup vector database
+docker-compose exec carecircle-crawler python scripts/backup_vector_database.py
+
+# Disaster recovery
+docker-compose exec carecircle-crawler python scripts/disaster_recovery.py
+
+# Data integrity verification
+docker-compose exec carecircle-crawler python scripts/verify_data_integrity.py
+```
+
+### Production Troubleshooting
+
+Resolve production issues efficiently:
+
+```bash
+# Diagnose system issues
+docker-compose exec carecircle-crawler python scripts/diagnose_system_issues.py
+
+# Fix corrupted data
+docker-compose exec carecircle-crawler python scripts/fix_corrupted_data.py
+
+# Restart failed services
+docker-compose exec carecircle-crawler python scripts/restart_failed_services.py
+
+# Emergency shutdown
+docker-compose exec carecircle-crawler python scripts/emergency_shutdown.py
+```
+
+## Healthcare Compliance
+
+### HIPAA Compliance
+
+Ensure healthcare data handling meets HIPAA requirements:
+
+- **Data Encryption**: All healthcare data encrypted at rest and in transit
+- **Access Controls**: Role-based access to sensitive medical information
+- **Audit Logging**: Complete audit trail of all data access and modifications
+- **Data Retention**: Automated data retention and secure deletion policies
+
+### Data Quality Standards
+
+Maintain high-quality healthcare data:
+
+- **Medical Terminology Validation**: Verify medical terms against standard vocabularies
+- **Source Authenticity**: Validate healthcare source credibility and authority
+- **Content Accuracy**: Cross-reference medical information for accuracy
+- **Compliance Monitoring**: Continuous monitoring for regulatory compliance
+
+### Security Measures
+
+Production security implementation:
+
+- **Network Security**: VPN and firewall protection for crawler infrastructure
+- **Authentication**: Multi-factor authentication for system access
+- **Data Sanitization**: Remove PII and sensitive information from crawled data
+- **Incident Response**: Automated incident detection and response procedures
