@@ -73,7 +73,7 @@ export abstract class CareGroupMemberRepository {
     groupId: string,
     hoursThreshold: number,
   ): Promise<CareGroupMemberEntity[]>;
-  abstract findInactiveMembers(
+  abstract findInactiveMembersByThreshold(
     groupId: string,
     daysThreshold: number,
   ): Promise<CareGroupMemberEntity[]>;

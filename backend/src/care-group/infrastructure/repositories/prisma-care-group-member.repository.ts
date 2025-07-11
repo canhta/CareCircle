@@ -1,11 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { MemberRole } from '@prisma/client';
+import { MemberRole, Prisma } from '@prisma/client';
 import { PrismaService } from '../../../common/database/prisma.service';
-import {
-  CareGroupMemberRepository,
-  MemberQuery,
-} from '../../domain/repositories/care-group-member.repository';
+import { CareGroupMemberRepository } from '../../domain/repositories/care-group-member.repository';
 import { CareGroupMemberEntity } from '../../domain/entities/care-group-member.entity';
+import { CareGroupMemberQuery } from '../../domain/types/repository-query.types';
 
 @Injectable()
 export class PrismaCareGroupMemberRepository extends CareGroupMemberRepository {
@@ -14,8 +12,13 @@ export class PrismaCareGroupMemberRepository extends CareGroupMemberRepository {
   }
 
   async create(member: CareGroupMemberEntity): Promise<CareGroupMemberEntity> {
+    const prismaData = member.toPrisma();
     const data = await this.prisma.careGroupMember.create({
-      data: member.toPrisma(),
+      data: {
+        ...prismaData,
+        notificationPreferences: prismaData.notificationPreferences || {},
+        permissions: prismaData.permissions || [],
+      },
     });
 
     return CareGroupMemberEntity.fromPrisma(data);
@@ -29,8 +32,10 @@ export class PrismaCareGroupMemberRepository extends CareGroupMemberRepository {
     return data ? CareGroupMemberEntity.fromPrisma(data) : null;
   }
 
-  async findMany(query: MemberQuery): Promise<CareGroupMemberEntity[]> {
-    const where: any = {};
+  async findMany(
+    query: CareGroupMemberQuery,
+  ): Promise<CareGroupMemberEntity[]> {
+    const where: Prisma.CareGroupMemberWhereInput = {};
 
     if (query.groupId) where.groupId = query.groupId;
     if (query.userId) where.userId = query.userId;
@@ -86,11 +91,8 @@ export class PrismaCareGroupMemberRepository extends CareGroupMemberRepository {
         role: updates.role,
         customTitle: updates.customTitle,
         isActive: updates.isActive,
-        canInviteMembers: updates.canInviteMembers,
-        canManageTasks: updates.canManageTasks,
-        canViewHealthData: updates.canViewHealthData,
         permissions: updates.permissions,
-        lastActiveAt: new Date(),
+        lastActive: new Date(),
       },
     });
 
@@ -150,6 +152,25 @@ export class PrismaCareGroupMemberRepository extends CareGroupMemberRepository {
     return data.map((item) => CareGroupMemberEntity.fromPrisma(item));
   }
 
+  async findInactiveMembersByThreshold(
+    groupId: string,
+    daysThreshold: number,
+  ): Promise<CareGroupMemberEntity[]> {
+    const thresholdDate = new Date(
+      Date.now() - daysThreshold * 24 * 60 * 60 * 1000,
+    );
+
+    const data = await this.prisma.careGroupMember.findMany({
+      where: {
+        groupId,
+        OR: [{ lastActive: { lt: thresholdDate } }, { lastActive: null }],
+      },
+      orderBy: { joinedAt: 'desc' },
+    });
+
+    return data.map((item) => CareGroupMemberEntity.fromPrisma(item));
+  }
+
   // Permission operations
   async findMembersWithPermission(
     groupId: string,
@@ -159,7 +180,8 @@ export class PrismaCareGroupMemberRepository extends CareGroupMemberRepository {
       where: {
         groupId,
         permissions: {
-          has: permission,
+          path: [],
+          array_contains: permission,
         },
       },
       orderBy: { joinedAt: 'desc' },
@@ -172,7 +194,14 @@ export class PrismaCareGroupMemberRepository extends CareGroupMemberRepository {
     groupId: string,
   ): Promise<CareGroupMemberEntity[]> {
     const data = await this.prisma.careGroupMember.findMany({
-      where: { groupId, canInviteMembers: true, isActive: true },
+      where: {
+        groupId,
+        isActive: true,
+        permissions: {
+          path: [],
+          array_contains: 'invite_members',
+        },
+      },
       orderBy: { joinedAt: 'desc' },
     });
 
@@ -183,7 +212,14 @@ export class PrismaCareGroupMemberRepository extends CareGroupMemberRepository {
     groupId: string,
   ): Promise<CareGroupMemberEntity[]> {
     const data = await this.prisma.careGroupMember.findMany({
-      where: { groupId, canManageTasks: true, isActive: true },
+      where: {
+        groupId,
+        isActive: true,
+        permissions: {
+          path: [],
+          array_contains: 'manage_tasks',
+        },
+      },
       orderBy: { joinedAt: 'desc' },
     });
 
@@ -194,7 +230,14 @@ export class PrismaCareGroupMemberRepository extends CareGroupMemberRepository {
     groupId: string,
   ): Promise<CareGroupMemberEntity[]> {
     const data = await this.prisma.careGroupMember.findMany({
-      where: { groupId, canViewHealthData: true, isActive: true },
+      where: {
+        groupId,
+        isActive: true,
+        permissions: {
+          path: [],
+          array_contains: 'view_health_data',
+        },
+      },
       orderBy: { joinedAt: 'desc' },
     });
 
@@ -208,7 +251,7 @@ export class PrismaCareGroupMemberRepository extends CareGroupMemberRepository {
   ): Promise<CareGroupMemberEntity> {
     const data = await this.prisma.careGroupMember.update({
       where: { id },
-      data: { role, lastActiveAt: new Date() },
+      data: { role, lastActive: new Date() },
     });
 
     return CareGroupMemberEntity.fromPrisma(data);
@@ -220,7 +263,7 @@ export class PrismaCareGroupMemberRepository extends CareGroupMemberRepository {
   ): Promise<CareGroupMemberEntity> {
     const data = await this.prisma.careGroupMember.update({
       where: { id },
-      data: { permissions, lastActiveAt: new Date() },
+      data: { permissions, lastActive: new Date() },
     });
 
     return CareGroupMemberEntity.fromPrisma(data);
@@ -229,7 +272,7 @@ export class PrismaCareGroupMemberRepository extends CareGroupMemberRepository {
   async activateMember(id: string): Promise<CareGroupMemberEntity> {
     const data = await this.prisma.careGroupMember.update({
       where: { id },
-      data: { isActive: true, lastActiveAt: new Date() },
+      data: { isActive: true, lastActive: new Date() },
     });
 
     return CareGroupMemberEntity.fromPrisma(data);
@@ -238,7 +281,7 @@ export class PrismaCareGroupMemberRepository extends CareGroupMemberRepository {
   async deactivateMember(id: string): Promise<CareGroupMemberEntity> {
     const data = await this.prisma.careGroupMember.update({
       where: { id },
-      data: { isActive: false, lastActiveAt: new Date() },
+      data: { isActive: false, lastActive: new Date() },
     });
 
     return CareGroupMemberEntity.fromPrisma(data);
@@ -247,7 +290,7 @@ export class PrismaCareGroupMemberRepository extends CareGroupMemberRepository {
   async updateLastActive(id: string): Promise<CareGroupMemberEntity> {
     const data = await this.prisma.careGroupMember.update({
       where: { id },
-      data: { lastActiveAt: new Date() },
+      data: { lastActive: new Date() },
     });
 
     return CareGroupMemberEntity.fromPrisma(data);
@@ -306,7 +349,8 @@ export class PrismaCareGroupMemberRepository extends CareGroupMemberRepository {
         groupId,
         userId,
         permissions: {
-          has: permission,
+          path: [],
+          array_contains: permission,
         },
       },
     });
@@ -325,7 +369,15 @@ export class PrismaCareGroupMemberRepository extends CareGroupMemberRepository {
     userId: string,
   ): Promise<boolean> {
     const count = await this.prisma.careGroupMember.count({
-      where: { groupId, userId, canInviteMembers: true, isActive: true },
+      where: {
+        groupId,
+        userId,
+        isActive: true,
+        permissions: {
+          path: [],
+          array_contains: 'invite_members',
+        },
+      },
     });
     return count > 0;
   }
@@ -337,7 +389,7 @@ export class PrismaCareGroupMemberRepository extends CareGroupMemberRepository {
   ): Promise<CareGroupMemberEntity[]> {
     await this.prisma.careGroupMember.updateMany({
       where: { id: { in: memberIds } },
-      data: { permissions, lastActiveAt: new Date() },
+      data: { permissions, lastActive: new Date() },
     });
 
     const data = await this.prisma.careGroupMember.findMany({
@@ -352,7 +404,7 @@ export class PrismaCareGroupMemberRepository extends CareGroupMemberRepository {
   ): Promise<CareGroupMemberEntity[]> {
     await this.prisma.careGroupMember.updateMany({
       where: { id: { in: memberIds } },
-      data: { isActive: false, lastActiveAt: new Date() },
+      data: { isActive: false, lastActive: new Date() },
     });
 
     const data = await this.prisma.careGroupMember.findMany({
@@ -377,15 +429,15 @@ export class PrismaCareGroupMemberRepository extends CareGroupMemberRepository {
       activeMembers,
       adminCount,
       caregiverCount,
-      memberCount,
-      viewerCount,
+      familyMemberCount,
+      observerCount,
     ] = await Promise.all([
       this.getMemberCount(groupId),
       this.getActiveMemberCount(groupId),
       this.getMemberCountByRole(groupId, MemberRole.ADMIN),
       this.getMemberCountByRole(groupId, MemberRole.CAREGIVER),
-      this.getMemberCountByRole(groupId, MemberRole.MEMBER),
-      this.getMemberCountByRole(groupId, MemberRole.VIEWER),
+      this.getMemberCountByRole(groupId, MemberRole.FAMILY_MEMBER),
+      this.getMemberCountByRole(groupId, MemberRole.OBSERVER),
     ]);
 
     return {
@@ -393,16 +445,16 @@ export class PrismaCareGroupMemberRepository extends CareGroupMemberRepository {
       activeMembers,
       adminCount,
       caregiverCount,
-      memberCount,
-      viewerCount,
+      memberCount: familyMemberCount,
+      viewerCount: observerCount,
       averageJoinDuration: 0, // TODO: Calculate actual average
     };
   }
 
   async getMemberActivitySummary(
     groupId: string,
-    startDate: Date,
-    endDate: Date,
+    _startDate: Date,
+    _endDate: Date,
   ): Promise<
     Array<{
       memberId: string;
@@ -419,7 +471,7 @@ export class PrismaCareGroupMemberRepository extends CareGroupMemberRepository {
       memberId: member.id,
       userId: member.userId,
       role: member.role,
-      lastActiveAt: member.lastActiveAt,
+      lastActiveAt: member.lastActive,
       activityCount: 0, // TODO: Calculate actual activity count
     }));
   }
@@ -436,30 +488,11 @@ export class PrismaCareGroupMemberRepository extends CareGroupMemberRepository {
     const data = await this.prisma.careGroupMember.findMany({
       where: {
         groupId,
-        lastActiveAt: {
+        lastActive: {
           gte: thresholdDate,
         },
       },
-      orderBy: { lastActiveAt: 'desc' },
-    });
-
-    return data.map((item) => CareGroupMemberEntity.fromPrisma(item));
-  }
-
-  async findInactiveMembers(
-    groupId: string,
-    daysThreshold: number,
-  ): Promise<CareGroupMemberEntity[]> {
-    const thresholdDate = new Date(
-      Date.now() - daysThreshold * 24 * 60 * 60 * 1000,
-    );
-
-    const data = await this.prisma.careGroupMember.findMany({
-      where: {
-        groupId,
-        OR: [{ lastActiveAt: { lt: thresholdDate } }, { lastActiveAt: null }],
-      },
-      orderBy: { joinedAt: 'desc' },
+      orderBy: { lastActive: 'desc' },
     });
 
     return data.map((item) => CareGroupMemberEntity.fromPrisma(item));

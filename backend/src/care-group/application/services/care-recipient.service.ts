@@ -161,7 +161,7 @@ export class CareRecipientService {
     userId: string,
     updateDto: UpdateRecipientDto,
   ): Promise<CareRecipientEntity> {
-    const recipient = await this.getRecipient(recipientId, groupId, userId);
+    const _recipient = await this.getRecipient(recipientId, groupId, userId);
 
     // Verify user has permission to update recipients
     const member = await this.memberRepository.findByGroupAndUser(
@@ -185,7 +185,7 @@ export class CareRecipientService {
     groupId: string,
     userId: string,
   ): Promise<void> {
-    const recipient = await this.getRecipient(recipientId, groupId, userId);
+    const _recipient = await this.getRecipient(recipientId, groupId, userId);
 
     // Verify user has permission to delete recipients
     const member = await this.memberRepository.findByGroupAndUser(

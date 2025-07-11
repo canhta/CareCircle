@@ -191,8 +191,8 @@ export class CareActivityService {
   async getActivityStatistics(
     groupId: string,
     userId: string,
-    fromDate?: Date,
-    toDate?: Date,
+    _fromDate?: Date,
+    _toDate?: Date,
   ): Promise<{
     totalActivities: number;
     taskActivities: number;

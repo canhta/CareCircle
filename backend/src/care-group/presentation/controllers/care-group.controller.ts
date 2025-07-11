@@ -76,8 +76,7 @@ export interface TaskResponse {
   priority: TaskPriority;
   dueDate: string | null;
   completedAt: string | null;
-  isRecurring: boolean;
-  recurringPattern: Record<string, any> | null;
+  recurrence: Record<string, any> | null;
   metadata: Record<string, any>;
   createdAt: string;
   updatedAt: string;
@@ -453,8 +452,7 @@ export class CareGroupController {
       priority: task.priority,
       dueDate: task.dueDate?.toISOString() || null,
       completedAt: task.completedAt?.toISOString() || null,
-      isRecurring: task.isRecurring,
-      recurringPattern: task.recurringPattern,
+      recurrence: task.recurrence,
       metadata: task.metadata,
       createdAt: task.createdAt.toISOString(),
       updatedAt: task.updatedAt.toISOString(),

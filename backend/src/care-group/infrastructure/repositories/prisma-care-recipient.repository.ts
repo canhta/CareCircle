@@ -6,6 +6,7 @@ import {
 } from '../../domain/repositories/care-recipient.repository';
 import { CareRecipientEntity } from '../../domain/entities/care-recipient.entity';
 import { Prisma, TaskStatus } from '@prisma/client';
+import { CareRecipientUpdateData } from '../../domain/types/repository-query.types';
 
 @Injectable()
 export class PrismaCareRecipientRepository implements CareRecipientRepository {
@@ -61,12 +62,14 @@ export class PrismaCareRecipientRepository implements CareRecipientRepository {
       where.relationship = filters.relationship;
     }
     if (filters?.hasConditions) {
-      where.medicalConditions = {
+      where.healthSummary = {
+        path: ['medicalConditions'],
         not: [],
       };
     }
     if (filters?.hasAllergies) {
-      where.allergies = {
+      where.healthSummary = {
+        path: ['allergies'],
         not: [],
       };
     }
@@ -83,18 +86,7 @@ export class PrismaCareRecipientRepository implements CareRecipientRepository {
 
   async update(
     id: string,
-    updates: Partial<{
-      name: string;
-      relationship: string;
-      dateOfBirth: Date;
-      medicalConditions: string[];
-      allergies: string[];
-      medications: string[];
-      emergencyContacts: Record<string, any>[];
-      carePreferences: Record<string, any>;
-      notes: string;
-      isActive: boolean;
-    }>,
+    updates: CareRecipientUpdateData,
   ): Promise<CareRecipientEntity> {
     const updateData: Prisma.CareRecipientUpdateInput = {};
 
@@ -103,17 +95,56 @@ export class PrismaCareRecipientRepository implements CareRecipientRepository {
       updateData.relationship = updates.relationship;
     if (updates.dateOfBirth !== undefined)
       updateData.dateOfBirth = updates.dateOfBirth;
-    if (updates.medicalConditions !== undefined)
-      updateData.medicalConditions = updates.medicalConditions;
-    if (updates.allergies !== undefined)
-      updateData.allergies = updates.allergies;
-    if (updates.medications !== undefined)
-      updateData.medications = updates.medications;
-    if (updates.emergencyContacts !== undefined)
-      updateData.emergencyContacts = updates.emergencyContacts;
-    if (updates.carePreferences !== undefined)
-      updateData.carePreferences = updates.carePreferences;
-    if (updates.notes !== undefined) updateData.notes = updates.notes;
+    // Handle JSON field updates
+    if (
+      updates.medicalConditions !== undefined ||
+      updates.allergies !== undefined ||
+      updates.medications !== undefined
+    ) {
+      // Get current health summary
+      const current = await this.prisma.careRecipient.findUnique({
+        where: { id },
+        select: { healthSummary: true },
+      });
+
+      const currentHealthSummary =
+        (current?.healthSummary as Record<string, unknown>) || {};
+
+      updateData.healthSummary = {
+        ...currentHealthSummary,
+        ...(updates.medicalConditions !== undefined && {
+          medicalConditions: updates.medicalConditions,
+        }),
+        ...(updates.allergies !== undefined && {
+          allergies: updates.allergies,
+        }),
+        ...(updates.medications !== undefined && {
+          medications: updates.medications,
+        }),
+      };
+    }
+
+    if (
+      updates.emergencyContacts !== undefined ||
+      updates.carePreferences !== undefined
+    ) {
+      // Get current care preferences
+      const current = await this.prisma.careRecipient.findUnique({
+        where: { id },
+        select: { carePreferences: true },
+      });
+
+      const currentCarePreferences =
+        (current?.carePreferences as Record<string, unknown>) || {};
+
+      updateData.carePreferences = {
+        ...currentCarePreferences,
+        ...(updates.emergencyContacts !== undefined && {
+          emergencyContacts: updates.emergencyContacts,
+        }),
+        ...updates.carePreferences,
+      } as any;
+    }
     if (updates.isActive !== undefined) updateData.isActive = updates.isActive;
 
     const updated = await this.prisma.careRecipient.update({
@@ -220,17 +251,17 @@ export class PrismaCareRecipientRepository implements CareRecipientRepository {
       try {
         const healthSummary =
           typeof recipient.healthSummary === 'string'
-            ? JSON.parse(recipient.healthSummary)
-            : recipient.healthSummary;
+            ? (JSON.parse(recipient.healthSummary) as Record<string, unknown>)
+            : (recipient.healthSummary as Record<string, unknown>);
 
-        medicalConditionsCount = Array.isArray(healthSummary.medicalConditions)
-          ? healthSummary.medicalConditions.length
+        medicalConditionsCount = Array.isArray(healthSummary?.medicalConditions)
+          ? (healthSummary.medicalConditions as unknown[]).length
           : 0;
-        allergiesCount = Array.isArray(healthSummary.allergies)
-          ? healthSummary.allergies.length
+        allergiesCount = Array.isArray(healthSummary?.allergies)
+          ? (healthSummary.allergies as unknown[]).length
           : 0;
-        medicationsCount = Array.isArray(healthSummary.medications)
-          ? healthSummary.medications.length
+        medicationsCount = Array.isArray(healthSummary?.medications)
+          ? (healthSummary.medications as unknown[]).length
           : 0;
       } catch {
         // If parsing fails, counts remain 0
@@ -539,7 +570,12 @@ export class PrismaCareRecipientRepository implements CareRecipientRepository {
         groupId,
         OR: [
           { carePreferences: { path: ['emergencyContacts'], equals: [] } },
-          { carePreferences: { path: ['emergencyContacts'], equals: null } },
+          {
+            carePreferences: {
+              path: ['emergencyContacts'],
+              equals: Prisma.JsonNull,
+            },
+          },
         ],
       },
       orderBy: { name: 'asc' },
@@ -559,7 +595,8 @@ export class PrismaCareRecipientRepository implements CareRecipientRepository {
     });
     if (!recipient) throw new Error('Recipient not found');
 
-    const currentPreferences = (recipient.carePreferences as any) || {};
+    const currentPreferences =
+      (recipient.carePreferences as Record<string, unknown>) || {};
     const updated = await this.prisma.careRecipient.update({
       where: { id },
       data: {
@@ -588,14 +625,14 @@ export class PrismaCareRecipientRepository implements CareRecipientRepository {
   async findByCarePreference(
     groupId: string,
     preferenceKey: string,
-    preferenceValue: any,
+    preferenceValue: unknown,
   ): Promise<CareRecipientEntity[]> {
     const recipients = await this.prisma.careRecipient.findMany({
       where: {
         groupId,
         carePreferences: {
           path: [preferenceKey],
-          equals: preferenceValue,
+          equals: preferenceValue as any,
         },
       },
       orderBy: { name: 'asc' },
@@ -737,25 +774,25 @@ export class PrismaCareRecipientRepository implements CareRecipientRepository {
     };
   }
 
-  async getMedicalConditionStatistics(
-    groupId: string,
+  getMedicalConditionStatistics(
+    _groupId: string,
   ): Promise<Array<{ condition: string; count: number }>> {
     // This is a simplified implementation - in a real scenario, you'd need to aggregate JSON array data
-    return [];
+    return Promise.resolve([]);
   }
 
-  async getAllergyStatistics(
-    groupId: string,
+  getAllergyStatistics(
+    _groupId: string,
   ): Promise<Array<{ allergy: string; count: number }>> {
     // This is a simplified implementation - in a real scenario, you'd need to aggregate JSON array data
-    return [];
+    return Promise.resolve([]);
   }
 
-  async getMedicationStatistics(
-    groupId: string,
+  getMedicationStatistics(
+    _groupId: string,
   ): Promise<Array<{ medication: string; count: number }>> {
     // This is a simplified implementation - in a real scenario, you'd need to aggregate JSON array data
-    return [];
+    return Promise.resolve([]);
   }
 
   // Validation operations
@@ -779,7 +816,7 @@ export class PrismaCareRecipientRepository implements CareRecipientRepository {
   // Bulk operations
   async bulkUpdateMedicalConditions(
     recipientIds: string[],
-    medicalConditions: string[],
+    _medicalConditions: string[],
   ): Promise<CareRecipientEntity[]> {
     // This is a simplified implementation
     const recipients = await this.prisma.careRecipient.findMany({
@@ -793,7 +830,7 @@ export class PrismaCareRecipientRepository implements CareRecipientRepository {
 
   async bulkUpdateAllergies(
     recipientIds: string[],
-    allergies: string[],
+    _allergies: string[],
   ): Promise<CareRecipientEntity[]> {
     // This is a simplified implementation
     const recipients = await this.prisma.careRecipient.findMany({
@@ -823,14 +860,14 @@ export class PrismaCareRecipientRepository implements CareRecipientRepository {
   }
 
   // Analytics operations
-  async getRecipientTrends(
-    groupId: string,
-    days: number,
+  getRecipientTrends(
+    _groupId: string,
+    _days: number,
   ): Promise<
     Array<{ date: Date; newRecipients: number; activeRecipients: number }>
   > {
     // This is a simplified implementation
-    return [];
+    return Promise.resolve([]);
   }
 
   async getAgeDistribution(
