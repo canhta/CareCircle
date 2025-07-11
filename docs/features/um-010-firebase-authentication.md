@@ -738,21 +738,18 @@ service cloud.firestore {
 ### Authentication Flow Tests
 
 1. **User Registration Tests**
-
    - Test email/password registration
    - Test phone number registration
    - Test social authentication registration
    - Verify user profile creation in Firestore
 
 2. **Sign-In Tests**
-
    - Test all authentication methods
    - Test persistence across app restarts
    - Test error handling for invalid credentials
    - Test sign-in with non-existent account
 
 3. **Guest Mode Tests**
-
    - Test anonymous authentication
    - Test device tracking of anonymous users
    - Test prevention of multiple anonymous accounts
@@ -767,7 +764,6 @@ service cloud.firestore {
 ### Security Tests
 
 1. **Access Control Tests**
-
    - Test Firebase security rules for different user types
    - Test access to protected resources
    - Test prevention of unauthorized data access
@@ -782,14 +778,12 @@ service cloud.firestore {
 ### Edge Case Tests
 
 1. **Offline Mode Tests**
-
    - Test authentication during offline mode
    - Test queued operations processing
    - Test synchronization after reconnection
    - Test conflict resolution for offline changes
 
 2. **Error Recovery Tests**
-
    - Test handling of network errors
    - Test recovery from authentication failures
    - Test invalid token handling
@@ -808,14 +802,12 @@ UI/UX specifications for authentication flows will be documented in future updat
 ## Dependencies
 
 1. **Firebase Services**
-
    - Firebase Authentication
    - Cloud Firestore
    - Firebase Functions (for secure account linking)
    - Firebase Hosting (for web authentication)
 
 2. **External Services**
-
    - Google Sign-In API
    - Apple Sign-In API
    - Facebook Login SDK (if implemented)

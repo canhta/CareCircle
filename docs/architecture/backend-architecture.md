@@ -351,7 +351,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     Logger.error(
       `${request.method} ${request.url} - ${status}: ${message}`,
       (exception as Error).stack,
-      "GlobalExceptionFilter"
+      "GlobalExceptionFilter",
     );
 
     response.status(status).json({
@@ -411,7 +411,7 @@ export class PhiAccessInterceptor implements NestInterceptor {
 
   async intercept(
     context: ExecutionContext,
-    next: CallHandler
+    next: CallHandler,
   ): Promise<Observable<any>> {
     const request = context.switchToHttp().getRequest();
     const user = request.user;
@@ -438,7 +438,7 @@ export class PhiAccessInterceptor implements NestInterceptor {
   }
 
   private getPhiAccessMetadata(
-    context: ExecutionContext
+    context: ExecutionContext,
   ): PhiAccessMetadata | null {
     const handler = context.getHandler();
     const classRef = context.getClass();
@@ -513,17 +513,17 @@ export class PerformanceInterceptor implements NestInterceptor {
         const responseTime = endTime - startTime;
 
         this.logger.log(
-          `[PERFORMANCE] ${method} ${url} ${responseTime}ms - ${userAgent}`
+          `[PERFORMANCE] ${method} ${url} ${responseTime}ms - ${userAgent}`,
         );
 
         // Log to monitoring system if response time exceeds threshold
         if (responseTime > 500) {
           this.logger.warn(
-            `[SLOW REQUEST] ${method} ${url} ${responseTime}ms - ${userAgent}`
+            `[SLOW REQUEST] ${method} ${url} ${responseTime}ms - ${userAgent}`,
           );
           // Additional logic to report to monitoring system
         }
-      })
+      }),
     );
   }
 }

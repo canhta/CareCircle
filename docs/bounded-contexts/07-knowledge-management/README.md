@@ -193,7 +193,10 @@ interface ContentSelector {
 interface CrawlerService {
   // Source management
   addDataSource(source: Omit<DataSource, "id">): Promise<DataSource>;
-  updateDataSource(sourceId: string, updates: Partial<DataSource>): Promise<DataSource>;
+  updateDataSource(
+    sourceId: string,
+    updates: Partial<DataSource>,
+  ): Promise<DataSource>;
   getDataSources(filters?: SourceFilters): Promise<DataSource[]>;
   activateSource(sourceId: string): Promise<void>;
   deactivateSource(sourceId: string): Promise<void>;
@@ -217,19 +220,35 @@ interface CrawlerService {
 interface KnowledgeService {
   // Knowledge management
   addKnowledgeItem(item: Omit<KnowledgeItem, "id">): Promise<KnowledgeItem>;
-  updateKnowledgeItem(itemId: string, updates: Partial<KnowledgeItem>): Promise<KnowledgeItem>;
+  updateKnowledgeItem(
+    itemId: string,
+    updates: Partial<KnowledgeItem>,
+  ): Promise<KnowledgeItem>;
   getKnowledgeItem(itemId: string): Promise<KnowledgeItem>;
   deleteKnowledgeItem(itemId: string): Promise<void>;
 
   // Search and retrieval
   searchKnowledge(query: SearchQuery): Promise<SearchResult[]>;
-  semanticSearch(query: string, filters?: SearchFilters): Promise<KnowledgeItem[]>;
-  hybridSearch(query: string, keywords: string[], filters?: SearchFilters): Promise<KnowledgeItem[]>;
-  
+  semanticSearch(
+    query: string,
+    filters?: SearchFilters,
+  ): Promise<KnowledgeItem[]>;
+  hybridSearch(
+    query: string,
+    keywords: string[],
+    filters?: SearchFilters,
+  ): Promise<KnowledgeItem[]>;
+
   // Content validation
-  verifyKnowledgeItem(itemId: string, verification: VerificationData): Promise<KnowledgeItem>;
-  updateContentQuality(itemId: string, qualityMetrics: QualityMetrics): Promise<void>;
-  
+  verifyKnowledgeItem(
+    itemId: string,
+    verification: VerificationData,
+  ): Promise<KnowledgeItem>;
+  updateContentQuality(
+    itemId: string,
+    qualityMetrics: QualityMetrics,
+  ): Promise<void>;
+
   // Analytics
   getKnowledgeStatistics(): Promise<KnowledgeStatistics>;
   getContentFreshness(specialty?: MedicalSpecialty): Promise<FreshnessReport>;
@@ -242,8 +261,16 @@ interface KnowledgeService {
 interface VectorDatabaseService {
   // Vector operations
   storeVector(vector: Vector, metadata: VectorMetadata): Promise<string>;
-  searchSimilar(queryVector: Vector, filters?: VectorFilters, limit?: number): Promise<VectorSearchResult[]>;
-  updateVector(vectorId: string, vector: Vector, metadata?: VectorMetadata): Promise<void>;
+  searchSimilar(
+    queryVector: Vector,
+    filters?: VectorFilters,
+    limit?: number,
+  ): Promise<VectorSearchResult[]>;
+  updateVector(
+    vectorId: string,
+    vector: Vector,
+    metadata?: VectorMetadata,
+  ): Promise<void>;
   deleteVector(vectorId: string): Promise<void>;
 
   // Collection management
@@ -265,12 +292,12 @@ interface VietnameseNLPService {
   normalizeVietnameseText(text: string): Promise<string>;
   extractMedicalTerms(text: string): Promise<MedicalTerm[]>;
   recognizeEntities(text: string): Promise<NamedEntity[]>;
-  
+
   // Medical terminology
   expandAbbreviations(text: string): Promise<string>;
   mapSynonyms(term: string): Promise<string[]>;
   translateMedicalTerm(term: string, targetLanguage: Language): Promise<string>;
-  
+
   // Content analysis
   assessContentQuality(text: string): Promise<QualityAssessment>;
   detectMedicalSpecialty(text: string): Promise<MedicalSpecialty[]>;
@@ -394,6 +421,7 @@ The Knowledge Management bounded context implements comprehensive logging for cr
 **Logger Instance**: `BoundedContextLoggers.knowledgeManagement`
 
 **Log Categories**:
+
 - **Crawler Operations**: Source monitoring, content extraction, job scheduling
 - **Content Processing**: Vietnamese NLP, entity recognition, quality assessment
 - **Vector Operations**: Embedding generation, similarity search, index management
@@ -401,12 +429,14 @@ The Knowledge Management bounded context implements comprehensive logging for cr
 - **Performance Monitoring**: Processing times, success rates, error tracking
 
 **Privacy Protection**:
+
 - Medical content is anonymized before logging
 - Source URLs are logged but content is sanitized
 - User queries are hashed for privacy protection
 - No patient-specific information is logged
 
 **Critical Logging Points**:
+
 1. **Crawler Operations**: Log crawling initiation, success/failure rates, content extraction
 2. **Content Processing**: Log Vietnamese NLP processing, entity recognition accuracy
 3. **Vector Operations**: Log embedding generation, search performance, index updates

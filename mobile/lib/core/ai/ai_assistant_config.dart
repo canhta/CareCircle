@@ -13,7 +13,6 @@ class AIPersonality {
 }
 
 class AIAssistantConfig {
-  static const String openAIApiKey = String.fromEnvironment('OPENAI_API_KEY');
   static const bool enableVoiceInput = true;
   static const bool enableProactiveNotifications = true;
 

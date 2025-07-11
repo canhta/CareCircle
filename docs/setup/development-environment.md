@@ -2,10 +2,10 @@
 
 This guide provides step-by-step instructions to set up the complete CareCircle development environment, including both backend (NestJS) and mobile (Flutter) components.
 
-
 ## Backend Development Setup (NestJS)
 
 **Core Backend Libraries to Install:**
+
 ```bash
 # Core NestJS packages
 npm install @nestjs/common @nestjs/core @nestjs/platform-express
@@ -46,8 +46,9 @@ npm install -D prisma
 ### 3. Docker Compose Configuration
 
 **Create `docker-compose.dev.yml`:**
+
 ```yaml
-version: '3.8'
+version: "3.8"
 
 services:
   postgres:
@@ -138,6 +139,7 @@ networks:
 ### 4. Environment Configuration
 
 **Create `.env.example`:**
+
 ```env
 # Application
 NODE_ENV=development
@@ -192,6 +194,7 @@ HEALTH_CHECK_TIMEOUT=5000
 ```
 
 **Copy and configure your environment:**
+
 ```bash
 cp .env.example .env
 # Edit .env with your actual values
@@ -200,12 +203,14 @@ cp .env.example .env
 ### 5. Database Setup and Migrations
 
 **Initialize Prisma:**
+
 ```bash
 npx prisma init
 npx prisma generate
 ```
 
 **Run database migrations:**
+
 ```bash
 # Start database services
 docker-compose -f docker-compose.dev.yml up -d postgres redis
@@ -220,6 +225,7 @@ npx prisma db seed
 ### 6. Development Scripts
 
 **Add to `package.json`:**
+
 ```json
 {
   "scripts": {
@@ -243,39 +249,39 @@ npx prisma db seed
 
 ## Mobile Development Setup (Flutter)
 
-
 **Core Flutter packages to add to `pubspec.yaml`:**
+
 ```yaml
 dependencies:
   flutter:
     sdk: flutter
-  
+
   # State Management
   flutter_riverpod: ^2.4.9
   riverpod_annotation: ^2.3.3
-  
+
   # Navigation
   go_router: ^12.1.3
-  
+
   # Network
   dio: ^5.4.0
   retrofit: ^4.0.3
-  
+
   # Local Storage
   flutter_secure_storage: ^9.0.0
   hive: ^2.2.3
   hive_flutter: ^1.1.0
-  
+
   # Authentication
   local_auth: ^2.1.6
   firebase_auth: ^4.15.3
-  
+
   # Health Integration
   health: ^10.1.0
-  
+
   # Notifications
   flutter_local_notifications: ^16.3.2
-  
+
   # UI Components (Design System)
   flutter_hooks: ^0.20.3
   cached_network_image: ^3.3.0
@@ -292,12 +298,12 @@ dependencies:
 
   # Design System
   flex_color_scheme: ^7.3.1
-  
+
   # Utilities
   connectivity_plus: ^5.0.2
   permission_handler: ^11.1.0
   package_info_plus: ^4.2.0
-  
+
   # JSON Serialization with Code Generation
   json_annotation: ^4.8.1
   json_serializable: ^6.7.1
@@ -313,10 +319,10 @@ dev_dependencies:
   retrofit_generator: ^8.0.4
   json_serializable: ^6.7.1
   freezed: ^2.4.6
-  
+
   # Linting
   flutter_lints: ^3.0.1
-  
+
   # Testing
   mockito: ^5.4.4
   integration_test:
@@ -324,6 +330,7 @@ dev_dependencies:
 ```
 
 **Install dependencies:**
+
 ```bash
 flutter pub get
 # Generate code for Riverpod providers, Retrofit API clients, and JSON serialization
@@ -335,6 +342,7 @@ flutter pub run build_runner build
 **Create environment configuration files:**
 
 **`lib/core/config/app_config.dart`:**
+
 ```dart
 abstract class AppConfig {
   static const String appName = 'CareCircle';
@@ -356,6 +364,7 @@ abstract class AppConfig {
 **Create build flavors configuration:**
 
 **`android/app/build.gradle` (add to android section):**
+
 ```gradle
 flavorDimensions "environment"
 productFlavors {
@@ -375,6 +384,7 @@ productFlavors {
 ```
 
 **`ios/Runner/Info.plist` (add configurations):**
+
 ```xml
 <key>API_BASE_URL</key>
 <string>$(API_BASE_URL)</string>
@@ -387,6 +397,7 @@ productFlavors {
 **Add to `Makefile` or create shell scripts:**
 
 **`scripts/build-android.sh`:**
+
 ```bash
 #!/bin/bash
 set -e
@@ -402,6 +413,7 @@ flutter build appbundle --flavor production --dart-define=ENVIRONMENT=production
 ```
 
 **`scripts/build-ios.sh`:**
+
 ```bash
 #!/bin/bash
 set -e
@@ -414,6 +426,7 @@ flutter build ios --flavor production --dart-define=ENVIRONMENT=production
 ```
 
 **Add to `pubspec.yaml` scripts section:**
+
 ```yaml
 scripts:
   build_runner: flutter pub run build_runner build --delete-conflicting-outputs
@@ -429,6 +442,7 @@ scripts:
 ### 1. Initial Setup
 
 **Clone and setup the complete project:**
+
 ```bash
 # Clone the repository
 git clone <carecircle-repository-url>
@@ -453,6 +467,7 @@ flutter run --flavor development
 ### 2. Daily Development Commands
 
 **Backend development:**
+
 ```bash
 # Start all services
 npm run docker:dev
@@ -469,6 +484,7 @@ npm run db:seed
 ```
 
 **Mobile development:**
+
 ```bash
 # Run on development flavor
 flutter run --flavor development
@@ -486,6 +502,7 @@ flutter pub run build_runner build
 ### 3. Environment Variables Setup
 
 **Backend `.env` configuration checklist:**
+
 - [ ] Database connection string
 - [ ] Redis connection details
 - [ ] Firebase service account credentials
@@ -494,6 +511,7 @@ flutter pub run build_runner build
 - [ ] Milvus vector database connection
 
 **Mobile environment setup:**
+
 - [ ] API base URL pointing to local backend
 - [ ] Firebase configuration files (google-services.json, GoogleService-Info.plist)
 - [ ] Platform-specific permissions configured
@@ -504,6 +522,7 @@ flutter pub run build_runner build
 ### Backend Issues
 
 **Database Connection Issues:**
+
 ```bash
 # Check if PostgreSQL is running
 docker ps | grep postgres
@@ -516,6 +535,7 @@ npm run db:reset
 ```
 
 **Redis Connection Issues:**
+
 ```bash
 # Check Redis status
 docker ps | grep redis
@@ -525,6 +545,7 @@ redis-cli ping
 ```
 
 **Milvus Vector Database Issues:**
+
 ```bash
 # Check all Milvus containers
 docker ps | grep milvus
@@ -534,6 +555,7 @@ docker-compose -f docker-compose.dev.yml restart milvus-standalone
 ```
 
 **Node.js/npm Issues:**
+
 ```bash
 # Clear npm cache
 npm cache clean --force
@@ -549,6 +571,7 @@ node --version  # Should be 18.x or 20.x
 ### Mobile Issues
 
 **Flutter Doctor Issues:**
+
 ```bash
 # Run Flutter doctor to check setup
 flutter doctor -v
@@ -561,6 +584,7 @@ flutter upgrade
 ```
 
 **iOS Build Issues:**
+
 ```bash
 # Clean iOS build
 cd ios && rm -rf Pods Podfile.lock
@@ -570,6 +594,7 @@ cd ios && pod install
 ```
 
 **Android Build Issues:**
+
 ```bash
 # Clean Android build
 flutter clean
@@ -578,6 +603,7 @@ flutter pub get
 ```
 
 **Dependency Issues:**
+
 ```bash
 # Clear pub cache
 flutter pub cache clean
@@ -593,15 +619,18 @@ flutter pub run build_runner build --delete-conflicting-outputs
 ### Network and API Issues
 
 **CORS Issues:**
+
 - Ensure backend CORS is configured for mobile app origins
 - Check if API endpoints are accessible from mobile device/emulator
 
 **SSL/TLS Issues in Development:**
+
 - Use HTTP for local development
 - Configure network security policy for Android
 - Add ATS exceptions for iOS development
 
 **Firebase Configuration:**
+
 - Verify Firebase project configuration
 - Check service account permissions
 - Ensure Firebase configuration files are in correct locations
@@ -609,6 +638,7 @@ flutter pub run build_runner build --delete-conflicting-outputs
 ## Additional Resources
 
 ### Documentation Links
+
 - [NestJS Documentation](https://docs.nestjs.com/)
 - [Flutter Documentation](https://docs.flutter.dev/)
 - [Prisma Documentation](https://www.prisma.io/docs/)
@@ -618,7 +648,9 @@ flutter pub run build_runner build --delete-conflicting-outputs
 - [Milvus Documentation](https://milvus.io/docs)
 
 ### VS Code Extensions
+
 **Backend Development:**
+
 - NestJS Files
 - Prisma
 - Docker
@@ -626,6 +658,7 @@ flutter pub run build_runner build --delete-conflicting-outputs
 - GitLens
 
 **Mobile Development:**
+
 - Flutter
 - Dart
 - Flutter Intl
@@ -633,16 +666,19 @@ flutter pub run build_runner build --delete-conflicting-outputs
 - Awesome Flutter Snippets
 
 ### Recommended Development Tools
+
 - **API Testing**: Postman or Thunder Client
 - **Database Management**: pgAdmin or DBeaver
 - **Redis Management**: RedisInsight
 - **Mobile Testing**: Android Studio Device Manager, iOS Simulator
 - **Version Control**: Git with GitHub Desktop or SourceTree
+
 ## Design System Integration
 
 After completing the basic setup, integrate the CareCircle design system for consistent UI/UX implementation:
 
 ### Design Documentation Review
+
 **REQUIRED reading before UI development:**
 
 1. **[Design System](../design/design-system.md)** - Core design principles and healthcare-optimized components
@@ -654,6 +690,7 @@ After completing the basic setup, integrate the CareCircle design system for con
 ### Design System Setup for Flutter
 
 **Add design system dependencies to `pubspec.yaml`:**
+
 ```yaml
 dependencies:
   # Design System Core
@@ -676,6 +713,7 @@ dependencies:
 ```
 
 **Create design system configuration:**
+
 ```dart
 // lib/core/design/design_tokens.dart
 class CareCircleDesignTokens {
@@ -700,10 +738,10 @@ class CareCircleDesignTokens {
 ### AI Assistant Integration Setup
 
 **Configure AI assistant as central interface:**
+
 ```dart
 // lib/core/ai/ai_assistant_config.dart
 class AIAssistantConfig {
-  static const String openAIApiKey = String.fromEnvironment('OPENAI_API_KEY');
   static const bool enableVoiceInput = true;
   static const bool enableProactiveNotifications = true;
 
@@ -720,6 +758,7 @@ class AIAssistantConfig {
 ### Accessibility Setup
 
 **Configure accessibility features:**
+
 ```dart
 // lib/core/accessibility/accessibility_config.dart
 class AccessibilityConfig {
@@ -747,7 +786,7 @@ For any setup issues not covered in this guide, please check the project's GitHu
 
 ## Firebase Setup
 
-*Complete Firebase Authentication setup for CareCircle backend and mobile applications.*
+_Complete Firebase Authentication setup for CareCircle backend and mobile applications._
 
 ### Create Firebase Project
 
@@ -814,7 +853,7 @@ FIREBASE_TOKEN_URI=https://oauth2.googleapis.com/token
 
 ## Mobile-Backend Connectivity
 
-*Configure mobile app to connect to backend API during development.*
+_Configure mobile app to connect to backend API during development._
 
 ### Automatic Setup (Recommended)
 
@@ -829,6 +868,7 @@ Run the automated setup script:
 ```
 
 This script will:
+
 1. Detect your local IP address automatically
 2. Update the mobile environment configuration
 3. Provide next steps for running the apps
@@ -838,6 +878,7 @@ This script will:
 If you prefer manual configuration:
 
 1. **Find Your Local IP Address:**
+
    ```bash
    # On macOS/Linux
    ifconfig | grep "inet " | grep -v 127.0.0.1
@@ -848,6 +889,7 @@ If you prefer manual configuration:
 
 2. **Update Mobile Configuration:**
    Edit `mobile/lib/core/config/environment_config.dart`:
+
    ```dart
    static const String baseUrl = 'http://YOUR_IP_ADDRESS:3000';
    ```
@@ -861,12 +903,14 @@ If you prefer manual configuration:
 ### Network Troubleshooting
 
 **Common Issues:**
+
 - Firewall blocking connections
 - Backend not binding to all interfaces (0.0.0.0)
 - Mobile device on different network
 - Port conflicts
 
 **Solutions:**
+
 - Configure firewall to allow port 3000
 - Ensure backend listens on 0.0.0.0:3000
 - Connect mobile device to same WiFi network

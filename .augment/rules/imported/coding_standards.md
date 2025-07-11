@@ -18,6 +18,7 @@ type: "always_apply"
 ## Documentation Structure Awareness
 
 **CareCircle Documentation Location**: All documentation is in `docs/` directory
+
 - `docs/architecture/` - Backend (NestJS), Mobile (Flutter), System design
 - `docs/bounded-contexts/` - 6 DDD contexts: Identity, Care Group, Health Data, Medication, Notification, AI Assistant
 - `docs/design/` - AI-first UI/UX, accessibility, user journeys, design system
@@ -26,6 +27,7 @@ type: "always_apply"
 - `docs/setup/` - Development environment setup (Prisma + PostgreSQL + Flutter)
 
 **Key Documentation Files to Know**:
+
 - `docs/README.md` - Main navigation and project overview
 - `docs/architecture/backend-architecture.md` - NestJS + Prisma + PostgreSQL patterns
 - `docs/architecture/mobile-architecture.md` - Flutter + healthcare mobile patterns
@@ -51,6 +53,7 @@ type: "always_apply"
 - Follow existing code conventions and patterns
 
 **Technology Stack Constraints**:
+
 - Backend: NestJS + Prisma + PostgreSQL + TimescaleDB + Redis + Milvus
 - Mobile: Flutter with platform-specific health integrations (HealthKit/Health Connect)
 - AI: OpenAI integration with vector database for health pattern recognition

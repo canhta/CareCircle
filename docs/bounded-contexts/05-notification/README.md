@@ -248,29 +248,29 @@ interface TemplateVariable {
 interface NotificationService {
   // Notification creation
   createNotification(
-    notification: CreateNotificationDto
+    notification: CreateNotificationDto,
   ): Promise<Notification>;
   scheduleNotification(
     notification: CreateNotificationDto,
-    scheduledFor: Date
+    scheduledFor: Date,
   ): Promise<Notification>;
   createFromTemplate(
     templateId: string,
     data: Record<string, any>,
     userId: string,
-    options?: NotificationOptions
+    options?: NotificationOptions,
   ): Promise<Notification>;
 
   // Notification management
   getNotification(notificationId: string): Promise<Notification>;
   getUserNotifications(
     userId: string,
-    filters?: NotificationFilters
+    filters?: NotificationFilters,
   ): Promise<Notification[]>;
   cancelNotification(notificationId: string): Promise<void>;
   updateNotification(
     notificationId: string,
-    updates: Partial<Notification>
+    updates: Partial<Notification>,
   ): Promise<Notification>;
 
   // Delivery management
@@ -281,12 +281,12 @@ interface NotificationService {
   // Interaction tracking
   recordInteraction(
     notificationId: string,
-    interaction: Partial<NotificationInteraction>
+    interaction: Partial<NotificationInteraction>,
   ): Promise<NotificationInteraction>;
   getInteractions(notificationId: string): Promise<NotificationInteraction[]>;
   getUserInteractions(
     userId: string,
-    filters?: InteractionFilters
+    filters?: InteractionFilters,
   ): Promise<NotificationInteraction[]>;
 }
 ```
@@ -299,30 +299,30 @@ interface PreferenceService {
   getUserPreferences(userId: string): Promise<NotificationPreference[]>;
   updatePreference(
     preferenceId: string,
-    updates: Partial<NotificationPreference>
+    updates: Partial<NotificationPreference>,
   ): Promise<NotificationPreference>;
   setCategoryPreference(
     userId: string,
     category: NotificationCategory,
-    preference: Partial<NotificationPreference>
+    preference: Partial<NotificationPreference>,
   ): Promise<NotificationPreference>;
 
   // Channel management
   updateChannelPreference(
     userId: string,
     channel: NotificationChannel,
-    enabled: boolean
+    enabled: boolean,
   ): Promise<void>;
   setQuietHours(
     userId: string,
-    quietHours: TimeRange[]
+    quietHours: TimeRange[],
   ): Promise<NotificationPreference>;
 
   // Device registration
   registerDevice(
     userId: string,
     deviceToken: string,
-    deviceInfo: DeviceInfo
+    deviceInfo: DeviceInfo,
   ): Promise<void>;
   unregisterDevice(deviceToken: string): Promise<void>;
 }
@@ -337,15 +337,15 @@ interface TemplateService {
     template: Omit<
       NotificationTemplate,
       "id" | "createdAt" | "updatedAt" | "version"
-    >
+    >,
   ): Promise<NotificationTemplate>;
   updateTemplate(
     templateId: string,
-    updates: Partial<NotificationTemplate>
+    updates: Partial<NotificationTemplate>,
   ): Promise<NotificationTemplate>;
   getTemplate(templateId: string): Promise<NotificationTemplate>;
   getTemplatesByCategory(
-    category: NotificationCategory
+    category: NotificationCategory,
   ): Promise<NotificationTemplate[]>;
   activateTemplate(templateId: string): Promise<NotificationTemplate>;
   deactivateTemplate(templateId: string): Promise<NotificationTemplate>;
@@ -353,11 +353,11 @@ interface TemplateService {
   // Template rendering
   renderTemplate(
     templateId: string,
-    data: Record<string, any>
+    data: Record<string, any>,
   ): Promise<RenderedTemplate>;
   validateTemplateData(
     templateId: string,
-    data: Record<string, any>
+    data: Record<string, any>,
   ): Promise<ValidationResult>;
 }
 ```
@@ -370,12 +370,12 @@ interface IntelligentDeliveryService {
   calculateOptimalDeliveryTime(
     userId: string,
     category: NotificationCategory,
-    priority: NotificationPriority
+    priority: NotificationPriority,
   ): Promise<Date>;
   getBestChannel(
     userId: string,
     category: NotificationCategory,
-    priority: NotificationPriority
+    priority: NotificationPriority,
   ): Promise<NotificationChannel>;
 
   // Batching and grouping
@@ -405,28 +405,24 @@ interface IntelligentDeliveryService {
 ### Backend Implementation Notes
 
 1. **Multi-channel Delivery System**
-
    - Implement provider-agnostic notification delivery service
    - Create fallback mechanisms for failed deliveries
    - Develop channel-specific formatting for consistent user experience
    - Implement delivery receipts and tracking
 
 2. **Intelligent Scheduling**
-
    - Create a machine learning model for optimal notification timing
    - Implement user behavior analysis for response pattern detection
    - Develop quiet hours enforcement with priority override
    - Build notification batching algorithm to reduce interruption
 
 3. **Priority Management**
-
    - Implement a priority queueing system for notifications
    - Create critical notification handling with retry and escalation
    - Develop interrupt coalescing for high-frequency events
    - Design priority inheritance for related notifications
 
 4. **Template System**
-
    - Create a flexible template engine with variable interpolation
    - Implement multi-language support for templates
    - Develop template versioning and A/B testing capabilities
@@ -441,21 +437,18 @@ interface IntelligentDeliveryService {
 ### Mobile Implementation Notes
 
 1. **Notification Management UI**
-
    - Design a comprehensive notification center
    - Create notification preference management screens
    - Implement notification history with filtering
    - Develop quiet hours and do not disturb controls
 
 2. **Rich Notification Display**
-
    - Implement rich notification rendering with media support
    - Create interactive notification components
    - Develop priority-based visual indicators
    - Build notification grouping and threading
 
 3. **Local Notification Handling**
-
    - Implement local notification scheduling for offline operation
    - Create notification persistence across app restarts
    - Develop local notification database with sync capabilities
@@ -509,27 +502,22 @@ interface IntelligentDeliveryService {
 ### Libraries and Services
 
 - **Firebase Cloud Messaging**: Cross-platform push notification service
-
   - Documentation: [Firebase Cloud Messaging](https://firebase.google.com/docs/cloud-messaging)
   - Features: Token management, topic-based messaging, analytics
 
 - **Twilio**: Communication API for SMS and voice
-
   - Documentation: [Twilio API](https://www.twilio.com/docs/api)
   - Features: SMS, WhatsApp, voice calls, delivery reports
 
 - **SendGrid**: Email API and marketing platform
-
   - Documentation: [SendGrid API](https://docs.sendgrid.com/api-reference)
   - Features: Transactional emails, templates, delivery monitoring
 
 - **BullMQ**: Queue system for scheduled tasks
-
   - Documentation: [BullMQ](https://docs.bullmq.io/)
   - Features: Delayed jobs, recurring jobs, priorities
 
 - **flutter_local_notifications**: Flutter plugin for local notifications
-
   - Package: [flutter_local_notifications](https://pub.dev/packages/flutter_local_notifications)
   - Features: Scheduled notifications, custom sounds, actions
 
@@ -540,13 +528,11 @@ interface IntelligentDeliveryService {
 ### Standards and Best Practices
 
 - **Mobile Push Notification Best Practices**
-
   - User permission optimization
   - Notification timing and frequency
   - Rich content guidelines
 
 - **Web Push Notification Standard**
-
   - W3C Push API specification
   - Service worker integration
   - Permission management

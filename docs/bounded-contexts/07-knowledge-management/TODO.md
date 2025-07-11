@@ -9,6 +9,7 @@
 ## Phase 1: Foundation Setup (2-3 weeks) 🏗️
 
 ### 1.1 Bounded Context Structure Setup
+
 - [ ] **Create Knowledge Management bounded context directory structure**
   - **Location**: `backend/src/knowledge-management/`
   - **Components**: domain/, application/, infrastructure/, presentation/
@@ -28,6 +29,7 @@
   - [ ] Implement soft delete and audit trail support
 
 ### 1.2 Milvus Vector Database Integration
+
 - [ ] **Vector Database Service Implementation**
   - **Location**: `backend/src/knowledge-management/infrastructure/services/vector-database.service.ts`
   - **Dependencies**: @zilliz/milvus2-sdk-node (already in package.json)
@@ -46,6 +48,7 @@
   - [ ] Implement vector indexing strategies for optimal search performance
 
 ### 1.3 Basic Crawler Infrastructure
+
 - [ ] **Web Crawler Service Implementation**
   - **Location**: `backend/src/knowledge-management/infrastructure/services/web-crawler.service.ts`
   - **Dependencies**: puppeteer, axios, cheerio
@@ -64,6 +67,7 @@
   - [ ] Create content cleaning and normalization
 
 ### 1.4 Vietnamese Text Processing Pipeline
+
 - [ ] **Vietnamese NLP Service Implementation**
   - **Location**: `backend/src/knowledge-management/infrastructure/services/vietnamese-nlp.service.ts`
   - **Features**: Text normalization, medical term extraction, entity recognition
@@ -81,6 +85,7 @@
   - [ ] Create translation mapping between Vietnamese and English
 
 ### 1.5 Data Source Management System
+
 - [ ] **Data Source Repository Implementation**
   - **Location**: `backend/src/knowledge-management/infrastructure/repositories/prisma-data-source.repository.ts`
   - **Features**: CRUD operations, source configuration, crawl scheduling
@@ -95,6 +100,7 @@
 ## Phase 2: Core Crawling Implementation (3-4 weeks) 🕷️
 
 ### 2.1 Web Scraping for Vietnamese Healthcare Sources
+
 - [ ] **Source-Specific Extractors**
   - [ ] Implement Ministry of Health content extractor
   - [ ] Create hospital website content extractors
@@ -108,6 +114,7 @@
   - [ ] Implement session management for authenticated sources
 
 ### 2.2 Content Extraction and Cleaning Pipelines
+
 - [ ] **Content Processing Service**
   - **Location**: `backend/src/knowledge-management/application/services/content-processing.service.ts`
   - **Features**: Content extraction, cleaning, medical validation
@@ -125,6 +132,7 @@
   - [ ] Implement content categorization by medical specialty
 
 ### 2.3 Medical Entity Recognition for Vietnamese Content
+
 - [ ] **Vietnamese Medical Entity Recognition**
   - [ ] Implement medication name recognition (Vietnamese and international)
   - [ ] Add medical condition and symptom detection
@@ -138,6 +146,7 @@
   - [ ] Create entity disambiguation for similar terms
 
 ### 2.4 Vector Embedding Generation and Storage
+
 - [ ] **Embedding Generation Service**
   - [ ] Integrate OpenAI embeddings API for Vietnamese text
   - [ ] Implement text chunking for optimal embedding (500-1000 tokens)
@@ -151,6 +160,7 @@
   - [ ] Create vector update and versioning strategies
 
 ### 2.5 Background Job Processing for Crawling Tasks
+
 - [ ] **Crawler Job Processor**
   - **Location**: `backend/src/knowledge-management/infrastructure/jobs/crawler.processor.ts`
   - **Integration**: BullMQ queue system
@@ -165,6 +175,7 @@
 ## Phase 3: RAG Integration (2-3 weeks) 🤖
 
 ### 3.1 AI Assistant Semantic Search Enhancement
+
 - [ ] **Enhanced Conversation Service Integration**
   - **Location**: `backend/src/ai-assistant/application/services/conversation.service.ts`
   - **Enhancement**: Add Vietnamese medical knowledge retrieval
@@ -176,6 +187,7 @@
   - [ ] Create context-aware search filtering
 
 ### 3.2 Hybrid Search for Vietnamese Queries
+
 - [ ] **Hybrid Search Service**
   - **Location**: `backend/src/knowledge-management/application/services/hybrid-search.service.ts`
   - **Features**: Vector similarity + keyword matching
@@ -187,6 +199,7 @@
   - [ ] Implement query translation for mixed-language queries
 
 ### 3.3 Source Citation and Authority Ranking
+
 - [ ] **Authority Scoring System**
   - [ ] Implement source authority scoring (government = highest)
   - [ ] Add publication recency weighting
@@ -200,6 +213,7 @@
   - [ ] Add Vietnamese emergency contact information
 
 ### 3.4 Medical Content Validation and Quality Scoring
+
 - [ ] **Content Quality Assessment**
   - [ ] Implement medical accuracy validation algorithms
   - [ ] Create content completeness scoring
@@ -213,6 +227,7 @@
   - [ ] Create quality improvement recommendations
 
 ### 3.5 Health Context Integration
+
 - [ ] **Enhanced Health Context Builder**
   - **Location**: `backend/src/ai-assistant/application/services/conversation.service.ts` (buildHealthContext method)
   - **Enhancement**: Include relevant Vietnamese medical knowledge
@@ -226,6 +241,7 @@
 ## Phase 4: Optimization and Monitoring (2 weeks) 📊
 
 ### 4.1 Content Freshness Tracking and Updates
+
 - [ ] **Freshness Monitoring Service**
   - [ ] Implement content age tracking
   - [ ] Add automated freshness scoring
@@ -233,6 +249,7 @@
   - [ ] Implement stale content identification and removal
 
 ### 4.2 Crawler Performance Monitoring and Alerting
+
 - [ ] **Performance Monitoring**
   - [ ] Create crawler success rate tracking
   - [ ] Implement processing time monitoring
@@ -240,6 +257,7 @@
   - [ ] Create performance optimization recommendations
 
 ### 4.3 Administrative Interfaces
+
 - [ ] **Crawler Management API**
   - **Location**: `backend/src/knowledge-management/presentation/controllers/crawler.controller.ts`
   - **Features**: Source management, job scheduling, monitoring
@@ -249,6 +267,7 @@
   - **Features**: Content search, quality management, analytics
 
 ### 4.4 Search Performance and Caching Optimization
+
 - [ ] **Search Optimization**
   - [ ] Implement query result caching
   - [ ] Add search performance monitoring
@@ -256,6 +275,7 @@
   - [ ] Implement search analytics and improvement
 
 ### 4.5 End-to-End Testing with Vietnamese Medical Queries
+
 - [ ] **Testing Framework**
   - [ ] Create Vietnamese medical query test cases
   - [ ] Implement response quality assessment
@@ -265,18 +285,21 @@
 ## Dependencies and Prerequisites
 
 ### External Dependencies
+
 - [ ] **Confirm OpenAI API access** for embedding generation
 - [ ] **Verify Milvus configuration** in Docker Compose
 - [ ] **Assess Vietnamese NLP libraries** for medical term processing
 - [ ] **Evaluate web scraping tools** (Puppeteer vs Playwright)
 
 ### Infrastructure Requirements
+
 - [ ] **Database capacity planning** for knowledge storage
 - [ ] **Vector database sizing** for Vietnamese content
 - [ ] **Background job queue capacity** for crawler operations
 - [ ] **Monitoring and alerting setup** for production deployment
 
 ### Compliance and Legal
+
 - [ ] **Review robots.txt compliance** for target websites
 - [ ] **Assess content licensing** for scraped medical information
 - [ ] **Verify healthcare compliance** for medical content handling
@@ -285,12 +308,14 @@
 ## Success Metrics and KPIs
 
 ### Technical Metrics
+
 - [ ] **Crawling Success Rate**: Target >95%
 - [ ] **Content Processing Accuracy**: Target >90%
 - [ ] **Search Relevance Scores**: Target >85%
 - [ ] **System Uptime and Reliability**: Target >99%
 
 ### Business Metrics
+
 - [ ] **AI Assistant Response Quality**: Measured by user feedback
 - [ ] **Vietnamese Medical Query Coverage**: Percentage of queries with relevant results
 - [ ] **User Satisfaction**: Vietnamese-specific response quality ratings
@@ -299,12 +324,14 @@
 ## Risk Mitigation
 
 ### Technical Risks
+
 - [ ] **Website Anti-Crawling Measures**: Implement robust error handling and alternative sources
 - [ ] **Vietnamese Language Processing Complexity**: Use multiple NLP approaches and validation
 - [ ] **Content Quality Variability**: Implement multi-source validation and expert review
 - [ ] **Performance Scalability**: Design for horizontal scaling and optimization
 
 ### Operational Risks
+
 - [ ] **Source Availability Changes**: Monitor source status and maintain backup sources
 - [ ] **Content Licensing Issues**: Implement fair use practices and source attribution
 - [ ] **Medical Accuracy Concerns**: Establish expert review processes and disclaimers

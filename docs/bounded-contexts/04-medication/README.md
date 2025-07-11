@@ -222,28 +222,28 @@ interface MedicationService {
   // Medication management
   createMedication(
     userId: string,
-    medication: Omit<Medication, "id" | "createdAt" | "updatedAt">
+    medication: Omit<Medication, "id" | "createdAt" | "updatedAt">,
   ): Promise<Medication>;
   getMedication(medicationId: string): Promise<Medication>;
   updateMedication(
     medicationId: string,
-    updates: Partial<Medication>
+    updates: Partial<Medication>,
   ): Promise<Medication>;
   deactivateMedication(
     medicationId: string,
-    reason?: string
+    reason?: string,
   ): Promise<Medication>;
   getUserMedications(
     userId: string,
-    includeInactive?: boolean
+    includeInactive?: boolean,
   ): Promise<Medication[]>;
 
   // Medication information
   getMedicationInteractions(
-    medicationIds: string[]
+    medicationIds: string[],
   ): Promise<MedicationInteraction[]>;
   getMedicationInformation(
-    medicationId: string
+    medicationId: string,
   ): Promise<MedicationInformation>;
   searchMedicationDatabase(query: string): Promise<MedicationSearchResult[]>;
 
@@ -253,29 +253,29 @@ interface MedicationService {
     schedule: Omit<
       MedicationSchedule,
       "id" | "medicationId" | "userId" | "createdAt" | "updatedAt"
-    >
+    >,
   ): Promise<MedicationSchedule>;
   updateMedicationSchedule(
     scheduleId: string,
-    updates: Partial<MedicationSchedule>
+    updates: Partial<MedicationSchedule>,
   ): Promise<MedicationSchedule>;
   getMedicationSchedule(scheduleId: string): Promise<MedicationSchedule>;
   getUserMedicationSchedules(
     userId: string,
-    date: Date
+    date: Date,
   ): Promise<MedicationSchedule[]>;
 
   // Medication doses
   getDosesForDateRange(
     userId: string,
     startDate: Date,
-    endDate: Date
+    endDate: Date,
   ): Promise<MedicationDose[]>;
   recordMedicationDose(
     doseId: string,
     status: DoseStatus,
     timestamp?: Date,
-    notes?: string
+    notes?: string,
   ): Promise<MedicationDose>;
   getUpcomingDoses(userId: string, hours: number): Promise<MedicationDose[]>;
 }
@@ -288,33 +288,33 @@ interface PrescriptionService {
   // Prescription management
   createPrescription(
     userId: string,
-    prescription: Omit<Prescription, "id">
+    prescription: Omit<Prescription, "id">,
   ): Promise<Prescription>;
   getPrescription(prescriptionId: string): Promise<Prescription>;
   updatePrescription(
     prescriptionId: string,
-    updates: Partial<Prescription>
+    updates: Partial<Prescription>,
   ): Promise<Prescription>;
   getUserPrescriptions(
     userId: string,
-    status?: PrescriptionStatus
+    status?: PrescriptionStatus,
   ): Promise<Prescription[]>;
 
   // Prescription scanning
   scanPrescription(
     userId: string,
-    imageData: Blob
+    imageData: Blob,
   ): Promise<PrescriptionScanResult>;
   verifyPrescriptionData(
     prescriptionId: string,
-    verificationMethod: VerificationMethod
+    verificationMethod: VerificationMethod,
   ): Promise<Prescription>;
 
   // Refill management
   recordPrescriptionRefill(
     prescriptionId: string,
     refillDate: Date,
-    quantity: number
+    quantity: number,
   ): Promise<Prescription>;
   calculateRefillDate(prescriptionId: string): Promise<Date | null>;
 }
@@ -328,16 +328,16 @@ interface AdherenceService {
   getAdherenceRate(
     userId: string,
     startDate: Date,
-    endDate: Date
+    endDate: Date,
   ): Promise<AdherenceReport>;
   getMissedMedications(
     userId: string,
     startDate: Date,
-    endDate: Date
+    endDate: Date,
   ): Promise<MedicationDose[]>;
   getAdherenceTrends(
     userId: string,
-    timeSpan: "week" | "month" | "year"
+    timeSpan: "week" | "month" | "year",
   ): Promise<AdherenceTrend>;
 
   // Adherence insights
@@ -349,7 +349,7 @@ interface AdherenceService {
     userId: string,
     startDate: Date,
     endDate: Date,
-    format: "pdf" | "csv"
+    format: "pdf" | "csv",
   ): Promise<ReportResult>;
   shareAdherenceReport(reportId: string, recipientEmail: string): Promise<void>;
 }
@@ -365,16 +365,16 @@ interface InventoryService {
     inventory: Omit<
       MedicationInventory,
       "id" | "medicationId" | "userId" | "lastUpdated"
-    >
+    >,
   ): Promise<MedicationInventory>;
   updateInventory(
     inventoryId: string,
-    updates: Partial<MedicationInventory>
+    updates: Partial<MedicationInventory>,
   ): Promise<MedicationInventory>;
   adjustInventoryQuantity(
     inventoryId: string,
     adjustment: number,
-    reason: string
+    reason: string,
   ): Promise<MedicationInventory>;
 
   // Inventory status
@@ -384,11 +384,11 @@ interface InventoryService {
   // Refill management
   updateRefillStatus(
     inventoryId: string,
-    status: RefillStatus
+    status: RefillStatus,
   ): Promise<MedicationInventory>;
   trackRefillOrder(
     inventoryId: string,
-    orderDetails: RefillOrderDetails
+    orderDetails: RefillOrderDetails,
   ): Promise<RefillOrder>;
 }
 ```
@@ -407,28 +407,24 @@ interface InventoryService {
 ### Backend Implementation Notes
 
 1. **Medication Database Integration**
-
    - Implement RxNorm API integration for standardized medication data
    - Create a local cache of common medications for faster lookups
    - Develop a drug interaction checking service using external APIs
    - Implement fuzzy matching for medication name searches
 
 2. **Prescription OCR Processing**
-
    - Develop a prescription scanning service with image preprocessing
    - Create an OCR engine specialized for medical text
    - Implement field extraction for medication names, dosages, etc.
    - Build a validation system for OCR results
 
 3. **Scheduling Algorithm**
-
    - Design a flexible scheduling system supporting various frequencies
    - Implement timezone-aware scheduling
    - Create an intelligent reminder timing algorithm
    - Develop conflict detection for multiple medications
 
 4. **Adherence Analytics**
-
    - Implement statistical analysis of adherence patterns
    - Create visualization data for adherence trends
    - Develop anomaly detection for changes in adherence
@@ -443,21 +439,18 @@ interface InventoryService {
 ### Mobile Implementation Notes
 
 1. **Medication UI Components**
-
    - Design a user-friendly medication list and details view
    - Create visual indicators for medication status
    - Implement a pill identifier with visual search
    - Develop an interactive medication schedule calendar
 
 2. **Reminder System**
-
    - Create persistent notifications for medication reminders
    - Implement snooze and completion actions
    - Develop custom notification sounds for medications
    - Build an adaptive reminder system based on user behavior
 
 3. **Prescription Scanning**
-
    - Implement a guided camera interface for prescription scanning
    - Create real-time feedback for image quality
    - Build a verification interface for OCR results
@@ -509,27 +502,22 @@ interface InventoryService {
 ### Libraries and Services
 
 - **RxNorm API**: Standardized nomenclature for clinical drugs
-
   - Documentation: [RxNorm API](https://rxnav.nlm.nih.gov/APIRxNorm.html)
   - Features: Drug naming, classification, relationships
 
 - **Google ML Kit**: OCR capabilities for prescription scanning
-
   - Documentation: [ML Kit Text Recognition](https://developers.google.com/ml-kit/vision/text-recognition)
   - Features: On-device text recognition, layout analysis
 
 - **Drug Interaction API**: Checks for potential drug interactions
-
   - Documentation: [NIH Drug Interaction API](https://lhncbc.nlm.nih.gov/RxNav/APIs/InteractionAPIs.html)
   - Features: Drug-drug interactions, severity ratings
 
 - **Flutter Local Notifications**: Notification management for medication reminders
-
   - Package: [flutter_local_notifications](https://pub.dev/packages/flutter_local_notifications)
   - Features: Scheduled notifications, custom actions, persistence
 
 - **TimescaleDB**: Time-series database for adherence tracking
-
   - Documentation: [TimescaleDB](https://docs.timescale.com/)
   - Features: Efficient time-series data handling, continuous aggregates
 
@@ -540,12 +528,10 @@ interface InventoryService {
 ### Standards and Best Practices
 
 - **HL7 FHIR Medication Resource**: Standard for medication data representation
-
   - Documentation: [FHIR Medication Resource](https://www.hl7.org/fhir/medication.html)
   - Features: Standardized medication information structure
 
 - **ISO 11238**: Standards for identification of medicinal products
-
   - Standard for unambiguous identification of medications
   - Global system for consistent medicine identification
 

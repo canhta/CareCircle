@@ -7,12 +7,14 @@ This document defines the conversational UI patterns, interaction design, and AI
 ### Central Navigation Paradigm
 
 **Conversational Navigation**
+
 - Replace traditional menu structures with natural language interactions
 - AI assistant button prominently positioned at center of bottom navigation
 - Voice-first design with visual fallbacks for accessibility
 - Context-aware suggestions based on user health data and patterns
 
 **Interface Hierarchy**
+
 ```
 Primary: AI Chat Interface (center bottom button)
 Secondary: Quick Actions (medication, vitals, emergency)
@@ -20,6 +22,7 @@ Tertiary: Settings and Profile (accessible via AI or traditional nav)
 ```
 
 **Navigation Patterns**
+
 - **Voice Commands**: "Show my medications", "Log blood pressure", "Call my doctor"
 - **Quick Actions**: Swipe gestures and shortcuts for frequent tasks
 - **Contextual Menus**: AI-suggested actions based on current health context
@@ -30,12 +33,14 @@ Tertiary: Settings and Profile (accessible via AI or traditional nav)
 #### Personality Framework
 
 **Core Characteristics**
+
 - **Empathetic**: Understanding of health challenges and emotional needs
 - **Authoritative**: Medical knowledge with appropriate confidence levels
 - **Supportive**: Encouraging without being patronizing
 - **Transparent**: Clear about AI limitations and when to consult professionals
 
 **Tone Guidelines**
+
 - **Professional yet Warm**: Medical accuracy with human compassion
 - **Confidence Levels**: Express uncertainty appropriately ("I recommend checking with your doctor")
 - **Personalization**: Adapt language to user's health literacy and preferences
@@ -44,12 +49,14 @@ Tertiary: Settings and Profile (accessible via AI or traditional nav)
 #### Trust Indicators
 
 **Medical Authority Signals**
+
 - **Source Attribution**: "Based on Mayo Clinic guidelines..."
 - **Confidence Scores**: "I'm 85% confident this recommendation applies to you"
 - **Professional Verification**: "Your cardiologist Dr. Smith has reviewed this plan"
 - **Evidence Links**: Access to medical studies and guidelines
 
 **Transparency Features**
+
 - **Decision Explanation**: "I'm suggesting this because of your recent blood pressure readings"
 - **Limitation Acknowledgment**: "This is general guidance - your doctor knows your specific situation"
 - **Data Usage**: Clear explanation of how personal health data informs recommendations
@@ -60,6 +67,7 @@ Tertiary: Settings and Profile (accessible via AI or traditional nav)
 #### Chat Interface Design
 
 **Message Types**
+
 ```
 AI Response Bubble:
 - Background: Light blue (#E3F2FD)
@@ -79,6 +87,7 @@ User Message Bubble:
 ```
 
 **Interactive Elements**
+
 - **Quick Reply Buttons**: Suggested responses below AI messages
 - **Action Cards**: Expandable cards for complex health information
 - **Voice Input**: Always-visible microphone button with voice waveform
@@ -87,6 +96,7 @@ User Message Bubble:
 #### Proactive AI Notifications
 
 **Medication Reminders**
+
 ```
 Notification Design:
 - Header: "Time for your medication"
@@ -98,6 +108,7 @@ Notification Design:
 ```
 
 **Health Insights**
+
 ```
 Insight Card Design:
 - Header: "Health Insight"
@@ -109,6 +120,7 @@ Insight Card Design:
 ```
 
 **Care Recommendations**
+
 ```
 Recommendation Design:
 - Header: "Care Recommendation"
@@ -124,6 +136,7 @@ Recommendation Design:
 #### Voice UI States
 
 **Listening State**
+
 - **Visual**: Pulsing microphone icon with blue accent
 - **Animation**: Gentle pulse at 1.2 second intervals
 - **Feedback**: Subtle haptic when voice input begins
@@ -131,6 +144,7 @@ Recommendation Design:
 - **Accessibility**: Screen reader announces "Listening for your voice"
 
 **Processing State**
+
 - **Visual**: Animated waveform showing voice processing
 - **Text**: "Understanding..." or "Thinking about your question..."
 - **Duration**: Maximum 3 seconds before showing progress indicator
@@ -138,6 +152,7 @@ Recommendation Design:
 - **Accessibility**: Audio feedback "Processing your request"
 
 **Response State**
+
 - **Visual**: AI avatar or icon animation during speech
 - **Audio**: Natural text-to-speech with medical pronunciation
 - **Text**: Simultaneous display of spoken response
@@ -147,6 +162,7 @@ Recommendation Design:
 #### Hands-Free Operation Modes
 
 **Wake Phrase Activation**
+
 - **Phrase**: "Hey CareCircle" or "CareCircle, help me"
 - **Sensitivity**: Adjustable for different environments
 - **Privacy**: Local processing, no cloud wake word detection
@@ -154,6 +170,7 @@ Recommendation Design:
 - **Timeout**: 30 seconds of active listening after wake phrase
 
 **Emergency Voice Mode**
+
 - **Activation**: "CareCircle emergency" bypasses authentication
 - **Features**: Direct access to emergency contacts and medical information
 - **Voice Commands**: "Call 911", "Contact my doctor", "Show medical ID"
@@ -165,6 +182,7 @@ Recommendation Design:
 #### Health Information Delivery
 
 **Structured Responses**
+
 ```
 Medical Information Format:
 1. Direct Answer: "Your blood pressure reading of 140/90 is elevated"
@@ -175,6 +193,7 @@ Medical Information Format:
 ```
 
 **Uncertainty Handling**
+
 - **Confidence Levels**: "I'm moderately confident..." or "This requires professional evaluation"
 - **Escalation**: "This is beyond my expertise - let's contact your healthcare team"
 - **Options**: Present multiple possibilities when uncertain
@@ -183,12 +202,14 @@ Medical Information Format:
 #### Personalization Patterns
 
 **Context Awareness**
+
 - **Health History**: Reference previous conversations and health events
 - **Medication Schedule**: Proactive reminders based on prescription timing
 - **Appointment Preparation**: Suggest questions and topics for upcoming visits
 - **Trend Recognition**: Identify patterns in health data and behaviors
 
 **Adaptive Communication**
+
 - **Health Literacy**: Adjust language complexity based on user understanding
 - **Emotional State**: Recognize stress or anxiety and adapt tone accordingly
 - **Cultural Preferences**: Respect cultural approaches to health and medicine
@@ -199,12 +220,14 @@ Medical Information Format:
 #### Voice Recognition Errors
 
 **Misunderstanding Recovery**
+
 - **Clarification**: "I didn't quite understand. Did you mean...?"
 - **Options**: Present multiple interpretations for user selection
 - **Fallback**: "Let me show you some options" with visual menu
 - **Learning**: Improve recognition based on user corrections
 
 **Technical Failures**
+
 - **Network Issues**: "I'm having trouble connecting. Here's what I can help with offline"
 - **Processing Errors**: "Something went wrong. Let me try a different approach"
 - **Timeout Recovery**: "That took longer than expected. Would you like to try again?"
@@ -213,12 +236,14 @@ Medical Information Format:
 #### Medical Information Errors
 
 **Incorrect Health Data**
+
 - **Correction Interface**: Easy way to fix misunderstood health information
 - **Verification**: "Let me confirm: you said your blood pressure was 120/80?"
 - **Impact Assessment**: Explain how corrections affect recommendations
 - **Learning**: Update AI model based on user corrections
 
 **Inappropriate Recommendations**
+
 - **Override Options**: "This doesn't seem right for me" feedback mechanism
 - **Professional Escalation**: "Let's get your doctor's input on this"
 - **Explanation**: Clear reasoning for why recommendation was made
@@ -229,12 +254,14 @@ Medical Information Format:
 #### Provider Communication
 
 **Message Preparation**
+
 - **Symptom Summaries**: AI-generated reports for healthcare providers
 - **Question Preparation**: Suggested questions for appointments
 - **Data Compilation**: Organized health metrics and trends
 - **Priority Flagging**: Highlight urgent concerns for provider attention
 
 **Care Coordination**
+
 - **Family Updates**: Share appropriate health information with caregivers
 - **Medication Coordination**: Sync with pharmacy and provider systems
 - **Appointment Scheduling**: Integration with healthcare provider calendars
@@ -243,12 +270,14 @@ Medical Information Format:
 #### Emergency Situations
 
 **Crisis Recognition**
+
 - **Symptom Assessment**: Recognize potential emergency situations
 - **Escalation Protocols**: Immediate connection to emergency services
 - **Medical Information**: Provide critical health data to first responders
 - **Contact Notification**: Alert emergency contacts and healthcare providers
 
 **Emergency Interface**
+
 - **Simplified UI**: Large buttons, high contrast, minimal cognitive load
 - **Voice Priority**: Hands-free operation for emergency situations
 - **Medical ID**: Instant access to critical medical information

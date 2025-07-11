@@ -42,14 +42,12 @@ A client-centric approach using Flutter's native AI capabilities and on-device p
 #### Technical Implementation
 
 1. **Chat Implementation**:
-
    - TensorFlow Lite for on-device ML processing
    - Local knowledge base for common health questions
    - Custom prompt processing pipeline
    - Fallback mechanisms for complex queries
 
 2. **TTS Implementation**:
-
    - `flutter_tts` package for platform TTS capabilities
    - Voice selection interface for user preferences
    - Audio queue management for spoken responses
@@ -96,14 +94,12 @@ A managed solution using Google's Firebase AI offerings, including Gemini models
 #### Technical Implementation
 
 1. **Chat Implementation**:
-
    - Firebase Gemini API for natural language processing
    - Firebase SDK integration in Flutter
    - Firestore for conversation storage and synchronization
    - Built-in analytics and monitoring
 
 2. **TTS Implementation**:
-
    - Firebase Text-to-Speech API integration
    - Multiple voice options with SSML support
    - Streaming audio for immediate playback
@@ -150,14 +146,12 @@ A custom solution directly integrating with OpenAI's APIs for maximum flexibilit
 #### Technical Implementation
 
 1. **Chat Implementation**:
-
    - Direct OpenAI API integration (GPT-4/3.5)
    - Custom prompt engineering for healthcare context
    - Sophisticated context management
    - Fine-tuning capabilities for health domain
 
 2. **TTS Implementation**:
-
    - OpenAI TTS API integration
    - High-quality natural voices
    - Custom audio streaming implementation
@@ -223,7 +217,6 @@ _Note: Costs are rough estimates and will vary based on actual usage patterns an
 For CareCircle's specific requirements and Southeast Asian market focus, a hybrid approach combining Firebase AI Services with Flutter-based local processing is recommended:
 
 1. **Primary Solution**: Firebase AI Services (Gemini)
-
    - Best balance of implementation complexity, quality, and cost
    - Seamless integration with existing Firebase services
    - Strong multilingual support for Vietnamese and English
@@ -237,21 +230,18 @@ For CareCircle's specific requirements and Southeast Asian market focus, a hybri
 ### Implementation Phases
 
 1. **Foundation Phase (Weeks 1-4)**
-
    - Set up Firebase AI infrastructure
    - Implement basic chat UI components
    - Create conversation storage system
    - Set up TTS playback system
 
 2. **Core Implementation Phase (Weeks 5-8)**
-
    - Integrate Firebase Gemini API
    - Implement TTS integration
    - Create conversation context management
    - Develop PHI protection layer
 
 3. **Advanced Features Phase (Weeks 9-12)**
-
    - Add offline fallback capabilities
    - Implement advanced personalization
    - Create voice input functionality

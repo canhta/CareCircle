@@ -98,23 +98,19 @@ sequenceDiagram
 ### 1. Regular User Registration Flow
 
 1. **Mobile Client Registration Request**
-
    - User enters email/password or initiates social login
    - Mobile client calls Firebase Authentication SDK
 
 2. **Firebase Authentication**
-
    - Creates user account in Firebase Auth
    - Generates authentication tokens
    - Returns tokens to mobile client
 
 3. **Token Processing in Mobile Client**
-
    - Client securely stores authentication tokens
    - Retrieves Firebase ID token for backend communication
 
 4. **Backend Validation**
-
    - Mobile sends Firebase ID token to CareCircle backend
    - Backend uses Firebase Admin SDK to verify token
    - Backend creates or updates user profile in PostgreSQL
@@ -127,18 +123,15 @@ sequenceDiagram
 ### 2. Guest User Flow
 
 1. **Guest Login Request**
-
    - User selects "Continue as Guest" option
    - App generates device identifier for tracking
 
 2. **Anonymous Firebase Authentication**
-
    - Mobile client calls Firebase Auth SDK for anonymous authentication
    - Firebase creates anonymous user account
    - Firebase returns anonymous user tokens
 
 3. **Backend Processing**
-
    - Mobile sends anonymous ID token to backend
    - Backend validates token and creates temporary guest profile
    - Backend assigns limited permissions to guest account
@@ -152,12 +145,10 @@ sequenceDiagram
 ### 3. Account Conversion Flow
 
 1. **Guest-to-Registered Conversion**
-
    - Guest user initiates registration process
    - User enters email/password or chooses social login
 
 2. **Firebase Account Linking**
-
    - Firebase links anonymous account to new credentials
    - Preserves the same Firebase UID during conversion
 
@@ -170,26 +161,22 @@ sequenceDiagram
 ### 4. Authenticated Request Flow
 
 1. **Preparing API Request**
-
    - Mobile client prepares API request to backend
    - Client retrieves current Firebase ID token
 
 2. **Sending Authenticated Request**
-
    - Client adds Firebase ID token to request header:
      ```
      Authorization: Bearer <firebase_id_token>
      ```
 
 3. **Backend Authentication Processing**
-
    - NestJS auth guard intercepts incoming request
    - Guard extracts token from Authorization header
    - Firebase Admin SDK verifies token integrity and expiration
    - User's Firebase UID extracted from verified token
 
 4. **Authorization**
-
    - Backend retrieves user profile and permissions from database
    - Backend validates user has appropriate permissions for requested operation
    - Request is either processed or rejected based on permissions
@@ -201,12 +188,10 @@ sequenceDiagram
 ### 5. Token Refresh Flow
 
 1. **Token Expiration Detection**
-
    - Mobile client detects expired Firebase token (default expiration: 1 hour)
    - Client initiates token refresh before making API calls
 
 2. **Token Refresh**
-
    - Firebase SDK automatically refreshes tokens when needed
    - New ID token is retrieved for API communications
 
@@ -420,18 +405,15 @@ export class UserController {
 1. **Token Verification**: All Firebase tokens must be verified by the backend using Firebase Admin SDK.
 
 2. **Role-Based Access Control**:
-
    - Custom Firebase claims are used to assign the appropriate role
    - Backend validates permissions for each API request
 
 3. **Token Expiration**:
-
    - Firebase ID tokens expire after 1 hour by default
    - Refresh tokens are used to obtain new ID tokens
    - Backend rejects expired tokens
 
 4. **Device Tracking**:
-
    - Device identifiers prevent creation of multiple guest accounts
    - Enhances security and prevents abuse of guest mode
 

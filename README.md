@@ -16,24 +16,28 @@ CareCircle/
 ## 🚀 Quick Start
 
 ### Prerequisites
+
 - Node.js 18+ and npm
 - Flutter 3.8+ and Dart
 - Docker and Docker Compose
 - Git
 
 ### 1. Clone and Setup
+
 ```bash
 git clone <repository-url>
 cd CareCircle
 ```
 
 ### 2. Start Infrastructure
+
 ```bash
 # Start all development services (PostgreSQL, Redis, Milvus)
 docker-compose -f docker-compose.dev.yml up -d
 ```
 
 ### 3. Backend Setup
+
 ```bash
 cd backend
 cp .env.example .env
@@ -44,6 +48,7 @@ npm run start:dev
 ```
 
 ### 4. Mobile Setup
+
 ```bash
 cd mobile
 flutter pub get
@@ -53,6 +58,7 @@ flutter run --flavor development
 ## 🏥 Healthcare Features
 
 ### Core Capabilities
+
 - **AI Health Assistant** - Conversational interface with voice support
 - **Family Care Coordination** - Multi-user care group management
 - **Medication Management** - OCR prescription scanning and adherence tracking
@@ -60,6 +66,7 @@ flutter run --flavor development
 - **Smart Notifications** - AI-powered proactive health alerts
 
 ### Technology Stack
+
 - **Backend**: NestJS, TimescaleDB, Redis, Milvus Vector DB
 - **Mobile**: Flutter, Riverpod, Firebase Auth
 - **AI**: OpenAI integration, speech-to-text, text-to-speech
@@ -70,11 +77,13 @@ flutter run --flavor development
 See [TODO.md](./TODO.md) for overall project progress and [docs/README.md](./docs/README.md) for detailed documentation.
 
 ### Current Phase: AI Assistant Implementation (85% Complete) ⚠️
+
 - [x] **Phase 1**: Foundation Setup - Complete
 - [x] **Phase 2**: Authentication & Security - Complete
 - [x] **Phase 3**: AI Assistant Implementation - 85% Complete (Authentication blocker)
 
 ### What's Working:
+
 - ✅ **Complete Authentication System**: Firebase integration, JWT tokens, social login
 - ✅ **Health Data Management**: Comprehensive APIs with analytics and device integration
 - ✅ **AI Assistant Infrastructure**: OpenAI integration with health context and personalized responses
@@ -82,9 +91,11 @@ See [TODO.md](./TODO.md) for overall project progress and [docs/README.md](./doc
 - ✅ **Production-Ready Backend**: All core APIs, database schema, and security measures
 
 ### Current Blocker:
+
 - 🚧 **JwtService Dependency Injection**: Technical issue preventing AI assistant endpoints from starting (30-minute fix)
 
 ### Next Phase: Advanced Features
+
 - [ ] Medication management system
 - [ ] Care group coordination
 - [ ] Emergency response features
@@ -93,6 +104,7 @@ See [TODO.md](./TODO.md) for overall project progress and [docs/README.md](./doc
 ## 🔧 Development Commands
 
 ### Backend
+
 ```bash
 npm run start:dev      # Start development server
 npm run docker:dev     # Start all Docker services
@@ -101,6 +113,7 @@ npm run build          # Build for production
 ```
 
 ### Mobile
+
 ```bash
 flutter run --flavor development    # Run development build
 flutter analyze                     # Check code quality
@@ -148,6 +161,7 @@ CareCircle follows Domain-Driven Design (DDD) with 6 bounded contexts:
 ## 🆘 Support
 
 For setup issues or questions:
+
 1. Check the [Development Environment Setup](./docs/setup/development-environment.md)
 2. Review the [Troubleshooting Guide](./docs/setup/development-environment.md#troubleshooting-common-issues)
 3. Create an issue with detailed error information

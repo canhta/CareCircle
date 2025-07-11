@@ -57,7 +57,7 @@ This document provides detailed implementation guidelines for Firebase Authentic
            await firebase
              .auth()
              .signInWithCustomToken(
-               await getCustomTokenForAnonymous(existingAnonymousUid)
+               await getCustomTokenForAnonymous(existingAnonymousUid),
              );
            const currentUser = firebase.auth().currentUser;
            if (currentUser) {
@@ -70,7 +70,7 @@ This document provides detailed implementation guidelines for Firebase Authentic
          } catch (error) {
            console.warn(
              "Failed to restore anonymous session, creating new one:",
-             error
+             error,
            );
          }
        }
@@ -128,7 +128,7 @@ This document provides detailed implementation guidelines for Firebase Authentic
 
    ```typescript
    async function storeGuestCredential(
-     credential: UserCredential
+     credential: UserCredential,
    ): Promise<void> {
      if (!credential.user) return;
 
@@ -171,7 +171,7 @@ This document provides detailed implementation guidelines for Firebase Authentic
    ```typescript
    async function authenticateWithProvider(
      provider: AuthProvider,
-     anonymousUser: User
+     anonymousUser: User,
    ): Promise<AuthCredential> {
      try {
        let credential: AuthCredential;
@@ -186,7 +186,7 @@ This document provides detailed implementation guidelines for Firebase Authentic
            const googleAuth = await GoogleSignin.signIn();
            credential = GoogleAuthProvider.credential(
              googleAuth.idToken,
-             googleAuth.accessToken
+             googleAuth.accessToken,
            );
            break;
          }
@@ -226,7 +226,7 @@ This document provides detailed implementation guidelines for Firebase Authentic
    ```typescript
    async function linkAnonymousWithCredential(
      anonymousUser: User,
-     credential: AuthCredential
+     credential: AuthCredential,
    ): Promise<UserCredential> {
      try {
        // First, check if the credential is already in use
@@ -236,7 +236,7 @@ This document provides detailed implementation guidelines for Firebase Authentic
          if (error.code === "auth/account-exists-with-different-credential") {
            throw new ConversionError(
              "ACCOUNT_EXISTS",
-             "An account already exists with this credential"
+             "An account already exists with this credential",
            );
          }
        }
@@ -255,17 +255,17 @@ This document provides detailed implementation guidelines for Firebase Authentic
          case "auth/credential-already-in-use":
            throw new ConversionError(
              "CREDENTIAL_IN_USE",
-             "This account is already registered"
+             "This account is already registered",
            );
          case "auth/email-already-in-use":
            throw new ConversionError(
              "EMAIL_IN_USE",
-             "This email is already registered"
+             "This email is already registered",
            );
          case "auth/invalid-credential":
            throw new ConversionError(
              "INVALID_CREDENTIAL",
-             "The authentication credential is invalid"
+             "The authentication credential is invalid",
            );
          default:
            throw new ConversionError("UNKNOWN", error.message);
@@ -284,7 +284,7 @@ This document provides detailed implementation guidelines for Firebase Authentic
        displayName?: string;
        phoneNumber?: string;
        photoURL?: string;
-     }
+     },
    ): Promise<void> {
      try {
        // Start a transaction to ensure data consistency
@@ -348,7 +348,7 @@ This document provides detailed implementation guidelines for Firebase Authentic
    ```typescript
    async function registerWithEmailAndPassword(
      email: string,
-     password: string
+     password: string,
    ): Promise<UserCredential> {
      try {
        // Create user with email and password
@@ -370,17 +370,17 @@ This document provides detailed implementation guidelines for Firebase Authentic
          case "auth/email-already-in-use":
            throw new RegistrationError(
              "EMAIL_IN_USE",
-             "This email is already registered"
+             "This email is already registered",
            );
          case "auth/invalid-email":
            throw new RegistrationError(
              "INVALID_EMAIL",
-             "The email address is invalid"
+             "The email address is invalid",
            );
          case "auth/weak-password":
            throw new RegistrationError(
              "WEAK_PASSWORD",
-             "The password is too weak"
+             "The password is too weak",
            );
          default:
            throw new RegistrationError("UNKNOWN", error.message);
@@ -393,7 +393,7 @@ This document provides detailed implementation guidelines for Firebase Authentic
 
    ```typescript
    async function registerWithSocialProvider(
-     provider: AuthProvider
+     provider: AuthProvider,
    ): Promise<UserCredential> {
      try {
        let credential: UserCredential;
@@ -404,7 +404,7 @@ This document provides detailed implementation guidelines for Firebase Authentic
            const googleAuth = await GoogleSignin.signIn();
            const googleCredential = GoogleAuthProvider.credential(
              googleAuth.idToken,
-             googleAuth.accessToken
+             googleAuth.accessToken,
            );
            credential = await firebase
              .auth()
@@ -563,7 +563,7 @@ export const setGuestClaim = functions.https.onCall(async (data, context) => {
   if (!context.auth) {
     throw new functions.https.HttpsError(
       "unauthenticated",
-      "Only authenticated users can set claims."
+      "Only authenticated users can set claims.",
     );
   }
 
@@ -573,7 +573,7 @@ export const setGuestClaim = functions.https.onCall(async (data, context) => {
   if (uid !== context.auth.uid && !context.auth.token.admin) {
     throw new functions.https.HttpsError(
       "permission-denied",
-      "You can only set claims for your own account."
+      "You can only set claims for your own account.",
     );
   }
 
@@ -600,7 +600,7 @@ export const convertGuestToRegistered = functions.https.onCall(
     if (!context.auth) {
       throw new functions.https.HttpsError(
         "unauthenticated",
-        "Only authenticated users can convert accounts."
+        "Only authenticated users can convert accounts.",
       );
     }
 
@@ -610,7 +610,7 @@ export const convertGuestToRegistered = functions.https.onCall(
     if (uid !== context.auth.uid && !context.auth.token.admin) {
       throw new functions.https.HttpsError(
         "permission-denied",
-        "You can only convert your own account."
+        "You can only convert your own account.",
       );
     }
 
@@ -631,7 +631,7 @@ export const convertGuestToRegistered = functions.https.onCall(
       console.error("Error converting guest to registered user:", error);
       throw new functions.https.HttpsError("internal", error.message);
     }
-  }
+  },
 );
 ```
 
@@ -646,18 +646,18 @@ export interface AuthProvider {
   signInAnonymously(): Promise<UserCredential>;
   signInWithEmailAndPassword(
     email: string,
-    password: string
+    password: string,
   ): Promise<UserCredential>;
   createUserWithEmailAndPassword(
     email: string,
-    password: string
+    password: string,
   ): Promise<UserCredential>;
   signInWithGoogle(): Promise<UserCredential>;
   signInWithApple(): Promise<UserCredential>;
   verifyPhoneNumber(phoneNumber: string): Promise<string>; // Returns verification ID
   confirmPhoneVerification(
     verificationId: string,
-    code: string
+    code: string,
   ): Promise<UserCredential>;
 
   // Account management
@@ -903,25 +903,21 @@ class FirebaseAuthProvider implements AuthProvider {
 ## Best Practices
 
 1. **Device Identification**
-
    - Use secure device identifier storage to recognize returning anonymous users
    - Implement device fingerprinting as a fallback for reinstalls
    - Ensure device identifiers comply with privacy regulations
 
 2. **Guest Account Management**
-
    - Limit the number of guest accounts per device
    - Implement server-side expiry for inactive guest accounts
    - Apply appropriate resource usage limits for guest accounts
 
 3. **Data Migration**
-
    - Use transactions when converting guest data to ensure consistency
    - Implement recovery mechanisms for failed conversions
    - Provide clear feedback during the conversion process
 
 4. **Security**
-
    - Use Firebase Authentication custom claims to manage user types
    - Implement proper Firestore security rules for guest vs registered users
    - Never expose sensitive operations to guest accounts
@@ -934,19 +930,16 @@ class FirebaseAuthProvider implements AuthProvider {
 ## Testing Strategy
 
 1. **Unit Tests**
-
    - Test individual authentication methods in isolation
    - Mock Firebase responses for different scenarios
    - Verify error handling behaves as expected
 
 2. **Integration Tests**
-
    - Test complete authentication flows end-to-end
    - Verify data persistence across authentication state changes
    - Test guest to registered user conversion with real Firebase services
 
 3. **Edge Cases**
-
    - Test account conversion with existing email
    - Test device change scenarios for guest users
    - Test concurrent authentication operations

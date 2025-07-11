@@ -5,11 +5,13 @@ This directory contains comprehensive setup and configuration guides for the Car
 ## Complete Setup Guide
 
 ### [Development Environment Setup](./development-environment.md)
-*Single comprehensive guide for complete CareCircle development environment setup*
+
+_Single comprehensive guide for complete CareCircle development environment setup_
 
 **Includes:**
 
 **Backend Setup (NestJS):**
+
 - Node.js and package manager installation
 - Core library installations (Prisma, Firebase Admin, Redis, Bull, Milvus)
 - Docker Compose configuration for local services
@@ -17,6 +19,7 @@ This directory contains comprehensive setup and configuration guides for the Car
 - Development scripts and workflow
 
 **Mobile Setup (Flutter):**
+
 - Flutter SDK installation and version management
 - Platform-specific setup (Android SDK, iOS tools)
 - Required dependencies and packages
@@ -26,6 +29,7 @@ This directory contains comprehensive setup and configuration guides for the Car
 - Accessibility Configuration: WCAG 2.1 AA compliance setup for healthcare applications
 
 **Firebase Authentication Setup:**
+
 - Firebase project creation and configuration
 - Authentication provider setup (Email/Password, Anonymous, Google, Phone)
 - Service account creation and backend configuration
@@ -33,12 +37,14 @@ This directory contains comprehensive setup and configuration guides for the Car
 - Connection testing and troubleshooting
 
 **Mobile-Backend Connectivity:**
+
 - Automatic setup scripts for local development
 - Manual configuration for custom setups
 - Network troubleshooting and common issues
 - IP address detection and configuration
 
 **Key Features:**
+
 - Step-by-step installation instructions
 - Complete Docker Compose setup for all services
 - Environment file templates with all required variables
@@ -62,18 +68,21 @@ For new developers joining the project:
 The development environment includes:
 
 ### Backend Services
+
 - **PostgreSQL with TimescaleDB**: Primary database for healthcare data
 - **Redis**: Caching and session storage
 - **Milvus**: Vector database for AI/ML features
 - **NestJS Backend**: Main API server
 
 ### Development Tools
+
 - **Docker Compose**: Container orchestration for local development
 - **Prisma**: Database ORM and migration tool
 - **Firebase Admin**: Authentication and cloud services
 - **Bull**: Queue management for background tasks
 
 ### Mobile Development
+
 - **Flutter SDK**: Cross-platform mobile development
 - **Android Studio**: Android development tools
 - **Xcode**: iOS development tools (macOS only)

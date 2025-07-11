@@ -184,19 +184,16 @@ The Care Group Creation feature allows users to establish dedicated care coordin
 ### Alternative Flows
 
 1. **Self as Care Recipient:**
-
    - User selects themselves as care recipient
    - System skips family member information steps
    - User proceeds directly to permissions setup
 
 2. **Invite from Contacts:**
-
    - User chooses to select caregivers from contacts
    - App requests contact permission if not already granted
    - User selects contacts to invite as caregivers
 
 3. **Create Multiple Care Recipients:**
-
    - User creates a care group for first family member
    - After completion, system asks if user wants to create another care group
    - User can create additional care groups with streamlined process
@@ -270,14 +267,12 @@ DELETE /api/care-groups/:id/invitations/:invitationId
 The permission system is based on a role-based access control (RBAC) model with additional fine-grained permissions:
 
 1. **Roles:**
-
    - **Primary Caregiver:** Full access to all health data and administrative control
    - **Secondary Caregiver:** Access to specified health data and can receive alerts
    - **Observer:** Limited view access to specified health data
    - **Recipient:** The person receiving care, with control over data sharing
 
 2. **Permission Types:**
-
    - **View:** Can see the specific health data
    - **Edit:** Can update the specific health data
    - **Alert:** Can receive notifications about the specific health data
@@ -291,7 +286,6 @@ The permission system is based on a role-based access control (RBAC) model with 
 ### Invitation System
 
 1. **Invitation Methods:**
-
    - Email invitation with secure link
    - SMS invitation with one-time code
    - In-app invitation for existing users
@@ -326,14 +320,12 @@ The permission system is based on a role-based access control (RBAC) model with 
 ## Privacy and Security Considerations
 
 1. **Consent Management:**
-
    - Clear visualization of what data is being shared
    - Explicit consent required for sharing each data type
    - Ability to revoke consent at any time
    - Audit trail of consent changes
 
 2. **Data Protection:**
-
    - End-to-end encryption for shared health data
    - Data minimization principles applied
    - Strict access controls based on permissions
@@ -348,14 +340,12 @@ The permission system is based on a role-based access control (RBAC) model with 
 ## Testing Requirements
 
 1. **Functional Testing:**
-
    - Verify creation of care groups with various configurations
    - Test invitation flow for all invitation methods
    - Validate permission enforcement across different roles
    - Test notification delivery based on settings
 
 2. **Security Testing:**
-
    - Verify proper consent management
    - Test permission boundaries and access controls
    - Validate encryption of sensitive data
@@ -381,7 +371,6 @@ The permission system is based on a role-based access control (RBAC) model with 
 ## Dependencies
 
 1. **Systems:**
-
    - User Management Context for user profiles and authentication
    - Health Data Context for health information access
    - Notification Context for alerts and reminders

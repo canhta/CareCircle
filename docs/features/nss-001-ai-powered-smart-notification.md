@@ -853,19 +853,16 @@ For positive reinforcement: "Great job! The whole family completed their health 
 ## Key Performance Indicators
 
 1. **Engagement Metrics**
-
    - Notification open rate
    - Action completion rate (from notification)
    - Time to response
 
 2. **Retention Metrics**
-
    - Return rate after notification
    - 7/30-day retention impact
    - Churn reduction percentage
 
 3. **Conversion Metrics**
-
    - Guest-to-registered conversion rate
    - Feature adoption via notifications
    - Care group invitation acceptance rate
@@ -887,13 +884,11 @@ For positive reinforcement: "Great job! The whole family completed their health 
 ## Ethical Considerations
 
 1. **Privacy Protection**
-
    - Ensure all health data in notifications is properly secured
    - Provide clear opt-out mechanisms
    - Comply with healthcare privacy regulations
 
 2. **Notification Boundaries**
-
    - Respect quiet hours and user preferences
    - Avoid creating unhealthy app dependence
    - Ensure notifications serve user's health goals, not just app metrics

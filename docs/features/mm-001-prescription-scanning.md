@@ -111,19 +111,16 @@ The Prescription Scanning feature enables users to quickly add medications to th
 ### Alternative Flows
 
 1. **Multiple Medications on One Prescription:**
-
    - System identifies multiple medications on a single prescription
    - Each medication is presented separately for verification
    - User can confirm or reject each medication individually
 
 2. **Low Quality Image:**
-
    - System detects poor image quality
    - User is prompted to retake the photo with specific guidance
    - System provides tips for better image capture
 
 3. **Unrecognized Medication:**
-
    - System cannot identify the medication with high confidence
    - User is presented with potential matches to choose from
    - If no matches, user can manually enter medication information
@@ -138,20 +135,17 @@ The Prescription Scanning feature enables users to quickly add medications to th
 ### OCR Processing Pipeline
 
 1. **Image Preprocessing:**
-
    - Apply perspective correction
    - Enhance contrast and sharpness
    - Remove noise and normalize lighting
    - Apply text region detection
 
 2. **OCR Engine:**
-
    - Primary: Google Cloud Vision API
    - Backup: On-device ML Kit OCR
    - Specialized medical text recognition model
 
 3. **Text Analysis:**
-
    - Named entity recognition for medication identification
    - Pattern matching for dosage and instruction extraction
    - Contextual analysis for prescription metadata
@@ -184,7 +178,6 @@ The Prescription Scanning feature enables users to quickly add medications to th
 ### Privacy and Security
 
 1. **Image Handling:**
-
    - Prescription images processed on-device when possible
    - Images sent to cloud are encrypted in transit (TLS 1.3)
    - Images purged from servers after processing
@@ -198,13 +191,11 @@ The Prescription Scanning feature enables users to quickly add medications to th
 ### Performance Requirements
 
 1. **Processing Time:**
-
    - Initial feedback < 2 seconds
    - Complete processing < 5 seconds
    - Background processing for multiple medications
 
 2. **Accuracy Targets:**
-
    - Medication name recognition: >90%
    - Dosage recognition: >85%
    - Instruction recognition: >80%
@@ -218,14 +209,12 @@ The Prescription Scanning feature enables users to quickly add medications to th
 ## Integration Requirements
 
 1. **Medication Database:**
-
    - Integration with national drug database
    - Regular updates for new medications
    - Support for both brand names and generic names
    - Localized Vietnamese and English drug information
 
 2. **Health System Integration:**
-
    - Optional integration with hospital electronic health records
    - Support for standardized prescription formats
    - QR code scanning for digital prescriptions
@@ -238,14 +227,12 @@ The Prescription Scanning feature enables users to quickly add medications to th
 ## Testing Requirements
 
 1. **OCR Accuracy Testing:**
-
    - Test with various prescription formats
    - Test with different handwriting styles
    - Test in various lighting conditions
    - Test with partially damaged or folded prescriptions
 
 2. **User Interaction Testing:**
-
    - Usability testing with elderly users
    - Verify correction workflow is intuitive
    - Test camera guidance effectiveness
@@ -269,7 +256,6 @@ The Prescription Scanning feature enables users to quickly add medications to th
 ## Dependencies
 
 1. **Systems:**
-
    - Medication Context for medication database
    - User Context for user profile integration
    - Notification Context for medication reminders

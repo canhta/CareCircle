@@ -269,12 +269,12 @@ interface CareGroupService {
       | "updatedAt"
       | "members"
       | "careRecipients"
-    >
+    >,
   ): Promise<CareGroup>;
   getCareGroup(groupId: string): Promise<CareGroup>;
   updateCareGroup(
     groupId: string,
-    updates: Partial<CareGroup>
+    updates: Partial<CareGroup>,
   ): Promise<CareGroup>;
   deleteCareGroup(groupId: string): Promise<void>;
   getUserCareGroups(userId: string): Promise<CareGroup[]>;
@@ -284,41 +284,41 @@ interface CareGroupService {
     groupId: string,
     userId: string,
     role: MemberRole,
-    addedById: string
+    addedById: string,
   ): Promise<CareGroupMember>;
   updateMemberRole(
     groupId: string,
     memberId: string,
     newRole: MemberRole,
-    updatedById: string
+    updatedById: string,
   ): Promise<CareGroupMember>;
   updateMemberPermissions(
     groupId: string,
     memberId: string,
     permissions: Permission[],
-    updatedById: string
+    updatedById: string,
   ): Promise<CareGroupMember>;
   removeMember(
     groupId: string,
     memberId: string,
-    removedById: string
+    removedById: string,
   ): Promise<void>;
 
   // Invitation management
   generateInviteCode(
     groupId: string,
-    expirationHours?: number
+    expirationHours?: number,
   ): Promise<string>;
   invalidateInviteCode(groupId: string): Promise<void>;
   joinWithInviteCode(
     userId: string,
-    inviteCode: string
+    inviteCode: string,
   ): Promise<CareGroupMember>;
   inviteByEmail(
     groupId: string,
     email: string,
     role: MemberRole,
-    inviterId: string
+    inviterId: string,
   ): Promise<void>;
 }
 ```
@@ -330,12 +330,15 @@ interface CareRecipientService {
   // Recipient management
   addCareRecipient(
     groupId: string,
-    recipient: Omit<CareRecipient, "id" | "groupId" | "createdAt" | "updatedAt">
+    recipient: Omit<
+      CareRecipient,
+      "id" | "groupId" | "createdAt" | "updatedAt"
+    >,
   ): Promise<CareRecipient>;
   getCareRecipient(recipientId: string): Promise<CareRecipient>;
   updateCareRecipient(
     recipientId: string,
-    updates: Partial<CareRecipient>
+    updates: Partial<CareRecipient>,
   ): Promise<CareRecipient>;
   removeCareRecipient(recipientId: string): Promise<void>;
   getGroupRecipients(groupId: string): Promise<CareRecipient[]>;
@@ -343,29 +346,29 @@ interface CareRecipientService {
   // Access management
   updateHealthDataSharingLevel(
     recipientId: string,
-    sharingLevel: SharingLevel
+    sharingLevel: SharingLevel,
   ): Promise<CareRecipient>;
   updateMedicationSharingLevel(
     recipientId: string,
-    sharingLevel: SharingLevel
+    sharingLevel: SharingLevel,
   ): Promise<CareRecipient>;
   assignPrimaryCaregiver(
     recipientId: string,
-    caregiverId: string
+    caregiverId: string,
   ): Promise<CareRecipient>;
   updateEmergencyContacts(
     recipientId: string,
-    contactIds: string[]
+    contactIds: string[],
   ): Promise<CareRecipient>;
 
   // Data access
   getSharedHealthData(
     recipientId: string,
-    requesterId: string
+    requesterId: string,
   ): Promise<SharedHealthData>;
   getSharedMedications(
     recipientId: string,
-    requesterId: string
+    requesterId: string,
   ): Promise<SharedMedication[]>;
 }
 ```
@@ -376,7 +379,7 @@ interface CareRecipientService {
 interface TaskService {
   // Task management
   createTask(
-    task: Omit<CareTask, "id" | "createdAt" | "updatedAt">
+    task: Omit<CareTask, "id" | "createdAt" | "updatedAt">,
   ): Promise<CareTask>;
   getTask(taskId: string): Promise<CareTask>;
   updateTask(taskId: string, updates: Partial<CareTask>): Promise<CareTask>;
@@ -386,44 +389,44 @@ interface TaskService {
   getGroupTasks(groupId: string, filters?: TaskFilters): Promise<CareTask[]>;
   getUserAssignedTasks(
     userId: string,
-    status?: TaskStatus
+    status?: TaskStatus,
   ): Promise<CareTask[]>;
   getRecipientTasks(
     recipientId: string,
-    status?: TaskStatus
+    status?: TaskStatus,
   ): Promise<CareTask[]>;
 
   // Task actions
   assignTask(
     taskId: string,
     assigneeId: string,
-    assignerId: string
+    assignerId: string,
   ): Promise<CareTask>;
   completeTask(
     taskId: string,
     completedById: string,
-    notes?: string
+    notes?: string,
   ): Promise<CareTask>;
   cancelTask(
     taskId: string,
     cancelledById: string,
-    reason?: string
+    reason?: string,
   ): Promise<CareTask>;
   rescheduleTask(
     taskId: string,
     newDueDate: Date,
-    rescheduledById: string
+    rescheduledById: string,
   ): Promise<CareTask>;
 
   // Recurrence handling
   createRecurringTask(
     task: Omit<CareTask, "id" | "createdAt" | "updatedAt">,
-    recurrence: TaskRecurrence
+    recurrence: TaskRecurrence,
   ): Promise<CareTask>;
   generateRecurringInstances(
     parentTaskId: string,
     startDate: Date,
-    endDate: Date
+    endDate: Date,
   ): Promise<CareTask[]>;
 }
 ```
@@ -434,33 +437,33 @@ interface TaskService {
 interface CareActivityService {
   // Activity logging
   logActivity(
-    activity: Omit<CareActivity, "id" | "timestamp">
+    activity: Omit<CareActivity, "id" | "timestamp">,
   ): Promise<CareActivity>;
   getGroupActivities(
     groupId: string,
     startDate: Date,
-    endDate: Date
+    endDate: Date,
   ): Promise<CareActivity[]>;
   getRecipientActivities(
     recipientId: string,
     startDate: Date,
-    endDate: Date
+    endDate: Date,
   ): Promise<CareActivity[]>;
   getUserActivities(
     userId: string,
     startDate: Date,
-    endDate: Date
+    endDate: Date,
   ): Promise<CareActivity[]>;
 
   // Activity analysis
   getActivitySummary(
     groupId: string,
-    period: "day" | "week" | "month"
+    period: "day" | "week" | "month",
   ): Promise<ActivitySummary>;
   getCaregiversPerformance(
     groupId: string,
     startDate: Date,
-    endDate: Date
+    endDate: Date,
   ): Promise<CaregiverPerformance[]>;
   detectActivityPatterns(recipientId: string): Promise<ActivityPattern[]>;
 
@@ -468,11 +471,11 @@ interface CareActivityService {
   getGroupCalendar(
     groupId: string,
     startDate: Date,
-    endDate: Date
+    endDate: Date,
   ): Promise<CalendarEvent[]>;
   exportCalendarEvents(
     groupId: string,
-    format: "ical" | "google"
+    format: "ical" | "google",
   ): Promise<string>;
 }
 ```
@@ -488,11 +491,11 @@ interface CareInsightService {
 
   // Care recommendations
   generateCareRecommendations(
-    recipientId: string
+    recipientId: string,
   ): Promise<CareRecommendation[]>;
   getTaskRecommendations(recipientId: string): Promise<TaskRecommendation[]>;
   getWorkloadDistributionSuggestions(
-    groupId: string
+    groupId: string,
   ): Promise<WorkloadSuggestion[]>;
 
   // Group analytics
@@ -500,7 +503,7 @@ interface CareInsightService {
   identifyCareGaps(recipientId: string): Promise<CareGap[]>;
   predictCareNeeds(
     recipientId: string,
-    timeframe: "week" | "month"
+    timeframe: "week" | "month",
   ): Promise<CarePrediction[]>;
 }
 ```
@@ -519,28 +522,24 @@ interface CareInsightService {
 ### Backend Implementation Notes
 
 1. **Permission Management System**
-
    - Implement a role-based access control system with custom permissions
    - Create permission inheritance hierarchies for cascading access
    - Develop fine-grained sharing controls for health data
    - Build an audit system for permission changes
 
 2. **Task Management Engine**
-
    - Create a flexible task scheduling system with recurrence support
    - Implement assignment algorithms for task distribution
    - Develop escalation rules for missed or overdue tasks
    - Build dependencies between tasks for sequential workflows
 
 3. **Activity Tracking**
-
    - Implement a comprehensive activity logging system
    - Create real-time activity feed with filtering
    - Develop privacy controls for sensitive activities
    - Build analytics capabilities for activity patterns
 
 4. **Group Calendar Management**
-
    - Create a shared calendar system with task integration
    - Implement calendar synchronization with external calendars
    - Develop conflict detection for overlapping responsibilities
@@ -555,21 +554,18 @@ interface CareInsightService {
 ### Mobile Implementation Notes
 
 1. **Group Management UI**
-
    - Design intuitive group creation and management flows
    - Create member invitation and management screens
    - Implement role and permission management interfaces
    - Develop care recipient profiles with sharing controls
 
 2. **Task Coordination UI**
-
    - Create task lists with filtering and sorting
    - Implement task assignment interface with member selection
    - Develop recurring task creation with visual scheduling
    - Build task completion flow with optional notes and photos
 
 3. **Activity Feed**
-
    - Design a chronological activity feed with categorization
    - Implement real-time updates using Firebase
    - Create activity detail views with related information
@@ -624,27 +620,22 @@ interface CareInsightService {
 ### Libraries and Services
 
 - **Firebase Firestore**: Real-time database for group activities
-
   - Documentation: [Firebase Firestore](https://firebase.google.com/docs/firestore)
   - Features: Real-time updates, offline support, security rules
 
 - **NestJS CASL**: Authorization library for NestJS
-
   - Package: [@casl/ability](https://www.npmjs.com/package/@casl/ability)
   - Features: Fine-grained permissions, role-based access control
 
 - **Google Calendar API**: Calendar integration for task scheduling
-
   - Documentation: [Google Calendar API](https://developers.google.com/calendar)
   - Features: Event creation, calendar sharing, reminders
 
 - **flutter_calendar_view**: Calendar widgets for Flutter
-
   - Package: [flutter_calendar_view](https://pub.dev/packages/flutter_calendar_view)
   - Features: Day, week, month views, event handling
 
 - **Rrule.js**: Library for recurring date calculation
-
   - Package: [rrule](https://www.npmjs.com/package/rrule)
   - Features: iCalendar RFC-compliant recurrence rules
 
@@ -655,12 +646,10 @@ interface CareInsightService {
 ### Standards and Best Practices
 
 - **Role-Based Access Control (RBAC)**
-
   - Documentation: [RBAC Design Patterns](https://auth0.com/docs/authorization/rbac)
   - Features: Permission hierarchies, role inheritance
 
 - **iCalendar Standard (RFC 5545)**
-
   - Standard for calendar data exchange
   - Support for recurring events and reminders
 

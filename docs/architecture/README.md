@@ -33,9 +33,10 @@ The CareCircle platform follows DDD principles with clear bounded contexts:
 
 ### Technology Stack
 
-*For detailed technology stack information, see [System Overview](./system-overview.md#technology-stack)*
+_For detailed technology stack information, see [System Overview](./system-overview.md#technology-stack)_
 
 **Key Technologies:**
+
 - **Backend**: NestJS with TypeScript, PostgreSQL with TimescaleDB
 - **Mobile**: Flutter with Riverpod state management
 - **Authentication**: Firebase Authentication

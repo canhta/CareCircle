@@ -159,7 +159,7 @@ interface AuthenticationService {
       displayName: string;
       firstName?: string;
       lastName?: string;
-    }
+    },
   ): Promise<LoginResult>;
 
   // Social authentication
@@ -174,7 +174,7 @@ interface AuthenticationService {
       email?: string;
       phoneNumber?: string;
       displayName?: string;
-    }
+    },
   ): Promise<LoginResult>;
 
   // Session management is handled entirely by Firebase
@@ -189,14 +189,14 @@ interface UserProfileService {
   getProfile(userId: string): Promise<UserProfile>;
   updateProfile(
     userId: string,
-    profile: Partial<UserProfile>
+    profile: Partial<UserProfile>,
   ): Promise<UserProfile>;
   setProfilePicture(userId: string, imageFile: File): Promise<string>;
   deleteProfilePicture(userId: string): Promise<void>;
   getEmergencyContacts(userId: string): Promise<EmergencyContact[]>;
   updateEmergencyContact(
     userId: string,
-    contact: EmergencyContact
+    contact: EmergencyContact,
   ): Promise<EmergencyContact>;
 }
 ```
@@ -229,25 +229,21 @@ interface PermissionService {
 ### Backend Implementation Notes
 
 1. **Firebase Authentication Integration**
-
    - Utilize Firebase Admin SDK for server-side operations
    - Implement custom claims for role-based access control
    - Set up security rules for Firestore based on authentication state
 
 2. **Guest Mode Implementation**
-
    - Store device identifier securely to prevent multiple guest accounts
    - Implement data migration strategy for guest-to-registered user conversion
    - Apply appropriate data access restrictions for guest users
 
 3. **Multi-Factor Authentication**
-
    - Use Firebase's multi-factor authentication capabilities
    - Store backup authentication methods securely
    - Implement progressive security based on operation sensitivity
 
 4. **Session Management**
-
    - Implement token refresh mechanism
    - Store session metadata for activity tracking
    - Handle concurrent sessions across devices
@@ -260,18 +256,15 @@ interface PermissionService {
 ### Mobile Implementation Notes
 
 1. **Secure Storage**
-
    - Use platform-specific secure storage (Keychain for iOS, EncryptedSharedPreferences for Android)
    - Implement secure credential caching for offline authentication
 
 2. **Biometric Authentication**
-
    - Integrate with local authentication APIs
    - Implement fallback mechanisms for biometric failures
    - Store biometric verification status securely
 
 3. **Authentication UI**
-
    - Create consistent authentication flows across platforms
    - Implement error handling with user-friendly messages
    - Support both light and dark mode for authentication screens
@@ -318,17 +311,14 @@ interface PermissionService {
 ### Libraries and Services
 
 - **Firebase Authentication**: Authentication service for user identity management
-
   - Documentation: [Firebase Auth](https://firebase.google.com/docs/auth)
   - Features: Email/password auth, OAuth providers, phone auth, anonymous auth
 
 - **@nestjs/passport**: NestJS authentication library
-
   - Documentation: [NestJS Passport](https://docs.nestjs.com/security/authentication)
   - Features: Authentication strategies, guards, custom decorators
 
 - **flutter_secure_storage**: Secure storage for Flutter applications
-
   - Package: [flutter_secure_storage](https://pub.dev/packages/flutter_secure_storage)
   - Features: Encrypted storage, biometric protection, key rotation
 
@@ -339,7 +329,6 @@ interface PermissionService {
 ### Standards and Best Practices
 
 - **OWASP Authentication Best Practices**
-
   - Multi-factor authentication
   - Rate limiting and account lockout
   - Secure password hashing

@@ -6,14 +6,14 @@ This directory contains technical implementation documentation for each Domain-D
 
 The CareCircle system is organized into 6 bounded contexts, each with clear responsibilities and boundaries:
 
-| Order | Context | Code | Description | Documentation |
-|-------|---------|------|-------------|---------------|
-| 1 | Identity & Access | IAC | Authentication, authorization, user management | [01-identity-access/](./01-identity-access/) |
-| 2 | Care Group | CGC | Family care coordination, group management | [02-care-group/](./02-care-group/) |
-| 3 | Health Data | HDC | Health metrics, device integration, analytics | [03-health-data/](./03-health-data/) |
-| 4 | Medication | MDC | Prescription management, medication scheduling | [04-medication/](./04-medication/) |
-| 5 | Notification | NOC | Multi-channel communication system | [05-notification/](./05-notification/) |
-| 6 | AI Assistant | AAC | Conversational AI, health insights | [06-ai-assistant/](./06-ai-assistant/) |
+| Order | Context           | Code | Description                                    | Documentation                                |
+| ----- | ----------------- | ---- | ---------------------------------------------- | -------------------------------------------- |
+| 1     | Identity & Access | IAC  | Authentication, authorization, user management | [01-identity-access/](./01-identity-access/) |
+| 2     | Care Group        | CGC  | Family care coordination, group management     | [02-care-group/](./02-care-group/)           |
+| 3     | Health Data       | HDC  | Health metrics, device integration, analytics  | [03-health-data/](./03-health-data/)         |
+| 4     | Medication        | MDC  | Prescription management, medication scheduling | [04-medication/](./04-medication/)           |
+| 5     | Notification      | NOC  | Multi-channel communication system             | [05-notification/](./05-notification/)       |
+| 6     | AI Assistant      | AAC  | Conversational AI, health insights             | [06-ai-assistant/](./06-ai-assistant/)       |
 
 ## Implementation Order
 
@@ -35,16 +35,17 @@ The contexts are numbered in their recommended implementation order based on dep
 
 ## Implementation Status
 
-| Context | Backend | Mobile | Status | Quality |
-|---------|---------|---------|---------|---------|
-| IAC (Identity & Access) | ✅ Complete | ✅ Complete | 🚀 Production Ready | ✅ Lint Clean |
-| CGC (Care Group) | ✅ Complete | ✅ Complete | 🚀 Production Ready | ✅ Lint Clean |
-| HDC (Health Data) | ✅ Complete | ✅ Complete | 🚀 Production Ready | ✅ Lint Clean |
-| **MDC (Medication)** | ✅ Complete | ✅ Complete | 🚀 **Production Ready** | ✅ **Lint Clean** |
-| NOC (Notification) | ✅ Complete | 🔄 Partial | 🔧 In Progress | ✅ Lint Clean |
-| AAC (AI Assistant) | ✅ Complete | ✅ Complete | 🚀 Production Ready | ✅ Lint Clean |
+| Context                 | Backend     | Mobile      | Status                  | Quality           |
+| ----------------------- | ----------- | ----------- | ----------------------- | ----------------- |
+| IAC (Identity & Access) | ✅ Complete | ✅ Complete | 🚀 Production Ready     | ✅ Lint Clean     |
+| CGC (Care Group)        | ✅ Complete | ✅ Complete | 🚀 Production Ready     | ✅ Lint Clean     |
+| HDC (Health Data)       | ✅ Complete | ✅ Complete | 🚀 Production Ready     | ✅ Lint Clean     |
+| **MDC (Medication)**    | ✅ Complete | ✅ Complete | 🚀 **Production Ready** | ✅ **Lint Clean** |
+| NOC (Notification)      | ✅ Complete | 🔄 Partial  | 🔧 In Progress          | ✅ Lint Clean     |
+| AAC (AI Assistant)      | ✅ Complete | ✅ Complete | 🚀 Production Ready     | ✅ Lint Clean     |
 
 ### Recent Completion: Medication Management (MDC)
+
 - ✅ **All lint issues resolved** (0 Flutter analyze issues)
 - ✅ **Production-ready code quality**
 - ✅ **Comprehensive UI implementation** (List, Detail, Form screens)
@@ -72,6 +73,7 @@ When working on a bounded context:
 ## Context Dependencies
 
 ### Core Dependencies
+
 - **IAC** → No dependencies (foundational)
 - **CGC** → Depends on IAC for user authentication
 - **HDC** → Depends on IAC and CGC for user context and sharing
@@ -80,6 +82,7 @@ When working on a bounded context:
 - **AAC** → Depends on all contexts for comprehensive AI functionality
 
 ### External Dependencies
+
 - **Firebase Authentication** (IAC)
 - **TimescaleDB** (HDC)
 - **RxNorm API** (MDC)
@@ -89,6 +92,7 @@ When working on a bounded context:
 ## Cross-Context Communication
 
 Contexts communicate through:
+
 - **Domain Events** - Asynchronous communication for state changes
 - **API Contracts** - Synchronous communication for data queries
 - **Shared Kernel** - Common domain concepts and value objects
@@ -96,6 +100,7 @@ Contexts communicate through:
 See [Bounded Context Communication](../architecture/bounded-context-communication.md) for detailed patterns.
 
 ## Related Documentation
+
 - [Architecture](../architecture/README.md) - System-level architecture
 - [Features](../features/README.md) - User-facing feature specifications
 - [Planning](../planning/README.md) - Implementation roadmap

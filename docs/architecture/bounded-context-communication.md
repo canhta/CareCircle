@@ -107,7 +107,7 @@ FROM medication_catalog_context.medications;
 // Discovering available contexts and their endpoints
 const contexts = await contextMapClient.get("/api/contexts");
 const healthDataEndpoints = contexts.find(
-  (c) => c.name === "health-data"
+  (c) => c.name === "health-data",
 ).endpoints;
 ```
 

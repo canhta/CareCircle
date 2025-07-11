@@ -7,21 +7,25 @@ This document defines the core design principles, visual language, and component
 ### Core Principles
 
 **1. AI-First Conversational Design**
+
 - The AI health assistant serves as the primary interface and navigation method
 - Traditional menu structures are replaced with natural language interactions
 - Proactive AI guidance reduces cognitive load for healthcare management
 
 **2. Trust and Medical Authority**
+
 - Visual design establishes credibility and medical professionalism
 - Clear data provenance and medical professional verification indicators
 - Transparent AI decision-making with confidence levels and sources
 
 **3. Accessibility-First Healthcare Design**
+
 - Optimized for users with chronic conditions, elderly users, and caregivers
 - Voice-first interactions with visual fallbacks
 - High contrast modes and large touch targets as standard
 
 **4. Contextual Health Intelligence**
+
 - Adaptive UI based on health conditions and user capabilities
 - Proactive notifications for medication, appointments, and health insights
 - Emergency-optimized interfaces that bypass normal authentication
@@ -31,18 +35,21 @@ This document defines the core design principles, visual language, and component
 ### Color System (Healthcare-Optimized Material Design 3)
 
 **Primary Palette**
+
 - **Primary**: `#1976D2` (Medical Blue) - Trust, reliability, medical authority
 - **Primary Variant**: `#1565C0` - Darker blue for emphasis
 - **Secondary**: `#4CAF50` (Health Green) - Success states, health goals achieved
 - **Secondary Variant**: `#388E3C` - Darker green for confirmation
 
 **Healthcare-Specific Colors**
+
 - **Critical Alert**: `#D32F2F` - Emergency situations, critical vital signs
 - **Warning**: `#FF9800` - Medication reminders, attention needed
 - **Info**: `#2196F3` - General health information, tips
 - **Success**: `#4CAF50` - Goals achieved, positive health trends
 
 **Semantic Health Colors**
+
 - **Blood Pressure High**: `#E53935` - Hypertension indicators
 - **Blood Pressure Normal**: `#4CAF50` - Normal range indicators
 - **Blood Pressure Low**: `#FF9800` - Hypotension indicators
@@ -50,6 +57,7 @@ This document defines the core design principles, visual language, and component
 - **Medication Taken**: `#4CAF50` - Completed medication doses
 
 **Accessibility Colors**
+
 - **High Contrast Primary**: `#000000` on `#FFFFFF`
 - **High Contrast Secondary**: `#FFFFFF` on `#000000`
 - **Focus Indicator**: `#2196F3` with 3px outline
@@ -58,11 +66,13 @@ This document defines the core design principles, visual language, and component
 ### Typography Scale (Medical Data Optimized)
 
 **Font Family**
+
 - **Primary**: Inter (high legibility for medical data)
 - **Monospace**: JetBrains Mono (for vital signs, measurements)
 - **Fallback**: System fonts (SF Pro on iOS, Roboto on Android)
 
 **Type Scale**
+
 ```
 Display Large: 57px/64px - Emergency alerts, critical information
 Display Medium: 45px/52px - Main headings, AI assistant responses
@@ -86,6 +96,7 @@ Label Small: 11px/16px - Timestamps, minor labels
 ```
 
 **Medical Data Typography**
+
 - **Vital Signs**: Headline Large, monospace for numerical values
 - **Medication Dosages**: Title Medium, monospace for precision
 - **Timestamps**: Label Small, consistent format across platform
@@ -96,6 +107,7 @@ Label Small: 11px/16px - Timestamps, minor labels
 **Base Unit**: 8px (optimized for touch targets and visual hierarchy)
 
 **Spacing Scale**
+
 - **xs**: 4px - Tight spacing within components
 - **sm**: 8px - Standard component padding
 - **md**: 16px - Section spacing, card padding
@@ -104,6 +116,7 @@ Label Small: 11px/16px - Timestamps, minor labels
 - **xxl**: 48px - Major layout divisions
 
 **Healthcare-Specific Spacing**
+
 - **Touch Targets**: Minimum 48px (elderly-friendly)
 - **Emergency Buttons**: Minimum 56px (stress-situation usability)
 - **Medication Cards**: 16px internal padding, 8px between cards
@@ -114,6 +127,7 @@ Label Small: 11px/16px - Timestamps, minor labels
 #### AI Assistant Components
 
 **Chat Interface**
+
 - **AI Message Bubble**: Rounded corners (12px), light blue background
 - **User Message Bubble**: Rounded corners (12px), primary color background
 - **Typing Indicator**: Three animated dots, secondary color
@@ -121,6 +135,7 @@ Label Small: 11px/16px - Timestamps, minor labels
 - **Emergency Override**: Red background, immediate access to critical functions
 
 **Proactive Notifications**
+
 - **Medication Reminder**: Orange accent, pill icon, snooze/taken actions
 - **Health Insight**: Blue accent, lightbulb icon, expandable content
 - **Care Recommendation**: Green accent, heart icon, action buttons
@@ -128,6 +143,7 @@ Label Small: 11px/16px - Timestamps, minor labels
 #### Healthcare-Specific Components
 
 **Vital Signs Card**
+
 ```
 Component Structure:
 - Header: Measurement type (Blood Pressure, Heart Rate, etc.)
@@ -139,6 +155,7 @@ Component Structure:
 ```
 
 **Medication Tracker**
+
 ```
 Component Structure:
 - Medication Name: Title Medium typography
@@ -150,6 +167,7 @@ Component Structure:
 ```
 
 **Health Goal Widget**
+
 ```
 Component Structure:
 - Goal Title: Clear, motivational language
@@ -162,16 +180,19 @@ Component Structure:
 #### Trust and Verification Indicators
 
 **HIPAA Compliance Badge**
+
 - Shield icon with checkmark
 - "HIPAA Compliant" text
 - Positioned in footer or settings
 
 **Data Encryption Status**
+
 - Lock icon with connection indicator
 - "End-to-End Encrypted" text
 - Visible during data transmission
 
 **Medical Professional Verification**
+
 - Verified checkmark icon
 - Professional credentials display
 - Link to verification details
@@ -181,12 +202,14 @@ Component Structure:
 #### Voice-First Interactions
 
 **Voice Input States**
+
 - **Listening**: Pulsing microphone icon, blue accent
 - **Processing**: Animated waveform, "Thinking..." text
 - **Error**: Red accent, "Didn't catch that" message
 - **Success**: Green checkmark, confirmation message
 
 **Hands-Free Operation**
+
 - **Voice Navigation**: "Hey CareCircle" wake phrase
 - **Voice Commands**: Natural language processing for all major functions
 - **Audio Feedback**: Spoken confirmations for critical actions
@@ -195,12 +218,14 @@ Component Structure:
 #### Touch Interactions
 
 **Gesture Support**
+
 - **Swipe Actions**: Mark medication as taken, dismiss notifications
 - **Long Press**: Access additional options, emergency contacts
 - **Pull to Refresh**: Update health data, sync with devices
 - **Pinch to Zoom**: Enlarge text, charts, and medical images
 
 **Haptic Feedback**
+
 - **Success Actions**: Light haptic for completed tasks
 - **Critical Alerts**: Strong haptic for emergency notifications
 - **Voice Activation**: Gentle haptic when voice input starts
@@ -211,11 +236,13 @@ Component Structure:
 #### Mobile-First Approach
 
 **Breakpoints**
+
 - **Mobile**: 320px - 768px (primary focus)
 - **Tablet**: 768px - 1024px (secondary)
 - **Desktop**: 1024px+ (caregiver/provider dashboards)
 
 **Mobile Optimizations**
+
 - **Single Column Layout**: Vertical scrolling for all content
 - **Bottom Navigation**: AI assistant button prominently centered
 - **Thumb-Friendly**: All interactive elements within thumb reach
@@ -224,12 +251,14 @@ Component Structure:
 #### Platform Adaptations
 
 **iOS Specific**
+
 - **SF Symbols**: Use system icons where appropriate
 - **Navigation Patterns**: Respect iOS navigation conventions
 - **Dynamic Type**: Support iOS accessibility text sizing
 - **Haptic Patterns**: Use iOS-specific haptic feedback
 
 **Android Specific**
+
 - **Material You**: Adapt to user's system color preferences
 - **Navigation Patterns**: Use Android navigation conventions
 - **Accessibility Services**: Support TalkBack and other Android a11y tools
@@ -238,6 +267,7 @@ Component Structure:
 ### Dark Mode and High Contrast
 
 #### Dark Mode Palette
+
 - **Background**: `#121212` - Primary dark background
 - **Surface**: `#1E1E1E` - Card and component backgrounds
 - **Primary**: `#90CAF9` - Adjusted primary for dark backgrounds
@@ -245,6 +275,7 @@ Component Structure:
 - **Text Secondary**: `#B3B3B3` - Secondary text on dark
 
 #### High Contrast Mode
+
 - **Background**: `#000000` - Pure black background
 - **Text**: `#FFFFFF` - Pure white text
 - **Borders**: `#FFFFFF` - 2px minimum border width
@@ -254,18 +285,21 @@ Component Structure:
 ### Implementation Guidelines
 
 #### Component Development
+
 - **Atomic Design**: Build components from atoms to organisms
 - **Accessibility First**: Include ARIA labels and semantic HTML
 - **Performance**: Optimize for low-end devices and slow networks
 - **Testing**: Include visual regression and accessibility testing
 
 #### Design Tokens
+
 - **Color Tokens**: Use semantic naming (primary, secondary, error)
 - **Spacing Tokens**: Consistent spacing scale across platforms
 - **Typography Tokens**: Scalable type system with accessibility support
 - **Animation Tokens**: Consistent timing and easing functions
 
 #### Quality Assurance
+
 - **Color Contrast**: Minimum 4.5:1 for normal text, 3:1 for large text
 - **Touch Targets**: Minimum 48px for all interactive elements
 - **Loading States**: Maximum 3 seconds before showing progress

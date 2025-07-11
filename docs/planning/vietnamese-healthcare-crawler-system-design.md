@@ -9,6 +9,7 @@ This document outlines the design and implementation plan for a comprehensive Vi
 ### 1.1 Current AI Module Implementation
 
 **Existing Infrastructure:**
+
 - ✅ **Backend**: NestJS with DDD architecture, OpenAI integration, conversation management
 - ✅ **Vector Database**: Milvus configured in Docker Compose (not yet integrated)
 - ✅ **Authentication**: Firebase authentication with admin SDK
@@ -16,6 +17,7 @@ This document outlines the design and implementation plan for a comprehensive Vi
 - ✅ **Health Context**: Integration with user health data, metrics, and profiles
 
 **Missing Components:**
+
 - ❌ **Vector Database Service**: Milvus integration in backend
 - ❌ **RAG System**: No current implementation for knowledge retrieval
 - ❌ **Data Crawler**: No existing crawler system
@@ -26,6 +28,7 @@ This document outlines the design and implementation plan for a comprehensive Vi
 **Status**: No existing data ingestion pipeline for external medical content.
 
 **Current AI Assistant Integration Points:**
+
 - Conversation service with OpenAI API
 - Health context builder using user data
 - Healthcare-specific prompts and validation
@@ -37,24 +40,28 @@ This document outlines the design and implementation plan for a comprehensive Vi
 ### 2.1 Vietnamese Healthcare Data Sources
 
 **Government and Official Sources:**
+
 - **Vietnam Ministry of Health (Bộ Y tế)**: Official health policies, treatment guidelines
 - **Infrastructure and Medical Device Administration (IMDA)**: Medical device regulations
 - **Government Health Statistics**: Expenditure data, health indicators
 - **Official Treatment Protocols**: "Hướng dẫn điều trị" - clinical guidelines
 
 **Medical Information Systems:**
+
 - **Hospital Information Systems (HIS)**: Major Vietnamese hospitals
 - **Electronic Medical Records (EMR)**: Healthcare provider systems
 - **Laboratory Information Systems (LIS)**: Diagnostic data
 - **District Health Systems**: Community health information
 
 **Pharmaceutical Sources:**
+
 - **Vietnamese Drug Information**: "Thông tin thuốc" databases
 - **Clinical Pharmacy Guidelines**: "Dược lâm sàng" protocols
 - **Drug Interaction Databases**: Safety and efficacy information
 - **Pharmaceutical Research**: Vietnamese medical journals
 
 **Medical Research and Publications:**
+
 - **Vietnamese Medical Journals**: Peer-reviewed research
 - **Clinical Treatment Guidelines**: Evidence-based protocols
 - **Medical Education Materials**: Training and reference content
@@ -63,17 +70,20 @@ This document outlines the design and implementation plan for a comprehensive Vi
 ### 2.2 Data Source Characteristics
 
 **Access Methods:**
+
 - **Web Scraping**: Public healthcare websites and portals
 - **API Integration**: Available government and institutional APIs
 - **Document Processing**: PDF guidelines, research papers
 - **RSS/News Feeds**: Health news and updates
 
 **Data Formats:**
+
 - **Structured**: JSON APIs, XML feeds
 - **Semi-structured**: HTML content, PDF documents
 - **Unstructured**: News articles, research papers
 
 **Update Frequencies:**
+
 - **Real-time**: Health news and alerts
 - **Daily**: Policy updates, new research
 - **Weekly**: Treatment guideline revisions
@@ -84,6 +94,7 @@ This document outlines the design and implementation plan for a comprehensive Vi
 ### 3.1 Architecture Overview
 
 **New Bounded Context: Knowledge Management Context**
+
 ```
 backend/src/knowledge-management/
 ├── domain/
@@ -125,6 +136,7 @@ backend/src/knowledge-management/
 ### 3.2 ETL Process Design
 
 **Extract Phase:**
+
 - **Web Scraping**: Puppeteer/Playwright for dynamic content
 - **API Integration**: Government and institutional APIs
 - **Document Processing**: PDF extraction for official guidelines
@@ -132,6 +144,7 @@ backend/src/knowledge-management/
 - **Content Deduplication**: Hash-based duplicate detection
 
 **Transform Phase:**
+
 - **Vietnamese Text Processing**:
   - Unicode normalization for diacritics
   - Medical terminology extraction
@@ -150,6 +163,7 @@ backend/src/knowledge-management/
   - Vietnamese-specific tokenization
 
 **Load Phase:**
+
 - **Vector Generation**: OpenAI embeddings for semantic search
 - **Milvus Storage**: Vectors with filterable metadata
 - **PostgreSQL Storage**: Original content and processing metadata
@@ -158,6 +172,7 @@ backend/src/knowledge-management/
 ### 3.3 Vector Database Schema
 
 **Milvus Collections:**
+
 - `vietnamese_medical_content`: General medical information
 - `drug_information`: Pharmaceutical data and interactions
 - `treatment_guidelines`: Clinical protocols and procedures
@@ -165,6 +180,7 @@ backend/src/knowledge-management/
 - `government_policies`: Official health policies and regulations
 
 **Vector Schema:**
+
 - **Dimension**: 1536 (OpenAI ada-002 embeddings)
 - **Metadata**: source_type, medical_specialty, authority_score, language, publication_date
 - **Content**: original_text, processed_text, medical_entities
@@ -174,12 +190,14 @@ backend/src/knowledge-management/
 ### 4.1 Vector Database and RAG Integration
 
 **Enhanced AI Assistant Capabilities:**
+
 - **Semantic Search**: Vietnamese medical content retrieval
 - **Hybrid Search**: Vector similarity + keyword matching
 - **Context Ranking**: Authority-based content prioritization
 - **Multi-language Support**: Vietnamese and English medical terms
 
 **RAG System Enhancement:**
+
 - **Enhanced Health Context**: Include relevant Vietnamese medical knowledge
 - **Localized Responses**: Culturally appropriate health advice
 - **Source Citations**: Reference Vietnamese medical authorities
@@ -188,6 +206,7 @@ backend/src/knowledge-management/
 ### 4.2 Firebase Authentication Integration
 
 **Security and Access Control:**
+
 - **Service Account Authentication**: Automated crawler operations
 - **API Security**: Firebase admin authentication for management endpoints
 - **Role-based Access**: Healthcare provider and admin permissions
@@ -196,12 +215,14 @@ backend/src/knowledge-management/
 ### 4.3 DDD Architecture Compliance
 
 **Bounded Context Integration:**
+
 - **Domain Events**: Publish events for new medical content
 - **Repository Pattern**: Consistent data access patterns
 - **Anti-Corruption Layer**: Protect AI Assistant from crawler details
 - **Shared Kernel**: Common medical terminology and validation
 
 **Cross-Context Communication:**
+
 - **Event-Driven Architecture**: Loose coupling between contexts
 - **Context Mapping**: Clear relationship definitions
 - **Infrastructure Consistency**: Shared PostgreSQL, Redis, and BullMQ
@@ -209,6 +230,7 @@ backend/src/knowledge-management/
 ## 5. Implementation Roadmap
 
 ### Phase 1: Foundation (2-3 weeks)
+
 - [ ] Set up Knowledge Management bounded context structure
 - [ ] Implement Milvus vector database service integration
 - [ ] Create basic crawler infrastructure with rate limiting
@@ -216,6 +238,7 @@ backend/src/knowledge-management/
 - [ ] Set up data source management system
 
 ### Phase 2: Core Crawling (3-4 weeks)
+
 - [ ] Implement web scraping for Vietnamese healthcare sources
 - [ ] Build content extraction and cleaning pipelines
 - [ ] Create medical entity recognition for Vietnamese content
@@ -223,6 +246,7 @@ backend/src/knowledge-management/
 - [ ] Set up background job processing for crawling tasks
 
 ### Phase 3: RAG Integration (2-3 weeks)
+
 - [ ] Enhance AI Assistant with semantic search capabilities
 - [ ] Implement hybrid search for Vietnamese queries
 - [ ] Add source citation and authority ranking
@@ -230,6 +254,7 @@ backend/src/knowledge-management/
 - [ ] Integrate with existing health context building
 
 ### Phase 4: Optimization and Monitoring (2 weeks)
+
 - [ ] Implement content freshness tracking and updates
 - [ ] Add crawler performance monitoring and alerting
 - [ ] Create administrative interfaces for crawler management
@@ -239,23 +264,27 @@ backend/src/knowledge-management/
 ## 6. Technical Feasibility Assessment
 
 **High Feasibility:**
+
 - Basic web crawling and content extraction
 - Text processing and cleaning pipelines
 - Vector storage and retrieval
 - Integration with existing backend architecture
 
 **Medium Feasibility:**
+
 - Vietnamese medical NLP and entity recognition
 - Content quality assessment and validation
 - Real-time content updates and synchronization
 
 **Considerations:**
+
 - Some government sources may require special access permissions
 - Anti-crawling measures on certain websites
 - Vietnamese language processing complexity
 - Medical content accuracy validation requirements
 
 **Risk Mitigation:**
+
 - Start with publicly available sources
 - Implement robust error handling and retry mechanisms
 - Use multiple data sources for content validation
@@ -264,16 +293,19 @@ backend/src/knowledge-management/
 ## 7. Resource Requirements
 
 **Development Resources:**
+
 - **Backend Development**: 1-2 developers for 8-12 weeks
 - **Vietnamese Medical Expertise**: Consultant for content validation
 - **DevOps Support**: Infrastructure setup and monitoring
 
 **Infrastructure Requirements:**
+
 - **Existing Infrastructure**: Sufficient Milvus and PostgreSQL capacity
 - **External APIs**: OpenAI embeddings, potential Vietnamese NLP services
 - **Storage**: Additional storage for crawled content and vectors
 
 **Operational Requirements:**
+
 - **Monitoring**: Crawler performance and content quality tracking
 - **Maintenance**: Regular source validation and content updates
 - **Compliance**: Healthcare data handling and privacy requirements
@@ -281,12 +313,14 @@ backend/src/knowledge-management/
 ## 8. Success Metrics
 
 **Technical Metrics:**
+
 - Crawling success rate (>95%)
 - Content processing accuracy (>90%)
 - Search relevance scores (>85%)
 - System uptime and reliability (>99%)
 
 **Business Metrics:**
+
 - AI Assistant response quality improvement
 - Vietnamese medical query coverage
 - User satisfaction with localized responses
