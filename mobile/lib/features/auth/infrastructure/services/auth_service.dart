@@ -163,9 +163,18 @@ class AuthService {
 
   Future<AuthResponse> loginAsGuest(String deviceId) async {
     try {
+      // Get Firebase ID token from current anonymous user
+      final idToken = await _firebaseAuthService.getIdToken();
+      if (idToken == null) {
+        throw Exception('Failed to get Firebase ID token for guest user');
+      }
+
       final response = await _dio.post(
         '/auth/guest',
-        data: {'deviceId': deviceId},
+        data: {
+          'deviceId': deviceId,
+          'idToken': idToken,
+        },
       );
 
       final authResponse = AuthResponse.fromJson(response.data);
@@ -204,7 +213,7 @@ class AuthService {
   Future<AuthResponse> signInWithGoogle(String idToken) async {
     try {
       final response = await _dio.post(
-        '/auth/social/google',
+        '/auth/oauth/google',
         data: {'idToken': idToken},
       );
 
@@ -219,7 +228,7 @@ class AuthService {
   Future<AuthResponse> signInWithApple(String idToken) async {
     try {
       final response = await _dio.post(
-        '/auth/social/apple',
+        '/auth/oauth/apple',
         data: {'idToken': idToken},
       );
 

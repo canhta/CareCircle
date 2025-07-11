@@ -37,6 +37,34 @@ export class UserService {
     return this.userRepository.findByPhoneNumber(phoneNumber);
   }
 
+  async createFromFirebaseToken(decodedToken: any): Promise<UserAccount> {
+    // Create user account with Firebase UID as ID
+    const user = UserAccount.create({
+      id: decodedToken.uid,
+      email: decodedToken.email,
+      isGuest: !decodedToken.email, // If no email, it's likely an anonymous user
+    });
+
+    // Set email verification status if email exists
+    if (decodedToken.email && decodedToken.email_verified) {
+      user.verifyEmail();
+    }
+
+    const createdUser = await this.userRepository.create(user);
+
+    // Create basic profile
+    const profile = UserProfile.create({
+      userId: createdUser.id,
+      displayName: decodedToken.name ||
+                   (decodedToken.email ? decodedToken.email.split('@')[0] : 'Guest User'),
+      firstName: decodedToken.given_name,
+      lastName: decodedToken.family_name,
+    });
+    await this.userRepository.createProfile(profile);
+
+    return createdUser;
+  }
+
   async getProfile(userId: string): Promise<UserProfile> {
     const profile = await this.userRepository.findProfileByUserId(userId);
     if (!profile) {
