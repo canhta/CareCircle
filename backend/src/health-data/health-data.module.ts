@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from '../common/database/prisma.module';
 import { QueueModule } from '../common/queue/queue.module';
+import { IdentityAccessModule } from '../identity-access/identity-access.module';
 
 // Controllers
 import { HealthProfileController } from './presentation/controllers/health-profile.controller';
@@ -31,7 +32,7 @@ import { HealthDataProcessingProcessor } from './infrastructure/jobs/health-data
 import { QueueService } from '../common/queue/queue.service';
 
 @Module({
-  imports: [ConfigModule, PrismaModule, QueueModule],
+  imports: [ConfigModule, PrismaModule, QueueModule, IdentityAccessModule],
   controllers: [
     HealthProfileController,
     HealthMetricController,

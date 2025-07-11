@@ -31,7 +31,9 @@ class _DrugInteractionScreenState extends ConsumerState<DrugInteractionScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final medicationsAsync = ref.watch(medicationsProvider);
-    final interactionAnalysisAsync = ref.watch(userMedicationInteractionsProvider);
+    final interactionAnalysisAsync = ref.watch(
+      userMedicationInteractionsProvider,
+    );
 
     return Scaffold(
       appBar: AppBar(
@@ -178,7 +180,10 @@ class _DrugInteractionScreenState extends ConsumerState<DrugInteractionScreen> {
                     theme,
                   ),
                 ),
-              if (contraindicated > 0 && (majorSeverity > 0 || moderateSeverity > 0 || minorSeverity > 0))
+              if (contraindicated > 0 &&
+                  (majorSeverity > 0 ||
+                      moderateSeverity > 0 ||
+                      minorSeverity > 0))
                 const SizedBox(width: 8),
               if (majorSeverity > 0)
                 Expanded(
@@ -189,7 +194,8 @@ class _DrugInteractionScreenState extends ConsumerState<DrugInteractionScreen> {
                     theme,
                   ),
                 ),
-              if (majorSeverity > 0 && (moderateSeverity > 0 || minorSeverity > 0))
+              if (majorSeverity > 0 &&
+                  (moderateSeverity > 0 || minorSeverity > 0))
                 const SizedBox(width: 8),
               if (moderateSeverity > 0)
                 Expanded(
@@ -710,7 +716,9 @@ class _DrugInteractionScreenState extends ConsumerState<DrugInteractionScreen> {
     final recommendations = <Recommendation>[];
 
     if (analysis.interactions.any(
-      (i) => i.severity == InteractionSeverity.contraindicated || i.severity == InteractionSeverity.major,
+      (i) =>
+          i.severity == InteractionSeverity.contraindicated ||
+          i.severity == InteractionSeverity.major,
     )) {
       recommendations.add(
         Recommendation(

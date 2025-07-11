@@ -94,7 +94,9 @@ class AdherenceRepository {
   }
 
   /// Get adherence records for specific medication
-  Future<List<AdherenceRecord>> getAdherenceForMedication(String medicationId) async {
+  Future<List<AdherenceRecord>> getAdherenceForMedication(
+    String medicationId,
+  ) async {
     return getAdherenceRecords(
       params: AdherenceQueryParams(medicationId: medicationId),
     );
@@ -155,7 +157,9 @@ class AdherenceRepository {
   }
 
   /// Create new adherence record
-  Future<AdherenceRecord> createAdherenceRecord(CreateAdherenceRecordRequest request) async {
+  Future<AdherenceRecord> createAdherenceRecord(
+    CreateAdherenceRecordRequest request,
+  ) async {
     try {
       _logger.info('Creating new adherence record', {
         'operation': 'createAdherenceRecord',
@@ -417,10 +421,7 @@ class AdherenceRepository {
         e,
         StackTrace.current,
         operation: 'markDoseTaken',
-        context: {
-          'medicationId': medicationId,
-          'scheduleId': scheduleId,
-        },
+        context: {'medicationId': medicationId, 'scheduleId': scheduleId},
       );
 
       _logger.error('Failed to mark dose as taken', {
@@ -448,10 +449,7 @@ class AdherenceRepository {
       await StorageService.setCacheJson(
         'medication_cache',
         'user_adherence_records',
-        {
-          'records': recordData,
-          'cached_at': DateTime.now().toIso8601String(),
-        },
+        {'records': recordData, 'cached_at': DateTime.now().toIso8601String()},
       );
     } catch (e) {
       _logger.warning('Failed to cache adherence records', {
@@ -488,7 +486,10 @@ class AdherenceRepository {
   /// Clear adherence cache
   Future<void> _clearAdherenceCache() async {
     try {
-      await StorageService.removeCache('medication_cache', 'user_adherence_records');
+      await StorageService.removeCache(
+        'medication_cache',
+        'user_adherence_records',
+      );
     } catch (e) {
       _logger.warning('Failed to clear adherence cache', {
         'error': e.toString(),

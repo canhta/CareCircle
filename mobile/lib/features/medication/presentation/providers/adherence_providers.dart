@@ -9,31 +9,43 @@ import '../../infrastructure/repositories/adherence_repository.dart';
 final _logger = BoundedContextLoggers.medication;
 
 /// Provider for user adherence records
-final adherenceRecordsProvider = FutureProvider<List<AdherenceRecord>>((ref) async {
+final adherenceRecordsProvider = FutureProvider<List<AdherenceRecord>>((
+  ref,
+) async {
   final repository = ref.read(adherenceRepositoryProvider);
   return repository.getAdherenceRecords();
 });
 
 /// Provider for adherence records by medication ID
-final medicationAdherenceProvider = FutureProvider.family<List<AdherenceRecord>, String>((ref, medicationId) async {
-  final repository = ref.read(adherenceRepositoryProvider);
-  return repository.getAdherenceForMedication(medicationId);
-});
+final medicationAdherenceProvider =
+    FutureProvider.family<List<AdherenceRecord>, String>((
+      ref,
+      medicationId,
+    ) async {
+      final repository = ref.read(adherenceRepositoryProvider);
+      return repository.getAdherenceForMedication(medicationId);
+    });
 
 /// Provider for adherence statistics
-final adherenceStatisticsProvider = FutureProvider<AdherenceStatistics>((ref) async {
+final adherenceStatisticsProvider = FutureProvider<AdherenceStatistics>((
+  ref,
+) async {
   final repository = ref.read(adherenceRepositoryProvider);
   return repository.getAdherenceStatistics();
 });
 
 /// Provider for today's adherence records
-final todayAdherenceProvider = FutureProvider<List<AdherenceRecord>>((ref) async {
+final todayAdherenceProvider = FutureProvider<List<AdherenceRecord>>((
+  ref,
+) async {
   final allRecords = await ref.read(adherenceRecordsProvider.future);
   final today = DateTime.now();
 
   final todayRecords = allRecords.where((record) {
     final recordDate = record.scheduledTime;
-    return recordDate.year == today.year && recordDate.month == today.month && recordDate.day == today.day;
+    return recordDate.year == today.year &&
+        recordDate.month == today.month &&
+        recordDate.day == today.day;
   }).toList();
 
   _logger.info('Filtered today\'s adherence records', {
@@ -48,7 +60,9 @@ final todayAdherenceProvider = FutureProvider<List<AdherenceRecord>>((ref) async
 });
 
 /// Provider for adherence trends (last 30 days)
-final adherenceTrendsProvider = FutureProvider<List<AdherenceTrendPoint>>((ref) async {
+final adherenceTrendsProvider = FutureProvider<List<AdherenceTrendPoint>>((
+  ref,
+) async {
   final repository = ref.read(adherenceRepositoryProvider);
   final endDate = DateTime.now();
   final startDate = endDate.subtract(const Duration(days: 30));
@@ -69,7 +83,11 @@ final adherenceTrendsProvider = FutureProvider<List<AdherenceTrendPoint>>((ref) 
     // Group records by date and calculate daily adherence rates
     final Map<DateTime, List<AdherenceRecord>> recordsByDate = {};
     for (final record in records) {
-      final date = DateTime(record.scheduledTime.year, record.scheduledTime.month, record.scheduledTime.day);
+      final date = DateTime(
+        record.scheduledTime.year,
+        record.scheduledTime.month,
+        record.scheduledTime.day,
+      );
       recordsByDate.putIfAbsent(date, () => []).add(record);
     }
 
@@ -77,10 +95,13 @@ final adherenceTrendsProvider = FutureProvider<List<AdherenceTrendPoint>>((ref) 
     final trendPoints = <AdherenceTrendPoint>[];
     for (int i = 0; i < 30; i++) {
       final date = startDate.add(Duration(days: i));
-      final dayRecords = recordsByDate[DateTime(date.year, date.month, date.day)] ?? [];
+      final dayRecords =
+          recordsByDate[DateTime(date.year, date.month, date.day)] ?? [];
 
       final totalDoses = dayRecords.length;
-      final completedDoses = dayRecords.where((r) => r.status == DoseStatus.taken).length;
+      final completedDoses = dayRecords
+          .where((r) => r.status == DoseStatus.taken)
+          .length;
       final adherenceRate = totalDoses > 0 ? completedDoses / totalDoses : 0.0;
 
       trendPoints.add(
@@ -114,17 +135,19 @@ final adherenceTrendsProvider = FutureProvider<List<AdherenceTrendPoint>>((ref) 
 });
 
 /// Provider for adherence management operations
-final adherenceManagementProvider = StateNotifierProvider<AdherenceManagementNotifier, AsyncValue<void>>((ref) {
-  final repository = ref.read(adherenceRepositoryProvider);
-  return AdherenceManagementNotifier(repository, ref);
-});
+final adherenceManagementProvider =
+    StateNotifierProvider<AdherenceManagementNotifier, AsyncValue<void>>((ref) {
+      final repository = ref.read(adherenceRepositoryProvider);
+      return AdherenceManagementNotifier(repository, ref);
+    });
 
 /// State notifier for adherence management operations
 class AdherenceManagementNotifier extends StateNotifier<AsyncValue<void>> {
   final AdherenceRepository _repository;
   final Ref _ref;
 
-  AdherenceManagementNotifier(this._repository, this._ref) : super(const AsyncValue.data(null));
+  AdherenceManagementNotifier(this._repository, this._ref)
+    : super(const AsyncValue.data(null));
 
   /// Record dose taken
   Future<void> recordDoseTaken(

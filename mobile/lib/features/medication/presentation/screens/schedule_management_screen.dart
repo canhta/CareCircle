@@ -15,14 +15,11 @@ import '../providers/schedule_providers.dart';
 /// - Calendar/timeline view for schedules
 /// - Material Design 3 healthcare adaptations
 class ScheduleManagementScreen extends ConsumerStatefulWidget {
-  final String? medicationId; // null for all schedules, non-null for specific medication
+  final String?
+  medicationId; // null for all schedules, non-null for specific medication
   final MedicationSchedule? schedule; // null for new schedule
 
-  const ScheduleManagementScreen({
-    super.key,
-    this.medicationId,
-    this.schedule,
-  });
+  const ScheduleManagementScreen({super.key, this.medicationId, this.schedule});
 
   @override
   ConsumerState<ScheduleManagementScreen> createState() =>
@@ -281,10 +278,22 @@ class _ScheduleManagementScreenState
                 border: OutlineInputBorder(),
               ),
               items: const [
-                DropdownMenuItem(value: DosageFrequency.daily, child: Text('Daily')),
-                DropdownMenuItem(value: DosageFrequency.weekly, child: Text('Weekly')),
-                DropdownMenuItem(value: DosageFrequency.monthly, child: Text('Monthly')),
-                DropdownMenuItem(value: DosageFrequency.asNeeded, child: Text('As Needed')),
+                DropdownMenuItem(
+                  value: DosageFrequency.daily,
+                  child: Text('Daily'),
+                ),
+                DropdownMenuItem(
+                  value: DosageFrequency.weekly,
+                  child: Text('Weekly'),
+                ),
+                DropdownMenuItem(
+                  value: DosageFrequency.monthly,
+                  child: Text('Monthly'),
+                ),
+                DropdownMenuItem(
+                  value: DosageFrequency.asNeeded,
+                  child: Text('As Needed'),
+                ),
               ],
               onChanged: (value) {
                 if (value != null) {
@@ -302,7 +311,8 @@ class _ScheduleManagementScreenState
               TextFormField(
                 initialValue: _timesPerDay.toString(),
                 decoration: InputDecoration(
-                  labelText: 'Times per ${_getFrequencyDisplayName(_frequency)} *',
+                  labelText:
+                      'Times per ${_getFrequencyDisplayName(_frequency)} *',
                   border: const OutlineInputBorder(),
                 ),
                 keyboardType: TextInputType.number,
@@ -342,7 +352,10 @@ class _ScheduleManagementScreenState
                   value: MealRelation.beforeMeal,
                   child: Text('Before meals'),
                 ),
-                DropdownMenuItem(value: MealRelation.withMeal, child: Text('With meals')),
+                DropdownMenuItem(
+                  value: MealRelation.withMeal,
+                  child: Text('With meals'),
+                ),
                 DropdownMenuItem(
                   value: MealRelation.afterMeal,
                   child: Text('After meals'),
@@ -491,12 +504,18 @@ class _ScheduleManagementScreenState
                   border: OutlineInputBorder(),
                 ),
                 items: const [
-                  DropdownMenuItem(value: CriticalityLevel.low, child: Text('Low Priority')),
+                  DropdownMenuItem(
+                    value: CriticalityLevel.low,
+                    child: Text('Low Priority'),
+                  ),
                   DropdownMenuItem(
                     value: CriticalityLevel.medium,
                     child: Text('Medium Priority'),
                   ),
-                  DropdownMenuItem(value: CriticalityLevel.high, child: Text('High Priority')),
+                  DropdownMenuItem(
+                    value: CriticalityLevel.high,
+                    child: Text('High Priority'),
+                  ),
                 ],
                 onChanged: (value) {
                   if (value != null) {
@@ -630,7 +649,9 @@ class _ScheduleManagementScreenState
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Cannot create schedule without selecting a medication'),
+              content: Text(
+                'Cannot create schedule without selecting a medication',
+              ),
               backgroundColor: Colors.red,
             ),
           );
@@ -647,7 +668,9 @@ class _ScheduleManagementScreenState
         schedule: DosageSchedule(
           frequency: _frequency,
           times: _timesPerDay,
-          daysOfWeek: _frequency == DosageFrequency.weekly ? _selectedDaysOfWeek : [],
+          daysOfWeek: _frequency == DosageFrequency.weekly
+              ? _selectedDaysOfWeek
+              : [],
           specificTimes: _reminderTimes
               .map((time) => Time(hour: time.hour, minute: time.minute))
               .toList(),

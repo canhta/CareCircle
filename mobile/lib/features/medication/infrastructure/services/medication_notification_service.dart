@@ -7,7 +7,7 @@ import '../../domain/models/models.dart';
 import '../../../../core/logging/bounded_context_loggers.dart';
 
 /// Healthcare-compliant medication notification service
-/// 
+///
 /// Provides secure, reliable medication reminder notifications
 /// following healthcare best practices and privacy requirements.
 class MedicationNotificationService {
@@ -33,7 +33,7 @@ class MedicationNotificationService {
     try {
       // Initialize timezone data
       tz.initializeTimeZones();
-      
+
       // Android initialization settings
       const AndroidInitializationSettings initializationSettingsAndroid =
           AndroidInitializationSettings('@mipmap/ic_launcher');
@@ -41,28 +41,31 @@ class MedicationNotificationService {
       // iOS initialization settings
       const DarwinInitializationSettings initializationSettingsDarwin =
           DarwinInitializationSettings(
-        requestSoundPermission: true,
-        requestBadgePermission: true,
-        requestAlertPermission: true,
-        requestCriticalPermission: false, // Healthcare apps should be careful with critical alerts
-      );
+            requestSoundPermission: true,
+            requestBadgePermission: true,
+            requestAlertPermission: true,
+            requestCriticalPermission:
+                false, // Healthcare apps should be careful with critical alerts
+          );
 
       const InitializationSettings initializationSettings =
           InitializationSettings(
-        android: initializationSettingsAndroid,
-        iOS: initializationSettingsDarwin,
-      );
+            android: initializationSettingsAndroid,
+            iOS: initializationSettingsDarwin,
+          );
 
-      final bool? initialized = await _flutterLocalNotificationsPlugin.initialize(
-        initializationSettings,
-        onDidReceiveNotificationResponse: _onNotificationTapped,
-        onDidReceiveBackgroundNotificationResponse: _onBackgroundNotificationTapped,
-      );
+      final bool? initialized = await _flutterLocalNotificationsPlugin
+          .initialize(
+            initializationSettings,
+            onDidReceiveNotificationResponse: _onNotificationTapped,
+            onDidReceiveBackgroundNotificationResponse:
+                _onBackgroundNotificationTapped,
+          );
 
       if (initialized == true) {
         await _createNotificationChannels();
         _isInitialized = true;
-        
+
         _logger.info('MedicationNotificationService initialized successfully');
       }
 
@@ -79,35 +82,37 @@ class MedicationNotificationService {
       // High priority channel for medication reminders
       const AndroidNotificationChannel medicationChannel =
           AndroidNotificationChannel(
-        'medication_reminders',
-        'Medication Reminders',
-        description: 'Notifications for medication doses and schedules',
-        importance: Importance.high,
-        enableVibration: true,
-        enableLights: true,
-        ledColor: Color(0xFF2196F3), // Medical blue
-        showBadge: true,
-      );
+            'medication_reminders',
+            'Medication Reminders',
+            description: 'Notifications for medication doses and schedules',
+            importance: Importance.high,
+            enableVibration: true,
+            enableLights: true,
+            ledColor: Color(0xFF2196F3), // Medical blue
+            showBadge: true,
+          );
 
       // Medium priority channel for medication updates
       const AndroidNotificationChannel updatesChannel =
           AndroidNotificationChannel(
-        'medication_updates',
-        'Medication Updates',
-        description: 'Updates about medication changes and information',
-        importance: Importance.defaultImportance,
-        enableVibration: false,
-        showBadge: true,
-      );
+            'medication_updates',
+            'Medication Updates',
+            description: 'Updates about medication changes and information',
+            importance: Importance.defaultImportance,
+            enableVibration: false,
+            showBadge: true,
+          );
 
       await _flutterLocalNotificationsPlugin
           .resolvePlatformSpecificImplementation<
-              AndroidFlutterLocalNotificationsPlugin>()
+            AndroidFlutterLocalNotificationsPlugin
+          >()
           ?.createNotificationChannel(medicationChannel);
 
       await _flutterLocalNotificationsPlugin
           .resolvePlatformSpecificImplementation<
-              AndroidFlutterLocalNotificationsPlugin>()
+            AndroidFlutterLocalNotificationsPlugin
+          >()
           ?.createNotificationChannel(updatesChannel);
     }
   }
@@ -117,7 +122,8 @@ class MedicationNotificationService {
     if (Platform.isIOS) {
       final bool? result = await _flutterLocalNotificationsPlugin
           .resolvePlatformSpecificImplementation<
-              IOSFlutterLocalNotificationsPlugin>()
+            IOSFlutterLocalNotificationsPlugin
+          >()
           ?.requestPermissions(
             alert: true,
             badge: true,
@@ -127,10 +133,13 @@ class MedicationNotificationService {
       return result ?? false;
     } else if (Platform.isAndroid) {
       final AndroidFlutterLocalNotificationsPlugin? androidImplementation =
-          _flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
-              AndroidFlutterLocalNotificationsPlugin>();
+          _flutterLocalNotificationsPlugin
+              .resolvePlatformSpecificImplementation<
+                AndroidFlutterLocalNotificationsPlugin
+              >();
 
-      final bool? result = await androidImplementation?.requestNotificationsPermission();
+      final bool? result = await androidImplementation
+          ?.requestNotificationsPermission();
       return result ?? false;
     }
     return true;
@@ -149,28 +158,27 @@ class MedicationNotificationService {
     }
 
     try {
-      final int notificationId = _generateNotificationId(medicationId, scheduledTime);
-      
-      const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
-        'medication_reminders',
-        'Medication Reminders',
-        channelDescription: 'Notifications for medication doses and schedules',
-        importance: Importance.high,
-        icon: '@mipmap/ic_launcher',
-        enableVibration: true,
-        enableLights: true,
-        ledColor: Color(0xFF2196F3),
-        actions: <AndroidNotificationAction>[
-          AndroidNotificationAction(
-            'mark_taken',
-            'Mark as Taken',
-          ),
-          AndroidNotificationAction(
-            'snooze',
-            'Snooze 15min',
-          ),
-        ],
+      final int notificationId = _generateNotificationId(
+        medicationId,
+        scheduledTime,
       );
+
+      const AndroidNotificationDetails androidDetails =
+          AndroidNotificationDetails(
+            'medication_reminders',
+            'Medication Reminders',
+            channelDescription:
+                'Notifications for medication doses and schedules',
+            importance: Importance.high,
+            icon: '@mipmap/ic_launcher',
+            enableVibration: true,
+            enableLights: true,
+            ledColor: Color(0xFF2196F3),
+            actions: <AndroidNotificationAction>[
+              AndroidNotificationAction('mark_taken', 'Mark as Taken'),
+              AndroidNotificationAction('snooze', 'Snooze 15min'),
+            ],
+          );
 
       const DarwinNotificationDetails iosDetails = DarwinNotificationDetails(
         categoryIdentifier: 'medication_reminder',
@@ -218,7 +226,7 @@ class MedicationNotificationService {
   }) async {
     try {
       final List<DateTime> reminderTimes = _calculateReminderTimes(schedule);
-      
+
       for (final DateTime reminderTime in reminderTimes) {
         await scheduleMedicationReminder(
           medicationId: schedule.medicationId,
@@ -245,8 +253,11 @@ class MedicationNotificationService {
           await _flutterLocalNotificationsPlugin.pendingNotificationRequests();
 
       final List<int> notificationIds = pendingNotifications
-          .where((notification) => 
-              notification.payload?.contains('medication:$medicationId') == true)
+          .where(
+            (notification) =>
+                notification.payload?.contains('medication:$medicationId') ==
+                true,
+          )
           .map((notification) => notification.id)
           .toList();
 
@@ -269,25 +280,32 @@ class MedicationNotificationService {
 
   /// Generate unique notification ID
   int _generateNotificationId(String medicationId, DateTime scheduledTime) {
-    final String combined = '$medicationId${scheduledTime.millisecondsSinceEpoch}';
-    return combined.hashCode.abs() % 2147483647; // Ensure positive 32-bit integer
+    final String combined =
+        '$medicationId${scheduledTime.millisecondsSinceEpoch}';
+    return combined.hashCode.abs() %
+        2147483647; // Ensure positive 32-bit integer
   }
 
   /// Calculate reminder times based on schedule
   List<DateTime> _calculateReminderTimes(MedicationSchedule schedule) {
     final List<DateTime> reminderTimes = <DateTime>[];
     final DateTime now = DateTime.now();
-    final DateTime endDate = schedule.endDate ?? now.add(const Duration(days: 30));
+    final DateTime endDate =
+        schedule.endDate ?? now.add(const Duration(days: 30));
 
     // Generate reminders for the next 30 days or until end date
-    for (DateTime date = now; date.isBefore(endDate); date = date.add(const Duration(days: 1))) {
+    for (
+      DateTime date = now;
+      date.isBefore(endDate);
+      date = date.add(const Duration(days: 1))
+    ) {
       for (final time in schedule.reminderTimes) {
         final DateTime reminderTime = DateTime(
           date.year,
           date.month,
           date.day,
           time.hour,
-          time.minute
+          time.minute,
         );
         if (reminderTime.isAfter(now)) {
           reminderTimes.add(reminderTime);
@@ -297,8 +315,6 @@ class MedicationNotificationService {
 
     return reminderTimes;
   }
-
-
 
   /// Handle notification tap
   static void _onNotificationTapped(NotificationResponse notificationResponse) {
@@ -316,7 +332,9 @@ class MedicationNotificationService {
 
   /// Handle background notification tap
   @pragma('vm:entry-point')
-  static void _onBackgroundNotificationTapped(NotificationResponse notificationResponse) {
+  static void _onBackgroundNotificationTapped(
+    NotificationResponse notificationResponse,
+  ) {
     _onNotificationTapped(notificationResponse);
   }
 
@@ -367,14 +385,16 @@ class MedicationNotificationService {
       await initialize();
     }
 
-    const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
-      'medication_updates',
-      'Medication Updates',
-      channelDescription: 'Updates about medication changes and information',
-      importance: Importance.defaultImportance,
-      priority: Priority.defaultPriority,
-      icon: '@mipmap/ic_launcher',
-    );
+    const AndroidNotificationDetails androidDetails =
+        AndroidNotificationDetails(
+          'medication_updates',
+          'Medication Updates',
+          channelDescription:
+              'Updates about medication changes and information',
+          importance: Importance.defaultImportance,
+          priority: Priority.defaultPriority,
+          icon: '@mipmap/ic_launcher',
+        );
 
     const DarwinNotificationDetails iosDetails = DarwinNotificationDetails();
 

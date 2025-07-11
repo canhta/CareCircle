@@ -6,7 +6,7 @@ import '../../../../core/design/design_tokens.dart';
 import '../../domain/models/models.dart';
 import '../providers/medication_providers.dart';
 import '../providers/performance_providers.dart';
-import '../widgets/medication_card.dart';
+
 import '../widgets/medication_statistics_card.dart';
 import '../widgets/medication_shimmer_loading.dart';
 import '../widgets/performance_optimized_list.dart';
@@ -71,7 +71,8 @@ class _MedicationListScreenState extends ConsumerState<MedicationListScreen>
           _searchController.text;
 
       _operationStopwatch.stop();
-      ref.read(medicationPerformanceProvider.notifier)
+      ref
+          .read(medicationPerformanceProvider.notifier)
           .recordOperation('search', _operationStopwatch.elapsed);
     });
   }
@@ -137,9 +138,13 @@ class _MedicationListScreenState extends ConsumerState<MedicationListScreen>
               child: TabBarView(
                 controller: _tabController,
                 children: [
-                  _buildPerformanceOptimizedMedicationList(null), // All medications
+                  _buildPerformanceOptimizedMedicationList(
+                    null,
+                  ), // All medications
                   _buildPerformanceOptimizedMedicationList(true), // Active only
-                  _buildPerformanceOptimizedMedicationList(false), // Inactive only
+                  _buildPerformanceOptimizedMedicationList(
+                    false,
+                  ), // Inactive only
                 ],
               ),
             ),
@@ -169,7 +174,12 @@ class _MedicationListScreenState extends ConsumerState<MedicationListScreen>
                   icon: const Icon(Icons.clear),
                   onPressed: () {
                     _searchController.clear();
-                    ref.read(performanceMedicationSearchTermProvider.notifier).state = '';
+                    ref
+                            .read(
+                              performanceMedicationSearchTermProvider.notifier,
+                            )
+                            .state =
+                        '';
                   },
                 )
               : null,
@@ -191,94 +201,17 @@ class _MedicationListScreenState extends ConsumerState<MedicationListScreen>
     );
   }
 
-  Widget _buildMedicationList(bool? activeFilter) {
-    // Set the active filter
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(performanceMedicationActiveFilterProvider.notifier).state = activeFilter;
-    });
-
-    final medicationsAsync = ref.watch(filteredMedicationsProvider);
-
-    return medicationsAsync.when(
-      data: (medications) {
-        if (medications.isEmpty) {
-          return _buildEmptyState(activeFilter);
-        }
-
-        return RefreshIndicator(
-          onRefresh: () async {
-            // Reset loading state on refresh
-            setState(() {
-              _isLoadingMore = false;
-            });
-            await ref
-                .read(medicationNotifierProvider.notifier)
-                .refreshMedications();
-          },
-          child: ListView.builder(
-            controller: _scrollController,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            // Performance optimization: Add extra items for loading indicator
-            itemCount: medications.length + (_isLoadingMore ? 1 : 0),
-            // Performance optimization: Use prototype item for better performance
-            prototypeItem: medications.isNotEmpty
-                ? RepaintBoundary(
-                    child: Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: MedicationCard(
-                        medication: medications.first,
-                        onTap: () {},
-                        onEdit: () {},
-                        onDelete: () {},
-                      ),
-                    ),
-                  )
-                : null,
-            itemBuilder: (context, index) {
-              // Show loading indicator at the end
-              if (index >= medications.length) {
-                return const Padding(
-                  padding: EdgeInsets.all(16),
-                  child: Center(
-                    child: CircularProgressIndicator(
-                      color: CareCircleDesignTokens.primaryMedicalBlue,
-                    ),
-                  ),
-                );
-              }
-
-              final medication = medications[index];
-              // Performance optimization: Wrap each item in RepaintBoundary
-              return RepaintBoundary(
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: MedicationCard(
-                    medication: medication,
-                    animationDelay: index, // Staggered animation
-                    onTap: () => _navigateToMedicationDetail(medication),
-                    onEdit: () => _navigateToEditMedication(medication),
-                    onDelete: () => _showDeleteConfirmation(medication),
-                  ),
-                ),
-              );
-            },
-          ),
-        );
-      },
-      // Performance optimization: Use shimmer loading instead of simple spinner
-      loading: () => const MedicationShimmerLoading(),
-      error: (error, stack) => _buildErrorState(error.toString()),
-    );
-  }
-
   /// Performance-optimized medication list with advanced caching and virtualization
   Widget _buildPerformanceOptimizedMedicationList(bool? activeFilter) {
     // Set the active filter
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(performanceMedicationActiveFilterProvider.notifier).state = activeFilter;
+      ref.read(performanceMedicationActiveFilterProvider.notifier).state =
+          activeFilter;
     });
 
-    final medicationsAsync = ref.watch(performanceOptimizedFilteredMedicationsProvider);
+    final medicationsAsync = ref.watch(
+      performanceOptimizedFilteredMedicationsProvider,
+    );
 
     return medicationsAsync.when(
       data: (medications) {

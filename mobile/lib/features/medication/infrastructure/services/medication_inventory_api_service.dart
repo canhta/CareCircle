@@ -79,9 +79,7 @@ abstract class MedicationInventoryApiService {
   );
 
   @GET('/medication-inventory/expiring')
-  Future<InventoryListResponse> getExpiringItems(
-    @Query('days') int? days,
-  );
+  Future<InventoryListResponse> getExpiringItems(@Query('days') int? days);
 
   @GET('/medication-inventory/expired')
   Future<InventoryListResponse> getExpiredItems();

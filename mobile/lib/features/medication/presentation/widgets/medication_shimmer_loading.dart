@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 
 /// Healthcare-compliant shimmer loading widget for medication lists
-/// 
+///
 /// Provides a professional loading experience with subtle animations
 /// that are appropriate for healthcare applications.
 class MedicationShimmerLoading extends StatefulWidget {
   const MedicationShimmerLoading({super.key});
 
   @override
-  State<MedicationShimmerLoading> createState() => _MedicationShimmerLoadingState();
+  State<MedicationShimmerLoading> createState() =>
+      _MedicationShimmerLoadingState();
 }
 
 class _MedicationShimmerLoadingState extends State<MedicationShimmerLoading>
@@ -36,10 +37,7 @@ class _MedicationShimmerLoadingState extends State<MedicationShimmerLoading>
         padding: const EdgeInsets.symmetric(horizontal: 16),
         itemCount: 6, // Show 6 shimmer items
         itemBuilder: (context, index) {
-          return ShimmerLoading(
-            isLoading: true,
-            child: _buildShimmerCard(),
-          );
+          return ShimmerLoading(isLoading: true, child: _buildShimmerCard());
         },
       ),
     );
@@ -144,11 +142,7 @@ class _MedicationShimmerLoadingState extends State<MedicationShimmerLoading>
 
 /// Shimmer gradient for healthcare-appropriate loading animation
 const _shimmerGradient = LinearGradient(
-  colors: [
-    Color(0xFFEBEBF4),
-    Color(0xFFF4F4F4),
-    Color(0xFFEBEBF4),
-  ],
+  colors: [Color(0xFFEBEBF4), Color(0xFFF4F4F4), Color(0xFFEBEBF4)],
   stops: [0.1, 0.3, 0.4],
   begin: Alignment(-1.0, -0.3),
   end: Alignment(1.0, 0.3),
@@ -161,11 +155,7 @@ class Shimmer extends StatefulWidget {
     return context.findAncestorStateOfType<ShimmerState>();
   }
 
-  const Shimmer({
-    super.key,
-    required this.linearGradient,
-    this.child,
-  });
+  const Shimmer({super.key, required this.linearGradient, this.child});
 
   final LinearGradient linearGradient;
   final Widget? child;
@@ -191,14 +181,14 @@ class ShimmerState extends State<Shimmer> with SingleTickerProviderStateMixin {
   }
 
   LinearGradient get gradient => LinearGradient(
-        colors: widget.linearGradient.colors,
-        stops: widget.linearGradient.stops,
-        begin: widget.linearGradient.begin,
-        end: widget.linearGradient.end,
-        transform: _SlidingGradientTransform(
-          slidePercent: _shimmerController.value,
-        ),
-      );
+    colors: widget.linearGradient.colors,
+    stops: widget.linearGradient.stops,
+    begin: widget.linearGradient.begin,
+    end: widget.linearGradient.end,
+    transform: _SlidingGradientTransform(
+      slidePercent: _shimmerController.value,
+    ),
+  );
 
   bool get isSized =>
       (context.findRenderObject() as RenderBox?)?.hasSize ?? false;

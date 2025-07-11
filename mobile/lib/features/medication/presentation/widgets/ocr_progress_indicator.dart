@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/design/design_tokens.dart';
 
 /// Healthcare-compliant OCR progress indicator
-/// 
+///
 /// Provides clear visual feedback during prescription OCR processing
 /// with professional animations and status messages.
 class OCRProgressIndicator extends StatefulWidget {
@@ -35,24 +35,20 @@ class _OCRProgressIndicatorState extends State<OCRProgressIndicator>
   @override
   void initState() {
     super.initState();
-    
+
     _rotationController = AnimationController(
       duration: const Duration(seconds: 2),
       vsync: this,
     );
-    
+
     _pulseController = AnimationController(
       duration: const Duration(milliseconds: 1500),
       vsync: this,
     );
-    
-    _pulseAnimation = Tween<double>(
-      begin: 0.8,
-      end: 1.2,
-    ).animate(CurvedAnimation(
-      parent: _pulseController,
-      curve: Curves.easeInOut,
-    ));
+
+    _pulseAnimation = Tween<double>(begin: 0.8, end: 1.2).animate(
+      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+    );
 
     if (!widget.isComplete && !widget.hasError) {
       _rotationController.repeat();
@@ -63,7 +59,7 @@ class _OCRProgressIndicatorState extends State<OCRProgressIndicator>
   @override
   void didUpdateWidget(OCRProgressIndicator oldWidget) {
     super.didUpdateWidget(oldWidget);
-    
+
     if (widget.isComplete || widget.hasError) {
       _rotationController.stop();
       _pulseController.stop();
@@ -133,10 +129,12 @@ class _OCRProgressIndicatorState extends State<OCRProgressIndicator>
             height: 80,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: CareCircleDesignTokens.primaryMedicalBlue.withValues(alpha: 0.1),
+              color: CareCircleDesignTokens.primaryMedicalBlue.withValues(
+                alpha: 0.1,
+              ),
             ),
           ),
-          
+
           // Progress circle
           AnimatedBuilder(
             animation: _pulseAnimation,
@@ -158,7 +156,7 @@ class _OCRProgressIndicatorState extends State<OCRProgressIndicator>
               );
             },
           ),
-          
+
           // Rotating scanner icon
           AnimatedBuilder(
             animation: _rotationController,
@@ -185,16 +183,9 @@ class _OCRProgressIndicatorState extends State<OCRProgressIndicator>
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         color: Colors.green.withValues(alpha: 0.1),
-        border: Border.all(
-          color: Colors.green,
-          width: 2,
-        ),
+        border: Border.all(color: Colors.green, width: 2),
       ),
-      child: const Icon(
-        Icons.check_circle,
-        size: 40,
-        color: Colors.green,
-      ),
+      child: const Icon(Icons.check_circle, size: 40, color: Colors.green),
     );
   }
 
@@ -205,16 +196,9 @@ class _OCRProgressIndicatorState extends State<OCRProgressIndicator>
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         color: Colors.red.withValues(alpha: 0.1),
-        border: Border.all(
-          color: Colors.red,
-          width: 2,
-        ),
+        border: Border.all(color: Colors.red, width: 2),
       ),
-      child: const Icon(
-        Icons.error_outline,
-        size: 40,
-        color: Colors.red,
-      ),
+      child: const Icon(Icons.error_outline, size: 40, color: Colors.red),
     );
   }
 
@@ -243,10 +227,7 @@ class _OCRProgressIndicatorState extends State<OCRProgressIndicator>
           const SizedBox(height: 8),
           Text(
             '${(widget.progress * 100).toInt()}% Complete',
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey[600],
-            ),
+            style: TextStyle(fontSize: 14, color: Colors.grey[600]),
           ),
         ],
       ],
@@ -264,9 +245,7 @@ class _OCRProgressIndicatorState extends State<OCRProgressIndicator>
           backgroundColor: CareCircleDesignTokens.primaryMedicalBlue,
           foregroundColor: Colors.white,
           padding: const EdgeInsets.symmetric(vertical: 12),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
       ),
     );
@@ -283,7 +262,7 @@ enum OCRProcessingStage {
   complete('Processing complete!', 1.0);
 
   const OCRProcessingStage(this.message, this.progress);
-  
+
   final String message;
   final double progress;
 }
@@ -307,7 +286,9 @@ class EnhancedOCRProgressIndicator extends StatelessWidget {
   Widget build(BuildContext context) {
     return OCRProgressIndicator(
       progress: currentStage.progress,
-      statusMessage: hasError ? (errorMessage ?? 'Processing failed') : currentStage.message,
+      statusMessage: hasError
+          ? (errorMessage ?? 'Processing failed')
+          : currentStage.message,
       isComplete: currentStage == OCRProcessingStage.complete && !hasError,
       hasError: hasError,
       onRetry: onRetry,

@@ -5,7 +5,7 @@ import '../../domain/models/models.dart';
 import 'medication_card.dart';
 
 /// Advanced performance-optimized list for medication management
-/// 
+///
 /// Features:
 /// - Memory-efficient virtualization
 /// - Intelligent caching and preloading
@@ -35,46 +35,47 @@ class PerformanceOptimizedMedicationList extends StatefulWidget {
   });
 
   @override
-  State<PerformanceOptimizedMedicationList> createState() => 
+  State<PerformanceOptimizedMedicationList> createState() =>
       _PerformanceOptimizedMedicationListState();
 }
 
-class _PerformanceOptimizedMedicationListState 
+class _PerformanceOptimizedMedicationListState
     extends State<PerformanceOptimizedMedicationList>
     with TickerProviderStateMixin {
-  
   late ScrollController _scrollController;
   late AnimationController _staggerController;
-  
+
   // Performance optimization: Cache rendered widgets
   final Map<String, Widget> _widgetCache = {};
   final LRUCache<String, Widget> _lruCache = LRUCache(maxSize: 50);
-  
+
   // Performance monitoring
   final Stopwatch _renderStopwatch = Stopwatch();
   final List<double> _frameTimes = [];
-  
+
   // Adaptive performance settings
   bool _highPerformanceMode = true;
   int _maxCacheSize = 50;
   Duration _animationDuration = const Duration(milliseconds: 400);
-  
+
   // Viewport tracking for efficient rendering
   final Set<int> _visibleIndices = <int>{};
   final Set<int> _preloadedIndices = <int>{};
-  
+
   @override
   void initState() {
     super.initState();
     _scrollController = widget.scrollController ?? ScrollController();
+
+    _initializePerformanceSettings();
+
     _staggerController = AnimationController(
-      duration: const Duration(milliseconds: 1200),
+      duration: _animationDuration * 3, // Stagger animation is 3x base duration
       vsync: this,
     );
-    
-    _initializePerformanceSettings();
+
     _setupScrollListener();
-    
+
     // Start stagger animation
     if (widget.enableAnimations) {
       _staggerController.forward();
@@ -93,15 +94,16 @@ class _PerformanceOptimizedMedicationListState
   void _initializePerformanceSettings() {
     // Detect device performance capabilities
     final binding = WidgetsBinding.instance;
-    final devicePixelRatio = binding.platformDispatcher.views.first.devicePixelRatio;
-    
+    final devicePixelRatio =
+        binding.platformDispatcher.views.first.devicePixelRatio;
+
     // Adjust settings based on device capabilities
     if (devicePixelRatio > 2.0) {
       // High-DPI device, might need performance adjustments
       _maxCacheSize = 30;
       _animationDuration = const Duration(milliseconds: 300);
     }
-    
+
     // Monitor frame performance
     binding.addPostFrameCallback(_monitorFramePerformance);
   }
@@ -110,48 +112,58 @@ class _PerformanceOptimizedMedicationListState
     if (_renderStopwatch.isRunning) {
       final frameTime = _renderStopwatch.elapsedMilliseconds.toDouble();
       _frameTimes.add(frameTime);
-      
+
       // Keep only recent frame times
       if (_frameTimes.length > 60) {
         _frameTimes.removeAt(0);
       }
-      
+
       // Adaptive performance adjustment
-      final avgFrameTime = _frameTimes.reduce((a, b) => a + b) / _frameTimes.length;
-      if (avgFrameTime > 16.67) { // 60fps threshold
+      final avgFrameTime =
+          _frameTimes.reduce((a, b) => a + b) / _frameTimes.length;
+      if (avgFrameTime > 16.67) {
+        // 60fps threshold
         _adjustPerformanceSettings(false);
       } else if (avgFrameTime < 10.0) {
         _adjustPerformanceSettings(true);
       }
     }
-    
+
     _renderStopwatch.reset();
     _renderStopwatch.start();
-    
+
     // Schedule next frame monitoring
     WidgetsBinding.instance.addPostFrameCallback(_monitorFramePerformance);
   }
 
   void _adjustPerformanceSettings(bool increasePerformance) {
     if (!mounted) return;
-    
+
     setState(() {
       if (increasePerformance && !_highPerformanceMode) {
         _highPerformanceMode = true;
         _maxCacheSize = 50;
         _animationDuration = const Duration(milliseconds: 400);
+        _updateAnimationController();
       } else if (!increasePerformance && _highPerformanceMode) {
         _highPerformanceMode = false;
         _maxCacheSize = 20;
         _animationDuration = const Duration(milliseconds: 200);
+        _updateAnimationController();
         _clearExcessCache();
       }
     });
   }
 
+  void _updateAnimationController() {
+    _staggerController.duration = _animationDuration * 3;
+  }
+
   void _clearExcessCache() {
     if (_widgetCache.length > _maxCacheSize) {
-      final keysToRemove = _widgetCache.keys.take(_widgetCache.length - _maxCacheSize);
+      final keysToRemove = _widgetCache.keys.take(
+        _widgetCache.length - _maxCacheSize,
+      );
       for (final key in keysToRemove) {
         _widgetCache.remove(key);
       }
@@ -168,16 +180,21 @@ class _PerformanceOptimizedMedicationListState
 
   void _updateVisibleIndices() {
     if (!_scrollController.hasClients) return;
-    
+
     final scrollOffset = _scrollController.offset;
     final viewportHeight = _scrollController.position.viewportDimension;
-    
+
     // Estimate item height (can be made more precise with actual measurements)
     const estimatedItemHeight = 120.0;
-    
-    final startIndex = (scrollOffset / estimatedItemHeight).floor().clamp(0, widget.medications.length - 1);
-    final endIndex = ((scrollOffset + viewportHeight) / estimatedItemHeight).ceil().clamp(0, widget.medications.length - 1);
-    
+
+    final startIndex = (scrollOffset / estimatedItemHeight).floor().clamp(
+      0,
+      widget.medications.length - 1,
+    );
+    final endIndex = ((scrollOffset + viewportHeight) / estimatedItemHeight)
+        .ceil()
+        .clamp(0, widget.medications.length - 1);
+
     _visibleIndices.clear();
     for (int i = startIndex; i <= endIndex; i++) {
       _visibleIndices.add(i);
@@ -187,15 +204,17 @@ class _PerformanceOptimizedMedicationListState
   void _preloadNearbyItems() {
     const preloadBuffer = 5;
     final indicesToPreload = <int>{};
-    
+
     for (final index in _visibleIndices) {
-      for (int i = (index - preloadBuffer).clamp(0, widget.medications.length - 1);
-           i <= (index + preloadBuffer).clamp(0, widget.medications.length - 1);
-           i++) {
+      for (
+        int i = (index - preloadBuffer).clamp(0, widget.medications.length - 1);
+        i <= (index + preloadBuffer).clamp(0, widget.medications.length - 1);
+        i++
+      ) {
         indicesToPreload.add(i);
       }
     }
-    
+
     // Preload widgets for nearby items
     for (final index in indicesToPreload) {
       if (!_preloadedIndices.contains(index)) {
@@ -207,11 +226,12 @@ class _PerformanceOptimizedMedicationListState
 
   void _preloadWidget(int index) {
     if (index >= widget.medications.length) return;
-    
+
     final medication = widget.medications[index];
     final cacheKey = '${medication.id}_$index';
-    
-    if (!_widgetCache.containsKey(cacheKey) && _widgetCache.length < _maxCacheSize) {
+
+    if (!_widgetCache.containsKey(cacheKey) &&
+        _widgetCache.length < _maxCacheSize) {
       final preloadWidget = _buildMedicationCard(medication, index);
       _widgetCache[cacheKey] = preloadWidget;
       _lruCache.put(cacheKey, preloadWidget);
@@ -220,10 +240,10 @@ class _PerformanceOptimizedMedicationListState
 
   void _checkLoadMore() {
     if (widget.onLoadMore == null || widget.isLoadingMore) return;
-    
+
     final maxScrollExtent = _scrollController.position.maxScrollExtent;
     final currentScrollOffset = _scrollController.offset;
-    
+
     if (currentScrollOffset >= maxScrollExtent * 0.8) {
       widget.onLoadMore!();
     }
@@ -248,7 +268,7 @@ class _PerformanceOptimizedMedicationListState
           if (index >= widget.medications.length) {
             return _buildLoadingIndicator();
           }
-          
+
           return _buildOptimizedListItem(index);
         },
       ),
@@ -258,16 +278,16 @@ class _PerformanceOptimizedMedicationListState
   Widget _buildOptimizedListItem(int index) {
     final medication = widget.medications[index];
     final cacheKey = '${medication.id}_$index';
-    
+
     // Try to get from cache first
     Widget? cachedWidget = _widgetCache[cacheKey] ?? _lruCache.get(cacheKey);
-    
+
     if (cachedWidget != null) {
       // Update LRU cache
       _lruCache.put(cacheKey, cachedWidget);
       return cachedWidget;
     }
-    
+
     // Build new widget
     final newWidget = _buildMedicationCard(medication, index);
 
@@ -302,18 +322,15 @@ class _PerformanceOptimizedMedicationListState
           final animationProgress = Curves.easeOut.transform(
             (_staggerController.value - (index * 0.1)).clamp(0.0, 1.0),
           );
-          
+
           return Transform.translate(
             offset: Offset(0, 20 * (1 - animationProgress)),
-            child: Opacity(
-              opacity: animationProgress,
-              child: card,
-            ),
+            child: Opacity(opacity: animationProgress, child: card),
           );
         },
       );
     }
-    
+
     return card;
   }
 
@@ -337,10 +354,7 @@ class _PerformanceOptimizedMedicationListState
           const SizedBox(width: 12),
           Text(
             'Loading more medications...',
-            style: TextStyle(
-              color: Colors.grey[600],
-              fontSize: 14,
-            ),
+            style: TextStyle(color: Colors.grey[600], fontSize: 14),
           ),
         ],
       ),
@@ -400,10 +414,10 @@ class PerformanceMetrics extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (frameTimes.isEmpty) return const SizedBox.shrink();
-    
+
     final avgFrameTime = frameTimes.reduce((a, b) => a + b) / frameTimes.length;
     final fps = 1000 / avgFrameTime;
-    
+
     return Container(
       padding: const EdgeInsets.all(8),
       margin: const EdgeInsets.all(8),
@@ -417,12 +431,19 @@ class PerformanceMetrics extends StatelessWidget {
         children: [
           Text(
             'Performance Metrics',
-            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
           ),
           Text(
             'FPS: ${fps.toStringAsFixed(1)}',
             style: TextStyle(
-              color: fps >= 55 ? Colors.green : fps >= 30 ? Colors.orange : Colors.red,
+              color: fps >= 55
+                  ? Colors.green
+                  : fps >= 30
+                  ? Colors.orange
+                  : Colors.red,
             ),
           ),
           Text(

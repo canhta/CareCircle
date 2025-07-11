@@ -27,16 +27,12 @@ export class FirebaseAuthService {
     // Initialize Firebase Admin SDK
     if (!admin.apps.length) {
       const projectId = this.configService.get<string>('FIREBASE_PROJECT_ID');
-      const privateKeyId = this.configService.get<string>(
-        'FIREBASE_PRIVATE_KEY_ID',
-      );
       const privateKey = this.configService
         .get<string>('FIREBASE_PRIVATE_KEY')
         ?.replace(/\\n/g, '\n');
       const clientEmail = this.configService.get<string>(
         'FIREBASE_CLIENT_EMAIL',
       );
-      const clientId = this.configService.get<string>('FIREBASE_CLIENT_ID');
 
       // Check if Firebase credentials are configured
       if (
@@ -59,20 +55,15 @@ export class FirebaseAuthService {
           projectId: projectId || 'carecircle-dev',
         });
       } else {
-        const serviceAccount = {
+        const serviceAccount: admin.ServiceAccount = {
           projectId,
-          privateKeyId,
           privateKey,
           clientEmail,
-          clientId,
-          authUri: this.configService.get<string>('FIREBASE_AUTH_URI'),
-          tokenUri: this.configService.get<string>('FIREBASE_TOKEN_URI'),
         };
 
+        // Initialize with explicit service account credentials to avoid metadata lookups
         admin.initializeApp({
-          credential: admin.credential.cert(
-            serviceAccount as admin.ServiceAccount,
-          ),
+          credential: admin.credential.cert(serviceAccount),
           projectId: serviceAccount.projectId,
         });
 

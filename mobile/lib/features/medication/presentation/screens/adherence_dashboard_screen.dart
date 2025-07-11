@@ -18,10 +18,12 @@ class AdherenceDashboardScreen extends ConsumerStatefulWidget {
   const AdherenceDashboardScreen({super.key});
 
   @override
-  ConsumerState<AdherenceDashboardScreen> createState() => _AdherenceDashboardScreenState();
+  ConsumerState<AdherenceDashboardScreen> createState() =>
+      _AdherenceDashboardScreenState();
 }
 
-class _AdherenceDashboardScreenState extends ConsumerState<AdherenceDashboardScreen> {
+class _AdherenceDashboardScreenState
+    extends ConsumerState<AdherenceDashboardScreen> {
   String _selectedPeriod = '7days';
 
   @override
@@ -46,7 +48,10 @@ class _AdherenceDashboardScreenState extends ConsumerState<AdherenceDashboardScr
             itemBuilder: (context) => [
               const PopupMenuItem(value: '7days', child: Text('Last 7 Days')),
               const PopupMenuItem(value: '30days', child: Text('Last 30 Days')),
-              const PopupMenuItem(value: '90days', child: Text('Last 3 Months')),
+              const PopupMenuItem(
+                value: '90days',
+                child: Text('Last 3 Months'),
+              ),
               const PopupMenuItem(value: '365days', child: Text('Last Year')),
             ],
             icon: const Icon(Icons.date_range),
@@ -71,7 +76,10 @@ class _AdherenceDashboardScreenState extends ConsumerState<AdherenceDashboardScr
     );
   }
 
-  Widget _buildOverviewSection(AsyncValue<AdherenceStatistics> statisticsAsync, ThemeData theme) {
+  Widget _buildOverviewSection(
+    AsyncValue<AdherenceStatistics> statisticsAsync,
+    ThemeData theme,
+  ) {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -91,7 +99,8 @@ class _AdherenceDashboardScreenState extends ConsumerState<AdherenceDashboardScr
             statisticsAsync.when(
               data: (statistics) => _buildOverviewContent(statistics, theme),
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (error, _) => _buildErrorState('Failed to load statistics', theme),
+              error: (error, _) =>
+                  _buildErrorState('Failed to load statistics', theme),
             ),
           ],
         ),
@@ -99,7 +108,10 @@ class _AdherenceDashboardScreenState extends ConsumerState<AdherenceDashboardScr
     );
   }
 
-  Widget _buildOverviewContent(AdherenceStatistics statistics, ThemeData theme) {
+  Widget _buildOverviewContent(
+    AdherenceStatistics statistics,
+    ThemeData theme,
+  ) {
     return Column(
       children: [
         // Large adherence percentage display
@@ -111,7 +123,9 @@ class _AdherenceDashboardScreenState extends ConsumerState<AdherenceDashboardScr
             gradient: LinearGradient(
               colors: [
                 _getAdherenceColor(statistics.adherencePercentage),
-                _getAdherenceColor(statistics.adherencePercentage).withValues(alpha: 0.7),
+                _getAdherenceColor(
+                  statistics.adherencePercentage,
+                ).withValues(alpha: 0.7),
               ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
@@ -123,11 +137,17 @@ class _AdherenceDashboardScreenState extends ConsumerState<AdherenceDashboardScr
               children: [
                 Text(
                   '${statistics.adherencePercentage.toInt()}%',
-                  style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold, color: Colors.white),
+                  style: theme.textTheme.headlineMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
                 ),
                 Text(
                   'Adherence',
-                  style: theme.textTheme.bodyMedium?.copyWith(color: Colors.white, fontWeight: FontWeight.w500),
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ],
             ),
@@ -190,7 +210,14 @@ class _AdherenceDashboardScreenState extends ConsumerState<AdherenceDashboardScr
     );
   }
 
-  Widget _buildStatCard(String title, String value, String unit, IconData icon, Color color, ThemeData theme) {
+  Widget _buildStatCard(
+    String title,
+    String value,
+    String unit,
+    IconData icon,
+    Color color,
+    ThemeData theme,
+  ) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -204,20 +231,33 @@ class _AdherenceDashboardScreenState extends ConsumerState<AdherenceDashboardScr
           const SizedBox(height: 8),
           Text(
             value,
-            style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold, color: color),
+            style: theme.textTheme.headlineSmall?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
           ),
           Text(
             unit,
-            style: theme.textTheme.bodySmall?.copyWith(color: color, fontWeight: FontWeight.w500),
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: color,
+              fontWeight: FontWeight.w500,
+            ),
           ),
           const SizedBox(height: 4),
-          Text(title, style: theme.textTheme.bodySmall, textAlign: TextAlign.center),
+          Text(
+            title,
+            style: theme.textTheme.bodySmall,
+            textAlign: TextAlign.center,
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildTrendsChartSection(AsyncValue<List<AdherenceTrendPoint>> trendsAsync, ThemeData theme) {
+  Widget _buildTrendsChartSection(
+    AsyncValue<List<AdherenceTrendPoint>> trendsAsync,
+    ThemeData theme,
+  ) {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -238,15 +278,21 @@ class _AdherenceDashboardScreenState extends ConsumerState<AdherenceDashboardScr
                 const Spacer(),
                 Text(
                   _getPeriodDisplayName(_selectedPeriod),
-                  style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
                 ),
               ],
             ),
             const SizedBox(height: 16),
             trendsAsync.when(
               data: (statistics) => _buildTrendsChart(statistics, theme),
-              loading: () => const SizedBox(height: 200, child: Center(child: CircularProgressIndicator())),
-              error: (error, _) => _buildErrorState('Failed to load trends', theme),
+              loading: () => const SizedBox(
+                height: 200,
+                child: Center(child: CircularProgressIndicator()),
+              ),
+              error: (error, _) =>
+                  _buildErrorState('Failed to load trends', theme),
             ),
           ],
         ),
@@ -266,13 +312,20 @@ class _AdherenceDashboardScreenState extends ConsumerState<AdherenceDashboardScr
             drawVerticalLine: false,
             horizontalInterval: 20,
             getDrawingHorizontalLine: (value) {
-              return FlLine(color: theme.colorScheme.outline.withValues(alpha: 0.2), strokeWidth: 1);
+              return FlLine(
+                color: theme.colorScheme.outline.withValues(alpha: 0.2),
+                strokeWidth: 1,
+              );
             },
           ),
           titlesData: FlTitlesData(
             show: true,
-            rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            rightTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            topTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
             bottomTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
@@ -281,8 +334,13 @@ class _AdherenceDashboardScreenState extends ConsumerState<AdherenceDashboardScr
                 getTitlesWidget: (value, meta) {
                   final index = value.toInt();
                   if (index >= 0 && index < trends.length) {
-                    final date = DateTime.now().subtract(Duration(days: trendValues.length - index - 1));
-                    return Text('${date.day}/${date.month}', style: theme.textTheme.bodySmall);
+                    final date = DateTime.now().subtract(
+                      Duration(days: trendValues.length - index - 1),
+                    );
+                    return Text(
+                      '${date.day}/${date.month}',
+                      style: theme.textTheme.bodySmall,
+                    );
                   }
                   return const Text('');
                 },
@@ -294,14 +352,19 @@ class _AdherenceDashboardScreenState extends ConsumerState<AdherenceDashboardScr
                 interval: 20,
                 reservedSize: 40,
                 getTitlesWidget: (value, meta) {
-                  return Text('${value.toInt()}%', style: theme.textTheme.bodySmall);
+                  return Text(
+                    '${value.toInt()}%',
+                    style: theme.textTheme.bodySmall,
+                  );
                 },
               ),
             ),
           ),
           borderData: FlBorderData(
             show: true,
-            border: Border.all(color: theme.colorScheme.outline.withValues(alpha: 0.2)),
+            border: Border.all(
+              color: theme.colorScheme.outline.withValues(alpha: 0.2),
+            ),
           ),
           minX: 0,
           maxX: (trendValues.length - 1).toDouble(),
@@ -314,7 +377,10 @@ class _AdherenceDashboardScreenState extends ConsumerState<AdherenceDashboardScr
               }).toList(),
               isCurved: true,
               gradient: LinearGradient(
-                colors: [CareCircleDesignTokens.primaryMedicalBlue, CareCircleDesignTokens.healthGreen],
+                colors: [
+                  CareCircleDesignTokens.primaryMedicalBlue,
+                  CareCircleDesignTokens.healthGreen,
+                ],
               ),
               barWidth: 3,
               isStrokeCapRound: true,
@@ -333,7 +399,9 @@ class _AdherenceDashboardScreenState extends ConsumerState<AdherenceDashboardScr
                 show: true,
                 gradient: LinearGradient(
                   colors: [
-                    CareCircleDesignTokens.primaryMedicalBlue.withValues(alpha: 0.3),
+                    CareCircleDesignTokens.primaryMedicalBlue.withValues(
+                      alpha: 0.3,
+                    ),
                     CareCircleDesignTokens.healthGreen.withValues(alpha: 0.1),
                   ],
                   begin: Alignment.topCenter,
@@ -347,7 +415,10 @@ class _AdherenceDashboardScreenState extends ConsumerState<AdherenceDashboardScr
     );
   }
 
-  Widget _buildAchievementsSection(AsyncValue<AdherenceStatistics> statisticsAsync, ThemeData theme) {
+  Widget _buildAchievementsSection(
+    AsyncValue<AdherenceStatistics> statisticsAsync,
+    ThemeData theme,
+  ) {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -365,9 +436,11 @@ class _AdherenceDashboardScreenState extends ConsumerState<AdherenceDashboardScr
             ),
             const SizedBox(height: 16),
             statisticsAsync.when(
-              data: (statistics) => _buildAchievementsContent(statistics, theme),
+              data: (statistics) =>
+                  _buildAchievementsContent(statistics, theme),
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (error, _) => _buildErrorState('Failed to load achievements', theme),
+              error: (error, _) =>
+                  _buildErrorState('Failed to load achievements', theme),
             ),
           ],
         ),
@@ -375,13 +448,18 @@ class _AdherenceDashboardScreenState extends ConsumerState<AdherenceDashboardScr
     );
   }
 
-  Widget _buildAchievementsContent(AdherenceStatistics statistics, ThemeData theme) {
+  Widget _buildAchievementsContent(
+    AdherenceStatistics statistics,
+    ThemeData theme,
+  ) {
     final achievements = _getAchievements(statistics);
 
     return Wrap(
       spacing: 12,
       runSpacing: 12,
-      children: achievements.map((achievement) => _buildAchievementBadge(achievement, theme)).toList(),
+      children: achievements
+          .map((achievement) => _buildAchievementBadge(achievement, theme))
+          .toList(),
     );
   }
 
@@ -389,7 +467,9 @@ class _AdherenceDashboardScreenState extends ConsumerState<AdherenceDashboardScr
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: achievement.isEarned ? achievement.color.withValues(alpha: 0.1) : theme.colorScheme.surfaceContainerLow,
+        color: achievement.isEarned
+            ? achievement.color.withValues(alpha: 0.1)
+            : theme.colorScheme.surfaceContainerLow,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
           color: achievement.isEarned
@@ -402,15 +482,21 @@ class _AdherenceDashboardScreenState extends ConsumerState<AdherenceDashboardScr
         children: [
           Icon(
             achievement.icon,
-            color: achievement.isEarned ? achievement.color : theme.colorScheme.onSurfaceVariant,
+            color: achievement.isEarned
+                ? achievement.color
+                : theme.colorScheme.onSurfaceVariant,
             size: 20,
           ),
           const SizedBox(width: 8),
           Text(
             achievement.title,
             style: theme.textTheme.bodyMedium?.copyWith(
-              color: achievement.isEarned ? achievement.color : theme.colorScheme.onSurfaceVariant,
-              fontWeight: achievement.isEarned ? FontWeight.w600 : FontWeight.normal,
+              color: achievement.isEarned
+                  ? achievement.color
+                  : theme.colorScheme.onSurfaceVariant,
+              fontWeight: achievement.isEarned
+                  ? FontWeight.w600
+                  : FontWeight.normal,
             ),
           ),
         ],
@@ -418,7 +504,10 @@ class _AdherenceDashboardScreenState extends ConsumerState<AdherenceDashboardScr
     );
   }
 
-  Widget _buildInsightsSection(AsyncValue<AdherenceStatistics> statisticsAsync, ThemeData theme) {
+  Widget _buildInsightsSection(
+    AsyncValue<AdherenceStatistics> statisticsAsync,
+    ThemeData theme,
+  ) {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -438,7 +527,8 @@ class _AdherenceDashboardScreenState extends ConsumerState<AdherenceDashboardScr
             statisticsAsync.when(
               data: (statistics) => _buildInsightsContent(statistics, theme),
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (error, _) => _buildErrorState('Failed to load insights', theme),
+              error: (error, _) =>
+                  _buildErrorState('Failed to load insights', theme),
             ),
           ],
         ),
@@ -446,10 +536,17 @@ class _AdherenceDashboardScreenState extends ConsumerState<AdherenceDashboardScr
     );
   }
 
-  Widget _buildInsightsContent(AdherenceStatistics statistics, ThemeData theme) {
+  Widget _buildInsightsContent(
+    AdherenceStatistics statistics,
+    ThemeData theme,
+  ) {
     final insights = _generateInsights(statistics);
 
-    return Column(children: insights.map((insight) => _buildInsightCard(insight, theme)).toList());
+    return Column(
+      children: insights
+          .map((insight) => _buildInsightCard(insight, theme))
+          .toList(),
+    );
   }
 
   Widget _buildInsightCard(Insight insight, ThemeData theme) {
@@ -487,7 +584,12 @@ class _AdherenceDashboardScreenState extends ConsumerState<AdherenceDashboardScr
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(insight.title, style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600)),
+                Text(
+                  insight.title,
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
                 const SizedBox(height: 4),
                 Text(insight.description, style: theme.textTheme.bodyMedium),
               ],
@@ -503,11 +605,17 @@ class _AdherenceDashboardScreenState extends ConsumerState<AdherenceDashboardScr
       padding: const EdgeInsets.all(32),
       child: Column(
         children: [
-          Icon(Icons.error_outline, size: 48, color: CareCircleDesignTokens.criticalAlert),
+          Icon(
+            Icons.error_outline,
+            size: 48,
+            color: CareCircleDesignTokens.criticalAlert,
+          ),
           const SizedBox(height: 16),
           Text(
             message,
-            style: theme.textTheme.bodyLarge?.copyWith(color: CareCircleDesignTokens.criticalAlert),
+            style: theme.textTheme.bodyLarge?.copyWith(
+              color: CareCircleDesignTokens.criticalAlert,
+            ),
             textAlign: TextAlign.center,
           ),
         ],
@@ -572,7 +680,8 @@ class _AdherenceDashboardScreenState extends ConsumerState<AdherenceDashboardScr
       insights.add(
         Insight(
           title: 'Excellent Adherence!',
-          description: 'You\'re maintaining excellent medication adherence. Keep up the great work!',
+          description:
+              'You\'re maintaining excellent medication adherence. Keep up the great work!',
           type: InsightType.positive,
           icon: Icons.celebration,
         ),
@@ -581,7 +690,8 @@ class _AdherenceDashboardScreenState extends ConsumerState<AdherenceDashboardScr
       insights.add(
         Insight(
           title: 'Good Progress',
-          description: 'Your adherence is good, but there\'s room for improvement. Consider setting more reminders.',
+          description:
+              'Your adherence is good, but there\'s room for improvement. Consider setting more reminders.',
           type: InsightType.warning,
           icon: Icons.trending_up,
         ),
@@ -614,7 +724,8 @@ class _AdherenceDashboardScreenState extends ConsumerState<AdherenceDashboardScr
       insights.add(
         Insight(
           title: 'Missed Doses Pattern',
-          description: 'You\'ve missed several doses recently. Consider adjusting your reminder settings.',
+          description:
+              'You\'ve missed several doses recently. Consider adjusting your reminder settings.',
           type: InsightType.warning,
           icon: Icons.schedule,
         ),
@@ -632,7 +743,12 @@ class Achievement {
   final Color color;
   final bool isEarned;
 
-  Achievement({required this.title, required this.icon, required this.color, required this.isEarned});
+  Achievement({
+    required this.title,
+    required this.icon,
+    required this.color,
+    required this.isEarned,
+  });
 }
 
 class Insight {
@@ -641,7 +757,12 @@ class Insight {
   final InsightType type;
   final IconData icon;
 
-  Insight({required this.title, required this.description, required this.type, required this.icon});
+  Insight({
+    required this.title,
+    required this.description,
+    required this.type,
+    required this.icon,
+  });
 }
 
 enum InsightType { positive, warning, critical }

@@ -4,7 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import '../../../../core/design/design_tokens.dart';
 
 /// Enhanced camera preview widget for prescription scanning
-/// 
+///
 /// Provides professional camera interface with healthcare-appropriate
 /// guidance and feedback for optimal prescription capture.
 class CameraPreviewWidget extends StatefulWidget {
@@ -35,14 +35,10 @@ class _CameraPreviewWidgetState extends State<CameraPreviewWidget>
       duration: const Duration(seconds: 2),
       vsync: this,
     )..repeat(reverse: true);
-    
-    _pulseAnimation = Tween<double>(
-      begin: 0.8,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _pulseController,
-      curve: Curves.easeInOut,
-    ));
+
+    _pulseAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
+      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+    );
   }
 
   @override
@@ -60,16 +56,16 @@ class _CameraPreviewWidgetState extends State<CameraPreviewWidget>
           children: [
             // Camera preview placeholder with guidance
             _buildCameraPreviewArea(),
-            
+
             // Top controls
             _buildTopControls(),
-            
+
             // Bottom controls
             _buildBottomControls(),
-            
+
             // Prescription frame overlay
             _buildPrescriptionFrameOverlay(),
-            
+
             // Guidance text
             _buildGuidanceText(),
           ],
@@ -87,11 +83,7 @@ class _CameraPreviewWidgetState extends State<CameraPreviewWidget>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.camera_alt,
-              size: 80,
-              color: Colors.white54,
-            ),
+            Icon(Icons.camera_alt, size: 80, color: Colors.white54),
             SizedBox(height: 16),
             Text(
               'Camera Preview',
@@ -104,10 +96,7 @@ class _CameraPreviewWidgetState extends State<CameraPreviewWidget>
             SizedBox(height: 8),
             Text(
               'Position prescription within the frame',
-              style: TextStyle(
-                color: Colors.white38,
-                fontSize: 14,
-              ),
+              style: TextStyle(color: Colors.white38, fontSize: 14),
             ),
           ],
         ),
@@ -131,13 +120,10 @@ class _CameraPreviewWidgetState extends State<CameraPreviewWidget>
             ),
             child: IconButton(
               onPressed: widget.onClose,
-              icon: const Icon(
-                Icons.close,
-                color: Colors.white,
-              ),
+              icon: const Icon(Icons.close, color: Colors.white),
             ),
           ),
-          
+
           // Flash toggle
           Container(
             decoration: BoxDecoration(
@@ -146,10 +132,7 @@ class _CameraPreviewWidgetState extends State<CameraPreviewWidget>
             ),
             child: IconButton(
               onPressed: _toggleFlash,
-              icon: const Icon(
-                Icons.flash_auto,
-                color: Colors.white,
-              ),
+              icon: const Icon(Icons.flash_auto, color: Colors.white),
             ),
           ),
         ],
@@ -180,7 +163,7 @@ class _CameraPreviewWidgetState extends State<CameraPreviewWidget>
               ),
             ),
           ),
-          
+
           // Capture button
           AnimatedBuilder(
             animation: _pulseAnimation,
@@ -193,14 +176,11 @@ class _CameraPreviewWidgetState extends State<CameraPreviewWidget>
                     width: 80,
                     height: 80,
                     decoration: BoxDecoration(
-                      color: _isCapturing 
-                          ? Colors.grey 
+                      color: _isCapturing
+                          ? Colors.grey
                           : CareCircleDesignTokens.primaryMedicalBlue,
                       shape: BoxShape.circle,
-                      border: Border.all(
-                        color: Colors.white,
-                        width: 4,
-                      ),
+                      border: Border.all(color: Colors.white, width: 4),
                     ),
                     child: _isCapturing
                         ? const Center(
@@ -219,7 +199,7 @@ class _CameraPreviewWidgetState extends State<CameraPreviewWidget>
               );
             },
           ),
-          
+
           // Switch camera button
           Container(
             decoration: BoxDecoration(
@@ -242,9 +222,7 @@ class _CameraPreviewWidgetState extends State<CameraPreviewWidget>
 
   Widget _buildPrescriptionFrameOverlay() {
     return Positioned.fill(
-      child: CustomPaint(
-        painter: PrescriptionFramePainter(),
-      ),
+      child: CustomPaint(painter: PrescriptionFramePainter()),
     );
   }
 
@@ -297,7 +275,7 @@ class _CameraPreviewWidgetState extends State<CameraPreviewWidget>
     try {
       // Haptic feedback
       HapticFeedback.mediumImpact();
-      
+
       final XFile? image = await _picker.pickImage(
         source: ImageSource.camera,
         imageQuality: 85,

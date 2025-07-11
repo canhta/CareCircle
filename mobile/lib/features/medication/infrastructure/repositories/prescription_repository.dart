@@ -19,7 +19,10 @@ class PrescriptionRepository {
   PrescriptionRepository(this._apiService);
 
   /// Get user prescriptions with optional filtering
-  Future<List<Prescription>> getPrescriptions({PrescriptionQueryParams? params, bool useCache = true}) async {
+  Future<List<Prescription>> getPrescriptions({
+    PrescriptionQueryParams? params,
+    bool useCache = true,
+  }) async {
     try {
       _logger.info('Fetching user prescriptions', {
         'operation': 'getPrescriptions',
@@ -32,7 +35,10 @@ class PrescriptionRepository {
       if (useCache) {
         final cached = await _getCachedPrescriptions();
         if (cached != null && cached.isNotEmpty) {
-          _logger.info('Returning cached prescriptions', {'count': cached.length, 'source': 'cache'});
+          _logger.info('Returning cached prescriptions', {
+            'count': cached.length,
+            'source': 'cache',
+          });
           return cached;
         }
       }
@@ -76,7 +82,11 @@ class PrescriptionRepository {
       });
       rethrow;
     } catch (e, stackTrace) {
-      await ErrorTracker.recordMedicationError(e, stackTrace, operation: 'getPrescriptions');
+      await ErrorTracker.recordMedicationError(
+        e,
+        stackTrace,
+        operation: 'getPrescriptions',
+      );
       rethrow;
     }
   }
@@ -102,7 +112,10 @@ class PrescriptionRepository {
       return prescription;
     } on DioException catch (e) {
       if (e.response?.statusCode == 404) {
-        _logger.warning('Prescription not found', {'prescriptionId': id, 'statusCode': 404});
+        _logger.warning('Prescription not found', {
+          'prescriptionId': id,
+          'statusCode': 404,
+        });
         return null;
       }
 
@@ -133,7 +146,9 @@ class PrescriptionRepository {
   }
 
   /// Create new prescription
-  Future<Prescription> createPrescription(CreatePrescriptionRequest request) async {
+  Future<Prescription> createPrescription(
+    CreatePrescriptionRequest request,
+  ) async {
     try {
       _logger.info('Creating new prescription', {
         'operation': 'createPrescription',
@@ -174,13 +189,20 @@ class PrescriptionRepository {
       });
       rethrow;
     } catch (e, stackTrace) {
-      await ErrorTracker.recordMedicationError(e, stackTrace, operation: 'createPrescription');
+      await ErrorTracker.recordMedicationError(
+        e,
+        stackTrace,
+        operation: 'createPrescription',
+      );
       rethrow;
     }
   }
 
   /// Update prescription
-  Future<Prescription> updatePrescription(String id, UpdatePrescriptionRequest request) async {
+  Future<Prescription> updatePrescription(
+    String id,
+    UpdatePrescriptionRequest request,
+  ) async {
     try {
       _logger.info('Updating prescription', {
         'operation': 'updatePrescription',
@@ -282,27 +304,42 @@ class PrescriptionRepository {
   Future<void> _cachePrescriptions(List<Prescription> prescriptions) async {
     try {
       final prescriptionData = prescriptions.map((p) => p.toJson()).toList();
-      await StorageService.setCacheJson('medication_cache', 'user_prescriptions', {
-        'prescriptions': prescriptionData,
-        'cached_at': DateTime.now().toIso8601String(),
-      });
+      await StorageService.setCacheJson(
+        'medication_cache',
+        'user_prescriptions',
+        {
+          'prescriptions': prescriptionData,
+          'cached_at': DateTime.now().toIso8601String(),
+        },
+      );
     } catch (e) {
-      _logger.warning('Failed to cache prescriptions', {'error': e.toString(), 'count': prescriptions.length});
+      _logger.warning('Failed to cache prescriptions', {
+        'error': e.toString(),
+        'count': prescriptions.length,
+      });
     }
   }
 
   /// Get cached prescriptions
   Future<List<Prescription>?> _getCachedPrescriptions() async {
     try {
-      final data = await StorageService.getCacheJson('medication_cache', 'user_prescriptions');
+      final data = await StorageService.getCacheJson(
+        'medication_cache',
+        'user_prescriptions',
+      );
       if (data == null) return null;
 
       final prescriptions = data['prescriptions'] as List?;
       if (prescriptions == null) return null;
 
-      return prescriptions.cast<Map<String, dynamic>>().map((json) => Prescription.fromJson(json)).toList();
+      return prescriptions
+          .cast<Map<String, dynamic>>()
+          .map((json) => Prescription.fromJson(json))
+          .toList();
     } catch (e) {
-      _logger.warning('Failed to get cached prescriptions', {'error': e.toString()});
+      _logger.warning('Failed to get cached prescriptions', {
+        'error': e.toString(),
+      });
       return null;
     }
   }
@@ -310,9 +347,14 @@ class PrescriptionRepository {
   /// Clear prescription cache
   Future<void> _clearPrescriptionCache() async {
     try {
-      await StorageService.removeCache('medication_cache', 'user_prescriptions');
+      await StorageService.removeCache(
+        'medication_cache',
+        'user_prescriptions',
+      );
     } catch (e) {
-      _logger.warning('Failed to clear prescription cache', {'error': e.toString()});
+      _logger.warning('Failed to clear prescription cache', {
+        'error': e.toString(),
+      });
     }
   }
 }

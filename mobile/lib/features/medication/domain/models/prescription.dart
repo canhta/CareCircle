@@ -110,7 +110,8 @@ abstract class Prescription with _$Prescription {
     // Additional properties expected by screens
     @Default(VerificationStatus.pending) VerificationStatus verificationStatus,
     DateTime? dateIssued, // Alias for prescribedDate
-    @Default([]) List<String> extractedMedications, // Simplified medication names
+    @Default([])
+    List<String> extractedMedications, // Simplified medication names
   }) = _Prescription;
 
   factory Prescription.fromJson(Map<String, dynamic> json) =>

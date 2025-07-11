@@ -19,7 +19,10 @@ class ScheduleRepository {
   ScheduleRepository(this._apiService);
 
   /// Get user medication schedules with optional filtering
-  Future<List<MedicationSchedule>> getSchedules({ScheduleQueryParams? params, bool useCache = true}) async {
+  Future<List<MedicationSchedule>> getSchedules({
+    ScheduleQueryParams? params,
+    bool useCache = true,
+  }) async {
     try {
       _logger.info('Fetching user medication schedules', {
         'operation': 'getSchedules',
@@ -32,7 +35,10 @@ class ScheduleRepository {
       if (useCache) {
         final cached = await _getCachedSchedules();
         if (cached != null && cached.isNotEmpty) {
-          _logger.info('Returning cached schedules', {'count': cached.length, 'source': 'cache'});
+          _logger.info('Returning cached schedules', {
+            'count': cached.length,
+            'source': 'cache',
+          });
           return cached;
         }
       }
@@ -75,14 +81,22 @@ class ScheduleRepository {
       });
       rethrow;
     } catch (e, stackTrace) {
-      await ErrorTracker.recordMedicationError(e, stackTrace, operation: 'getSchedules');
+      await ErrorTracker.recordMedicationError(
+        e,
+        stackTrace,
+        operation: 'getSchedules',
+      );
       rethrow;
     }
   }
 
   /// Get schedules for specific medication
-  Future<List<MedicationSchedule>> getSchedulesForMedication(String medicationId) async {
-    return getSchedules(params: const ScheduleQueryParams().copyWith(medicationId: medicationId));
+  Future<List<MedicationSchedule>> getSchedulesForMedication(
+    String medicationId,
+  ) async {
+    return getSchedules(
+      params: const ScheduleQueryParams().copyWith(medicationId: medicationId),
+    );
   }
 
   /// Get schedule by ID
@@ -106,7 +120,10 @@ class ScheduleRepository {
       return schedule;
     } on DioException catch (e) {
       if (e.response?.statusCode == 404) {
-        _logger.warning('Schedule not found', {'scheduleId': id, 'statusCode': 404});
+        _logger.warning('Schedule not found', {
+          'scheduleId': id,
+          'statusCode': 404,
+        });
         return null;
       }
 
@@ -137,7 +154,9 @@ class ScheduleRepository {
   }
 
   /// Create new medication schedule
-  Future<MedicationSchedule> createSchedule(CreateScheduleRequest request) async {
+  Future<MedicationSchedule> createSchedule(
+    CreateScheduleRequest request,
+  ) async {
     try {
       _logger.info('Creating new medication schedule', {
         'operation': 'createSchedule',
@@ -169,7 +188,10 @@ class ScheduleRepository {
         e,
         StackTrace.current,
         operation: 'createSchedule',
-        context: {'medicationId': request.medicationId, 'frequency': request.schedule.frequency.name},
+        context: {
+          'medicationId': request.medicationId,
+          'frequency': request.schedule.frequency.name,
+        },
       );
 
       _logger.error('Failed to create medication schedule', {
@@ -181,13 +203,20 @@ class ScheduleRepository {
       });
       rethrow;
     } catch (e, stackTrace) {
-      await ErrorTracker.recordMedicationError(e, stackTrace, operation: 'createSchedule');
+      await ErrorTracker.recordMedicationError(
+        e,
+        stackTrace,
+        operation: 'createSchedule',
+      );
       rethrow;
     }
   }
 
   /// Update medication schedule
-  Future<MedicationSchedule> updateSchedule(String id, UpdateScheduleRequest request) async {
+  Future<MedicationSchedule> updateSchedule(
+    String id,
+    UpdateScheduleRequest request,
+  ) async {
     try {
       _logger.info('Updating medication schedule', {
         'operation': 'updateSchedule',
@@ -229,7 +258,12 @@ class ScheduleRepository {
       });
       rethrow;
     } catch (e, stackTrace) {
-      await ErrorTracker.recordMedicationError(e, stackTrace, operation: 'updateSchedule', context: {'scheduleId': id});
+      await ErrorTracker.recordMedicationError(
+        e,
+        stackTrace,
+        operation: 'updateSchedule',
+        context: {'scheduleId': id},
+      );
       rethrow;
     }
   }
@@ -270,7 +304,12 @@ class ScheduleRepository {
       });
       rethrow;
     } catch (e, stackTrace) {
-      await ErrorTracker.recordMedicationError(e, stackTrace, operation: 'deleteSchedule', context: {'scheduleId': id});
+      await ErrorTracker.recordMedicationError(
+        e,
+        stackTrace,
+        operation: 'deleteSchedule',
+        context: {'scheduleId': id},
+      );
       rethrow;
     }
   }
@@ -311,7 +350,11 @@ class ScheduleRepository {
       });
       rethrow;
     } catch (e, stackTrace) {
-      await ErrorTracker.recordMedicationError(e, stackTrace, operation: 'getUpcomingSchedules');
+      await ErrorTracker.recordMedicationError(
+        e,
+        stackTrace,
+        operation: 'getUpcomingSchedules',
+      );
       rethrow;
     }
   }
@@ -325,22 +368,33 @@ class ScheduleRepository {
         'cached_at': DateTime.now().toIso8601String(),
       });
     } catch (e) {
-      _logger.warning('Failed to cache schedules', {'error': e.toString(), 'count': schedules.length});
+      _logger.warning('Failed to cache schedules', {
+        'error': e.toString(),
+        'count': schedules.length,
+      });
     }
   }
 
   /// Get cached schedules
   Future<List<MedicationSchedule>?> _getCachedSchedules() async {
     try {
-      final data = await StorageService.getCacheJson('medication_cache', 'user_schedules');
+      final data = await StorageService.getCacheJson(
+        'medication_cache',
+        'user_schedules',
+      );
       if (data == null) return null;
 
       final schedules = data['schedules'] as List?;
       if (schedules == null) return null;
 
-      return schedules.cast<Map<String, dynamic>>().map((json) => MedicationSchedule.fromJson(json)).toList();
+      return schedules
+          .cast<Map<String, dynamic>>()
+          .map((json) => MedicationSchedule.fromJson(json))
+          .toList();
     } catch (e) {
-      _logger.warning('Failed to get cached schedules', {'error': e.toString()});
+      _logger.warning('Failed to get cached schedules', {
+        'error': e.toString(),
+      });
       return null;
     }
   }
@@ -350,7 +404,9 @@ class ScheduleRepository {
     try {
       await StorageService.removeCache('medication_cache', 'user_schedules');
     } catch (e) {
-      _logger.warning('Failed to clear schedule cache', {'error': e.toString()});
+      _logger.warning('Failed to clear schedule cache', {
+        'error': e.toString(),
+      });
     }
   }
 }

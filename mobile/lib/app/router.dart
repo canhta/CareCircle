@@ -278,9 +278,10 @@ class AppRouter {
             path: '/schedules',
             name: 'medication-schedules',
             builder: (context, state) {
-              _logger.logNavigationEvent('Medication schedules screen accessed', {
-                'timestamp': DateTime.now().toIso8601String(),
-              });
+              _logger.logNavigationEvent(
+                'Medication schedules screen accessed',
+                {'timestamp': DateTime.now().toIso8601String()},
+              );
               // For general schedule management, we'll show all schedules
               return const ScheduleManagementScreen();
             },
@@ -290,10 +291,11 @@ class AppRouter {
             name: 'medication-schedule-detail',
             builder: (context, state) {
               final medicationId = state.pathParameters['medicationId']!;
-              _logger.logNavigationEvent('Medication schedule detail accessed', {
-                'medicationId': medicationId,
-                'timestamp': DateTime.now().toIso8601String(),
-              });
+              _logger
+                  .logNavigationEvent('Medication schedule detail accessed', {
+                    'medicationId': medicationId,
+                    'timestamp': DateTime.now().toIso8601String(),
+                  });
               return ScheduleManagementScreen(medicationId: medicationId);
             },
           ),
@@ -301,9 +303,10 @@ class AppRouter {
             path: '/adherence',
             name: 'adherence-dashboard',
             builder: (context, state) {
-              _logger.logNavigationEvent('Adherence dashboard screen accessed', {
-                'timestamp': DateTime.now().toIso8601String(),
-              });
+              _logger.logNavigationEvent(
+                'Adherence dashboard screen accessed',
+                {'timestamp': DateTime.now().toIso8601String()},
+              );
               return const AdherenceDashboardScreen();
             },
           ),

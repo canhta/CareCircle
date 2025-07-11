@@ -22,43 +22,40 @@ class MedicationCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildHeader(context),
-              const SizedBox(height: 12),
-              _buildMedicationInfo(context),
-              const SizedBox(height: 12),
-              _buildFooter(context),
-            ],
+          elevation: 2,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
           ),
-        ),
-      ),
-    )
-    // Healthcare-appropriate subtle animations
-    .animate(delay: Duration(milliseconds: (animationDelay ?? 0) * 100))
-    .fadeIn(duration: 400.ms, curve: Curves.easeOut)
-    .slideX(
-      begin: 0.2,
-      end: 0,
-      duration: 400.ms,
-      curve: Curves.easeOut,
-    )
-    // Hover/tap animations for better interaction feedback
-    .animate(target: onTap != null ? 1 : 0)
-    .scaleXY(
-      begin: 1.0,
-      end: 1.02,
-      duration: 150.ms,
-      curve: Curves.easeInOut,
-    );
+          child: InkWell(
+            onTap: onTap,
+            borderRadius: BorderRadius.circular(12),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildHeader(context),
+                  const SizedBox(height: 12),
+                  _buildMedicationInfo(context),
+                  const SizedBox(height: 12),
+                  _buildFooter(context),
+                ],
+              ),
+            ),
+          ),
+        )
+        // Healthcare-appropriate subtle animations
+        .animate(delay: Duration(milliseconds: (animationDelay ?? 0) * 100))
+        .fadeIn(duration: 400.ms, curve: Curves.easeOut)
+        .slideX(begin: 0.2, end: 0, duration: 400.ms, curve: Curves.easeOut)
+        // Hover/tap animations for better interaction feedback
+        .animate(target: onTap != null ? 1 : 0)
+        .scaleXY(
+          begin: 1.0,
+          end: 1.02,
+          duration: 150.ms,
+          curve: Curves.easeInOut,
+        );
   }
 
   Widget _buildHeader(BuildContext context) {

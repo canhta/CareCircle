@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { PrismaModule } from '../common/database/prisma.module';
+import { IdentityAccessModule } from '../identity-access/identity-access.module';
 
 // Domain
 import { NotificationRepository } from './domain/repositories/notification.repository';
@@ -14,7 +15,7 @@ import { NotificationService } from './application/services/notification.service
 import { NotificationController } from './presentation/controllers/notification.controller';
 
 @Module({
-  imports: [PrismaModule],
+  imports: [PrismaModule, IdentityAccessModule],
   controllers: [NotificationController],
   providers: [
     // Services

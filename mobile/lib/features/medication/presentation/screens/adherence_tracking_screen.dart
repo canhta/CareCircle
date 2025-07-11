@@ -20,19 +20,25 @@ class AdherenceTrackingScreen extends ConsumerStatefulWidget {
   const AdherenceTrackingScreen({super.key, required this.medicationId});
 
   @override
-  ConsumerState<AdherenceTrackingScreen> createState() => _AdherenceTrackingScreenState();
+  ConsumerState<AdherenceTrackingScreen> createState() =>
+      _AdherenceTrackingScreenState();
 }
 
-class _AdherenceTrackingScreenState extends ConsumerState<AdherenceTrackingScreen> {
+class _AdherenceTrackingScreenState
+    extends ConsumerState<AdherenceTrackingScreen> {
   static final _logger = BoundedContextLoggers.medication;
   DateTime _selectedDate = DateTime.now();
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final adherenceAsync = ref.watch(medicationAdherenceProvider(widget.medicationId));
+    final adherenceAsync = ref.watch(
+      medicationAdherenceProvider(widget.medicationId),
+    );
     final statisticsAsync = ref.watch(adherenceStatisticsProvider);
-    final todayDosesAsync = ref.watch(medicationAdherenceProvider(widget.medicationId));
+    final todayDosesAsync = ref.watch(
+      medicationAdherenceProvider(widget.medicationId),
+    );
 
     return Scaffold(
       appBar: AppBar(
@@ -73,13 +79,21 @@ class _AdherenceTrackingScreenState extends ConsumerState<AdherenceTrackingScree
         padding: const EdgeInsets.all(16),
         child: Row(
           children: [
-            Icon(Icons.calendar_today, color: CareCircleDesignTokens.primaryMedicalBlue),
+            Icon(
+              Icons.calendar_today,
+              color: CareCircleDesignTokens.primaryMedicalBlue,
+            ),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Tracking Date', style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600)),
+                  Text(
+                    'Tracking Date',
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                   Text(
                     '${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}',
                     style: theme.textTheme.bodyLarge?.copyWith(
@@ -107,7 +121,10 @@ class _AdherenceTrackingScreenState extends ConsumerState<AdherenceTrackingScree
     );
   }
 
-  Widget _buildStatisticsCard(AsyncValue<AdherenceStatistics> statisticsAsync, ThemeData theme) {
+  Widget _buildStatisticsCard(
+    AsyncValue<AdherenceStatistics> statisticsAsync,
+    ThemeData theme,
+  ) {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -127,7 +144,8 @@ class _AdherenceTrackingScreenState extends ConsumerState<AdherenceTrackingScree
             statisticsAsync.when(
               data: (statistics) => _buildStatisticsContent(statistics, theme),
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (error, _) => _buildErrorState('Failed to load statistics', theme),
+              error: (error, _) =>
+                  _buildErrorState('Failed to load statistics', theme),
             ),
           ],
         ),
@@ -135,7 +153,10 @@ class _AdherenceTrackingScreenState extends ConsumerState<AdherenceTrackingScree
     );
   }
 
-  Widget _buildStatisticsContent(AdherenceStatistics statistics, ThemeData theme) {
+  Widget _buildStatisticsContent(
+    AdherenceStatistics statistics,
+    ThemeData theme,
+  ) {
     return Column(
       children: [
         // Adherence percentage circle
@@ -144,7 +165,10 @@ class _AdherenceTrackingScreenState extends ConsumerState<AdherenceTrackingScree
           width: 120,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            border: Border.all(color: _getAdherenceColor(statistics.adherencePercentage), width: 8),
+            border: Border.all(
+              color: _getAdherenceColor(statistics.adherencePercentage),
+              width: 8,
+            ),
           ),
           child: Center(
             child: Column(
@@ -214,7 +238,13 @@ class _AdherenceTrackingScreenState extends ConsumerState<AdherenceTrackingScree
     );
   }
 
-  Widget _buildStatCard(String title, String value, IconData icon, Color color, ThemeData theme) {
+  Widget _buildStatCard(
+    String title,
+    String value,
+    IconData icon,
+    Color color,
+    ThemeData theme,
+  ) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -228,15 +258,25 @@ class _AdherenceTrackingScreenState extends ConsumerState<AdherenceTrackingScree
           const SizedBox(height: 4),
           Text(
             value,
-            style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold, color: color),
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
           ),
-          Text(title, style: theme.textTheme.bodySmall, textAlign: TextAlign.center),
+          Text(
+            title,
+            style: theme.textTheme.bodySmall,
+            textAlign: TextAlign.center,
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildTodayDosesSection(AsyncValue<List<AdherenceRecord>> todayDosesAsync, ThemeData theme) {
+  Widget _buildTodayDosesSection(
+    AsyncValue<List<AdherenceRecord>> todayDosesAsync,
+    ThemeData theme,
+  ) {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -256,9 +296,14 @@ class _AdherenceTrackingScreenState extends ConsumerState<AdherenceTrackingScree
             todayDosesAsync.when(
               data: (doses) => doses.isEmpty
                   ? _buildEmptyState('No doses scheduled for today', theme)
-                  : Column(children: doses.map((dose) => _buildDoseCard(dose, theme)).toList()),
+                  : Column(
+                      children: doses
+                          .map((dose) => _buildDoseCard(dose, theme))
+                          .toList(),
+                    ),
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (error, _) => _buildErrorState('Failed to load today\'s doses', theme),
+              error: (error, _) =>
+                  _buildErrorState('Failed to load today\'s doses', theme),
             ),
           ],
         ),
@@ -273,7 +318,9 @@ class _AdherenceTrackingScreenState extends ConsumerState<AdherenceTrackingScree
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainerLow,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: _getDoseStatusColor(dose.status).withValues(alpha: 0.3)),
+        border: Border.all(
+          color: _getDoseStatusColor(dose.status).withValues(alpha: 0.3),
+        ),
       ),
       child: Row(
         children: [
@@ -283,7 +330,11 @@ class _AdherenceTrackingScreenState extends ConsumerState<AdherenceTrackingScree
               color: _getDoseStatusColor(dose.status).withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Icon(_getDoseStatusIcon(dose.status), color: _getDoseStatusColor(dose.status), size: 24),
+            child: Icon(
+              _getDoseStatusIcon(dose.status),
+              color: _getDoseStatusColor(dose.status),
+              size: 24,
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -292,9 +343,14 @@ class _AdherenceTrackingScreenState extends ConsumerState<AdherenceTrackingScree
               children: [
                 Text(
                   '${dose.scheduledTime.hour.toString().padLeft(2, '0')}:${dose.scheduledTime.minute.toString().padLeft(2, '0')}',
-                  style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
-                Text('${dose.dosage} ${dose.unit}', style: theme.textTheme.bodyMedium),
+                Text(
+                  '${dose.dosage} ${dose.unit}',
+                  style: theme.textTheme.bodyMedium,
+                ),
                 if (dose.status != DoseStatus.scheduled)
                   Text(
                     _getDoseStatusText(dose.status),
@@ -306,7 +362,10 @@ class _AdherenceTrackingScreenState extends ConsumerState<AdherenceTrackingScree
               ],
             ),
           ),
-          if (dose.status == DoseStatus.scheduled) ...[const SizedBox(width: 8), _buildDoseActions(dose, theme)],
+          if (dose.status == DoseStatus.scheduled) ...[
+            const SizedBox(width: 8),
+            _buildDoseActions(dose, theme),
+          ],
         ],
       ),
     );
@@ -338,7 +397,10 @@ class _AdherenceTrackingScreenState extends ConsumerState<AdherenceTrackingScree
     );
   }
 
-  Widget _buildRecentRecordsSection(AsyncValue<List<AdherenceRecord>> adherenceAsync, ThemeData theme) {
+  Widget _buildRecentRecordsSection(
+    AsyncValue<List<AdherenceRecord>> adherenceAsync,
+    ThemeData theme,
+  ) {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -358,9 +420,15 @@ class _AdherenceTrackingScreenState extends ConsumerState<AdherenceTrackingScree
             adherenceAsync.when(
               data: (records) => records.isEmpty
                   ? _buildEmptyState('No adherence records yet', theme)
-                  : Column(children: records.take(10).map((record) => _buildRecordCard(record, theme)).toList()),
+                  : Column(
+                      children: records
+                          .take(10)
+                          .map((record) => _buildRecordCard(record, theme))
+                          .toList(),
+                    ),
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (error, _) => _buildErrorState('Failed to load records', theme),
+              error: (error, _) =>
+                  _buildErrorState('Failed to load records', theme),
             ),
           ],
         ),
@@ -375,11 +443,17 @@ class _AdherenceTrackingScreenState extends ConsumerState<AdherenceTrackingScree
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainerLow,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: theme.colorScheme.outline.withValues(alpha: 0.2)),
+        border: Border.all(
+          color: theme.colorScheme.outline.withValues(alpha: 0.2),
+        ),
       ),
       child: Row(
         children: [
-          Icon(_getDoseStatusIcon(record.status), color: _getDoseStatusColor(record.status), size: 20),
+          Icon(
+            _getDoseStatusIcon(record.status),
+            color: _getDoseStatusColor(record.status),
+            size: 20,
+          ),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -387,11 +461,15 @@ class _AdherenceTrackingScreenState extends ConsumerState<AdherenceTrackingScree
               children: [
                 Text(
                   '${record.scheduledTime.day}/${record.scheduledTime.month} at ${record.scheduledTime.hour.toString().padLeft(2, '0')}:${record.scheduledTime.minute.toString().padLeft(2, '0')}',
-                  style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
                 Text(
                   _getDoseStatusText(record.status),
-                  style: theme.textTheme.bodySmall?.copyWith(color: _getDoseStatusColor(record.status)),
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: _getDoseStatusColor(record.status),
+                  ),
                 ),
               ],
             ),
@@ -399,7 +477,9 @@ class _AdherenceTrackingScreenState extends ConsumerState<AdherenceTrackingScree
           if (record.takenAt != null)
             Text(
               'at ${record.takenAt!.hour.toString().padLeft(2, '0')}:${record.takenAt!.minute.toString().padLeft(2, '0')}',
-              style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
             ),
         ],
       ),
@@ -411,11 +491,17 @@ class _AdherenceTrackingScreenState extends ConsumerState<AdherenceTrackingScree
       padding: const EdgeInsets.all(32),
       child: Column(
         children: [
-          Icon(Icons.medication, size: 48, color: theme.colorScheme.onSurfaceVariant),
+          Icon(
+            Icons.medication,
+            size: 48,
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
           const SizedBox(height: 16),
           Text(
             message,
-            style: theme.textTheme.bodyLarge?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+            style: theme.textTheme.bodyLarge?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
             textAlign: TextAlign.center,
           ),
         ],
@@ -428,11 +514,17 @@ class _AdherenceTrackingScreenState extends ConsumerState<AdherenceTrackingScree
       padding: const EdgeInsets.all(32),
       child: Column(
         children: [
-          Icon(Icons.error_outline, size: 48, color: CareCircleDesignTokens.criticalAlert),
+          Icon(
+            Icons.error_outline,
+            size: 48,
+            color: CareCircleDesignTokens.criticalAlert,
+          ),
           const SizedBox(height: 16),
           Text(
             message,
-            style: theme.textTheme.bodyLarge?.copyWith(color: CareCircleDesignTokens.criticalAlert),
+            style: theme.textTheme.bodyLarge?.copyWith(
+              color: CareCircleDesignTokens.criticalAlert,
+            ),
             textAlign: TextAlign.center,
           ),
         ],
@@ -530,7 +622,9 @@ class _AdherenceTrackingScreenState extends ConsumerState<AdherenceTrackingScree
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Dose marked as ${_getDoseStatusText(status).toLowerCase()}'),
+            content: Text(
+              'Dose marked as ${_getDoseStatusText(status).toLowerCase()}',
+            ),
             backgroundColor: _getDoseStatusColor(status),
           ),
         );

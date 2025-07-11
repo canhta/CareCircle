@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { PrismaModule } from '../common/database/prisma.module';
+import { IdentityAccessModule } from '../identity-access/identity-access.module';
 
 // Domain Repositories
 import { CareGroupRepository } from './domain/repositories/care-group.repository';
@@ -25,7 +26,7 @@ import { CareRecipientService } from './application/services/care-recipient.serv
 import { CareGroupController } from './presentation/controllers/care-group.controller';
 
 @Module({
-  imports: [PrismaModule],
+  imports: [PrismaModule, IdentityAccessModule],
   controllers: [CareGroupController],
   providers: [
     // Application Services

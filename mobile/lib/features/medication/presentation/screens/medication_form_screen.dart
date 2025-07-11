@@ -7,16 +7,14 @@ import '../providers/medication_providers.dart';
 
 class MedicationFormScreen extends ConsumerStatefulWidget {
   final Medication? medication; // null for add, non-null for edit
-  final String? medicationId; // Alternative way to specify medication for editing
+  final String?
+  medicationId; // Alternative way to specify medication for editing
 
-  const MedicationFormScreen({
-    super.key,
-    this.medication,
-    this.medicationId,
-  }) : assert(
-         medication == null || medicationId == null,
-         'Cannot provide both medication and medicationId',
-       );
+  const MedicationFormScreen({super.key, this.medication, this.medicationId})
+    : assert(
+        medication == null || medicationId == null,
+        'Cannot provide both medication and medicationId',
+      );
 
   @override
   ConsumerState<MedicationFormScreen> createState() =>

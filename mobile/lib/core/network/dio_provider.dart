@@ -38,11 +38,14 @@ final dioProvider = Provider<Dio>((ref) {
             options.headers['Authorization'] = 'Bearer $idToken';
           }
         } catch (e) {
-          BoundedContextLoggers.auth.warning('Failed to get Firebase ID token', {
-            'error': e.toString(),
-            'path': options.path,
-            'method': options.method,
-          });
+          BoundedContextLoggers.auth.warning(
+            'Failed to get Firebase ID token',
+            {
+              'error': e.toString(),
+              'path': options.path,
+              'method': options.method,
+            },
+          );
         }
         handler.next(options);
       },
@@ -86,7 +89,7 @@ final dioProvider = Provider<Dio>((ref) {
 /// Medication-specific Dio provider with extended timeouts for OCR operations
 final medicationDioProvider = Provider<Dio>((ref) {
   final baseDio = ref.read(dioProvider);
-  
+
   // Clone the base Dio instance with medication-specific configurations
   final medicationDio = Dio(
     BaseOptions(
@@ -107,7 +110,7 @@ final medicationDioProvider = Provider<Dio>((ref) {
 /// Health data specific Dio provider with optimized timeouts
 final healthDataDioProvider = Provider<Dio>((ref) {
   final baseDio = ref.read(dioProvider);
-  
+
   // Clone the base Dio instance with health data specific configurations
   final healthDataDio = Dio(
     BaseOptions(
@@ -128,12 +131,14 @@ final healthDataDioProvider = Provider<Dio>((ref) {
 /// Care group specific Dio provider with real-time optimizations
 final careGroupDioProvider = Provider<Dio>((ref) {
   final baseDio = ref.read(dioProvider);
-  
+
   // Clone the base Dio instance with care group specific configurations
   final careGroupDio = Dio(
     BaseOptions(
       baseUrl: baseDio.options.baseUrl,
-      connectTimeout: const Duration(seconds: 10), // Fast for real-time features
+      connectTimeout: const Duration(
+        seconds: 10,
+      ), // Fast for real-time features
       receiveTimeout: const Duration(seconds: 20),
       sendTimeout: const Duration(seconds: 10),
       headers: baseDio.options.headers,

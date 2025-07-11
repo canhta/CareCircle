@@ -372,7 +372,10 @@ class _PrescriptionScanScreenState
     );
   }
 
-  Widget _buildMedicationCard(PrescriptionMedication medication, ThemeData theme) {
+  Widget _buildMedicationCard(
+    PrescriptionMedication medication,
+    ThemeData theme,
+  ) {
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(12),
@@ -647,9 +650,13 @@ class _PrescriptionScanScreenState
       await ref
           .read(prescriptionCreateProvider.notifier)
           .createFromOCR(
-            prescribedBy: _ocrResult!.ocrData?.fields.prescribedBy ?? 'Unknown Doctor',
+            prescribedBy:
+                _ocrResult!.ocrData?.fields.prescribedBy ?? 'Unknown Doctor',
             prescribedDate: _ocrResult!.ocrData?.fields.prescribedDate != null
-                ? DateTime.tryParse(_ocrResult!.ocrData!.fields.prescribedDate!) ?? DateTime.now()
+                ? DateTime.tryParse(
+                        _ocrResult!.ocrData!.fields.prescribedDate!,
+                      ) ??
+                      DateTime.now()
                 : DateTime.now(),
             pharmacy: _ocrResult!.ocrData?.fields.pharmacy,
             imageUrl: _selectedImage!.path,

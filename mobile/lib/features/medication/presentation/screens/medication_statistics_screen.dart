@@ -19,10 +19,12 @@ class MedicationStatisticsScreen extends ConsumerStatefulWidget {
   const MedicationStatisticsScreen({super.key});
 
   @override
-  ConsumerState<MedicationStatisticsScreen> createState() => _MedicationStatisticsScreenState();
+  ConsumerState<MedicationStatisticsScreen> createState() =>
+      _MedicationStatisticsScreenState();
 }
 
-class _MedicationStatisticsScreenState extends ConsumerState<MedicationStatisticsScreen> {
+class _MedicationStatisticsScreenState
+    extends ConsumerState<MedicationStatisticsScreen> {
   String _selectedPeriod = '30days';
   String _selectedMetric = 'adherence';
 
@@ -49,7 +51,10 @@ class _MedicationStatisticsScreenState extends ConsumerState<MedicationStatistic
             itemBuilder: (context) => [
               const PopupMenuItem(value: '7days', child: Text('Last 7 Days')),
               const PopupMenuItem(value: '30days', child: Text('Last 30 Days')),
-              const PopupMenuItem(value: '90days', child: Text('Last 3 Months')),
+              const PopupMenuItem(
+                value: '90days',
+                child: Text('Last 3 Months'),
+              ),
               const PopupMenuItem(value: '365days', child: Text('Last Year')),
             ],
             icon: const Icon(Icons.date_range),
@@ -61,7 +66,12 @@ class _MedicationStatisticsScreenState extends ConsumerState<MedicationStatistic
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildOverviewCards(medicationsAsync, medicationStatsAsync, adherenceStatsAsync, theme),
+            _buildOverviewCards(
+              medicationsAsync,
+              medicationStatsAsync,
+              adherenceStatsAsync,
+              theme,
+            ),
             const SizedBox(height: 24),
             _buildMetricSelector(theme),
             const SizedBox(height: 16),
@@ -129,7 +139,13 @@ class _MedicationStatisticsScreenState extends ConsumerState<MedicationStatistic
     );
   }
 
-  Widget _buildOverviewCard(String title, String value, IconData icon, Color color, ThemeData theme) {
+  Widget _buildOverviewCard(
+    String title,
+    String value,
+    IconData icon,
+    Color color,
+    ThemeData theme,
+  ) {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -141,9 +157,16 @@ class _MedicationStatisticsScreenState extends ConsumerState<MedicationStatistic
             const SizedBox(height: 8),
             Text(
               value,
-              style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold, color: color),
+              style: theme.textTheme.headlineMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: color,
+              ),
             ),
-            Text(title, style: theme.textTheme.bodySmall, textAlign: TextAlign.center),
+            Text(
+              title,
+              style: theme.textTheme.bodySmall,
+              textAlign: TextAlign.center,
+            ),
           ],
         ),
       ),
@@ -194,12 +217,17 @@ class _MedicationStatisticsScreenState extends ConsumerState<MedicationStatistic
           });
         }
       },
-      selectedColor: CareCircleDesignTokens.primaryMedicalBlue.withValues(alpha: 0.2),
+      selectedColor: CareCircleDesignTokens.primaryMedicalBlue.withValues(
+        alpha: 0.2,
+      ),
       checkmarkColor: CareCircleDesignTokens.primaryMedicalBlue,
     );
   }
 
-  Widget _buildMainChart(AsyncValue<AdherenceStatistics> adherenceStatsAsync, ThemeData theme) {
+  Widget _buildMainChart(
+    AsyncValue<AdherenceStatistics> adherenceStatsAsync,
+    ThemeData theme,
+  ) {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -220,15 +248,21 @@ class _MedicationStatisticsScreenState extends ConsumerState<MedicationStatistic
                 const Spacer(),
                 Text(
                   _getPeriodDisplayName(_selectedPeriod),
-                  style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
                 ),
               ],
             ),
             const SizedBox(height: 16),
             adherenceStatsAsync.when(
               data: (statistics) => _buildChart(statistics, theme),
-              loading: () => const SizedBox(height: 200, child: Center(child: CircularProgressIndicator())),
-              error: (error, _) => _buildErrorState('Failed to load chart data', theme),
+              loading: () => const SizedBox(
+                height: 200,
+                child: Center(child: CircularProgressIndicator()),
+              ),
+              error: (error, _) =>
+                  _buildErrorState('Failed to load chart data', theme),
             ),
           ],
         ),
@@ -253,7 +287,10 @@ class _MedicationStatisticsScreenState extends ConsumerState<MedicationStatistic
 
   Widget _buildAdherenceChart(AdherenceStatistics statistics, ThemeData theme) {
     // Create mock trend data from statistics
-    final trends = List.generate(7, (index) => statistics.adherencePercentage + (index * 2.0 - 6.0));
+    final trends = List.generate(
+      7,
+      (index) => statistics.adherencePercentage + (index * 2.0 - 6.0),
+    );
 
     return SizedBox(
       height: 200,
@@ -264,13 +301,20 @@ class _MedicationStatisticsScreenState extends ConsumerState<MedicationStatistic
             drawVerticalLine: false,
             horizontalInterval: 20,
             getDrawingHorizontalLine: (value) {
-              return FlLine(color: theme.colorScheme.outline.withValues(alpha: 0.2), strokeWidth: 1);
+              return FlLine(
+                color: theme.colorScheme.outline.withValues(alpha: 0.2),
+                strokeWidth: 1,
+              );
             },
           ),
           titlesData: FlTitlesData(
             show: true,
-            rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            rightTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            topTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
             bottomTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
@@ -279,8 +323,13 @@ class _MedicationStatisticsScreenState extends ConsumerState<MedicationStatistic
                 getTitlesWidget: (value, meta) {
                   final index = value.toInt();
                   if (index >= 0 && index < trends.length) {
-                    final date = DateTime.now().subtract(Duration(days: trends.length - index - 1));
-                    return Text('${date.day}/${date.month}', style: theme.textTheme.bodySmall);
+                    final date = DateTime.now().subtract(
+                      Duration(days: trends.length - index - 1),
+                    );
+                    return Text(
+                      '${date.day}/${date.month}',
+                      style: theme.textTheme.bodySmall,
+                    );
                   }
                   return const Text('');
                 },
@@ -292,14 +341,19 @@ class _MedicationStatisticsScreenState extends ConsumerState<MedicationStatistic
                 interval: 20,
                 reservedSize: 40,
                 getTitlesWidget: (value, meta) {
-                  return Text('${value.toInt()}%', style: theme.textTheme.bodySmall);
+                  return Text(
+                    '${value.toInt()}%',
+                    style: theme.textTheme.bodySmall,
+                  );
                 },
               ),
             ),
           ),
           borderData: FlBorderData(
             show: true,
-            border: Border.all(color: theme.colorScheme.outline.withValues(alpha: 0.2)),
+            border: Border.all(
+              color: theme.colorScheme.outline.withValues(alpha: 0.2),
+            ),
           ),
           minX: 0,
           maxX: (trends.length - 1).toDouble(),
@@ -325,7 +379,12 @@ class _MedicationStatisticsScreenState extends ConsumerState<MedicationStatistic
                   );
                 },
               ),
-              belowBarData: BarAreaData(show: true, color: CareCircleDesignTokens.healthGreen.withValues(alpha: 0.2)),
+              belowBarData: BarAreaData(
+                show: true,
+                color: CareCircleDesignTokens.healthGreen.withValues(
+                  alpha: 0.2,
+                ),
+              ),
             ),
           ],
         ),
@@ -333,11 +392,20 @@ class _MedicationStatisticsScreenState extends ConsumerState<MedicationStatistic
     );
   }
 
-  Widget _buildDosesChart(AdherenceStatistics statistics, ThemeData theme, bool showTaken) {
+  Widget _buildDosesChart(
+    AdherenceStatistics statistics,
+    ThemeData theme,
+    bool showTaken,
+  ) {
     // Create mock dosage data from statistics
-    final trends = List.generate(7, (index) => showTaken ? statistics.takenDoses : statistics.missedDoses);
+    final trends = List.generate(
+      7,
+      (index) => showTaken ? statistics.takenDoses : statistics.missedDoses,
+    );
 
-    final color = showTaken ? CareCircleDesignTokens.healthGreen : CareCircleDesignTokens.criticalAlert;
+    final color = showTaken
+        ? CareCircleDesignTokens.healthGreen
+        : CareCircleDesignTokens.criticalAlert;
 
     return SizedBox(
       height: 200,
@@ -353,23 +421,35 @@ class _MedicationStatisticsScreenState extends ConsumerState<MedicationStatistic
                 final label = showTaken ? 'Taken' : 'Missed';
                 return BarTooltipItem(
                   '$label: $value',
-                  const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                  const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
                 );
               },
             ),
           ),
           titlesData: FlTitlesData(
             show: true,
-            rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            rightTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            topTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
             bottomTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
                 getTitlesWidget: (value, meta) {
                   final index = value.toInt();
                   if (index >= 0 && index < trends.length) {
-                    final date = DateTime.now().subtract(Duration(days: trends.length - index - 1));
-                    return Text('${date.day}/${date.month}', style: theme.textTheme.bodySmall);
+                    final date = DateTime.now().subtract(
+                      Duration(days: trends.length - index - 1),
+                    );
+                    return Text(
+                      '${date.day}/${date.month}',
+                      style: theme.textTheme.bodySmall,
+                    );
                   }
                   return const Text('');
                 },
@@ -380,14 +460,19 @@ class _MedicationStatisticsScreenState extends ConsumerState<MedicationStatistic
                 showTitles: true,
                 reservedSize: 40,
                 getTitlesWidget: (value, meta) {
-                  return Text(value.toInt().toString(), style: theme.textTheme.bodySmall);
+                  return Text(
+                    value.toInt().toString(),
+                    style: theme.textTheme.bodySmall,
+                  );
                 },
               ),
             ),
           ),
           borderData: FlBorderData(
             show: true,
-            border: Border.all(color: theme.colorScheme.outline.withValues(alpha: 0.2)),
+            border: Border.all(
+              color: theme.colorScheme.outline.withValues(alpha: 0.2),
+            ),
           ),
           barGroups: trends.asMap().entries.map((entry) {
             final index = entry.key;
@@ -400,7 +485,10 @@ class _MedicationStatisticsScreenState extends ConsumerState<MedicationStatistic
                   toY: value,
                   color: color,
                   width: 16,
-                  borderRadius: const BorderRadius.only(topLeft: Radius.circular(4), topRight: Radius.circular(4)),
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(4),
+                    topRight: Radius.circular(4),
+                  ),
                 ),
               ],
             );
@@ -410,9 +498,15 @@ class _MedicationStatisticsScreenState extends ConsumerState<MedicationStatistic
     );
   }
 
-  Widget _buildEffectivenessChart(AdherenceStatistics statistics, ThemeData theme) {
+  Widget _buildEffectivenessChart(
+    AdherenceStatistics statistics,
+    ThemeData theme,
+  ) {
     // Create mock effectiveness data from statistics
-    final trends = List.generate(7, (index) => (statistics.adherencePercentage / 20.0).clamp(1.0, 5.0));
+    final trends = List.generate(
+      7,
+      (index) => (statistics.adherencePercentage / 20.0).clamp(1.0, 5.0),
+    );
 
     return SizedBox(
       height: 200,
@@ -423,13 +517,20 @@ class _MedicationStatisticsScreenState extends ConsumerState<MedicationStatistic
             drawVerticalLine: false,
             horizontalInterval: 1,
             getDrawingHorizontalLine: (value) {
-              return FlLine(color: theme.colorScheme.outline.withValues(alpha: 0.2), strokeWidth: 1);
+              return FlLine(
+                color: theme.colorScheme.outline.withValues(alpha: 0.2),
+                strokeWidth: 1,
+              );
             },
           ),
           titlesData: FlTitlesData(
             show: true,
-            rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            rightTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            topTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
             bottomTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
@@ -438,8 +539,13 @@ class _MedicationStatisticsScreenState extends ConsumerState<MedicationStatistic
                 getTitlesWidget: (value, meta) {
                   final index = value.toInt();
                   if (index >= 0 && index < trends.length) {
-                    final date = DateTime.now().subtract(Duration(days: trends.length - index - 1));
-                    return Text('${date.day}/${date.month}', style: theme.textTheme.bodySmall);
+                    final date = DateTime.now().subtract(
+                      Duration(days: trends.length - index - 1),
+                    );
+                    return Text(
+                      '${date.day}/${date.month}',
+                      style: theme.textTheme.bodySmall,
+                    );
                   }
                   return const Text('');
                 },
@@ -451,14 +557,19 @@ class _MedicationStatisticsScreenState extends ConsumerState<MedicationStatistic
                 interval: 1,
                 reservedSize: 40,
                 getTitlesWidget: (value, meta) {
-                  return Text(value.toInt().toString(), style: theme.textTheme.bodySmall);
+                  return Text(
+                    value.toInt().toString(),
+                    style: theme.textTheme.bodySmall,
+                  );
                 },
               ),
             ),
           ),
           borderData: FlBorderData(
             show: true,
-            border: Border.all(color: theme.colorScheme.outline.withValues(alpha: 0.2)),
+            border: Border.all(
+              color: theme.colorScheme.outline.withValues(alpha: 0.2),
+            ),
           ),
           minX: 0,
           maxX: (trends.length - 1).toDouble(),
@@ -486,7 +597,9 @@ class _MedicationStatisticsScreenState extends ConsumerState<MedicationStatistic
               ),
               belowBarData: BarAreaData(
                 show: true,
-                color: CareCircleDesignTokens.primaryMedicalBlue.withValues(alpha: 0.2),
+                color: CareCircleDesignTokens.primaryMedicalBlue.withValues(
+                  alpha: 0.2,
+                ),
               ),
             ),
           ],
@@ -495,7 +608,10 @@ class _MedicationStatisticsScreenState extends ConsumerState<MedicationStatistic
     );
   }
 
-  Widget _buildMedicationBreakdown(AsyncValue<List<Medication>> medicationsAsync, ThemeData theme) {
+  Widget _buildMedicationBreakdown(
+    AsyncValue<List<Medication>> medicationsAsync,
+    ThemeData theme,
+  ) {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -516,8 +632,12 @@ class _MedicationStatisticsScreenState extends ConsumerState<MedicationStatistic
               data: (medications) => medications.isEmpty
                   ? _buildEmptyState('No medications to analyze', theme)
                   : _buildMedicationPieChart(medications, theme),
-              loading: () => const SizedBox(height: 200, child: Center(child: CircularProgressIndicator())),
-              error: (error, _) => _buildErrorState('Failed to load medication data', theme),
+              loading: () => const SizedBox(
+                height: 200,
+                child: Center(child: CircularProgressIndicator()),
+              ),
+              error: (error, _) =>
+                  _buildErrorState('Failed to load medication data', theme),
             ),
           ],
         ),
@@ -525,7 +645,10 @@ class _MedicationStatisticsScreenState extends ConsumerState<MedicationStatistic
     );
   }
 
-  Widget _buildMedicationPieChart(List<Medication> medications, ThemeData theme) {
+  Widget _buildMedicationPieChart(
+    List<Medication> medications,
+    ThemeData theme,
+  ) {
     final categoryData = <String, int>{};
     for (final medication in medications) {
       final category = _getCategoryDisplayName(medication.category);
@@ -559,7 +682,11 @@ class _MedicationStatisticsScreenState extends ConsumerState<MedicationStatistic
                     value: entry.value.toDouble(),
                     title: '${percentage.toInt()}%',
                     radius: 60,
-                    titleStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white),
+                    titleStyle: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
                   );
                 }).toList(),
                 centerSpaceRadius: 40,
@@ -583,10 +710,18 @@ class _MedicationStatisticsScreenState extends ConsumerState<MedicationStatistic
                       Container(
                         width: 12,
                         height: 12,
-                        decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+                        decoration: BoxDecoration(
+                          color: color,
+                          shape: BoxShape.circle,
+                        ),
                       ),
                       const SizedBox(width: 8),
-                      Expanded(child: Text('${entry.key} (${entry.value})', style: theme.textTheme.bodySmall)),
+                      Expanded(
+                        child: Text(
+                          '${entry.key} (${entry.value})',
+                          style: theme.textTheme.bodySmall,
+                        ),
+                      ),
                     ],
                   ),
                 );
@@ -598,7 +733,10 @@ class _MedicationStatisticsScreenState extends ConsumerState<MedicationStatistic
     );
   }
 
-  Widget _buildInsightsSection(AsyncValue<AdherenceStatistics> adherenceStatsAsync, ThemeData theme) {
+  Widget _buildInsightsSection(
+    AsyncValue<AdherenceStatistics> adherenceStatsAsync,
+    ThemeData theme,
+  ) {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -618,7 +756,8 @@ class _MedicationStatisticsScreenState extends ConsumerState<MedicationStatistic
             adherenceStatsAsync.when(
               data: (statistics) => _buildInsightsContent(statistics, theme),
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (error, _) => _buildErrorState('Failed to load insights', theme),
+              error: (error, _) =>
+                  _buildErrorState('Failed to load insights', theme),
             ),
           ],
         ),
@@ -626,14 +765,21 @@ class _MedicationStatisticsScreenState extends ConsumerState<MedicationStatistic
     );
   }
 
-  Widget _buildInsightsContent(AdherenceStatistics statistics, ThemeData theme) {
+  Widget _buildInsightsContent(
+    AdherenceStatistics statistics,
+    ThemeData theme,
+  ) {
     final insights = _generateInsights(statistics);
 
     if (insights.isEmpty) {
       return _buildEmptyState('No insights available yet', theme);
     }
 
-    return Column(children: insights.map((insight) => _buildInsightCard(insight, theme)).toList());
+    return Column(
+      children: insights
+          .map((insight) => _buildInsightCard(insight, theme))
+          .toList(),
+    );
   }
 
   Widget _buildInsightCard(StatisticsInsight insight, ThemeData theme) {
@@ -671,7 +817,12 @@ class _MedicationStatisticsScreenState extends ConsumerState<MedicationStatistic
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(insight.title, style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600)),
+                Text(
+                  insight.title,
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
                 const SizedBox(height: 4),
                 Text(insight.description, style: theme.textTheme.bodyMedium),
               ],
@@ -687,11 +838,17 @@ class _MedicationStatisticsScreenState extends ConsumerState<MedicationStatistic
       padding: const EdgeInsets.all(32),
       child: Column(
         children: [
-          Icon(Icons.analytics, size: 48, color: theme.colorScheme.onSurfaceVariant),
+          Icon(
+            Icons.analytics,
+            size: 48,
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
           const SizedBox(height: 16),
           Text(
             message,
-            style: theme.textTheme.bodyLarge?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+            style: theme.textTheme.bodyLarge?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
             textAlign: TextAlign.center,
           ),
         ],
@@ -704,11 +861,17 @@ class _MedicationStatisticsScreenState extends ConsumerState<MedicationStatistic
       padding: const EdgeInsets.all(32),
       child: Column(
         children: [
-          Icon(Icons.error_outline, size: 48, color: CareCircleDesignTokens.criticalAlert),
+          Icon(
+            Icons.error_outline,
+            size: 48,
+            color: CareCircleDesignTokens.criticalAlert,
+          ),
           const SizedBox(height: 16),
           Text(
             message,
-            style: theme.textTheme.bodyLarge?.copyWith(color: CareCircleDesignTokens.criticalAlert),
+            style: theme.textTheme.bodyLarge?.copyWith(
+              color: CareCircleDesignTokens.criticalAlert,
+            ),
             textAlign: TextAlign.center,
           ),
         ],
@@ -755,7 +918,8 @@ class _MedicationStatisticsScreenState extends ConsumerState<MedicationStatistic
       insights.add(
         StatisticsInsight(
           title: 'Excellent Adherence!',
-          description: 'Your adherence of ${adherencePercentage.toInt()}% is excellent. Keep up the great work!',
+          description:
+              'Your adherence of ${adherencePercentage.toInt()}% is excellent. Keep up the great work!',
           type: InsightType.positive,
           icon: Icons.celebration,
         ),
@@ -764,7 +928,8 @@ class _MedicationStatisticsScreenState extends ConsumerState<MedicationStatistic
       insights.add(
         StatisticsInsight(
           title: 'Good Progress',
-          description: 'Your adherence is good at ${adherencePercentage.toInt()}%, but there\'s room for improvement.',
+          description:
+              'Your adherence is good at ${adherencePercentage.toInt()}%, but there\'s room for improvement.',
           type: InsightType.warning,
           icon: Icons.trending_up,
         ),
@@ -787,7 +952,8 @@ class _MedicationStatisticsScreenState extends ConsumerState<MedicationStatistic
       insights.add(
         StatisticsInsight(
           title: 'Active Medication Management',
-          description: 'You have $totalDoses total doses tracked. Great job staying on top of your medications!',
+          description:
+              'You have $totalDoses total doses tracked. Great job staying on top of your medications!',
           type: InsightType.positive,
           icon: Icons.medication,
         ),
@@ -799,7 +965,8 @@ class _MedicationStatisticsScreenState extends ConsumerState<MedicationStatistic
       insights.add(
         StatisticsInsight(
           title: 'Great Streak!',
-          description: 'You\'ve maintained a ${statistics.currentStreak}-day streak. Consistency is key!',
+          description:
+              'You\'ve maintained a ${statistics.currentStreak}-day streak. Consistency is key!',
           type: InsightType.positive,
           icon: Icons.local_fire_department,
         ),
@@ -840,7 +1007,12 @@ class StatisticsInsight {
   final InsightType type;
   final IconData icon;
 
-  StatisticsInsight({required this.title, required this.description, required this.type, required this.icon});
+  StatisticsInsight({
+    required this.title,
+    required this.description,
+    required this.type,
+    required this.icon,
+  });
 }
 
 enum InsightType { positive, warning, critical }

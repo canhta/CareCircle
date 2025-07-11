@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { PrismaModule } from '../common/database/prisma.module';
+import { IdentityAccessModule } from '../identity-access/identity-access.module';
 
 // Domain Repositories (imported as string tokens in providers)
 
@@ -30,7 +31,7 @@ import { PrescriptionProcessingController } from './presentation/controllers/pre
 import { DrugInteractionController } from './presentation/controllers/drug-interaction.controller';
 
 @Module({
-  imports: [PrismaModule],
+  imports: [PrismaModule, IdentityAccessModule],
   controllers: [
     MedicationController,
     PrescriptionController,

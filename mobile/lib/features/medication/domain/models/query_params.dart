@@ -16,7 +16,8 @@ abstract class PrescriptionQueryParams with _$PrescriptionQueryParams {
     int? offset,
   }) = _PrescriptionQueryParams;
 
-  factory PrescriptionQueryParams.fromJson(Map<String, dynamic> json) => _$PrescriptionQueryParamsFromJson(json);
+  factory PrescriptionQueryParams.fromJson(Map<String, dynamic> json) =>
+      _$PrescriptionQueryParamsFromJson(json);
 }
 
 /// Query parameters for medication schedule filtering
@@ -31,7 +32,8 @@ abstract class ScheduleQueryParams with _$ScheduleQueryParams {
     int? offset,
   }) = _ScheduleQueryParams;
 
-  factory ScheduleQueryParams.fromJson(Map<String, dynamic> json) => _$ScheduleQueryParamsFromJson(json);
+  factory ScheduleQueryParams.fromJson(Map<String, dynamic> json) =>
+      _$ScheduleQueryParamsFromJson(json);
 }
 
 /// Query parameters for adherence record filtering
@@ -47,7 +49,8 @@ abstract class AdherenceQueryParams with _$AdherenceQueryParams {
     int? offset,
   }) = _AdherenceQueryParams;
 
-  factory AdherenceQueryParams.fromJson(Map<String, dynamic> json) => _$AdherenceQueryParamsFromJson(json);
+  factory AdherenceQueryParams.fromJson(Map<String, dynamic> json) =>
+      _$AdherenceQueryParamsFromJson(json);
 }
 
 /// Query parameters for medication filtering
@@ -69,7 +72,8 @@ abstract class MedicationQueryParams with _$MedicationQueryParams {
     @Default('asc') String sortOrder,
   }) = _MedicationQueryParams;
 
-  factory MedicationQueryParams.fromJson(Map<String, dynamic> json) => _$MedicationQueryParamsFromJson(json);
+  factory MedicationQueryParams.fromJson(Map<String, dynamic> json) =>
+      _$MedicationQueryParamsFromJson(json);
 }
 
 /// Query parameters for drug interaction filtering
@@ -83,7 +87,8 @@ abstract class InteractionQueryParams with _$InteractionQueryParams {
     int? offset,
   }) = _InteractionQueryParams;
 
-  factory InteractionQueryParams.fromJson(Map<String, dynamic> json) => _$InteractionQueryParamsFromJson(json);
+  factory InteractionQueryParams.fromJson(Map<String, dynamic> json) =>
+      _$InteractionQueryParamsFromJson(json);
 }
 
 /// Query parameters for medication inventory filtering
@@ -99,7 +104,8 @@ abstract class InventoryQueryParams with _$InventoryQueryParams {
     int? offset,
   }) = _InventoryQueryParams;
 
-  factory InventoryQueryParams.fromJson(Map<String, dynamic> json) => _$InventoryQueryParamsFromJson(json);
+  factory InventoryQueryParams.fromJson(Map<String, dynamic> json) =>
+      _$InventoryQueryParamsFromJson(json);
 }
 
 /// Query parameters for prescription processing
@@ -113,5 +119,6 @@ abstract class ProcessingQueryParams with _$ProcessingQueryParams {
     int? offset,
   }) = _ProcessingQueryParams;
 
-  factory ProcessingQueryParams.fromJson(Map<String, dynamic> json) => _$ProcessingQueryParamsFromJson(json);
+  factory ProcessingQueryParams.fromJson(Map<String, dynamic> json) =>
+      _$ProcessingQueryParamsFromJson(json);
 }
