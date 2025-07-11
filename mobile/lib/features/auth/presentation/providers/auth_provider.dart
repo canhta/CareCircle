@@ -71,104 +71,6 @@ class AuthNotifier extends _$AuthNotifier {
     }
   }
 
-  Future<void> loginWithEmail(String email, String password) async {
-    _logger.info('Email login flow initiated', {
-      'flow': 'email_password',
-      'timestamp': DateTime.now().toIso8601String(),
-    });
-
-    state = state.copyWith(isLoading: true, error: null);
-
-    try {
-      final firebaseAuthService = ref.read(firebaseAuthServiceProvider);
-      final authService = ref.read(authServiceProvider);
-
-      // Sign in with Firebase first
-      final userCredential = await firebaseAuthService
-          .signInWithEmailAndPassword(email: email, password: password);
-
-      // Get Firebase ID token
-      final idToken = await userCredential.user?.getIdToken();
-      if (idToken == null) {
-        throw Exception('Failed to get Firebase ID token');
-      }
-
-      // Authenticate with backend using Firebase ID token
-      final authResponse = await authService.loginWithFirebaseToken(idToken);
-
-      state = state.copyWith(
-        user: authResponse.user,
-        profile: authResponse.profile,
-        status: AuthStatus.authenticated,
-        isLoading: false,
-      );
-
-      _logger.logAuthEvent('Email login flow completed', {
-        'userId': authResponse.user.id,
-        'flow': 'email_password',
-        'timestamp': DateTime.now().toIso8601String(),
-      });
-    } catch (e) {
-      _logger.error('Email login flow failed', {
-        'flow': 'email_password',
-        'error': e.toString(),
-        'timestamp': DateTime.now().toIso8601String(),
-      });
-
-      // Provide user-friendly error message
-      String userMessage = e.toString();
-      if (e.toString().contains('Firebase')) {
-        userMessage =
-            'Authentication failed. Please check your email and password.';
-      } else if (e.toString().contains('network') ||
-          e.toString().contains('connection')) {
-        userMessage =
-            'Network error. Please check your internet connection and try again.';
-      } else if (e.toString().contains('timeout')) {
-        userMessage = 'Request timed out. Please try again.';
-      }
-
-      state = state.copyWith(error: userMessage, isLoading: false);
-    }
-  }
-
-  Future<void> register(RegisterRequest request) async {
-    state = state.copyWith(isLoading: true, error: null);
-
-    try {
-      final firebaseAuthService = ref.read(firebaseAuthServiceProvider);
-      final authService = ref.read(authServiceProvider);
-
-      // Create user with Firebase first
-      final userCredential = await firebaseAuthService
-          .createUserWithEmailAndPassword(
-            email: request.email!,
-            password: request.password,
-          );
-
-      // Get Firebase ID token
-      final idToken = await userCredential.user?.getIdToken();
-      if (idToken == null) {
-        throw Exception('Failed to get Firebase ID token');
-      }
-
-      // Register with backend using Firebase ID token
-      final authResponse = await authService.registerWithFirebaseToken(
-        idToken,
-        request,
-      );
-
-      state = state.copyWith(
-        user: authResponse.user,
-        profile: authResponse.profile,
-        status: AuthStatus.authenticated,
-        isLoading: false,
-      );
-    } catch (e) {
-      state = state.copyWith(error: e.toString(), isLoading: false);
-    }
-  }
-
   Future<void> loginAsGuest() async {
     state = state.copyWith(isLoading: true, error: null);
 
@@ -253,39 +155,6 @@ class AuthNotifier extends _$AuthNotifier {
     }
   }
 
-  Future<void> convertGuestToRegistered({
-    String? email,
-    String? phoneNumber,
-    String? password,
-    String? displayName,
-  }) async {
-    if (state.status != AuthStatus.guest) {
-      state = state.copyWith(error: 'Only guest users can be converted');
-      return;
-    }
-
-    state = state.copyWith(isLoading: true, error: null);
-
-    try {
-      final authService = ref.read(authServiceProvider);
-      final authResponse = await authService.convertGuest(
-        email: email,
-        phoneNumber: phoneNumber,
-        password: password,
-        displayName: displayName,
-      );
-
-      state = state.copyWith(
-        user: authResponse.user,
-        profile: authResponse.profile,
-        status: AuthStatus.authenticated,
-        isLoading: false,
-      );
-    } catch (e) {
-      state = state.copyWith(error: e.toString(), isLoading: false);
-    }
-  }
-
   Future<void> updateProfile(Map<String, dynamic> updates) async {
     state = state.copyWith(isLoading: true, error: null);
 
@@ -319,34 +188,6 @@ class AuthNotifier extends _$AuthNotifier {
         status: AuthStatus.unauthenticated,
         error: 'Logout completed locally',
       );
-    }
-  }
-
-  Future<void> convertGuest({
-    String? email,
-    String? phoneNumber,
-    String? password,
-    String? displayName,
-  }) async {
-    state = state.copyWith(isLoading: true, error: null);
-
-    try {
-      final authService = ref.read(authServiceProvider);
-      final authResponse = await authService.convertGuest(
-        email: email,
-        phoneNumber: phoneNumber,
-        password: password,
-        displayName: displayName,
-      );
-
-      state = state.copyWith(
-        user: authResponse.user,
-        profile: authResponse.profile,
-        status: AuthStatus.authenticated,
-        isLoading: false,
-      );
-    } catch (e) {
-      state = state.copyWith(error: e.toString(), isLoading: false);
     }
   }
 

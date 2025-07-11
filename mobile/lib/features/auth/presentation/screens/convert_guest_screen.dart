@@ -4,38 +4,14 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/design/design_tokens.dart';
 import '../../../../core/widgets/care_circle_button.dart';
-import '../../../../core/widgets/care_circle_text_field.dart';
 import '../providers/auth_provider.dart';
 import '../../domain/models/auth_models.dart';
 
-class ConvertGuestScreen extends ConsumerStatefulWidget {
+class ConvertGuestScreen extends ConsumerWidget {
   const ConvertGuestScreen({super.key});
 
   @override
-  ConsumerState<ConvertGuestScreen> createState() => _ConvertGuestScreenState();
-}
-
-class _ConvertGuestScreenState extends ConsumerState<ConvertGuestScreen> {
-  final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-  final _confirmPasswordController = TextEditingController();
-  final _displayNameController = TextEditingController();
-
-  bool _obscurePassword = true;
-  bool _obscureConfirmPassword = true;
-
-  @override
-  void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
-    _confirmPasswordController.dispose();
-    _displayNameController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final authState = ref.watch(authNotifierProvider);
 
@@ -69,256 +45,191 @@ class _ConvertGuestScreenState extends ConsumerState<ConvertGuestScreen> {
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // Header
-                Column(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Header
+              Column(
+                children: [
+                  Container(
+                    width: 80,
+                    height: 80,
+                    decoration: BoxDecoration(
+                      color: CareCircleDesignTokens.primaryMedicalBlue
+                          .withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: const Icon(
+                      Icons.person_add,
+                      size: 40,
+                      color: CareCircleDesignTokens.primaryMedicalBlue,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  Text(
+                    'Convert Guest Account',
+                    style: theme.textTheme.headlineMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: CareCircleDesignTokens.primaryMedicalBlue,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Create a permanent account to save your health data and sync across devices',
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 48),
+
+              // Google Sign Up button
+              CareCircleButton(
+                onPressed: authState.isLoading
+                    ? null
+                    : () async {
+                        await ref
+                            .read(authNotifierProvider.notifier)
+                            .signInWithGoogle();
+                      },
+                text: 'Continue with Google',
+                variant: CareCircleButtonVariant.primary,
+                icon: Icons.g_mobiledata,
+              ),
+
+              const SizedBox(height: 16),
+
+              // Apple Sign Up button
+              CareCircleButton(
+                onPressed: authState.isLoading
+                    ? null
+                    : () async {
+                        await ref
+                            .read(authNotifierProvider.notifier)
+                            .signInWithApple();
+                      },
+                text: 'Continue with Apple',
+                variant: CareCircleButtonVariant.secondary,
+                icon: Icons.apple,
+              ),
+
+              const SizedBox(height: 32),
+
+              // Note about conversion
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: CareCircleDesignTokens.primaryMedicalBlue.withValues(
+                    alpha: 0.1,
+                  ),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: CareCircleDesignTokens.primaryMedicalBlue.withValues(
+                      alpha: 0.2,
+                    ),
+                  ),
+                ),
+                child: Row(
                   children: [
-                    Container(
-                      width: 80,
-                      height: 80,
-                      decoration: BoxDecoration(
-                        color: CareCircleDesignTokens.primaryMedicalBlue
-                            .withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: const Icon(
-                        Icons.person_add,
-                        size: 40,
-                        color: CareCircleDesignTokens.primaryMedicalBlue,
-                      ),
+                    Icon(
+                      Icons.info_outline,
+                      color: CareCircleDesignTokens.primaryMedicalBlue,
+                      size: 20,
                     ),
-                    const SizedBox(height: 24),
-                    Text(
-                      'Convert Guest Account',
-                      style: theme.textTheme.headlineMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: CareCircleDesignTokens.primaryMedicalBlue,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      'Create a permanent account to save your health data and access all features',
-                      style: theme.textTheme.bodyLarge?.copyWith(
-                        color: theme.colorScheme.onSurface.withValues(
-                          alpha: 0.7,
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        'Converting your guest account will preserve all your current health data and settings.',
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: CareCircleDesignTokens.primaryMedicalBlue,
                         ),
                       ),
-                      textAlign: TextAlign.center,
                     ),
                   ],
                 ),
+              ),
 
-                const SizedBox(height: 40),
+              const SizedBox(height: 24),
 
-                // Form fields
-                CareCircleTextField(
-                  controller: _displayNameController,
-                  label: 'Display Name',
-                  hintText: 'Enter your display name',
-                  prefixIcon: Icons.person_outline,
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return 'Please enter your display name';
-                    }
-                    if (value.trim().length < 2) {
-                      return 'Display name must be at least 2 characters';
-                    }
-                    return null;
-                  },
-                ),
-
-                const SizedBox(height: 16),
-
-                CareCircleTextField(
-                  controller: _emailController,
-                  label: 'Email Address',
-                  hintText: 'Enter your email address',
-                  prefixIcon: Icons.email_outlined,
-                  keyboardType: TextInputType.emailAddress,
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return 'Please enter your email address';
-                    }
-                    if (!RegExp(
-                      r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
-                    ).hasMatch(value.trim())) {
-                      return 'Please enter a valid email address';
-                    }
-                    return null;
-                  },
-                ),
-
-                const SizedBox(height: 16),
-
-                CareCircleTextField(
-                  controller: _passwordController,
-                  label: 'Password',
-                  hintText: 'Create a strong password',
-                  prefixIcon: Icons.lock_outline,
-                  obscureText: _obscurePassword,
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      _obscurePassword
-                          ? Icons.visibility
-                          : Icons.visibility_off,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _obscurePassword = !_obscurePassword;
-                      });
-                    },
+              // Benefits section
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: CareCircleDesignTokens.healthGreen.withValues(
+                    alpha: 0.1,
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter a password';
-                    }
-                    if (value.length < 8) {
-                      return 'Password must be at least 8 characters';
-                    }
-                    if (!RegExp(
-                      r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)',
-                    ).hasMatch(value)) {
-                      return 'Password must contain uppercase, lowercase, and number';
-                    }
-                    return null;
-                  },
-                ),
-
-                const SizedBox(height: 16),
-
-                CareCircleTextField(
-                  controller: _confirmPasswordController,
-                  label: 'Confirm Password',
-                  hintText: 'Confirm your password',
-                  prefixIcon: Icons.lock_outline,
-                  obscureText: _obscureConfirmPassword,
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      _obscureConfirmPassword
-                          ? Icons.visibility
-                          : Icons.visibility_off,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _obscureConfirmPassword = !_obscureConfirmPassword;
-                      });
-                    },
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please confirm your password';
-                    }
-                    if (value != _passwordController.text) {
-                      return 'Passwords do not match';
-                    }
-                    return null;
-                  },
-                ),
-
-                const SizedBox(height: 32),
-
-                // Convert button
-                CareCircleButton(
-                  onPressed: authState.isLoading ? null : _handleConvertGuest,
-                  isLoading: authState.isLoading,
-                  text: 'Create Account',
-                ),
-
-                const SizedBox(height: 24),
-
-                // Benefits section
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
                     color: CareCircleDesignTokens.healthGreen.withValues(
-                      alpha: 0.1,
-                    ),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: CareCircleDesignTokens.healthGreen.withValues(
-                        alpha: 0.3,
-                      ),
+                      alpha: 0.3,
                     ),
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.verified_user,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.verified_user,
+                          color: CareCircleDesignTokens.healthGreen,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Account Benefits',
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w600,
                             color: CareCircleDesignTokens.healthGreen,
-                            size: 20,
                           ),
-                          const SizedBox(width: 8),
-                          Text(
-                            'Account Benefits',
-                            style: theme.textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.w600,
-                              color: CareCircleDesignTokens.healthGreen,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      _BenefitItem(
-                        icon: Icons.cloud_upload,
-                        text: 'Secure cloud backup of your health data',
-                      ),
-                      const SizedBox(height: 8),
-                      _BenefitItem(
-                        icon: Icons.family_restroom,
-                        text: 'Join and create care groups with family',
-                      ),
-                      const SizedBox(height: 8),
-                      _BenefitItem(
-                        icon: Icons.sync,
-                        text: 'Sync data across all your devices',
-                      ),
-                      const SizedBox(height: 8),
-                      _BenefitItem(
-                        icon: Icons.psychology,
-                        text: 'Personalized AI health insights',
-                      ),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: 24),
-
-                // Continue as guest option
-                TextButton(
-                  onPressed: () => context.pop(),
-                  child: Text(
-                    'Continue as Guest',
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                        ),
+                      ],
                     ),
+                    const SizedBox(height: 12),
+                    _BenefitItem(
+                      icon: Icons.cloud_upload,
+                      text: 'Secure cloud backup of your health data',
+                    ),
+                    const SizedBox(height: 8),
+                    _BenefitItem(
+                      icon: Icons.family_restroom,
+                      text: 'Join and create care groups with family',
+                    ),
+                    const SizedBox(height: 8),
+                    _BenefitItem(
+                      icon: Icons.sync,
+                      text: 'Sync data across all your devices',
+                    ),
+                    const SizedBox(height: 8),
+                    _BenefitItem(
+                      icon: Icons.psychology,
+                      text: 'Personalized AI health insights',
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 24),
+
+              // Continue as guest option
+              TextButton(
+                onPressed: () => context.pop(),
+                child: Text(
+                  'Continue as Guest',
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
     );
-  }
-
-  void _handleConvertGuest() {
-    if (_formKey.currentState?.validate() ?? false) {
-      ref
-          .read(authNotifierProvider.notifier)
-          .convertGuest(
-            email: _emailController.text.trim(),
-            password: _passwordController.text,
-            displayName: _displayNameController.text.trim(),
-          );
-    }
   }
 }
 

@@ -1,7 +1,6 @@
 import {
   Injectable,
   UnauthorizedException,
-  ConflictException,
 } from '@nestjs/common';
 
 import { UserRepository } from '../../domain/repositories/user.repository';
@@ -124,157 +123,9 @@ export class AuthService {
     };
   }
 
-  async loginWithFirebaseToken(idToken: string): Promise<LoginResult> {
-    try {
-      // Verify the Firebase ID token
-      const decodedToken =
-        await this.firebaseAuthService.verifyIdToken(idToken);
 
-      // Check if user already exists by Firebase UID
-      let user = await this.userRepository.findById(decodedToken.uid);
 
-      if (!user) {
-        // Create new user account with Firebase UID as ID
-        user = UserAccount.create({
-          id: decodedToken.uid,
-          email: decodedToken.email,
-        });
-        // Set email verification status after creation
-        if (decodedToken.email_verified) {
-          user.verifyEmail();
-        }
-        user = await this.userRepository.create(user);
 
-        // Create user profile
-        const profile = UserProfile.create({
-          userId: user.id,
-          displayName:
-            (decodedToken.name as string) || decodedToken.email!.split('@')[0],
-          firstName: decodedToken.given_name as string | undefined,
-          lastName: decodedToken.family_name as string | undefined,
-        });
-        // Set photo URL after creation
-        if (decodedToken.picture) {
-          profile.updateProfile({ photoUrl: decodedToken.picture });
-        }
-        await this.userRepository.createProfile(profile);
-
-        // Create permission set
-        const permissionSet = PermissionSet.create({
-          userId: user.id,
-          roles: [Role.USER],
-        });
-        await this.permissionRepository.create(permissionSet);
-
-        // Create auth method record
-        const authMethod = AuthMethod.create({
-          userId: user.id,
-          type: AuthMethodType.EMAIL,
-          identifier: decodedToken.email!,
-          isVerified: true,
-        });
-        await this.authMethodRepository.create(authMethod);
-      } else {
-        // Update last login
-        user.updateLastLogin();
-        await this.userRepository.update(user.id, {
-          lastLoginAt: user.lastLoginAt,
-        });
-      }
-
-      // Get user profile
-      const profile = await this.userRepository.findProfileByUserId(user.id);
-
-      return {
-        user,
-        profile,
-      };
-    } catch (error) {
-      throw new UnauthorizedException(
-        `Firebase login failed: ${(error as Error).message}`,
-      );
-    }
-  }
-
-  async registerWithFirebaseToken(
-    idToken: string,
-    profileData: {
-      displayName: string;
-      firstName?: string;
-      lastName?: string;
-    },
-  ): Promise<LoginResult> {
-    try {
-      // Verify the Firebase ID token
-      const decodedToken =
-        await this.firebaseAuthService.verifyIdToken(idToken);
-
-      // Check if user already exists by Firebase UID
-      const existingUser = await this.userRepository.findById(decodedToken.uid);
-      if (existingUser) {
-        throw new ConflictException(
-          'User already exists with this Firebase UID',
-        );
-      }
-
-      // Create new user account with Firebase UID as ID
-      const user = UserAccount.create({
-        id: decodedToken.uid,
-        email: decodedToken.email,
-      });
-      // Set email verification status after creation
-      if (decodedToken.email_verified) {
-        user.verifyEmail();
-      }
-      const createdUser = await this.userRepository.create(user);
-
-      // Create user profile
-      const profile = UserProfile.create({
-        userId: createdUser.id,
-        displayName: profileData.displayName,
-        firstName: profileData.firstName,
-        lastName: profileData.lastName,
-      });
-      // Set photo URL after creation
-      if (decodedToken.picture) {
-        profile.updateProfile({ photoUrl: decodedToken.picture });
-      }
-      await this.userRepository.createProfile(profile);
-
-      // Create permission set
-      const permissionSet = PermissionSet.create({
-        userId: createdUser.id,
-        roles: [Role.USER],
-      });
-      await this.permissionRepository.create(permissionSet);
-
-      // Create auth method record
-      const authMethod = AuthMethod.create({
-        userId: createdUser.id,
-        type: AuthMethodType.EMAIL,
-        identifier: decodedToken.email!,
-        isVerified: true,
-      });
-      await this.authMethodRepository.create(authMethod);
-
-      // Get user profile
-      const userProfile = await this.userRepository.findProfileByUserId(
-        createdUser.id,
-      );
-
-      return {
-        user: createdUser,
-        profile: userProfile,
-      };
-    } catch (error) {
-      if (error instanceof ConflictException) {
-        throw error;
-      }
-      throw new UnauthorizedException(
-        `Firebase registration failed: ${(error as Error).message}`,
-      );
-    }
-  }
 
   async signInWithGoogle(idToken: string): Promise<LoginResult> {
     try {

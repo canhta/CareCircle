@@ -17,12 +17,9 @@ import {
 import { UserService } from '../../application/services/user.service';
 import {
   GuestLoginDto,
-  ConvertGuestDto,
   AuthResponseDto,
   OAuthLoginDto,
   LinkOAuthProviderDto,
-  FirebaseLoginDto,
-  FirebaseRegisterDto,
   UpdateProfileDto,
   ProfileResponseDto,
 } from '../dtos/auth.dto';
@@ -39,53 +36,6 @@ export class AuthController {
     private readonly authService: AuthService,
     private readonly userService: UserService,
   ) {}
-
-  @Post('firebase-login')
-  @HttpCode(HttpStatus.OK)
-  async firebaseLogin(
-    @Body() firebaseLoginDto: FirebaseLoginDto,
-  ): Promise<AuthResponseDto> {
-    try {
-      this.logger.log('Firebase login attempt');
-      const result = await this.authService.loginWithFirebaseToken(
-        firebaseLoginDto.idToken,
-      );
-      this.logger.log(`Firebase login successful for user: ${result.user.id}`);
-      return this.formatAuthResponse(result);
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : 'Firebase login failed';
-      this.logger.error(`Firebase login failed: ${errorMessage}`);
-      throw new Error(errorMessage);
-    }
-  }
-
-  @Post('firebase-register')
-  @HttpCode(HttpStatus.CREATED)
-  async firebaseRegister(
-    @Body() firebaseRegisterDto: FirebaseRegisterDto,
-  ): Promise<AuthResponseDto> {
-    try {
-      this.logger.log('Firebase registration attempt');
-      const result = await this.authService.registerWithFirebaseToken(
-        firebaseRegisterDto.idToken,
-        {
-          displayName: firebaseRegisterDto.displayName || '',
-          firstName: firebaseRegisterDto.firstName,
-          lastName: firebaseRegisterDto.lastName,
-        },
-      );
-      this.logger.log(
-        `Firebase registration successful for user: ${result.user.id}`,
-      );
-      return this.formatAuthResponse(result);
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : 'Firebase registration failed';
-      this.logger.error(`Firebase registration failed: ${errorMessage}`);
-      throw new Error(errorMessage);
-    }
-  }
 
   @Post('guest')
   @UseGuards(FirebaseAuthGuard)
@@ -107,31 +57,6 @@ export class AuthController {
       const errorMessage =
         error instanceof Error ? error.message : 'Guest login failed';
       this.logger.error(`Guest login failed: ${errorMessage}`);
-      throw new Error(errorMessage);
-    }
-  }
-
-  @Post('convert-guest')
-  @UseGuards(FirebaseAuthGuard)
-  @HttpCode(HttpStatus.OK)
-  async convertGuest(
-    @Request() req: { user: FirebaseUserPayload },
-    @Body() convertGuestDto: ConvertGuestDto,
-  ): Promise<AuthResponseDto> {
-    try {
-      this.logger.log(`Guest conversion attempt for user: ${req.user.id}`);
-      const result = await this.authService.convertGuestToRegistered(
-        req.user.id,
-        convertGuestDto,
-      );
-      this.logger.log(
-        `Guest conversion successful for user: ${result.user.id}`,
-      );
-      return this.formatAuthResponse(result);
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : 'Guest conversion failed';
-      this.logger.error(`Guest conversion failed: ${errorMessage}`);
       throw new Error(errorMessage);
     }
   }

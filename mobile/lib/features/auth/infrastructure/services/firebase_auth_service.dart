@@ -36,15 +36,6 @@ class FirebaseAuthService {
     return null;
   }
 
-  // Send password reset email
-  Future<void> sendPasswordResetEmail(String email) async {
-    try {
-      await _firebaseAuth.sendPasswordResetEmail(email: email);
-    } on FirebaseAuthException catch (e) {
-      throw _handleFirebaseAuthException(e);
-    }
-  }
-
   // Sign out
   Future<void> signOut() async {
     try {
@@ -137,36 +128,6 @@ class FirebaseAuthService {
   Future<UserCredential> signInAnonymously() async {
     try {
       return await _firebaseAuth.signInAnonymously();
-    } on FirebaseAuthException catch (e) {
-      throw _handleFirebaseAuthException(e);
-    }
-  }
-
-  // Create user with email and password
-  Future<UserCredential> createUserWithEmailAndPassword({
-    required String email,
-    required String password,
-  }) async {
-    try {
-      return await _firebaseAuth.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-    } on FirebaseAuthException catch (e) {
-      throw _handleFirebaseAuthException(e);
-    }
-  }
-
-  // Sign in with email and password
-  Future<UserCredential> signInWithEmailAndPassword({
-    required String email,
-    required String password,
-  }) async {
-    try {
-      return await _firebaseAuth.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
     } on FirebaseAuthException catch (e) {
       throw _handleFirebaseAuthException(e);
     }

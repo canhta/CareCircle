@@ -177,11 +177,7 @@ This document provides detailed implementation guidelines for Firebase Authentic
        let credential: AuthCredential;
 
        switch (provider) {
-         case AuthProvider.EMAIL: {
-           const { email, password } = await collectEmailCredentials();
-           credential = EmailAuthProvider.credential(email, password);
-           break;
-         }
+         // Email/password authentication removed - OAuth only
          case AuthProvider.GOOGLE: {
            const googleAuth = await GoogleSignin.signIn();
            credential = GoogleAuthProvider.credential(
@@ -343,53 +339,7 @@ This document provides detailed implementation guidelines for Firebase Authentic
 
 #### Implementation Details:
 
-1. **Email/Password Registration**
-
-   ```typescript
-   async function registerWithEmailAndPassword(
-     email: string,
-     password: string,
-   ): Promise<UserCredential> {
-     try {
-       // Create user with email and password
-       const credential = await firebase
-         .auth()
-         .createUserWithEmailAndPassword(email, password);
-
-       // Send email verification
-       if (credential.user) {
-         await credential.user.sendEmailVerification();
-       }
-
-       return credential;
-     } catch (error) {
-       console.error("Error registering with email/password:", error);
-
-       // Handle specific Firebase errors
-       switch (error.code) {
-         case "auth/email-already-in-use":
-           throw new RegistrationError(
-             "EMAIL_IN_USE",
-             "This email is already registered",
-           );
-         case "auth/invalid-email":
-           throw new RegistrationError(
-             "INVALID_EMAIL",
-             "The email address is invalid",
-           );
-         case "auth/weak-password":
-           throw new RegistrationError(
-             "WEAK_PASSWORD",
-             "The password is too weak",
-           );
-         default:
-           throw new RegistrationError("UNKNOWN", error.message);
-       }
-     }
-   }
-   ```
-
-2. **Social Authentication Registration**
+1. **OAuth Provider Registration**
 
    ```typescript
    async function registerWithSocialProvider(
@@ -644,29 +594,12 @@ export const convertGuestToRegistered = functions.https.onCall(
 export interface AuthProvider {
   // Core authentication methods
   signInAnonymously(): Promise<UserCredential>;
-  signInWithEmailAndPassword(
-    email: string,
-    password: string,
-  ): Promise<UserCredential>;
-  createUserWithEmailAndPassword(
-    email: string,
-    password: string,
-  ): Promise<UserCredential>;
   signInWithGoogle(): Promise<UserCredential>;
   signInWithApple(): Promise<UserCredential>;
-  verifyPhoneNumber(phoneNumber: string): Promise<string>; // Returns verification ID
-  confirmPhoneVerification(
-    verificationId: string,
-    code: string,
-  ): Promise<UserCredential>;
 
   // Account management
   linkWithCredential(credential: AuthCredential): Promise<UserCredential>;
   reauthenticate(credential: AuthCredential): Promise<void>;
-  sendPasswordResetEmail(email: string): Promise<void>;
-  updateEmail(email: string): Promise<void>;
-  updatePassword(password: string): Promise<void>;
-  sendEmailVerification(): Promise<void>;
 
   // Session management
   getCurrentUser(): User | null;

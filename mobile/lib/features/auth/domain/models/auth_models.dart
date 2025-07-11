@@ -67,23 +67,13 @@ abstract class AuthState with _$AuthState {
       _$AuthStateFromJson(json);
 }
 
-@freezed
-abstract class LoginRequest with _$LoginRequest {
-  const factory LoginRequest({
-    required String email,
-    required String password,
-  }) = _LoginRequest;
-
-  factory LoginRequest.fromJson(Map<String, dynamic> json) =>
-      _$LoginRequestFromJson(json);
-}
+// LoginRequest removed - OAuth and guest authentication only
 
 @freezed
 abstract class RegisterRequest with _$RegisterRequest {
   const factory RegisterRequest({
     String? email,
     String? phoneNumber,
-    required String password,
     required String displayName,
     String? firstName,
     String? lastName,

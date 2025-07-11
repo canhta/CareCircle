@@ -115,9 +115,9 @@ class NavigationService {
     }
   }
 
-  /// Navigate to authentication flow
+  /// Navigate to authentication flow (welcome screen)
   static void navigateToAuth(BuildContext context, {String? specificRoute}) {
-    final route = specificRoute ?? '/auth/login';
+    final route = specificRoute ?? '/';
 
     _logger.logNavigationEvent('Auth navigation initiated', {
       'authRoute': route,

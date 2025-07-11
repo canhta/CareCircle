@@ -1,5 +1,4 @@
 import {
-  IsEmail,
   IsString,
   IsOptional,
   IsBoolean,
@@ -7,30 +6,6 @@ import {
   IsNotEmpty,
 } from 'class-validator';
 import { Gender, Language } from '@prisma/client';
-
-export class FirebaseLoginDto {
-  @IsString()
-  @IsNotEmpty()
-  idToken: string;
-}
-
-export class FirebaseRegisterDto {
-  @IsString()
-  @IsNotEmpty()
-  idToken: string;
-
-  @IsOptional()
-  @IsString()
-  displayName?: string;
-
-  @IsOptional()
-  @IsString()
-  firstName?: string;
-
-  @IsOptional()
-  @IsString()
-  lastName?: string;
-}
 
 export class GuestLoginDto {
   @IsString()
@@ -40,20 +15,6 @@ export class GuestLoginDto {
   @IsString()
   @IsNotEmpty()
   idToken: string;
-}
-
-export class ConvertGuestDto {
-  @IsOptional()
-  @IsEmail()
-  email?: string;
-
-  @IsOptional()
-  @IsString()
-  phoneNumber?: string;
-
-  @IsOptional()
-  @IsString()
-  displayName?: string;
 }
 
 export class UpdateProfileDto {

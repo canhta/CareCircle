@@ -90,77 +90,6 @@ class AuthService {
     }
   }
 
-  Future<AuthResponse> loginWithFirebaseToken(String idToken) async {
-    _logger.info('Firebase login initiated', {
-      'method': 'firebase',
-      'timestamp': DateTime.now().toIso8601String(),
-    });
-
-    try {
-      final response = await _dio.post(
-        '/auth/firebase-login',
-        data: {'idToken': idToken},
-      );
-
-      final authResponse = AuthResponse.fromJson(response.data);
-      await _saveAuthData(authResponse);
-
-      _logger.logAuthEvent('Firebase login successful', {
-        'userId': authResponse.user.id,
-        'method': 'firebase',
-        'timestamp': DateTime.now().toIso8601String(),
-      });
-
-      return authResponse;
-    } on DioException catch (e) {
-      _logger.error('Firebase login failed', {
-        'method': 'firebase',
-        'errorType': e.type.name,
-        'statusCode': e.response?.statusCode,
-        'timestamp': DateTime.now().toIso8601String(),
-      });
-      throw _handleDioError(e);
-    }
-  }
-
-  Future<AuthResponse> register(RegisterRequest request) async {
-    try {
-      final response = await _dio.post(
-        '/auth/register',
-        data: request.toJson(),
-      );
-
-      final authResponse = AuthResponse.fromJson(response.data);
-      await _saveAuthData(authResponse);
-      return authResponse;
-    } on DioException catch (e) {
-      throw _handleDioError(e);
-    }
-  }
-
-  Future<AuthResponse> registerWithFirebaseToken(
-    String idToken,
-    RegisterRequest request,
-  ) async {
-    try {
-      final response = await _dio.post(
-        '/auth/firebase-register',
-        data: {
-          'idToken': idToken,
-          'displayName': request.displayName,
-          'firstName': request.firstName,
-          'lastName': request.lastName,
-        },
-      );
-
-      final authResponse = AuthResponse.fromJson(response.data);
-      await _saveAuthData(authResponse);
-      return authResponse;
-    } on DioException catch (e) {
-      throw _handleDioError(e);
-    }
-  }
-
   Future<AuthResponse> loginAsGuest(String deviceId) async {
     try {
       // Get Firebase ID token from current anonymous user
@@ -172,31 +101,6 @@ class AuthService {
       final response = await _dio.post(
         '/auth/guest',
         data: {'deviceId': deviceId, 'idToken': idToken},
-      );
-
-      final authResponse = AuthResponse.fromJson(response.data);
-      await _saveAuthData(authResponse);
-      return authResponse;
-    } on DioException catch (e) {
-      throw _handleDioError(e);
-    }
-  }
-
-  Future<AuthResponse> convertGuest({
-    String? email,
-    String? phoneNumber,
-    String? password,
-    String? displayName,
-  }) async {
-    try {
-      final response = await _dio.post(
-        '/auth/convert-guest',
-        data: {
-          if (email != null) 'email': email,
-          if (phoneNumber != null) 'phoneNumber': phoneNumber,
-          if (password != null) 'password': password,
-          if (displayName != null) 'displayName': displayName,
-        },
       );
 
       final authResponse = AuthResponse.fromJson(response.data);

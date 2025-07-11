@@ -13,7 +13,7 @@ class CareCircleIcons {
   static const IconData healthData = Icons.health_and_safety_outlined;
 
   /// AI assistant icon
-  static const IconData aiAssistant = Icons.psychology_outlined;
+  static const IconData aiAssistant = Icons.auto_awesome_outlined;
 
   /// Medication icon
   static const IconData medication = Icons.medication_outlined;

@@ -4,12 +4,12 @@ This document details the authentication flow between the CareCircle mobile appl
 
 ## Overview
 
-CareCircle implements a comprehensive authentication system using Firebase Authentication with additional backend validation to provide:
+CareCircle implements a streamlined authentication system using Firebase Authentication with OAuth providers and guest mode support:
 
-1. A seamless authentication experience for users
-2. Support for both regular accounts and guest mode
-3. Secure communication between client apps and backend services
-4. Account linking capabilities for converting guest accounts to permanent ones
+1. **OAuth Authentication**: Google and Apple sign-in for registered users
+2. **Guest Mode**: Anonymous authentication for trial/demo access
+3. **Secure Communication**: Firebase ID tokens for backend authentication
+4. **Healthcare Compliance**: HIPAA-compliant authentication flows
 
 ## Architecture Diagram
 
@@ -42,11 +42,11 @@ sequenceDiagram
     participant Backend as CareCircle Backend
     participant DB as PostgreSQL
 
-    %% Registration Flow
-    Note over Mobile, DB: Registration Flow
-    Mobile->>Firebase: Register(email, password)
-    Firebase->>Firebase: Create account
-    Firebase-->>Mobile: Return tokens
+    %% OAuth Registration Flow
+    Note over Mobile, DB: OAuth Registration Flow
+    Mobile->>Firebase: Sign in with Google/Apple
+    Firebase->>Firebase: OAuth authentication
+    Firebase-->>Mobile: Return ID token
     Mobile->>Mobile: Store tokens
     Mobile->>Backend: Send ID token
     Backend->>Firebase: Verify token
@@ -68,16 +68,16 @@ sequenceDiagram
     DB-->>Backend: Guest user data
     Backend-->>Mobile: Limited permissions
 
-    %% Account Conversion
-    Note over Mobile, DB: Account Conversion Flow
-    Mobile->>Firebase: Link anonymous account to credentials
-    Firebase->>Firebase: Convert account (same UID)
-    Firebase-->>Mobile: Return updated tokens
-    Mobile->>Backend: Send new ID token
-    Backend->>Firebase: Verify updated token
-    Firebase-->>Backend: Token verification
-    Backend->>DB: Upgrade guest to registered user
-    DB-->>Backend: Updated user data
+    %% Account Conversion (OAuth)
+    Note over Mobile, DB: Guest to OAuth Account Conversion
+    Mobile->>Firebase: Link anonymous account to OAuth provider
+    Firebase->>Firebase: Convert account with OAuth (same UID)
+    Firebase-->>Mobile: Return updated OAuth tokens
+    Mobile->>Backend: Send OAuth ID token
+    Backend->>Firebase: Verify OAuth token
+    Firebase-->>Backend: Token verification with OAuth claims
+    Backend->>DB: Upgrade guest to OAuth user
+    DB-->>Backend: Updated user data with OAuth profile
     Backend-->>Mobile: Full permissions
 
     %% API Request Flow
@@ -95,30 +95,31 @@ sequenceDiagram
 
 ## Detailed Authentication Flow
 
-### 1. Regular User Registration Flow
+### 1. OAuth User Authentication Flow
 
-1. **Mobile Client Registration Request**
-   - User enters email/password or initiates social login
-   - Mobile client calls Firebase Authentication SDK
+1. **OAuth Provider Selection**
+   - User selects Google or Apple sign-in
+   - Mobile client initiates OAuth flow with selected provider
 
-2. **Firebase Authentication**
-   - Creates user account in Firebase Auth
-   - Generates authentication tokens
+2. **Firebase OAuth Authentication**
+   - Firebase handles OAuth provider authentication
+   - Creates or links user account in Firebase Auth
+   - Generates Firebase ID tokens with OAuth claims
    - Returns tokens to mobile client
 
 3. **Token Processing in Mobile Client**
-   - Client securely stores authentication tokens
-   - Retrieves Firebase ID token for backend communication
+   - Client securely stores Firebase authentication tokens
+   - Retrieves Firebase ID token containing OAuth profile data
 
 4. **Backend Validation**
    - Mobile sends Firebase ID token to CareCircle backend
-   - Backend uses Firebase Admin SDK to verify token
-   - Backend creates or updates user profile in PostgreSQL
-   - Backend returns additional user-specific data and permissions
+   - Backend uses Firebase Admin SDK to verify token and OAuth claims
+   - Backend creates or updates user profile in PostgreSQL with OAuth data
+   - Backend returns user-specific data and permissions
 
 5. **Session Establishment**
    - Mobile client maintains tokens for future requests
-   - Refreshes tokens as needed using Firebase SDK
+   - Refreshes tokens automatically using Firebase SDK
 
 ### 2. Guest User Flow
 
@@ -144,12 +145,12 @@ sequenceDiagram
 
 ### 3. Account Conversion Flow
 
-1. **Guest-to-Registered Conversion**
-   - Guest user initiates registration process
-   - User enters email/password or chooses social login
+1. **Guest-to-OAuth Conversion**
+   - Guest user initiates account creation process
+   - User selects Google or Apple OAuth provider
 
 2. **Firebase Account Linking**
-   - Firebase links anonymous account to new credentials
+   - Firebase links anonymous account to OAuth provider
    - Preserves the same Firebase UID during conversion
 
 3. **Backend Account Upgrade**
@@ -209,11 +210,19 @@ await Firebase.initializeApp(
   options: DefaultFirebaseOptions.currentPlatform,
 );
 
-// Sign up a new user
-Future<UserCredential> signUpWithEmailAndPassword(String email, String password) async {
+// Sign up with Google OAuth
+Future<UserCredential> signUpWithGoogle() async {
   try {
+    final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+    final GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
+
+    final credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth?.accessToken,
+      idToken: googleAuth?.idToken,
+    );
+
     final UserCredential userCredential = await FirebaseAuth.instance
-        .createUserWithEmailAndPassword(email: email, password: password);
+        .signInWithCredential(credential);
 
     // Get Firebase ID token for backend communication
     final String idToken = await userCredential.user!.getIdToken();
@@ -223,16 +232,28 @@ Future<UserCredential> signUpWithEmailAndPassword(String email, String password)
 
     return userCredential;
   } catch (e) {
-    // Handle errors
+    // Handle OAuth errors
     rethrow;
   }
 }
 
-// Sign in existing user
-Future<UserCredential> signInWithEmailAndPassword(String email, String password) async {
+// Sign in with Apple OAuth
+Future<UserCredential> signInWithApple() async {
   try {
+    final appleCredential = await SignInWithApple.getAppleIDCredential(
+      scopes: [
+        AppleIDAuthorizationScopes.email,
+        AppleIDAuthorizationScopes.fullName,
+      ],
+    );
+
+    final oauthCredential = OAuthProvider("apple.com").credential(
+      idToken: appleCredential.identityToken,
+      accessToken: appleCredential.authorizationCode,
+    );
+
     final UserCredential userCredential = await FirebaseAuth.instance
-        .signInWithEmailAndPassword(email: email, password: password);
+        .signInWithCredential(oauthCredential);
 
     // Get Firebase ID token for backend communication
     final String idToken = await userCredential.user!.getIdToken();
@@ -242,7 +263,7 @@ Future<UserCredential> signInWithEmailAndPassword(String email, String password)
 
     return userCredential;
   } catch (e) {
-    // Handle errors
+    // Handle Apple OAuth errors
     rethrow;
   }
 }
@@ -268,30 +289,33 @@ Future<UserCredential> signInAnonymously() async {
   }
 }
 
-// Convert guest to registered user
-Future<UserCredential> convertGuestAccount(String email, String password) async {
+// Convert guest to OAuth account
+Future<UserCredential> convertGuestToOAuth() async {
   try {
     // Get current anonymous user
     final User currentUser = FirebaseAuth.instance.currentUser!;
 
-    // Create credential
-    final AuthCredential credential = EmailAuthProvider.credential(
-      email: email,
-      password: password
+    // Get Google OAuth credential
+    final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+    final GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
+
+    final AuthCredential credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth?.accessToken,
+      idToken: googleAuth?.idToken,
     );
 
-    // Link anonymous account with credentials
+    // Link anonymous account with OAuth credentials
     final UserCredential userCredential = await currentUser.linkWithCredential(credential);
 
-    // Get new Firebase ID token
+    // Get new Firebase ID token with OAuth claims
     final String idToken = await userCredential.user!.getIdToken(true);
 
-    // Update backend with new account status
+    // Update backend with OAuth account status
     await upgradeAccountWithBackend(idToken);
 
     return userCredential;
   } catch (e) {
-    // Handle errors
+    // Handle OAuth linking errors
     rethrow;
   }
 }

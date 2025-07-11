@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/design/design_tokens.dart';
 import '../../../../core/widgets/care_circle_button.dart';
+import '../../domain/models/auth_models.dart';
 import '../providers/auth_provider.dart';
 
 class WelcomeScreen extends ConsumerWidget {
@@ -12,6 +13,24 @@ class WelcomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final authState = ref.watch(authNotifierProvider);
+
+    // Listen for auth state changes and navigation
+    ref.listen(authNotifierProvider, (previous, next) {
+      if (next.status == AuthStatus.authenticated ||
+          next.status == AuthStatus.guest) {
+        context.go('/home');
+      }
+
+      if (next.error != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(next.error!),
+            backgroundColor: CareCircleDesignTokens.criticalAlert,
+          ),
+        );
+        ref.read(authNotifierProvider.notifier).clearError();
+      }
+    });
 
     return Scaffold(
       body: SafeArea(
@@ -83,35 +102,66 @@ class WelcomeScreen extends ConsumerWidget {
 
               const Spacer(),
 
-              // Action buttons
+              // Streamlined authentication buttons
               Column(
                 children: [
+                  // Google Sign In button
                   SizedBox(
                     width: double.infinity,
                     child: CareCircleButton(
                       onPressed: authState.isLoading
                           ? null
-                          : () {
-                              context.push('/auth/register');
+                          : () async {
+                              await ref
+                                  .read(authNotifierProvider.notifier)
+                                  .signInWithGoogle();
                             },
-                      text: 'Get Started',
+                      text: 'Continue with Google',
                       variant: CareCircleButtonVariant.primary,
+                      icon: Icons.g_mobiledata,
                     ),
                   ),
                   const SizedBox(height: 12),
+
+                  // Apple Sign In button
                   SizedBox(
                     width: double.infinity,
                     child: CareCircleButton(
                       onPressed: authState.isLoading
                           ? null
-                          : () {
-                              context.push('/auth/login');
+                          : () async {
+                              await ref
+                                  .read(authNotifierProvider.notifier)
+                                  .signInWithApple();
                             },
-                      text: 'Sign In',
+                      text: 'Continue with Apple',
                       variant: CareCircleButtonVariant.secondary,
+                      icon: Icons.apple,
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 16),
+
+                  // Divider
+                  Row(
+                    children: [
+                      const Expanded(child: Divider()),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Text(
+                          'or',
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: theme.colorScheme.onSurface.withValues(
+                              alpha: 0.6,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const Expanded(child: Divider()),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Guest login button
                   TextButton(
                     onPressed: authState.isLoading
                         ? null
@@ -124,9 +174,11 @@ class WelcomeScreen extends ConsumerWidget {
                       'Continue as Guest',
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: CareCircleDesignTokens.primaryMedicalBlue,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   ),
+
                   if (authState.isLoading)
                     const Padding(
                       padding: EdgeInsets.only(top: 16),

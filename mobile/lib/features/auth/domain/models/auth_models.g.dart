@@ -116,20 +116,10 @@ const _$AuthStatusEnumMap = {
   AuthStatus.loading: 'loading',
 };
 
-_LoginRequest _$LoginRequestFromJson(Map<String, dynamic> json) =>
-    _LoginRequest(
-      email: json['email'] as String,
-      password: json['password'] as String,
-    );
-
-Map<String, dynamic> _$LoginRequestToJson(_LoginRequest instance) =>
-    <String, dynamic>{'email': instance.email, 'password': instance.password};
-
 _RegisterRequest _$RegisterRequestFromJson(Map<String, dynamic> json) =>
     _RegisterRequest(
       email: json['email'] as String?,
       phoneNumber: json['phoneNumber'] as String?,
-      password: json['password'] as String,
       displayName: json['displayName'] as String,
       firstName: json['firstName'] as String?,
       lastName: json['lastName'] as String?,
@@ -141,7 +131,6 @@ Map<String, dynamic> _$RegisterRequestToJson(_RegisterRequest instance) =>
     <String, dynamic>{
       'email': instance.email,
       'phoneNumber': instance.phoneNumber,
-      'password': instance.password,
       'displayName': instance.displayName,
       'firstName': instance.firstName,
       'lastName': instance.lastName,

@@ -9,10 +9,7 @@ import '../core/logging/bounded_context_loggers.dart';
 import '../features/auth/domain/models/auth_models.dart';
 import '../features/auth/presentation/providers/auth_provider.dart';
 import '../features/auth/presentation/screens/welcome_screen.dart';
-import '../features/auth/presentation/screens/login_screen.dart';
-import '../features/auth/presentation/screens/register_screen.dart';
 import '../features/auth/presentation/screens/convert_guest_screen.dart';
-import '../features/auth/presentation/screens/forgot_password_screen.dart';
 
 // Feature imports
 import '../features/home/screens/main_app_shell.dart';
@@ -153,26 +150,6 @@ class AppRouter {
   static List<RouteBase> _buildAuthRoutes() {
     return [
       GoRoute(
-        path: '/auth/login',
-        name: 'login',
-        builder: (context, state) {
-          _logger.logNavigationEvent('Login screen accessed', {
-            'timestamp': DateTime.now().toIso8601String(),
-          });
-          return const LoginScreen();
-        },
-      ),
-      GoRoute(
-        path: '/auth/register',
-        name: 'register',
-        builder: (context, state) {
-          _logger.logNavigationEvent('Register screen accessed', {
-            'timestamp': DateTime.now().toIso8601String(),
-          });
-          return const RegisterScreen();
-        },
-      ),
-      GoRoute(
         path: '/auth/convert-guest',
         name: 'convert-guest',
         builder: (context, state) {
@@ -180,16 +157,6 @@ class AppRouter {
             'timestamp': DateTime.now().toIso8601String(),
           });
           return const ConvertGuestScreen();
-        },
-      ),
-      GoRoute(
-        path: '/auth/forgot-password',
-        name: 'forgot-password',
-        builder: (context, state) {
-          _logger.logNavigationEvent('Forgot password screen accessed', {
-            'timestamp': DateTime.now().toIso8601String(),
-          });
-          return const ForgotPasswordScreen();
         },
       ),
     ];
