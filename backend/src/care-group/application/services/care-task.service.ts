@@ -249,12 +249,18 @@ export class CareTaskService {
    * Get tasks created by a specific user
    */
   async getUserCreatedTasks(
-    _userId: string,
-    _groupId?: string,
-    _status?: TaskStatus,
+    userId: string,
+    groupId?: string,
+    status?: TaskStatus,
   ): Promise<CareTaskEntity[]> {
-    // TODO: Implement findByCreatorId in repository
-    return Promise.resolve([]);
+    // Use the existing findMany method with createdById filter
+    const query = {
+      createdById: userId,
+      ...(groupId && { groupId }),
+      ...(status && { status }),
+    };
+
+    return this.taskRepository.findMany(query);
   }
 
   /**

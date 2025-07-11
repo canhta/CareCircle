@@ -1,6 +1,9 @@
 import { Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bull';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { QueueService } from './queue.service';
+import { HealthcareAutomationProcessor } from './healthcare-automation.processor';
+import { HealthcareAutomationService } from './healthcare-automation.service';
 
 @Module({
   imports: [
@@ -33,6 +36,11 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       { name: 'ai-insights' },
     ),
   ],
-  exports: [BullModule],
+  providers: [
+    QueueService,
+    HealthcareAutomationProcessor,
+    HealthcareAutomationService,
+  ],
+  exports: [BullModule, QueueService, HealthcareAutomationService],
 })
 export class QueueModule {}

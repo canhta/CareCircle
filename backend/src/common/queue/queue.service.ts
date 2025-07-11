@@ -266,6 +266,159 @@ export class QueueService {
   }
 
   /**
+   * Add medication reminder job to queue
+   */
+  async addMedicationReminder(
+    data: {
+      userId: string;
+      medicationId: string;
+      scheduleId: string;
+      scheduledTime: Date;
+      dosage: number;
+      unit: string;
+      medicationName: string;
+    },
+    options?: QueueJobOptions,
+  ) {
+    try {
+      const job = await this.notificationsQueue.add(
+        'medication-reminder',
+        data,
+        {
+          delay: options?.delay || 0,
+          attempts: options?.attempts || 3,
+          priority: options?.priority || 5, // High priority for medication reminders
+          removeOnComplete: options?.removeOnComplete ?? 20,
+          removeOnFail: options?.removeOnFail ?? 10,
+        },
+      );
+
+      this.logger.log(
+        `Added medication reminder job ${job.id} for user ${data.userId}`,
+      );
+
+      return job;
+    } catch (error) {
+      this.logger.error(
+        `Failed to add medication reminder job:`,
+        error instanceof Error ? error.stack : String(error),
+      );
+      throw error;
+    }
+  }
+
+  /**
+   * Add missed dose alert job to queue
+   */
+  async addMissedDoseAlert(
+    data: {
+      userId: string;
+      medicationId: string;
+      scheduleId: string;
+      scheduledTime: Date;
+      medicationName: string;
+      careGroupId?: string;
+    },
+    options?: QueueJobOptions,
+  ) {
+    try {
+      const job = await this.notificationsQueue.add('missed-dose-alert', data, {
+        delay: options?.delay || 0,
+        attempts: options?.attempts || 5,
+        priority: options?.priority || 8, // High priority for missed dose alerts
+        removeOnComplete: options?.removeOnComplete ?? 30,
+        removeOnFail: options?.removeOnFail ?? 15,
+      });
+
+      this.logger.log(
+        `Added missed dose alert job ${job.id} for user ${data.userId}`,
+      );
+
+      return job;
+    } catch (error) {
+      this.logger.error(
+        `Failed to add missed dose alert job:`,
+        error instanceof Error ? error.stack : String(error),
+      );
+      throw error;
+    }
+  }
+
+  /**
+   * Add care group task reminder job to queue
+   */
+  async addCareGroupTaskReminder(
+    data: {
+      groupId: string;
+      taskId: string;
+      assigneeId: string;
+      title: string;
+      dueDate: Date;
+      priority: string;
+    },
+    options?: QueueJobOptions,
+  ) {
+    try {
+      const job = await this.notificationsQueue.add(
+        'care-group-task-reminder',
+        data,
+        {
+          delay: options?.delay || 0,
+          attempts: options?.attempts || 3,
+          priority: options?.priority || 4, // Medium priority for task reminders
+          removeOnComplete: options?.removeOnComplete ?? 20,
+          removeOnFail: options?.removeOnFail ?? 10,
+        },
+      );
+
+      this.logger.log(
+        `Added care group task reminder job ${job.id} for group ${data.groupId}`,
+      );
+
+      return job;
+    } catch (error) {
+      this.logger.error(
+        `Failed to add care group task reminder job:`,
+        error instanceof Error ? error.stack : String(error),
+      );
+      throw error;
+    }
+  }
+
+  /**
+   * Schedule recurring medication reminders
+   */
+  async scheduleRecurringMedicationReminders(
+    userId: string,
+    medicationId: string,
+    cronPattern: string,
+  ) {
+    try {
+      const job = await this.notificationsQueue.add(
+        'recurring-medication-reminders',
+        { userId, medicationId },
+        {
+          repeat: { cron: cronPattern },
+          removeOnComplete: 5,
+          removeOnFail: 3,
+        },
+      );
+
+      this.logger.log(
+        `Scheduled recurring medication reminders job ${job.id} for user ${userId}`,
+      );
+
+      return job;
+    } catch (error) {
+      this.logger.error(
+        `Failed to schedule recurring medication reminders:`,
+        error instanceof Error ? error.stack : String(error),
+      );
+      throw error;
+    }
+  }
+
+  /**
    * Get queue statistics
    */
   async getQueueStats() {
