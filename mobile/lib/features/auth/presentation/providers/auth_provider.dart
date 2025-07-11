@@ -59,8 +59,12 @@ class AuthNotifier extends _$AuthNotifier {
         );
       }
     } catch (e) {
+      _logger.error('Auth initialization failed', {
+        'error': e.toString(),
+        'timestamp': DateTime.now().toIso8601String(),
+      });
       state = state.copyWith(
-        error: e.toString(),
+        error: 'Failed to initialize authentication. Please restart the app.',
         status: AuthStatus.unauthenticated,
         isLoading: false,
       );
@@ -110,7 +114,18 @@ class AuthNotifier extends _$AuthNotifier {
         'error': e.toString(),
         'timestamp': DateTime.now().toIso8601String(),
       });
-      state = state.copyWith(error: e.toString(), isLoading: false);
+
+      // Provide user-friendly error message
+      String userMessage = e.toString();
+      if (e.toString().contains('Firebase')) {
+        userMessage = 'Authentication failed. Please check your email and password.';
+      } else if (e.toString().contains('network') || e.toString().contains('connection')) {
+        userMessage = 'Network error. Please check your internet connection and try again.';
+      } else if (e.toString().contains('timeout')) {
+        userMessage = 'Request timed out. Please try again.';
+      }
+
+      state = state.copyWith(error: userMessage, isLoading: false);
     }
   }
 

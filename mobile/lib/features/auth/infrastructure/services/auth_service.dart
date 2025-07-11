@@ -337,18 +337,59 @@ class AuthService {
   }
 
   String _handleDioError(DioException e) {
-    if (e.response?.data != null && e.response!.data['message'] != null) {
-      return e.response!.data['message'];
+    _logger.error('API Error: ${e.message}', e);
+
+    // Handle specific HTTP status codes
+    if (e.response != null) {
+      final statusCode = e.response!.statusCode;
+      final responseData = e.response!.data;
+
+      // Extract error message from response
+      String? errorMessage;
+      if (responseData is Map<String, dynamic>) {
+        errorMessage = responseData['message'] ?? responseData['error'];
+      }
+
+      switch (statusCode) {
+        case 400:
+          return errorMessage ?? 'Invalid request. Please check your input.';
+        case 401:
+          return errorMessage ?? 'Authentication failed. Please sign in again.';
+        case 403:
+          return errorMessage ?? 'Access denied. You don\'t have permission to perform this action.';
+        case 404:
+          return errorMessage ?? 'Service not found. Please try again later.';
+        case 409:
+          return errorMessage ?? 'Conflict. This action cannot be completed.';
+        case 422:
+          return errorMessage ?? 'Invalid data provided. Please check your input.';
+        case 429:
+          return 'Too many requests. Please wait a moment and try again.';
+        case 500:
+          return 'Server error. Please try again later.';
+        case 503:
+          return 'Service temporarily unavailable. Please try again later.';
+        default:
+          return errorMessage ?? 'An unexpected error occurred. Please try again.';
+      }
     }
 
+    // Handle network errors
     switch (e.type) {
       case DioExceptionType.connectionTimeout:
+        return 'Connection timeout. Please check your internet connection and try again.';
       case DioExceptionType.receiveTimeout:
-        return 'Connection timeout. Please check your internet connection.';
+        return 'Server response timeout. Please try again.';
+      case DioExceptionType.sendTimeout:
+        return 'Request timeout. Please check your internet connection and try again.';
       case DioExceptionType.connectionError:
         return 'Unable to connect to server. Please check your internet connection.';
+      case DioExceptionType.badCertificate:
+        return 'Security certificate error. Please try again later.';
+      case DioExceptionType.cancel:
+        return 'Request was cancelled.';
       default:
-        return 'An unexpected error occurred. Please try again.';
+        return 'Network error occurred. Please check your connection and try again.';
     }
   }
 }

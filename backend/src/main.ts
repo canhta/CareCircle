@@ -1,5 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import * as os from 'os';
 
@@ -82,7 +83,55 @@ async function bootstrap() {
   );
 
   // API prefix
-  app.setGlobalPrefix(process.env.API_PREFIX || 'api/v1');
+  const apiPrefix = process.env.API_PREFIX || 'api/v1';
+  app.setGlobalPrefix(apiPrefix);
+
+  // Swagger API Documentation (only in development)
+  if (process.env.NODE_ENV !== 'production') {
+    const config = new DocumentBuilder()
+      .setTitle('CareCircle API')
+      .setDescription(
+        'Healthcare platform API for medication management, health tracking, and care coordination',
+      )
+      .setVersion('1.0')
+      .addBearerAuth(
+        {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+          name: 'Authorization',
+          description: 'Enter Firebase ID token',
+          in: 'header',
+        },
+        'firebase-auth',
+      )
+      .addTag('Authentication', 'User authentication and authorization')
+      .addTag('Users', 'User profile management')
+      .addTag('Medications', 'Medication management')
+      .addTag('Health Data', 'Health metrics and tracking')
+      .addTag('Care Groups', 'Care team and family coordination')
+      .addTag('Notifications', 'Push notifications and alerts')
+      .addServer(
+        `http://localhost:${process.env.PORT || 8080}/${apiPrefix}`,
+        'Development server',
+      )
+      .build();
+
+    const document = SwaggerModule.createDocument(app, config);
+    SwaggerModule.setup(`${apiPrefix}/docs`, app, document, {
+      swaggerOptions: {
+        persistAuthorization: true,
+        tagsSorter: 'alpha',
+        operationsSorter: 'alpha',
+      },
+      customSiteTitle: 'CareCircle API Documentation',
+      customfavIcon: '/favicon.ico',
+      customCss: `
+        .swagger-ui .topbar { display: none }
+        .swagger-ui .info .title { color: #2c5aa0 }
+      `,
+    });
+  }
 
   // Use PORT environment variable (required by Cloud Run)
   const port = process.env.PORT || 8080;
@@ -91,7 +140,6 @@ async function bootstrap() {
   await app.listen(port, '0.0.0.0');
 
   const localIP = getLocalIPAddress();
-  const apiPrefix = process.env.API_PREFIX || 'api/v1';
   const isProduction = process.env.NODE_ENV === 'production';
 
   console.log('🚀 CareCircle Backend is running:');
@@ -110,11 +158,15 @@ async function bootstrap() {
     // Development logging
     console.log(`   Local:    http://localhost:${port}/${apiPrefix}`);
     console.log(`   Network:  http://${localIP}:${port}/${apiPrefix}`);
+    console.log(`   API Docs: http://localhost:${port}/${apiPrefix}/docs`);
     console.log('');
     console.log('📱 For mobile development, use the Network URL:');
     console.log(
       `   Mobile API Base URL: http://${localIP}:${port}/${apiPrefix}`,
     );
+    console.log('');
+    console.log('📚 API Documentation available at:');
+    console.log(`   http://localhost:${port}/${apiPrefix}/docs`);
   }
 
   console.log('');
