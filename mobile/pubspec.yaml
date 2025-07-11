@@ -82,7 +82,7 @@ dependencies:
   firebase_messaging: ^15.2.9
 
   # Charts and Data Visualization
-  fl_chart: ^0.69.0
+  fl_chart: ^1.0.0
 
 dev_dependencies:
   flutter_test:
