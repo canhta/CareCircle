@@ -1,10 +1,16 @@
+import 'dart:async';
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/design/design_tokens.dart';
 import '../../domain/models/models.dart';
 import '../providers/medication_providers.dart';
+import '../providers/performance_providers.dart';
 import '../widgets/medication_card.dart';
 import '../widgets/medication_statistics_card.dart';
+import '../widgets/medication_shimmer_loading.dart';
+import '../widgets/performance_optimized_list.dart';
+import '../widgets/animation_performance_manager.dart';
 import 'medication_form_screen.dart';
 
 class MedicationListScreen extends ConsumerStatefulWidget {
@@ -19,72 +25,132 @@ class _MedicationListScreenState extends ConsumerState<MedicationListScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final TextEditingController _searchController = TextEditingController();
+  Timer? _searchDebounceTimer;
+
+  // Performance optimization: Enhanced performance management
+  bool _isLoadingMore = false;
+  final ScrollController _scrollController = ScrollController();
+  late AnimationPerformanceManager _animationManager;
+  final Stopwatch _operationStopwatch = Stopwatch();
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
     _searchController.addListener(_onSearchChanged);
+    _scrollController.addListener(_onScroll);
+
+    // Initialize performance management
+    _animationManager = AnimationPerformanceManager();
+    _animationManager.initialize();
+
+    // Trigger prefetching
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(medicationPrefetchProvider);
+    });
   }
 
   @override
   void dispose() {
     _tabController.dispose();
     _searchController.dispose();
+    _searchDebounceTimer?.cancel();
+    _scrollController.dispose();
+    _animationManager.dispose();
     super.dispose();
   }
 
+  // Performance optimization: Debounced search with performance monitoring
   void _onSearchChanged() {
-    ref.read(medicationSearchTermProvider.notifier).state =
-        _searchController.text;
+    _searchDebounceTimer?.cancel();
+    _searchDebounceTimer = Timer(const Duration(milliseconds: 300), () {
+      _operationStopwatch.reset();
+      _operationStopwatch.start();
+
+      ref.read(performanceMedicationSearchTermProvider.notifier).state =
+          _searchController.text;
+
+      _operationStopwatch.stop();
+      ref.read(medicationPerformanceProvider.notifier)
+          .recordOperation('search', _operationStopwatch.elapsed);
+    });
+  }
+
+  // Performance optimization: Pagination scroll listener
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent * 0.8) {
+      _loadMoreMedications();
+    }
+  }
+
+  void _loadMoreMedications() {
+    if (!_isLoadingMore) {
+      setState(() {
+        _isLoadingMore = true;
+      });
+
+      // Simulate loading more data
+      Future.delayed(const Duration(milliseconds: 500), () {
+        if (mounted) {
+          setState(() {
+            _isLoadingMore = false;
+          });
+        }
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Medications'),
-        backgroundColor: CareCircleDesignTokens.primaryMedicalBlue,
-        foregroundColor: Colors.white,
-        elevation: 0,
-        bottom: TabBar(
-          controller: _tabController,
-          indicatorColor: Colors.white,
-          labelColor: Colors.white,
-          unselectedLabelColor: Colors.white70,
-          tabs: const [
-            Tab(text: 'All'),
-            Tab(text: 'Active'),
-            Tab(text: 'Inactive'),
+    return AnimationPerformanceProvider(
+      manager: _animationManager,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Medications'),
+          backgroundColor: CareCircleDesignTokens.primaryMedicalBlue,
+          foregroundColor: Colors.white,
+          elevation: 0,
+          bottom: TabBar(
+            controller: _tabController,
+            indicatorColor: Colors.white,
+            labelColor: Colors.white,
+            unselectedLabelColor: Colors.white70,
+            tabs: const [
+              Tab(text: 'All'),
+              Tab(text: 'Active'),
+              Tab(text: 'Inactive'),
+            ],
+          ),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.add),
+              onPressed: () => _navigateToAddMedication(),
+            ),
           ],
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: () => _navigateToAddMedication(),
-          ),
-        ],
-      ),
-      body: Column(
-        children: [
-          _buildSearchBar(),
-          _buildStatisticsCard(),
-          Expanded(
-            child: TabBarView(
-              controller: _tabController,
-              children: [
-                _buildMedicationList(null), // All medications
-                _buildMedicationList(true), // Active only
-                _buildMedicationList(false), // Inactive only
-              ],
+        body: Column(
+          children: [
+            _buildSearchBar(),
+            _buildStatisticsCard(),
+            Expanded(
+              child: TabBarView(
+                controller: _tabController,
+                children: [
+                  _buildPerformanceOptimizedMedicationList(null), // All medications
+                  _buildPerformanceOptimizedMedicationList(true), // Active only
+                  _buildPerformanceOptimizedMedicationList(false), // Inactive only
+                ],
+              ),
             ),
-          ),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _navigateToAddMedication(),
-        backgroundColor: CareCircleDesignTokens.primaryMedicalBlue,
-        child: const Icon(Icons.add, color: Colors.white),
+            if (kDebugMode) _buildPerformanceDebugInfo(),
+          ],
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () => _navigateToAddMedication(),
+          backgroundColor: CareCircleDesignTokens.primaryMedicalBlue,
+          child: const Icon(Icons.add, color: Colors.white),
+        ),
       ),
     );
   }
@@ -103,7 +169,7 @@ class _MedicationListScreenState extends ConsumerState<MedicationListScreen>
                   icon: const Icon(Icons.clear),
                   onPressed: () {
                     _searchController.clear();
-                    ref.read(medicationSearchTermProvider.notifier).state = '';
+                    ref.read(performanceMedicationSearchTermProvider.notifier).state = '';
                   },
                 )
               : null,
@@ -128,7 +194,7 @@ class _MedicationListScreenState extends ConsumerState<MedicationListScreen>
   Widget _buildMedicationList(bool? activeFilter) {
     // Set the active filter
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(medicationActiveFilterProvider.notifier).state = activeFilter;
+      ref.read(performanceMedicationActiveFilterProvider.notifier).state = activeFilter;
     });
 
     final medicationsAsync = ref.watch(filteredMedicationsProvider);
@@ -141,33 +207,97 @@ class _MedicationListScreenState extends ConsumerState<MedicationListScreen>
 
         return RefreshIndicator(
           onRefresh: () async {
+            // Reset loading state on refresh
+            setState(() {
+              _isLoadingMore = false;
+            });
             await ref
                 .read(medicationNotifierProvider.notifier)
                 .refreshMedications();
           },
           child: ListView.builder(
+            controller: _scrollController,
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            itemCount: medications.length,
+            // Performance optimization: Add extra items for loading indicator
+            itemCount: medications.length + (_isLoadingMore ? 1 : 0),
+            // Performance optimization: Use prototype item for better performance
+            prototypeItem: medications.isNotEmpty
+                ? RepaintBoundary(
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: MedicationCard(
+                        medication: medications.first,
+                        onTap: () {},
+                        onEdit: () {},
+                        onDelete: () {},
+                      ),
+                    ),
+                  )
+                : null,
             itemBuilder: (context, index) {
+              // Show loading indicator at the end
+              if (index >= medications.length) {
+                return const Padding(
+                  padding: EdgeInsets.all(16),
+                  child: Center(
+                    child: CircularProgressIndicator(
+                      color: CareCircleDesignTokens.primaryMedicalBlue,
+                    ),
+                  ),
+                );
+              }
+
               final medication = medications[index];
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: MedicationCard(
-                  medication: medication,
-                  onTap: () => _navigateToMedicationDetail(medication),
-                  onEdit: () => _navigateToEditMedication(medication),
-                  onDelete: () => _showDeleteConfirmation(medication),
+              // Performance optimization: Wrap each item in RepaintBoundary
+              return RepaintBoundary(
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: MedicationCard(
+                    medication: medication,
+                    animationDelay: index, // Staggered animation
+                    onTap: () => _navigateToMedicationDetail(medication),
+                    onEdit: () => _navigateToEditMedication(medication),
+                    onDelete: () => _showDeleteConfirmation(medication),
+                  ),
                 ),
               );
             },
           ),
         );
       },
-      loading: () => const Center(
-        child: CircularProgressIndicator(
-          color: CareCircleDesignTokens.primaryMedicalBlue,
-        ),
-      ),
+      // Performance optimization: Use shimmer loading instead of simple spinner
+      loading: () => const MedicationShimmerLoading(),
+      error: (error, stack) => _buildErrorState(error.toString()),
+    );
+  }
+
+  /// Performance-optimized medication list with advanced caching and virtualization
+  Widget _buildPerformanceOptimizedMedicationList(bool? activeFilter) {
+    // Set the active filter
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(performanceMedicationActiveFilterProvider.notifier).state = activeFilter;
+    });
+
+    final medicationsAsync = ref.watch(performanceOptimizedFilteredMedicationsProvider);
+
+    return medicationsAsync.when(
+      data: (medications) {
+        if (medications.isEmpty) {
+          return _buildEmptyState(activeFilter);
+        }
+
+        return PerformanceOptimizedMedicationList(
+          medications: medications,
+          scrollController: _scrollController,
+          enableAnimations: _animationManager.animationsEnabled,
+          isLoadingMore: _isLoadingMore,
+          onLoadMore: _loadMoreMedications,
+          onMedicationTap: _navigateToMedicationDetail,
+          onMedicationEdit: _navigateToEditMedication,
+          onMedicationDelete: _showDeleteConfirmation,
+        );
+      },
+      loading: () => const MedicationShimmerLoading(),
       error: (error, stack) => _buildErrorState(error.toString()),
     );
   }
@@ -345,6 +475,48 @@ class _MedicationListScreenState extends ConsumerState<MedicationListScreen>
               }
             },
             child: const Text('Delete', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Performance debug information (debug mode only)
+  Widget _buildPerformanceDebugInfo() {
+    final cacheManager = ref.read(cacheManagerProvider);
+    final animationMetrics = _animationManager.getPerformanceMetrics();
+
+    return Container(
+      padding: const EdgeInsets.all(8),
+      margin: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: Colors.black87,
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Text(
+            'Performance Debug Info',
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          ),
+          Text(
+            'Cache: ${cacheManager.getCacheStats()['totalCacheSize']} items',
+            style: const TextStyle(color: Colors.white, fontSize: 12),
+          ),
+          Text(
+            'Animations: ${animationMetrics['animationsEnabled'] ? "ON" : "OFF"} (${animationMetrics['animationScale']}x)',
+            style: const TextStyle(color: Colors.white, fontSize: 12),
+          ),
+          Text(
+            'FPS: ${animationMetrics['averageFrameRate']?.toStringAsFixed(1) ?? "N/A"}',
+            style: TextStyle(
+              color: (animationMetrics['averageFrameRate'] ?? 0) >= 55
+                  ? Colors.green
+                  : Colors.orange,
+              fontSize: 12,
+            ),
           ),
         ],
       ),

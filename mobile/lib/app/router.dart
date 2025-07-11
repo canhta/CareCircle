@@ -18,6 +18,12 @@ import '../features/auth/presentation/screens/forgot_password_screen.dart';
 import '../features/home/screens/main_app_shell.dart';
 import '../features/onboarding/screens/onboarding_screen.dart';
 import '../features/health_data/presentation/screens/health_dashboard_screen.dart';
+import '../features/medication/presentation/screens/medication_list_screen.dart';
+import '../features/medication/presentation/screens/medication_detail_screen.dart';
+import '../features/medication/presentation/screens/medication_form_screen.dart';
+import '../features/medication/presentation/screens/prescription_scan_screen.dart';
+import '../features/medication/presentation/screens/schedule_management_screen.dart';
+import '../features/medication/presentation/screens/adherence_dashboard_screen.dart';
 
 /// Healthcare-compliant logger for navigation context
 final _logger = BoundedContextLoggers.navigation;
@@ -212,6 +218,96 @@ class AppRouter {
           });
           return const HealthDashboardScreen();
         },
+      ),
+      // Medication Management Routes
+      GoRoute(
+        path: '/medications',
+        name: 'medications',
+        builder: (context, state) {
+          _logger.logNavigationEvent('Medications screen accessed', {
+            'timestamp': DateTime.now().toIso8601String(),
+          });
+          return const MedicationListScreen();
+        },
+        routes: [
+          GoRoute(
+            path: '/detail/:id',
+            name: 'medication-detail',
+            builder: (context, state) {
+              final medicationId = state.pathParameters['id']!;
+              _logger.logNavigationEvent('Medication detail screen accessed', {
+                'medicationId': medicationId,
+                'timestamp': DateTime.now().toIso8601String(),
+              });
+              return MedicationDetailScreen(medicationId: medicationId);
+            },
+          ),
+          GoRoute(
+            path: '/add',
+            name: 'add-medication',
+            builder: (context, state) {
+              _logger.logNavigationEvent('Add medication screen accessed', {
+                'timestamp': DateTime.now().toIso8601String(),
+              });
+              return const MedicationFormScreen();
+            },
+          ),
+          GoRoute(
+            path: '/edit/:id',
+            name: 'edit-medication',
+            builder: (context, state) {
+              final medicationId = state.pathParameters['id']!;
+              _logger.logNavigationEvent('Edit medication screen accessed', {
+                'medicationId': medicationId,
+                'timestamp': DateTime.now().toIso8601String(),
+              });
+              return MedicationFormScreen(medicationId: medicationId);
+            },
+          ),
+          GoRoute(
+            path: '/scan',
+            name: 'prescription-scan',
+            builder: (context, state) {
+              _logger.logNavigationEvent('Prescription scan screen accessed', {
+                'timestamp': DateTime.now().toIso8601String(),
+              });
+              return const PrescriptionScanScreen();
+            },
+          ),
+          GoRoute(
+            path: '/schedules',
+            name: 'medication-schedules',
+            builder: (context, state) {
+              _logger.logNavigationEvent('Medication schedules screen accessed', {
+                'timestamp': DateTime.now().toIso8601String(),
+              });
+              // For general schedule management, we'll show all schedules
+              return const ScheduleManagementScreen();
+            },
+          ),
+          GoRoute(
+            path: '/schedules/:medicationId',
+            name: 'medication-schedule-detail',
+            builder: (context, state) {
+              final medicationId = state.pathParameters['medicationId']!;
+              _logger.logNavigationEvent('Medication schedule detail accessed', {
+                'medicationId': medicationId,
+                'timestamp': DateTime.now().toIso8601String(),
+              });
+              return ScheduleManagementScreen(medicationId: medicationId);
+            },
+          ),
+          GoRoute(
+            path: '/adherence',
+            name: 'adherence-dashboard',
+            builder: (context, state) {
+              _logger.logNavigationEvent('Adherence dashboard screen accessed', {
+                'timestamp': DateTime.now().toIso8601String(),
+              });
+              return const AdherenceDashboardScreen();
+            },
+          ),
+        ],
       ),
     ];
   }
