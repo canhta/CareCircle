@@ -1,0 +1,94 @@
+{
+  "general": {
+    "user_agent": "CareCircle-Crawler/1.0 (+https://carecircle.com/crawler)",
+    "timeout": 30,
+    "max_retries": 3,
+    "retry_delay": 5,
+    "max_workers": 4,
+    "batch_size": 100
+  },
+  "rate_limiting": {
+    "default_delay": 2.0,
+    "respect_robots_txt": true,
+    "concurrent_requests": 1,
+    "burst_limit": 10,
+    "burst_window": 60
+  },
+  "content_processing": {
+    "max_content_length": 1000000,
+    "min_content_length": 100,
+    "remove_html_tags": true,
+    "normalize_whitespace": true,
+    "extract_links": true,
+    "extract_images": false
+  },
+  "vietnamese_nlp": {
+    "library": "underthesea",
+    "enable_tokenization": true,
+    "enable_pos_tagging": false,
+    "enable_ner": true,
+    "enable_sentiment": false,
+    "medical_entity_extraction": true
+  },
+  "logging": {
+    "level": "INFO",
+    "format": "{time:YYYY-MM-DD HH:mm:ss} | {level} | {name}:{function}:{line} | {message}",
+    "file_rotation": "1 day",
+    "max_file_size": "10 MB",
+    "retention": "30 days",
+    "console_output": true,
+    "file_output": true
+  },
+  "output": {
+    "raw_data_dir": "./output/raw",
+    "processed_data_dir": "./output/processed",
+    "logs_dir": "./output/logs",
+    "uploads_dir": "./output/uploads",
+    "compression": "gzip",
+    "file_format": "json"
+  },
+  "quality_control": {
+    "min_authority_score": 0.3,
+    "min_content_quality": 0.5,
+    "duplicate_threshold": 0.9,
+    "medical_relevance_threshold": 0.6
+  },
+  "api_upload": {
+    "endpoint_timeout": 60,
+    "max_upload_retries": 3,
+    "upload_retry_delay": 10,
+    "chunk_size": 50,
+    "parallel_uploads": 2
+  },
+  "chunking": {
+    "max_chunk_size": 1000,
+    "overlap_size": 200,
+    "min_chunk_size": 100,
+    "semantic_chunking": true,
+    "preserve_sentences": true,
+    "chunk_by_paragraphs": false
+  },
+  "advanced_processing": {
+    "enable_medical_standardization": true,
+    "enable_entity_relationships": true,
+    "enable_temporal_extraction": true,
+    "enable_severity_assessment": true,
+    "enable_metadata_enrichment": true,
+    "duplicate_detection_levels": ["exact", "semantic", "title"],
+    "quality_assessment_factors": [
+      "medical_relevance",
+      "entity_richness",
+      "content_structure",
+      "source_authority",
+      "specialty_specificity"
+    ]
+  },
+  "vector_optimization": {
+    "optimize_for_embeddings": true,
+    "max_embedding_length": 8192,
+    "preserve_medical_context": true,
+    "generate_search_keywords": true,
+    "generate_semantic_tags": true,
+    "chunk_overlap_strategy": "sentence_boundary"
+  }
+}

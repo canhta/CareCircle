@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-This document outlines the design and implementation plan for a comprehensive Vietnamese healthcare data crawler system that integrates with the existing CareCircle AI Assistant to provide localized medical knowledge and guidance. The system will enhance the current RAG (Retrieval-Augmented Generation) capabilities by incorporating Vietnamese healthcare sources, medical databases, and regulatory information.
+This document outlines the design and implementation plan for a comprehensive Vietnamese healthcare data ingestion system using **local Python crawlers** that integrates with the existing CareCircle AI Assistant to provide localized medical knowledge and guidance. The system will enhance the current RAG (Retrieval-Augmented Generation) capabilities by incorporating Vietnamese healthcare sources, medical databases, and regulatory information through a local execution architecture.
 
 ## 1. System Analysis Phase
 
@@ -20,12 +20,19 @@ This document outlines the design and implementation plan for a comprehensive Vi
 
 - ❌ **Vector Database Service**: Milvus integration in backend
 - ❌ **RAG System**: No current implementation for knowledge retrieval
-- ❌ **Data Crawler**: No existing crawler system
+- ❌ **Data Ingestion API**: No existing API for receiving crawled content
 - ❌ **Knowledge Base**: No medical knowledge management system
+- ❌ **Local Crawler Scripts**: No Python crawler implementation
 
-### 1.2 Current Data Ingestion Pipeline
+### 1.2 New Local Crawler Architecture
 
-**Status**: No existing data ingestion pipeline for external medical content.
+**Status**: Migrating from planned server-side crawling to local Python execution.
+
+**Architecture Benefits:**
+- No server resource consumption for crawling operations
+- Easier development and debugging with Python tools
+- Flexible deployment and scheduling options
+- Simpler backend focused on data ingestion and processing
 
 **Current AI Assistant Integration Points:**
 
@@ -91,56 +98,99 @@ This document outlines the design and implementation plan for a comprehensive Vi
 
 ## 3. Crawler System Design Phase
 
-### 3.1 Architecture Overview
+### 3.1 Local Python Crawler Architecture Overview
 
-**New Bounded Context: Knowledge Management Context**
+**Two-Part System Design:**
 
+1. **Local Python Crawlers** (./crawlers/)
+2. **Backend Data Ingestion API** (Knowledge Management Context)
+
+**Local Python Crawler Structure:**
+```
+./crawlers/
+├── requirements.txt                   # Python dependencies
+├── .venv/                            # Virtual environment
+├── config/
+│   ├── sources.json                  # Vietnamese healthcare sources
+│   ├── crawler_settings.json        # Rate limiting, retry settings
+│   └── api_config.json              # Backend API configuration
+├── src/
+│   ├── core/
+│   │   ├── base_crawler.py          # Base crawler with rate limiting
+│   │   ├── content_processor.py     # Vietnamese text processing
+│   │   └── api_client.py            # Backend API communication
+│   ├── extractors/
+│   │   ├── ministry_health.py       # Government source extractor
+│   │   ├── hospital_sites.py        # Hospital website extractors
+│   │   └── pharma_db.py             # Pharmaceutical database extractors
+│   └── utils/
+│       ├── vietnamese_nlp.py        # Vietnamese NLP processing
+│       └── file_manager.py          # Local file management
+├── scripts/
+│   ├── crawl_all.py                 # Run all crawlers
+│   ├── upload_data.py               # Upload to backend API
+│   └── validate_sources.py          # Test source accessibility
+└── output/
+    ├── raw/                         # Raw crawled content (JSON)
+    ├── processed/                   # Cleaned content (JSON)
+    └── logs/                        # Crawler execution logs
+```
+
+**Backend Knowledge Management Context:**
 ```
 backend/src/knowledge-management/
 ├── domain/
 │   ├── entities/
 │   │   ├── knowledge-item.entity.ts
-│   │   ├── crawl-job.entity.ts
-│   │   ├── data-source.entity.ts
-│   │   └── content-processor.entity.ts
+│   │   ├── content-batch.entity.ts
+│   │   └── data-source.entity.ts
 │   ├── repositories/
 │   │   ├── knowledge-item.repository.ts
-│   │   ├── crawl-job.repository.ts
 │   │   └── data-source.repository.ts
 │   └── value-objects/
 │       ├── medical-content.vo.ts
-│       ├── source-authority.vo.ts
 │       └── content-quality.vo.ts
 ├── application/
 │   └── services/
-│       ├── crawler.service.ts
 │       ├── content-processing.service.ts
 │       ├── knowledge-indexing.service.ts
-│       └── source-management.service.ts
+│       └── data-ingestion.service.ts
 ├── infrastructure/
 │   ├── repositories/
 │   │   ├── prisma-knowledge-item.repository.ts
-│   │   ├── prisma-crawl-job.repository.ts
 │   │   └── prisma-data-source.repository.ts
 │   └── services/
-│       ├── web-crawler.service.ts
 │       ├── vietnamese-nlp.service.ts
 │       ├── vector-database.service.ts
-│       └── content-storage.service.ts
+│       └── content-validation.service.ts
 └── presentation/
     └── controllers/
-        ├── crawler.controller.ts
+        ├── data-ingestion.controller.ts
         └── knowledge.controller.ts
 ```
 
-### 3.2 ETL Process Design
+### 3.2 Local Crawler ETL Process Design
 
-**Extract Phase:**
+**Extract Phase (Local Python Crawlers):**
 
-- **Web Scraping**: Puppeteer/Playwright for dynamic content
-- **API Integration**: Government and institutional APIs
-- **Document Processing**: PDF extraction for official guidelines
-- **Rate Limiting**: Polite crawling with robots.txt compliance
+- **Web Scraping**: requests + BeautifulSoup for static content, Scrapy for complex sites
+- **Vietnamese Text Processing**: underthesea and pyvi for Vietnamese NLP
+- **Content Storage**: Local JSON files with structured data formats
+- **Rate Limiting**: Polite crawling with configurable delays and robots.txt compliance
+
+**Transform Phase (Local Python Processing):**
+
+- **Content Cleaning**: Remove navigation, ads, and non-medical content
+- **Vietnamese NLP**: Text normalization, entity extraction, medical term recognition
+- **Quality Assessment**: Authority scoring, content validation, duplicate detection
+- **Data Structuring**: Prepare JSON format for API upload
+
+**Load Phase (Backend API Ingestion):**
+
+- **API Upload**: Batch upload processed content via REST endpoints
+- **Backend Validation**: Content structure validation and quality checks
+- **Vector Generation**: OpenAI embeddings for Vietnamese medical content
+- **Database Storage**: Milvus vector database and PostgreSQL metadata
 - **Content Deduplication**: Hash-based duplicate detection
 
 **Transform Phase:**
