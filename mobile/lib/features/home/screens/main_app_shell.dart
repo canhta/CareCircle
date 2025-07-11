@@ -112,30 +112,86 @@ class _MainAppShellState extends ConsumerState<MainAppShell> {
   }
 
   Widget _buildAIAssistantFAB() {
-    return FloatingActionButton.large(
-      onPressed: () {
-        final previousIndex = _currentIndex;
-        NavigationService.logTabNavigation(previousIndex, 2, _tabNames[2]);
-        setState(() => _currentIndex = 2);
-      },
-      backgroundColor: CareCircleDesignTokens.primaryMedicalBlue,
-      foregroundColor: Colors.white,
-      elevation: 8,
-      heroTag: "ai_assistant_fab",
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(Icons.smart_toy, size: 28),
-          const SizedBox(height: 2),
-          const Text(
-            'AI',
-            style: TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
+    return Semantics(
+      label: 'AI Health Assistant',
+      hint:
+          'Tap to open your AI health assistant for personalized healthcare guidance',
+      button: true,
+      child: Container(
+        width: CareCircleDesignTokens.emergencyButtonMin,
+        height: CareCircleDesignTokens.emergencyButtonMin,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              CareCircleDesignTokens.primaryMedicalBlue,
+              CareCircleDesignTokens.primaryMedicalBlue.withValues(alpha: 0.8),
+            ],
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: CareCircleDesignTokens.primaryMedicalBlue.withValues(
+                alpha: 0.3,
+              ),
+              blurRadius: 12,
+              offset: const Offset(0, 6),
+              spreadRadius: 0,
+            ),
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.1),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+              spreadRadius: 0,
+            ),
+          ],
+        ),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: () {
+              final previousIndex = _currentIndex;
+              NavigationService.logTabNavigation(
+                previousIndex,
+                2,
+                _tabNames[2],
+              );
+              setState(() => _currentIndex = 2);
+            },
+            borderRadius: BorderRadius.circular(
+              CareCircleDesignTokens.emergencyButtonMin / 2,
+            ),
+            splashColor: Colors.white.withValues(alpha: 0.2),
+            highlightColor: Colors.white.withValues(alpha: 0.1),
+            child: Container(
+              width: CareCircleDesignTokens.emergencyButtonMin,
+              height: CareCircleDesignTokens.emergencyButtonMin,
+              decoration: const BoxDecoration(shape: BoxShape.circle),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.health_and_safety,
+                    size: 24,
+                    color: Colors.white,
+                    semanticLabel: 'AI Health Assistant Icon',
+                  ),
+                  const SizedBox(height: 2),
+                  const Text(
+                    'AI',
+                    style: TextStyle(
+                      fontSize: 9,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
-        ],
+        ),
       ),
     );
   }

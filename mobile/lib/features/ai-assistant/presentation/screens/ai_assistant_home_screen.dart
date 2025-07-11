@@ -136,6 +136,12 @@ class _AIAssistantHomeScreenState extends ConsumerState<AIAssistantHomeScreen> {
   }
 
   Future<void> _handleMessageSend(String text) async {
+    // Check for emergency keywords
+    if (EmergencyDetectionService.detectEmergency(text)) {
+      _showEmergencyDialog(text);
+      return;
+    }
+
     if (_currentConversationId == null) {
       await _createNewConversation();
     }
@@ -265,13 +271,6 @@ class _AIAssistantHomeScreenState extends ConsumerState<AIAssistantHomeScreen> {
             ),
           ),
 
-          // Emergency detection widget
-          EmergencyDetectionWidget(
-            message: '',
-            onEmergencyConfirmed: () {},
-            onFalseAlarm: () {},
-          ),
-
           // Chat interface with healthcare theming
           Expanded(
             child: Container(
@@ -299,6 +298,85 @@ class _AIAssistantHomeScreenState extends ConsumerState<AIAssistantHomeScreen> {
                 },
               ),
             ),
+        ],
+      ),
+    );
+  }
+
+  void _showEmergencyDialog(String message) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => EmergencyDetectionWidget(
+        message: message,
+        onEmergencyConfirmed: () {
+          Navigator.of(context).pop();
+          _handleEmergencyConfirmed(message);
+        },
+        onFalseAlarm: () {
+          Navigator.of(context).pop();
+          _handleMessageSend(message);
+        },
+      ),
+    );
+  }
+
+  void _handleEmergencyConfirmed(String message) {
+    // Add emergency advice message
+    final emergencyAdvice = EmergencyDetectionService.getEmergencyAdvice(
+      message,
+    );
+    final systemMessage = TextMessage(
+      id: 'emergency_${DateTime.now().millisecondsSinceEpoch}',
+      authorId: 'system',
+      createdAt: DateTime.now().toUtc(),
+      text: emergencyAdvice,
+    );
+
+    _chatController.insertMessage(systemMessage);
+
+    // Show emergency services dialog
+    _showEmergencyServicesDialog();
+  }
+
+  void _showEmergencyServicesDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Emergency Services'),
+        content: const Text(
+          'Would you like to call emergency services now?\n\n'
+          'Emergency Numbers:\n'
+          '• 911 (US Emergency)\n'
+          '• 115 (Vietnam Emergency)\n'
+          '• 113 (Police)',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Not now'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              // TODO: Implement emergency calling functionality
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text(
+                      'Emergency calling feature will be implemented',
+                    ),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              }
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text(
+              'Call Emergency',
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
         ],
       ),
     );
