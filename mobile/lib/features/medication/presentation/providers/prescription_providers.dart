@@ -6,6 +6,7 @@ import '../../../../core/network/dio_provider.dart';
 import '../../domain/models/models.dart';
 import '../../infrastructure/repositories/prescription_repository.dart';
 import '../../infrastructure/services/prescription_processing_api_service.dart';
+import '../../infrastructure/services/medication_api_service.dart';
 import '../../infrastructure/services/image_processing_service.dart';
 
 // Healthcare-compliant logger for prescription context
@@ -117,13 +118,13 @@ final prescriptionOCRProvider = ocrProcessingProvider;
 
 /// Provider for prescription creation
 final prescriptionCreateProvider = StateNotifierProvider<PrescriptionCreateNotifier, AsyncValue<Prescription?>>((ref) {
-  final apiService = ref.read(prescriptionProcessingApiServiceProvider);
+  final apiService = ref.read(medicationApiServiceProvider);
   return PrescriptionCreateNotifier(apiService);
 });
 
 /// State notifier for prescription creation
 class PrescriptionCreateNotifier extends StateNotifier<AsyncValue<Prescription?>> {
-  final PrescriptionProcessingApiService _apiService;
+  final MedicationApiService _apiService;
 
   PrescriptionCreateNotifier(this._apiService) : super(const AsyncValue.data(null));
 
@@ -145,30 +146,50 @@ class PrescriptionCreateNotifier extends StateNotifier<AsyncValue<Prescription?>
     state = const AsyncValue.loading();
 
     try {
-      await Future.delayed(const Duration(seconds: 1));
+      // Create OCR data from result if available
+      OCRData? ocrData;
+      if (ocrResult != null) {
+        ocrData = OCRData(
+          extractedText: ocrResult.ocrData?.extractedText ?? '',
+          confidence: ocrResult.ocrData?.confidence ?? 0.0,
+          fields: ocrResult.ocrData?.fields ?? const OCRFields(),
+          processingMetadata:
+              ocrResult.ocrData?.processingMetadata ??
+              const ProcessingMetadata(
+                ocrEngine: 'unknown',
+                processingTime: 0.0,
+                imageQuality: 0.0,
+                extractionMethod: 'unknown',
+              ),
+        );
+      }
 
-      final prescription = Prescription(
-        id: 'temp_${DateTime.now().millisecondsSinceEpoch}',
-        userId: 'current_user',
+      // Create prescription request
+      final request = CreatePrescriptionRequest(
         prescribedBy: prescribedBy,
         prescribedDate: prescribedDate,
         pharmacy: pharmacy,
-        medications: const [],
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
-        verificationStatus: VerificationStatus.pending,
-        dateIssued: prescribedDate,
-        extractedMedications: ocrResult?.extractedMedications.cast<String>() ?? [],
+        imageUrl: imageUrl,
+        ocrData: ocrData,
       );
 
-      state = AsyncValue.data(prescription);
+      // Call API service to create prescription
+      final response = await _apiService.createPrescription(request);
 
-      _logger.info('Prescription created successfully', {
-        'operation': 'createFromOCR',
-        'prescriptionId': prescription.id,
-      });
+      // Extract prescription from response
+      if (response.success && response.data != null) {
+        final prescription = response.data!;
+        state = AsyncValue.data(prescription);
 
-      return prescription;
+        _logger.info('Prescription created successfully', {
+          'operation': 'createFromOCR',
+          'prescriptionId': prescription.id,
+        });
+
+        return prescription;
+      } else {
+        throw Exception(response.error ?? 'Failed to create prescription');
+      }
     } catch (error, stackTrace) {
       _logger.error('Failed to create prescription', error, stackTrace);
       state = AsyncValue.error(error, stackTrace);

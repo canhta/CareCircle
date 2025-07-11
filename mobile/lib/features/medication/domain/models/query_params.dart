@@ -7,7 +7,7 @@ part 'query_params.g.dart';
 
 /// Query parameters for prescription filtering
 @freezed
-class PrescriptionQueryParams with _$PrescriptionQueryParams {
+abstract class PrescriptionQueryParams with _$PrescriptionQueryParams {
   const factory PrescriptionQueryParams({
     bool? isVerified,
     DateTime? startDate,
@@ -21,7 +21,7 @@ class PrescriptionQueryParams with _$PrescriptionQueryParams {
 
 /// Query parameters for medication schedule filtering
 @freezed
-class ScheduleQueryParams with _$ScheduleQueryParams {
+abstract class ScheduleQueryParams with _$ScheduleQueryParams {
   const factory ScheduleQueryParams({
     String? medicationId,
     bool? isActive,
@@ -36,7 +36,7 @@ class ScheduleQueryParams with _$ScheduleQueryParams {
 
 /// Query parameters for adherence record filtering
 @freezed
-class AdherenceQueryParams with _$AdherenceQueryParams {
+abstract class AdherenceQueryParams with _$AdherenceQueryParams {
   const factory AdherenceQueryParams({
     String? medicationId,
     String? scheduleId,
@@ -52,7 +52,7 @@ class AdherenceQueryParams with _$AdherenceQueryParams {
 
 /// Query parameters for medication filtering
 @freezed
-class MedicationQueryParams with _$MedicationQueryParams {
+abstract class MedicationQueryParams with _$MedicationQueryParams {
   const factory MedicationQueryParams({
     String? searchTerm,
     bool? isActive,
@@ -74,7 +74,7 @@ class MedicationQueryParams with _$MedicationQueryParams {
 
 /// Query parameters for drug interaction filtering
 @freezed
-class InteractionQueryParams with _$InteractionQueryParams {
+abstract class InteractionQueryParams with _$InteractionQueryParams {
   const factory InteractionQueryParams({
     String? medicationId,
     String? severity,
@@ -88,7 +88,7 @@ class InteractionQueryParams with _$InteractionQueryParams {
 
 /// Query parameters for medication inventory filtering
 @freezed
-class InventoryQueryParams with _$InventoryQueryParams {
+abstract class InventoryQueryParams with _$InventoryQueryParams {
   const factory InventoryQueryParams({
     String? medicationId,
     bool? isLowStock,
@@ -104,7 +104,7 @@ class InventoryQueryParams with _$InventoryQueryParams {
 
 /// Query parameters for prescription processing
 @freezed
-class ProcessingQueryParams with _$ProcessingQueryParams {
+abstract class ProcessingQueryParams with _$ProcessingQueryParams {
   const factory ProcessingQueryParams({
     String? status,
     DateTime? startDate,
