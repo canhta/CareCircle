@@ -1,7 +1,4 @@
-import {
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 
 import { UserRepository } from '../../domain/repositories/user.repository';
 import { AuthMethodRepository } from '../../domain/repositories/auth-method.repository';
@@ -122,10 +119,6 @@ export class AuthService {
       profile,
     };
   }
-
-
-
-
 
   async signInWithGoogle(idToken: string): Promise<LoginResult> {
     try {
