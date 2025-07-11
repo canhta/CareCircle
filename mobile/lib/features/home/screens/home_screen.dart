@@ -2,8 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/design/design_tokens.dart';
+import '../../../core/design/care_circle_icons.dart';
 import '../../../core/navigation/navigation_service.dart';
 import '../../../core/widgets/care_circle_button.dart';
+import '../../../core/widgets/healthcare/healthcare_welcome_card.dart';
+import '../../../core/widgets/healthcare/healthcare_action_card.dart';
+import '../../../core/widgets/layout/care_circle_responsive_grid.dart';
+import '../../../core/widgets/navigation/care_circle_tab_bar.dart';
 import '../../auth/presentation/providers/auth_provider.dart';
 import '../../notification/presentation/providers/notification_providers.dart';
 
@@ -91,63 +96,39 @@ class HomeScreen extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Welcome section
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: CareCircleDesignTokens.primaryMedicalBlue.withValues(
-                    alpha: 0.1,
-                  ),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      user?.isGuest == true
-                          ? 'Welcome, Guest!'
-                          : 'Welcome back!',
-                      style: theme.textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: CareCircleDesignTokens.primaryMedicalBlue,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      profile?.displayName ?? 'Guest User',
-                      style: theme.textTheme.titleLarge?.copyWith(
-                        color: CareCircleDesignTokens.primaryMedicalBlue
-                            .withValues(alpha: 0.8),
-                      ),
-                    ),
-                    if (user?.isGuest == true) ...[
-                      const SizedBox(height: 12),
-                      Text(
-                        'Create an account to save your health data and access all features.',
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: theme.colorScheme.onSurface.withValues(
-                            alpha: 0.7,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      CareCircleButton(
-                        onPressed: () {
-                          context.push('/auth/convert-guest');
-                        },
-                        text: 'Create Account',
-                        variant: CareCircleButtonVariant.primary,
-                        isFullWidth: false,
-                      ),
-                    ],
-                  ],
-                ),
+              // Healthcare Welcome Card
+              HealthcareWelcomeCard(
+                userName: profile?.displayName ?? (user?.isGuest == true ? 'Guest' : 'User'),
+                lastHealthUpdate: DateTime.now().subtract(const Duration(hours: 2)),
+                healthStatus: _getHealthStatus(user),
+                onHealthCheckTap: () {
+                  NavigationService.navigateToHealthData(context);
+                },
+                customMessage: user?.isGuest == true
+                    ? 'Create an account to save your health data and access all features.'
+                    : null,
+                semanticLabel: 'Welcome section with health overview',
+                semanticHint: 'Your current health status and quick access to health check',
               ),
+
+              // Guest Account Conversion
+              if (user?.isGuest == true) ...[
+                const SizedBox(height: 16),
+                CareCircleButton(
+                  onPressed: () {
+                    context.push('/auth/convert-guest');
+                  },
+                  text: 'Create Account',
+                  variant: CareCircleButtonVariant.primary,
+                  isFullWidth: false,
+                  semanticLabel: 'Create account button',
+                  semanticHint: 'Convert guest account to full account to save data',
+                ),
+              ],
 
               const SizedBox(height: 32),
 
-              // Quick actions
+              // Healthcare Quick Actions
               Text(
                 'Quick Actions',
                 style: theme.textTheme.titleLarge?.copyWith(
@@ -158,34 +139,44 @@ class HomeScreen extends ConsumerWidget {
               const SizedBox(height: 16),
 
               Expanded(
-                child: GridView.count(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 16,
-                  mainAxisSpacing: 16,
+                child: CareCircleResponsiveGrid(
+                  mobileColumns: 2,
+                  tabletColumns: 3,
+                  desktopColumns: 4,
+                  semanticLabel: 'Healthcare quick actions grid',
                   children: [
-                    _QuickActionCard(
-                      icon: Icons.health_and_safety,
+                    HealthcareActionCard(
+                      icon: CareCircleIcons.healthMetrics,
                       title: 'Health Metrics',
-                      subtitle: 'Track vitals',
-                      color: CareCircleDesignTokens.healthGreen,
+                      subtitle: 'Track vitals and trends',
+                      color: CareCircleColorTokens.healthGreen,
                       onTap: () {
                         NavigationService.navigateToHealthData(context);
                       },
+                      semanticLabel: 'Health metrics',
+                      semanticHint: 'View and track your vital signs and health trends',
+                      lastUpdated: DateTime.now().subtract(const Duration(hours: 1)),
+                      urgencyLevel: _getHealthMetricsUrgency(),
                     ),
-                    _QuickActionCard(
-                      icon: Icons.medication,
+                    HealthcareActionCard(
+                      icon: CareCircleIcons.medication,
                       title: 'Medications',
-                      subtitle: 'Manage pills',
-                      color: CareCircleDesignTokens.primaryMedicalBlue,
+                      subtitle: 'Manage prescriptions',
+                      color: CareCircleColorTokens.prescriptionBlue,
                       onTap: () {
                         NavigationService.navigateToMedications(context);
                       },
+                      semanticLabel: 'Medications',
+                      semanticHint: 'Manage your medications and view reminders',
+                      badge: _getMedicationsBadge(),
+                      urgencyLevel: _getMedicationsUrgency(),
+                      lastUpdated: DateTime.now().subtract(const Duration(minutes: 30)),
                     ),
-                    _QuickActionCard(
-                      icon: Icons.family_restroom,
+                    HealthcareActionCard(
+                      icon: CareCircleIcons.careCircle,
                       title: 'Care Circle',
                       subtitle: 'Family & caregivers',
-                      color: Colors.purple,
+                      color: CareCircleColorTokens.primaryMedicalBlue,
                       onTap: () {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
@@ -193,19 +184,21 @@ class HomeScreen extends ConsumerWidget {
                           ),
                         );
                       },
+                      semanticLabel: 'Care circle',
+                      semanticHint: 'Connect with your care team and family members',
+                      isEnabled: false, // Coming soon
                     ),
-                    _QuickActionCard(
-                      icon: Icons.emergency,
+                    HealthcareActionCard(
+                      icon: CareCircleIcons.emergency,
                       title: 'Emergency',
                       subtitle: 'Quick access',
-                      color: Colors.red,
+                      color: CareCircleColorTokens.emergencyRed,
                       onTap: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Emergency features coming soon'),
-                          ),
-                        );
+                        _showEmergencyDialog(context);
                       },
+                      semanticLabel: 'Emergency access',
+                      semanticHint: 'Quick access to emergency contacts and services',
+                      urgencyLevel: UrgencyLevel.critical,
                     ),
                   ],
                 ),
@@ -216,66 +209,44 @@ class HomeScreen extends ConsumerWidget {
       ),
     );
   }
-}
 
-class _QuickActionCard extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String subtitle;
-  final Color color;
-  final VoidCallback onTap;
+  // Helper methods for healthcare functionality
+  HealthStatus _getHealthStatus(dynamic user) {
+    if (user?.isGuest == true) {
+      return HealthStatus.unknown;
+    }
+    // TODO: Implement actual health status calculation
+    return HealthStatus.good;
+  }
 
-  const _QuickActionCard({
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-    required this.color,
-    required this.onTap,
-  });
+  UrgencyLevel _getHealthMetricsUrgency() {
+    // TODO: Implement health metrics urgency calculation
+    return UrgencyLevel.none;
+  }
 
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+  String? _getMedicationsBadge() {
+    // TODO: Implement medications badge calculation
+    // Return number of missed medications or null
+    return null;
+  }
 
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(icon, color: color, size: 24),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                title,
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 4),
-              Text(
-                subtitle,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ],
+  UrgencyLevel _getMedicationsUrgency() {
+    // TODO: Implement medications urgency calculation
+    return UrgencyLevel.none;
+  }
+
+  void _showEmergencyDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Emergency Access'),
+        content: const Text('Emergency features are coming soon. In case of a real emergency, please call 911 or your local emergency services.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('OK'),
           ),
-        ),
+        ],
       ),
     );
   }
