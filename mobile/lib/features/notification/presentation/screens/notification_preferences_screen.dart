@@ -33,7 +33,7 @@ class _NotificationPreferencesScreenState
   @override
   void initState() {
     super.initState();
-    
+
     // Log screen access
     _logger.info('Notification preferences accessed', {
       'timestamp': DateTime.now().toIso8601String(),
@@ -55,20 +55,14 @@ class _NotificationPreferencesScreenState
       foregroundColor: Colors.white,
       title: const Text(
         'Notification Settings',
-        style: TextStyle(
-          fontSize: 18,
-          fontWeight: FontWeight.w600,
-        ),
+        style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
       ),
       actions: [
         TextButton(
           onPressed: _resetToDefaults,
           child: const Text(
             'Reset',
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.w600,
-            ),
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
           ),
         ),
       ],
@@ -134,7 +128,8 @@ class _NotificationPreferencesScreenState
           ),
           const SizedBox(height: 24),
           ElevatedButton(
-            onPressed: () => ref.refresh(notificationPreferencesNotifierProvider),
+            onPressed: () =>
+                ref.refresh(notificationPreferencesNotifierProvider),
             style: ElevatedButton.styleFrom(
               backgroundColor: CareCircleDesignTokens.primaryMedicalBlue,
               foregroundColor: Colors.white,
@@ -229,7 +224,8 @@ class _NotificationPreferencesScreenState
                   color: _getContextColor(contextType),
                 ),
               ),
-              if (contextType != ContextType.values.last) const Divider(height: 1),
+              if (contextType != ContextType.values.last)
+                const Divider(height: 1),
             ],
           );
         }),
@@ -242,35 +238,38 @@ class _NotificationPreferencesScreenState
       title: 'Delivery Channels',
       icon: Icons.send,
       children: [
-        ...NotificationChannel.values.map((channel) {
-          if (channel == NotificationChannel.sms) {
-            // Skip SMS as it's not implemented in this phase
-            return const SizedBox.shrink();
-          }
-          
-          final isEnabled = _isChannelEnabled(preferences, channel);
-          return Column(
-            children: [
-              SwitchListTile(
-                title: Text(
-                  _getChannelDisplayName(channel),
-                  style: const TextStyle(fontWeight: FontWeight.w600),
-                ),
-                subtitle: Text(_getChannelDescription(channel)),
-                value: isEnabled,
-                onChanged: preferences.globalEnabled && !_isLoading
-                    ? (value) => _updateChannelPreference(channel, value)
-                    : null,
-                activeColor: CareCircleDesignTokens.primaryMedicalBlue,
-                secondary: Icon(
-                  _getChannelIcon(channel),
-                  color: CareCircleDesignTokens.primaryMedicalBlue,
-                ),
-              ),
-              if (channel != NotificationChannel.inApp) const Divider(height: 1),
-            ],
-          );
-        }).where((widget) => widget is! SizedBox),
+        ...NotificationChannel.values
+            .map((channel) {
+              if (channel == NotificationChannel.sms) {
+                // Skip SMS as it's not implemented in this phase
+                return const SizedBox.shrink();
+              }
+
+              final isEnabled = _isChannelEnabled(preferences, channel);
+              return Column(
+                children: [
+                  SwitchListTile(
+                    title: Text(
+                      _getChannelDisplayName(channel),
+                      style: const TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                    subtitle: Text(_getChannelDescription(channel)),
+                    value: isEnabled,
+                    onChanged: preferences.globalEnabled && !_isLoading
+                        ? (value) => _updateChannelPreference(channel, value)
+                        : null,
+                    activeColor: CareCircleDesignTokens.primaryMedicalBlue,
+                    secondary: Icon(
+                      _getChannelIcon(channel),
+                      color: CareCircleDesignTokens.primaryMedicalBlue,
+                    ),
+                  ),
+                  if (channel != NotificationChannel.inApp)
+                    const Divider(height: 1),
+                ],
+              );
+            })
+            .where((widget) => widget is! SizedBox),
       ],
     );
   }
@@ -300,7 +299,9 @@ class _NotificationPreferencesScreenState
           ),
           subtitle: const Text('Always receive critical health alerts'),
           value: preferences.emergencySettings.enabled,
-          onChanged: _isLoading ? null : (value) => _updateEmergencyEnabled(value),
+          onChanged: _isLoading
+              ? null
+              : (value) => _updateEmergencyEnabled(value),
           activeColor: CareCircleDesignTokens.errorRed,
         ),
         const Divider(height: 1),
@@ -383,9 +384,11 @@ class _NotificationPreferencesScreenState
     ContextType contextType,
   ) {
     return preferences.preferences
-        .where((p) => p.contextType == contextType)
-        .isNotEmpty
-        ? preferences.preferences.firstWhere((p) => p.contextType == contextType)
+            .where((p) => p.contextType == contextType)
+            .isNotEmpty
+        ? preferences.preferences.firstWhere(
+            (p) => p.contextType == contextType,
+          )
         : null;
   }
 
@@ -403,7 +406,8 @@ class _NotificationPreferencesScreenState
   Future<void> _updateGlobalEnabled(bool enabled) async {
     setState(() => _isLoading = true);
     try {
-      await ref.read(notificationPreferencesNotifierProvider.notifier)
+      await ref
+          .read(notificationPreferencesNotifierProvider.notifier)
           .toggleGlobalNotifications(enabled);
     } catch (e) {
       _showErrorSnackBar('Failed to update global settings: ${e.toString()}');
@@ -418,7 +422,8 @@ class _NotificationPreferencesScreenState
       final request = UpdateNotificationPreferencesRequest(
         doNotDisturbEnabled: enabled,
       );
-      await ref.read(notificationPreferencesNotifierProvider.notifier)
+      await ref
+          .read(notificationPreferencesNotifierProvider.notifier)
           .updatePreferences(request);
     } catch (e) {
       _showErrorSnackBar('Failed to update do not disturb: ${e.toString()}');
@@ -427,7 +432,10 @@ class _NotificationPreferencesScreenState
     }
   }
 
-  Future<void> _updateContextPreference(ContextType contextType, bool enabled) async {
+  Future<void> _updateContextPreference(
+    ContextType contextType,
+    bool enabled,
+  ) async {
     // TODO: Implement context-specific preference updates
     _logger.info('Context preference update requested', {
       'contextType': contextType.name,
@@ -436,7 +444,10 @@ class _NotificationPreferencesScreenState
     });
   }
 
-  Future<void> _updateChannelPreference(NotificationChannel channel, bool enabled) async {
+  Future<void> _updateChannelPreference(
+    NotificationChannel channel,
+    bool enabled,
+  ) async {
     // TODO: Implement channel-specific preference updates
     _logger.info('Channel preference update requested', {
       'channel': channel.name,
@@ -448,7 +459,8 @@ class _NotificationPreferencesScreenState
   Future<void> _updateQuietHours(QuietHoursSettings quietHours) async {
     setState(() => _isLoading = true);
     try {
-      await ref.read(notificationPreferencesNotifierProvider.notifier)
+      await ref
+          .read(notificationPreferencesNotifierProvider.notifier)
           .updateQuietHours(quietHours);
     } catch (e) {
       _showErrorSnackBar('Failed to update quiet hours: ${e.toString()}');
@@ -460,16 +472,21 @@ class _NotificationPreferencesScreenState
   Future<void> _updateEmergencyEnabled(bool enabled) async {
     setState(() => _isLoading = true);
     try {
-      final currentPrefs = ref.read(notificationPreferencesNotifierProvider).value;
+      final currentPrefs = ref
+          .read(notificationPreferencesNotifierProvider)
+          .value;
       if (currentPrefs != null) {
         final updatedSettings = currentPrefs.emergencySettings.copyWith(
           enabled: enabled,
         );
-        await ref.read(notificationPreferencesNotifierProvider.notifier)
+        await ref
+            .read(notificationPreferencesNotifierProvider.notifier)
             .updateEmergencySettings(updatedSettings);
       }
     } catch (e) {
-      _showErrorSnackBar('Failed to update emergency settings: ${e.toString()}');
+      _showErrorSnackBar(
+        'Failed to update emergency settings: ${e.toString()}',
+      );
     } finally {
       setState(() => _isLoading = false);
     }
@@ -478,16 +495,21 @@ class _NotificationPreferencesScreenState
   Future<void> _updateEmergencyOverride(bool override) async {
     setState(() => _isLoading = true);
     try {
-      final currentPrefs = ref.read(notificationPreferencesNotifierProvider).value;
+      final currentPrefs = ref
+          .read(notificationPreferencesNotifierProvider)
+          .value;
       if (currentPrefs != null) {
         final updatedSettings = currentPrefs.emergencySettings.copyWith(
           overrideQuietHours: override,
         );
-        await ref.read(notificationPreferencesNotifierProvider.notifier)
+        await ref
+            .read(notificationPreferencesNotifierProvider.notifier)
             .updateEmergencySettings(updatedSettings);
       }
     } catch (e) {
-      _showErrorSnackBar('Failed to update emergency override: ${e.toString()}');
+      _showErrorSnackBar(
+        'Failed to update emergency override: ${e.toString()}',
+      );
     } finally {
       setState(() => _isLoading = false);
     }
@@ -498,7 +520,7 @@ class _NotificationPreferencesScreenState
     _logger.info('Test notification requested', {
       'timestamp': DateTime.now().toIso8601String(),
     });
-    
+
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Test notification sent!'),
@@ -540,7 +562,7 @@ class _NotificationPreferencesScreenState
     _logger.info('Reset to defaults requested', {
       'timestamp': DateTime.now().toIso8601String(),
     });
-    
+
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Preferences reset to defaults'),

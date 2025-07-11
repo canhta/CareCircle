@@ -23,12 +23,15 @@ class EmergencyAlertHandler {
   final _logger = BoundedContextLoggers.notification;
 
   // Emergency alert state
-  final _activeAlertsController = StreamController<List<notification_models.EmergencyAlert>>.broadcast();
+  final _activeAlertsController =
+      StreamController<List<notification_models.EmergencyAlert>>.broadcast();
   final Map<String, Timer> _escalationTimers = {};
   final Map<String, notification_models.EmergencyAlert> _activeAlerts = {};
 
-  Stream<List<notification_models.EmergencyAlert>> get activeAlertsStream => _activeAlertsController.stream;
-  List<notification_models.EmergencyAlert> get activeAlerts => _activeAlerts.values.toList();
+  Stream<List<notification_models.EmergencyAlert>> get activeAlertsStream =>
+      _activeAlertsController.stream;
+  List<notification_models.EmergencyAlert> get activeAlerts =>
+      _activeAlerts.values.toList();
 
   EmergencyAlertHandler(
     this._apiService,
@@ -63,7 +66,9 @@ class EmergencyAlertHandler {
   }
 
   /// Handle incoming emergency alert
-  Future<void> handleEmergencyAlert(notification_models.EmergencyAlert alert) async {
+  Future<void> handleEmergencyAlert(
+    notification_models.EmergencyAlert alert,
+  ) async {
     try {
       _logger.info('Handling emergency alert', {
         'alertId': alert.id,
@@ -84,12 +89,14 @@ class EmergencyAlertHandler {
 
       // Set up auto-escalation if enabled
       if (alert.metadata?['autoEscalate'] == true) {
-        final delayMinutes = alert.metadata?['escalationDelayMinutes'] as int? ?? 5;
+        final delayMinutes =
+            alert.metadata?['escalationDelayMinutes'] as int? ?? 5;
         _scheduleEscalation(alert, delayMinutes);
       }
 
       // Show full-screen alert for critical alerts
-      if (alert.severity == notification_models.EmergencyAlertSeverity.critical) {
+      if (alert.severity ==
+          notification_models.EmergencyAlertSeverity.critical) {
         await _showFullScreenAlert(alert);
       }
 
@@ -108,7 +115,9 @@ class EmergencyAlertHandler {
   }
 
   /// Show emergency notification
-  Future<void> _showEmergencyNotification(notification_models.EmergencyAlert alert) async {
+  Future<void> _showEmergencyNotification(
+    notification_models.EmergencyAlert alert,
+  ) async {
     try {
       final androidDetails = AndroidNotificationDetails(
         'emergency_alerts',
@@ -125,7 +134,9 @@ class EmergencyAlertHandler {
         enableLights: true,
         ledColor: Color.fromARGB(255, 255, 0, 0),
         color: Color.fromARGB(255, 244, 67, 54),
-        largeIcon: DrawableResourceAndroidBitmap('@drawable/ic_emergency_large'),
+        largeIcon: DrawableResourceAndroidBitmap(
+          '@drawable/ic_emergency_large',
+        ),
         styleInformation: BigTextStyleInformation(
           alert.message,
           htmlFormatBigText: true,
@@ -172,17 +183,23 @@ class EmergencyAlertHandler {
   }
 
   /// Build notification actions for emergency alert
-  List<AndroidNotificationAction> _buildNotificationActions(notification_models.EmergencyAlert alert) {
+  List<AndroidNotificationAction> _buildNotificationActions(
+    notification_models.EmergencyAlert alert,
+  ) {
     final actions = <AndroidNotificationAction>[];
 
     for (final action in alert.actions) {
-      actions.add(AndroidNotificationAction(
-        action.id,
-        action.label,
-        icon: DrawableResourceAndroidBitmap('@drawable/ic_${action.actionType}'),
-        contextual: action.actionType == 'acknowledge',
-        showsUserInterface: action.actionType != 'acknowledge',
-      ));
+      actions.add(
+        AndroidNotificationAction(
+          action.id,
+          action.label,
+          icon: DrawableResourceAndroidBitmap(
+            '@drawable/ic_${action.actionType}',
+          ),
+          contextual: action.actionType == 'acknowledge',
+          showsUserInterface: action.actionType != 'acknowledge',
+        ),
+      );
     }
 
     // Add default actions if none provided
@@ -207,7 +224,9 @@ class EmergencyAlertHandler {
   }
 
   /// Play emergency alert sound and vibration
-  Future<void> _playEmergencyAlert(notification_models.EmergencyAlert alert) async {
+  Future<void> _playEmergencyAlert(
+    notification_models.EmergencyAlert alert,
+  ) async {
     try {
       // Vibrate in emergency pattern
       await _vibrateEmergencyPattern(alert.severity);
@@ -230,10 +249,12 @@ class EmergencyAlertHandler {
   }
 
   /// Vibrate in emergency pattern
-  Future<void> _vibrateEmergencyPattern(notification_models.EmergencyAlertSeverity severity) async {
+  Future<void> _vibrateEmergencyPattern(
+    notification_models.EmergencyAlertSeverity severity,
+  ) async {
     try {
       List<int> pattern;
-      
+
       switch (severity) {
         case notification_models.EmergencyAlertSeverity.critical:
           // Rapid, intense pattern
@@ -264,18 +285,18 @@ class EmergencyAlertHandler {
       // Note: For more complex vibration patterns, you would need to use
       // platform-specific code or a vibration plugin
     } catch (e) {
-      _logger.warning('Failed to vibrate', {
-        'error': e.toString(),
-      });
+      _logger.warning('Failed to vibrate', {'error': e.toString()});
     }
   }
 
   /// Play emergency sound
-  Future<void> _playEmergencySound(notification_models.EmergencyAlertSeverity severity) async {
+  Future<void> _playEmergencySound(
+    notification_models.EmergencyAlertSeverity severity,
+  ) async {
     try {
       // Note: For custom emergency sounds, you would need to use
       // an audio plugin like audioplayers or just_audio
-      
+
       switch (severity) {
         case notification_models.EmergencyAlertSeverity.critical:
           await SystemSound.play(SystemSoundType.alert);
@@ -298,18 +319,20 @@ class EmergencyAlertHandler {
   }
 
   /// Show full-screen alert overlay
-  Future<void> _showFullScreenAlert(notification_models.EmergencyAlert alert) async {
+  Future<void> _showFullScreenAlert(
+    notification_models.EmergencyAlert alert,
+  ) async {
     try {
       // Note: This would require showing a full-screen overlay
       // which would need to be implemented at the app level
       // For now, we'll just log the intent
-      
+
       _logger.info('Full-screen alert requested', {
         'alertId': alert.id,
         'title': alert.title,
         'timestamp': DateTime.now().toIso8601String(),
       });
-      
+
       // In a real implementation, you would:
       // 1. Show a full-screen overlay widget
       // 2. Prevent dismissal until acknowledged
@@ -325,14 +348,17 @@ class EmergencyAlertHandler {
   }
 
   /// Schedule auto-escalation
-  void _scheduleEscalation(notification_models.EmergencyAlert alert, int delayMinutes) {
+  void _scheduleEscalation(
+    notification_models.EmergencyAlert alert,
+    int delayMinutes,
+  ) {
     try {
       final timer = Timer(Duration(minutes: delayMinutes), () {
         _escalateAlert(alert.id);
       });
-      
+
       _escalationTimers[alert.id] = timer;
-      
+
       _logger.info('Escalation scheduled', {
         'alertId': alert.id,
         'delayMinutes': delayMinutes,
@@ -351,7 +377,8 @@ class EmergencyAlertHandler {
   Future<void> _escalateAlert(String alertId) async {
     try {
       final alert = _activeAlerts[alertId];
-      if (alert == null || alert.status != notification_models.EmergencyAlertStatus.active) {
+      if (alert == null ||
+          alert.status != notification_models.EmergencyAlertStatus.active) {
         return;
       }
 
@@ -464,7 +491,10 @@ class EmergencyAlertHandler {
   }
 
   /// Perform emergency alert action
-  Future<void> performAction(String alertId, notification_models.EmergencyAlertActionRequest action) async {
+  Future<void> performAction(
+    String alertId,
+    notification_models.EmergencyAlertActionRequest action,
+  ) async {
     try {
       _logger.info('Performing emergency alert action', {
         'alertId': alertId,
@@ -540,7 +570,8 @@ class EmergencyAlertHandler {
         if (alert.status == notification_models.EmergencyAlertStatus.active) {
           final timeSinceCreated = now.difference(alert.createdAt);
           // Check if alert should be escalated (example: after 10 minutes)
-          if (timeSinceCreated.inMinutes >= 10 && !_escalationTimers.containsKey(alert.id)) {
+          if (timeSinceCreated.inMinutes >= 10 &&
+              !_escalationTimers.containsKey(alert.id)) {
             _scheduleEscalation(alert, 0); // Immediate escalation
           }
         }

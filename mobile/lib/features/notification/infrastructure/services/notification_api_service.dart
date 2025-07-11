@@ -32,7 +32,8 @@ abstract class NotificationApiService {
   );
 
   @GET('/notifications/summary')
-  Future<notification_models.NotificationSummaryResponse> getNotificationSummary();
+  Future<notification_models.NotificationSummaryResponse>
+  getNotificationSummary();
 
   @GET('/notifications/unread')
   Future<notification_models.NotificationListResponse> getUnreadNotifications();
@@ -43,21 +44,28 @@ abstract class NotificationApiService {
   );
 
   @GET('/notifications/priority/{priority}')
-  Future<notification_models.NotificationListResponse> getNotificationsByPriority(
-    @Path('priority') String priority,
-  );
+  Future<notification_models.NotificationListResponse>
+  getNotificationsByPriority(@Path('priority') String priority);
 
   @GET('/notifications/{id}')
-  Future<notification_models.NotificationResponse> getNotification(@Path('id') String id);
+  Future<notification_models.NotificationResponse> getNotification(
+    @Path('id') String id,
+  );
 
   @PUT('/notifications/{id}/read')
-  Future<notification_models.NotificationResponse> markAsRead(@Path('id') String id);
+  Future<notification_models.NotificationResponse> markAsRead(
+    @Path('id') String id,
+  );
 
   @PUT('/notifications/{id}/unread')
-  Future<notification_models.NotificationResponse> markAsUnread(@Path('id') String id);
+  Future<notification_models.NotificationResponse> markAsUnread(
+    @Path('id') String id,
+  );
 
   @DELETE('/notifications/{id}')
-  Future<notification_models.NotificationResponse> deleteNotification(@Path('id') String id);
+  Future<notification_models.NotificationResponse> deleteNotification(
+    @Path('id') String id,
+  );
 
   @POST('/notifications/mark-all-read')
   Future<notification_models.NotificationListResponse> markAllAsRead();
@@ -76,30 +84,33 @@ abstract class NotificationApiService {
     @Body() Map<String, dynamic> request,
   );
 
-
-
   // Notification Preferences Operations
   @GET('/notification-preferences')
-  Future<notification_models.NotificationPreferencesResponse> getNotificationPreferences();
+  Future<notification_models.NotificationPreferencesResponse>
+  getNotificationPreferences();
 
   @PUT('/notification-preferences')
-  Future<notification_models.NotificationPreferencesResponse> updateNotificationPreferences(
+  Future<notification_models.NotificationPreferencesResponse>
+  updateNotificationPreferences(
     @Body() notification_models.UpdateNotificationPreferencesRequest request,
   );
 
   @PUT('/notification-preferences/{contextType}/{channel}')
-  Future<notification_models.NotificationPreferencesResponse> updateSpecificPreference(
+  Future<notification_models.NotificationPreferencesResponse>
+  updateSpecificPreference(
     @Path('contextType') String contextType,
     @Path('channel') String channel,
     @Body() notification_models.UpdatePreferenceRequest request,
   );
 
   @POST('/notification-preferences/reset')
-  Future<notification_models.NotificationPreferencesResponse> resetPreferencesToDefault();
+  Future<notification_models.NotificationPreferencesResponse>
+  resetPreferencesToDefault();
 
   // Emergency Contact Operations
   @GET('/emergency-contacts')
-  Future<notification_models.EmergencyContactListResponse> getEmergencyContacts();
+  Future<notification_models.EmergencyContactListResponse>
+  getEmergencyContacts();
 
   @POST('/emergency-contacts')
   Future<notification_models.EmergencyContactResponse> createEmergencyContact(
@@ -127,7 +138,9 @@ abstract class NotificationApiService {
   );
 
   @GET('/emergency-alerts/{id}')
-  Future<notification_models.EmergencyAlertResponse> getEmergencyAlert(@Path('id') String id);
+  Future<notification_models.EmergencyAlertResponse> getEmergencyAlert(
+    @Path('id') String id,
+  );
 
   @POST('/emergency-alerts')
   Future<notification_models.EmergencyAlertResponse> createEmergencyAlert(
@@ -153,39 +166,41 @@ abstract class NotificationApiService {
   );
 
   @POST('/emergency-alerts/{id}/action')
-  Future<notification_models.EmergencyAlertResponse> performEmergencyAlertAction(
+  Future<notification_models.EmergencyAlertResponse>
+  performEmergencyAlertAction(
     @Path('id') String id,
     @Body() notification_models.EmergencyAlertActionRequest request,
   );
 
   // Template Operations
   @GET('/notification-templates')
-  Future<notification_models.NotificationTemplateListResponse> getNotificationTemplates(
+  Future<notification_models.NotificationTemplateListResponse>
+  getNotificationTemplates(
     @Query('type') String? type,
     @Query('channel') String? channel,
     @Query('active') bool? active,
   );
 
   @GET('/notification-templates/{id}')
-  Future<notification_models.NotificationTemplateResponse> getNotificationTemplate(
-    @Path('id') String id,
-  );
+  Future<notification_models.NotificationTemplateResponse>
+  getNotificationTemplate(@Path('id') String id);
 
   @POST('/notification-templates')
-  Future<notification_models.NotificationTemplateResponse> createNotificationTemplate(
+  Future<notification_models.NotificationTemplateResponse>
+  createNotificationTemplate(
     @Body() notification_models.CreateTemplateRequest request,
   );
 
   @PUT('/notification-templates/{id}')
-  Future<notification_models.NotificationTemplateResponse> updateNotificationTemplate(
+  Future<notification_models.NotificationTemplateResponse>
+  updateNotificationTemplate(
     @Path('id') String id,
     @Body() notification_models.UpdateTemplateRequest request,
   );
 
   @DELETE('/notification-templates/{id}')
-  Future<notification_models.NotificationTemplateResponse> deleteNotificationTemplate(
-    @Path('id') String id,
-  );
+  Future<notification_models.NotificationTemplateResponse>
+  deleteNotificationTemplate(@Path('id') String id);
 
   @POST('/notification-templates/{id}/render')
   Future<notification_models.RenderedTemplateResponse> renderTemplate(

@@ -40,9 +40,10 @@ final firebaseMessagingProvider = Provider<FirebaseMessaging>((ref) {
 });
 
 /// Provider for Flutter Local Notifications
-final flutterLocalNotificationsProvider = Provider<FlutterLocalNotificationsPlugin>((ref) {
-  return FlutterLocalNotificationsPlugin();
-});
+final flutterLocalNotificationsProvider =
+    Provider<FlutterLocalNotificationsPlugin>((ref) {
+      return FlutterLocalNotificationsPlugin();
+    });
 
 /// Provider for FCM service
 final fcmServiceProvider = Provider<FCMService>((ref) {
@@ -60,33 +61,40 @@ final fcmServiceProvider = Provider<FCMService>((ref) {
 });
 
 /// Provider for user notifications list
-final notificationsProvider = FutureProvider<List<notification_models.Notification>>((ref) async {
-  final repository = ref.read(notificationRepositoryProvider);
-  return repository.getNotifications();
-});
+final notificationsProvider =
+    FutureProvider<List<notification_models.Notification>>((ref) async {
+      final repository = ref.read(notificationRepositoryProvider);
+      return repository.getNotifications();
+    });
 
 /// Provider for unread notifications
-final unreadNotificationsProvider = FutureProvider<List<notification_models.Notification>>((ref) async {
-  final repository = ref.read(notificationRepositoryProvider);
-  return repository.getUnreadNotifications();
-});
+final unreadNotificationsProvider =
+    FutureProvider<List<notification_models.Notification>>((ref) async {
+      final repository = ref.read(notificationRepositoryProvider);
+      return repository.getUnreadNotifications();
+    });
 
 /// Provider for notification summary
-final notificationSummaryProvider = FutureProvider<notification_models.NotificationSummary>((ref) async {
-  final repository = ref.read(notificationRepositoryProvider);
-  return repository.getNotificationSummary();
-});
+final notificationSummaryProvider =
+    FutureProvider<notification_models.NotificationSummary>((ref) async {
+      final repository = ref.read(notificationRepositoryProvider);
+      return repository.getNotificationSummary();
+    });
 
 /// Provider for notification preferences
-final notificationPreferencesProvider = FutureProvider<notification_models.NotificationPreferences>((ref) async {
-  final repository = ref.read(notificationRepositoryProvider);
-  return repository.getNotificationPreferences();
-});
+final notificationPreferencesProvider =
+    FutureProvider<notification_models.NotificationPreferences>((ref) async {
+      final repository = ref.read(notificationRepositoryProvider);
+      return repository.getNotificationPreferences();
+    });
 
 /// State provider for notification filters
-final notificationTypeFilterProvider = StateProvider<notification_models.NotificationType?>((ref) => null);
-final notificationPriorityFilterProvider = StateProvider<notification_models.NotificationPriority?>((ref) => null);
-final notificationStatusFilterProvider = StateProvider<notification_models.NotificationStatus?>((ref) => null);
+final notificationTypeFilterProvider =
+    StateProvider<notification_models.NotificationType?>((ref) => null);
+final notificationPriorityFilterProvider =
+    StateProvider<notification_models.NotificationPriority?>((ref) => null);
+final notificationStatusFilterProvider =
+    StateProvider<notification_models.NotificationStatus?>((ref) => null);
 final notificationSearchTermProvider = StateProvider<String>((ref) => '');
 
 /// State provider for notification center UI state
@@ -94,12 +102,13 @@ final notificationCenterTabProvider = StateProvider<int>((ref) => 0);
 final showOnlyUnreadProvider = StateProvider<bool>((ref) => false);
 
 /// Notifier for notification CRUD operations
-class NotificationNotifier extends StateNotifier<AsyncValue<List<notification_models.Notification>>> {
+class NotificationNotifier
+    extends StateNotifier<AsyncValue<List<notification_models.Notification>>> {
   final NotificationRepository _repository;
   final Ref _ref;
 
   NotificationNotifier(this._repository, this._ref)
-      : super(const AsyncValue.loading()) {
+    : super(const AsyncValue.loading()) {
     loadNotifications();
   }
 
@@ -130,7 +139,7 @@ class NotificationNotifier extends StateNotifier<AsyncValue<List<notification_mo
   Future<void> markAsRead(String notificationId) async {
     try {
       await _repository.markAsRead(notificationId);
-      
+
       // Update local state
       state = state.whenData((notifications) {
         return notifications.map((notification) {
@@ -163,10 +172,12 @@ class NotificationNotifier extends StateNotifier<AsyncValue<List<notification_mo
   }
 
   /// Create new notification
-  Future<void> createNotification(notification_models.CreateNotificationRequest request) async {
+  Future<void> createNotification(
+    notification_models.CreateNotificationRequest request,
+  ) async {
     try {
       final notification = await _repository.createNotification(request);
-      
+
       // Add to local state
       state = state.whenData((notifications) {
         return [notification, ...notifications];
@@ -198,18 +209,23 @@ class NotificationNotifier extends StateNotifier<AsyncValue<List<notification_mo
 
 /// Provider for notification notifier
 final notificationNotifierProvider =
-    StateNotifierProvider<NotificationNotifier, AsyncValue<List<notification_models.Notification>>>((ref) {
-  final repository = ref.read(notificationRepositoryProvider);
-  return NotificationNotifier(repository, ref);
-});
+    StateNotifierProvider<
+      NotificationNotifier,
+      AsyncValue<List<notification_models.Notification>>
+    >((ref) {
+      final repository = ref.read(notificationRepositoryProvider);
+      return NotificationNotifier(repository, ref);
+    });
 
 /// Notifier for notification preferences
-class NotificationPreferencesNotifier extends StateNotifier<AsyncValue<notification_models.NotificationPreferences>> {
+class NotificationPreferencesNotifier
+    extends
+        StateNotifier<AsyncValue<notification_models.NotificationPreferences>> {
   final NotificationRepository _repository;
   final Ref _ref;
 
   NotificationPreferencesNotifier(this._repository, this._ref)
-      : super(const AsyncValue.loading()) {
+    : super(const AsyncValue.loading()) {
     loadPreferences();
   }
 
@@ -236,9 +252,13 @@ class NotificationPreferencesNotifier extends StateNotifier<AsyncValue<notificat
   }
 
   /// Update notification preferences
-  Future<void> updatePreferences(notification_models.UpdateNotificationPreferencesRequest request) async {
+  Future<void> updatePreferences(
+    notification_models.UpdateNotificationPreferencesRequest request,
+  ) async {
     try {
-      final preferences = await _repository.updateNotificationPreferences(request);
+      final preferences = await _repository.updateNotificationPreferences(
+        request,
+      );
       state = AsyncValue.data(preferences);
 
       _logger.info('Notification preferences updated successfully', {
@@ -267,7 +287,9 @@ class NotificationPreferencesNotifier extends StateNotifier<AsyncValue<notificat
   }
 
   /// Update quiet hours settings
-  Future<void> updateQuietHours(notification_models.QuietHoursSettings quietHours) async {
+  Future<void> updateQuietHours(
+    notification_models.QuietHoursSettings quietHours,
+  ) async {
     try {
       final request = notification_models.UpdateNotificationPreferencesRequest(
         quietHours: quietHours,
@@ -279,7 +301,9 @@ class NotificationPreferencesNotifier extends StateNotifier<AsyncValue<notificat
   }
 
   /// Update emergency alert settings
-  Future<void> updateEmergencySettings(notification_models.EmergencyAlertSettings emergencySettings) async {
+  Future<void> updateEmergencySettings(
+    notification_models.EmergencyAlertSettings emergencySettings,
+  ) async {
     try {
       final request = notification_models.UpdateNotificationPreferencesRequest(
         emergencySettings: emergencySettings,
@@ -298,80 +322,99 @@ class NotificationPreferencesNotifier extends StateNotifier<AsyncValue<notificat
 
 /// Provider for notification preferences notifier
 final notificationPreferencesNotifierProvider =
-    StateNotifierProvider<NotificationPreferencesNotifier, AsyncValue<notification_models.NotificationPreferences>>((ref) {
-  final repository = ref.read(notificationRepositoryProvider);
-  return NotificationPreferencesNotifier(repository, ref);
-});
+    StateNotifierProvider<
+      NotificationPreferencesNotifier,
+      AsyncValue<notification_models.NotificationPreferences>
+    >((ref) {
+      final repository = ref.read(notificationRepositoryProvider);
+      return NotificationPreferencesNotifier(repository, ref);
+    });
 
 /// Computed provider for filtered notifications
-final filteredNotificationsProvider = Provider<AsyncValue<List<notification_models.Notification>>>((ref) {
-  final notifications = ref.watch(notificationNotifierProvider);
-  final typeFilter = ref.watch(notificationTypeFilterProvider);
-  final priorityFilter = ref.watch(notificationPriorityFilterProvider);
-  final statusFilter = ref.watch(notificationStatusFilterProvider);
-  final searchTerm = ref.watch(notificationSearchTermProvider);
-  final showOnlyUnread = ref.watch(showOnlyUnreadProvider);
+final filteredNotificationsProvider =
+    Provider<AsyncValue<List<notification_models.Notification>>>((ref) {
+      final notifications = ref.watch(notificationNotifierProvider);
+      final typeFilter = ref.watch(notificationTypeFilterProvider);
+      final priorityFilter = ref.watch(notificationPriorityFilterProvider);
+      final statusFilter = ref.watch(notificationStatusFilterProvider);
+      final searchTerm = ref.watch(notificationSearchTermProvider);
+      final showOnlyUnread = ref.watch(showOnlyUnreadProvider);
 
-  return notifications.when(
-    data: (notifs) {
-      var filtered = notifs.where((notification) {
-        // Type filter
-        if (typeFilter != null && notification.type != typeFilter) {
-          return false;
-        }
+      return notifications.when(
+        data: (notifs) {
+          var filtered = notifs.where((notification) {
+            // Type filter
+            if (typeFilter != null && notification.type != typeFilter) {
+              return false;
+            }
 
-        // Priority filter
-        if (priorityFilter != null && notification.priority != priorityFilter) {
-          return false;
-        }
+            // Priority filter
+            if (priorityFilter != null &&
+                notification.priority != priorityFilter) {
+              return false;
+            }
 
-        // Status filter
-        if (statusFilter != null && notification.status != statusFilter) {
-          return false;
-        }
+            // Status filter
+            if (statusFilter != null && notification.status != statusFilter) {
+              return false;
+            }
 
-        // Unread filter
-        if (showOnlyUnread && notification.status == notification_models.NotificationStatus.read) {
-          return false;
-        }
+            // Unread filter
+            if (showOnlyUnread &&
+                notification.status ==
+                    notification_models.NotificationStatus.read) {
+              return false;
+            }
 
-        // Search term filter
-        if (searchTerm.isNotEmpty) {
-          final searchLower = searchTerm.toLowerCase();
-          if (!notification.title.toLowerCase().contains(searchLower) &&
-              !notification.message.toLowerCase().contains(searchLower)) {
-            return false;
-          }
-        }
+            // Search term filter
+            if (searchTerm.isNotEmpty) {
+              final searchLower = searchTerm.toLowerCase();
+              if (!notification.title.toLowerCase().contains(searchLower) &&
+                  !notification.message.toLowerCase().contains(searchLower)) {
+                return false;
+              }
+            }
 
-        return true;
-      }).toList();
+            return true;
+          }).toList();
 
-      // Sort by creation date (newest first)
-      filtered.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+          // Sort by creation date (newest first)
+          filtered.sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
-      return AsyncValue.data(filtered);
-    },
-    loading: () => const AsyncValue.loading(),
-    error: (error, stack) => AsyncValue.error(error, stack),
-  );
-});
+          return AsyncValue.data(filtered);
+        },
+        loading: () => const AsyncValue.loading(),
+        error: (error, stack) => AsyncValue.error(error, stack),
+      );
+    });
 
 /// Provider for notification statistics
-final notificationStatisticsProvider = FutureProvider<Map<String, dynamic>>((ref) async {
+final notificationStatisticsProvider = FutureProvider<Map<String, dynamic>>((
+  ref,
+) async {
   final notifications = await ref.watch(notificationsProvider.future);
 
   final stats = {
     'total': notifications.length,
-    'unread': notifications.where((n) => n.status != notification_models.NotificationStatus.read).length,
+    'unread': notifications
+        .where((n) => n.status != notification_models.NotificationStatus.read)
+        .length,
     'byType': <String, int>{},
     'byPriority': <String, int>{},
     'byStatus': <String, int>{},
     'todayCount': notifications
-        .where((n) => n.createdAt.isAfter(DateTime.now().subtract(const Duration(days: 1))))
+        .where(
+          (n) => n.createdAt.isAfter(
+            DateTime.now().subtract(const Duration(days: 1)),
+          ),
+        )
         .length,
     'thisWeekCount': notifications
-        .where((n) => n.createdAt.isAfter(DateTime.now().subtract(const Duration(days: 7))))
+        .where(
+          (n) => n.createdAt.isAfter(
+            DateTime.now().subtract(const Duration(days: 7)),
+          ),
+        )
         .length,
   };
 

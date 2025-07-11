@@ -93,7 +93,8 @@ class NotificationRepository {
   }
 
   /// Get unread notifications
-  Future<List<notification_models.Notification>> getUnreadNotifications() async {
+  Future<List<notification_models.Notification>>
+  getUnreadNotifications() async {
     try {
       _logger.info('Fetching unread notifications', {
         'operation': 'getUnreadNotifications',
@@ -121,7 +122,8 @@ class NotificationRepository {
   }
 
   /// Get notification summary
-  Future<notification_models.NotificationSummary> getNotificationSummary() async {
+  Future<notification_models.NotificationSummary>
+  getNotificationSummary() async {
     try {
       _logger.info('Fetching notification summary', {
         'operation': 'getNotificationSummary',
@@ -172,7 +174,7 @@ class NotificationRepository {
       });
 
       final response = await _apiService.markAsRead(id);
-      
+
       // Update cache
       await _updateNotificationInCache(response.data);
 
@@ -196,7 +198,9 @@ class NotificationRepository {
   }
 
   /// Create new notification
-  Future<notification_models.Notification> createNotification(notification_models.CreateNotificationRequest request) async {
+  Future<notification_models.Notification> createNotification(
+    notification_models.CreateNotificationRequest request,
+  ) async {
     try {
       _logger.info('Creating new notification', {
         'operation': 'createNotification',
@@ -230,9 +234,8 @@ class NotificationRepository {
   }
 
   /// Get notification preferences
-  Future<notification_models.NotificationPreferences> getNotificationPreferences({
-    bool useCache = true,
-  }) async {
+  Future<notification_models.NotificationPreferences>
+  getNotificationPreferences({bool useCache = true}) async {
     try {
       _logger.info('Fetching notification preferences', {
         'operation': 'getNotificationPreferences',
@@ -244,9 +247,7 @@ class NotificationRepository {
       if (useCache) {
         final cached = await _getCachedPreferences();
         if (cached != null) {
-          _logger.info('Returning cached preferences', {
-            'source': 'cache',
-          });
+          _logger.info('Returning cached preferences', {'source': 'cache'});
           return cached;
         }
       }
@@ -276,7 +277,8 @@ class NotificationRepository {
   }
 
   /// Update notification preferences
-  Future<notification_models.NotificationPreferences> updateNotificationPreferences(
+  Future<notification_models.NotificationPreferences>
+  updateNotificationPreferences(
     notification_models.UpdateNotificationPreferencesRequest request,
   ) async {
     try {
@@ -308,7 +310,8 @@ class NotificationRepository {
   }
 
   // Cache management methods
-  Future<List<notification_models.Notification>?> _getCachedNotifications() async {
+  Future<List<notification_models.Notification>?>
+  _getCachedNotifications() async {
     try {
       final box = await Hive.openBox<String>('notification_cache');
       final cachedData = box.get(_notificationsCacheKey);
@@ -318,10 +321,14 @@ class NotificationRepository {
         final lastSyncTime = DateTime.parse(lastSync);
         if (DateTime.now().difference(lastSyncTime) < _cacheExpiry) {
           // Parse cached JSON data
-          final List<dynamic> jsonList = 
+          final List<dynamic> jsonList =
               (await _secureStorage.decryptData(cachedData)) as List<dynamic>;
           return jsonList
-              .map((json) => notification_models.Notification.fromJson(json as Map<String, dynamic>))
+              .map(
+                (json) => notification_models.Notification.fromJson(
+                  json as Map<String, dynamic>,
+                ),
+              )
               .toList();
         }
       }
@@ -334,28 +341,31 @@ class NotificationRepository {
     }
   }
 
-  Future<void> _cacheNotifications(List<notification_models.Notification> notifications) async {
+  Future<void> _cacheNotifications(
+    List<notification_models.Notification> notifications,
+  ) async {
     try {
       final box = await Hive.openBox<String>('notification_cache');
       final jsonList = notifications.map((n) => n.toJson()).toList();
       final encryptedData = await _secureStorage.encryptData(jsonList);
-      
+
       await box.put(_notificationsCacheKey, encryptedData);
       await box.put(_lastSyncKey, DateTime.now().toIso8601String());
     } catch (e) {
-      _logger.warning('Failed to cache notifications', {
-        'error': e.toString(),
-      });
+      _logger.warning('Failed to cache notifications', {'error': e.toString()});
     }
   }
 
-  Future<notification_models.NotificationPreferences?> _getCachedPreferences() async {
+  Future<notification_models.NotificationPreferences?>
+  _getCachedPreferences() async {
     try {
       final box = await Hive.openBox<String>('notification_cache');
       final cachedData = box.get(_preferencesCacheKey);
 
       if (cachedData != null) {
-        final json = await _secureStorage.decryptData(cachedData) as Map<String, dynamic>;
+        final json =
+            await _secureStorage.decryptData(cachedData)
+                as Map<String, dynamic>;
         return notification_models.NotificationPreferences.fromJson(json);
       }
       return null;
@@ -367,19 +377,23 @@ class NotificationRepository {
     }
   }
 
-  Future<void> _cachePreferences(notification_models.NotificationPreferences preferences) async {
+  Future<void> _cachePreferences(
+    notification_models.NotificationPreferences preferences,
+  ) async {
     try {
       final box = await Hive.openBox<String>('notification_cache');
-      final encryptedData = await _secureStorage.encryptData(preferences.toJson());
+      final encryptedData = await _secureStorage.encryptData(
+        preferences.toJson(),
+      );
       await box.put(_preferencesCacheKey, encryptedData);
     } catch (e) {
-      _logger.warning('Failed to cache preferences', {
-        'error': e.toString(),
-      });
+      _logger.warning('Failed to cache preferences', {'error': e.toString()});
     }
   }
 
-  Future<void> _updateNotificationInCache(notification_models.Notification notification) async {
+  Future<void> _updateNotificationInCache(
+    notification_models.Notification notification,
+  ) async {
     try {
       final cached = await _getCachedNotifications();
       if (cached != null) {

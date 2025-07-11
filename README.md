@@ -15,44 +15,43 @@ CareCircle/
 
 ## 🚀 Quick Start
 
-### Prerequisites
-
-- Node.js 18+ and npm
-- Flutter 3.8+ and Dart
-- Docker and Docker Compose
-- Git
-
-### 1. Clone and Setup
+### Development
 
 ```bash
-git clone <repository-url>
-cd CareCircle
-```
-
-### 2. Start Infrastructure
-
-```bash
-# Start all development services (PostgreSQL, Redis, Milvus)
+# 1. Start infrastructure
 docker-compose -f docker-compose.dev.yml up -d
-```
 
-### 3. Backend Setup
-
-```bash
+# 2. Backend setup
 cd backend
 cp .env.example .env
-# Edit .env with your configuration (Firebase, OpenAI, etc.)
 npm install
 npm run db:generate
 npm run start:dev
-```
 
-### 4. Mobile Setup
-
-```bash
+# 3. Mobile setup
 cd mobile
 flutter pub get
 flutter run --flavor development
+```
+
+### Production Deploy (Vietnam Market)
+
+```bash
+# 1. Setup GCP
+export PROJECT_ID="your-project-id"
+gcloud config set project $PROJECT_ID
+./scripts/setup-gcp-production.sh
+
+# 2. Add GitHub Secrets (GCP_PROJECT_ID, GCP_SA_KEY)
+
+# 3. Update secrets
+echo 'your-database-url' | gcloud secrets versions add database-url --data-file=-
+echo 'your-vector-db-url' | gcloud secrets versions add vector-db-url --data-file=-
+echo 'your-openai-key' | gcloud secrets versions add openai-api-key --data-file=-
+gcloud secrets versions add firebase-credentials --data-file=firebase-key.json
+
+# 4. Deploy
+git push origin main
 ```
 
 ## 🏥 Healthcare Features
@@ -67,10 +66,10 @@ flutter run --flavor development
 
 ### Technology Stack
 
-- **Backend**: NestJS, TimescaleDB, Redis, Milvus Vector DB
-- **Mobile**: Flutter, Riverpod, Firebase Auth
+- **Backend**: NestJS, Node.js 22, External Database + Vector DB
+- **Mobile**: Flutter, Firebase Auth
 - **AI**: OpenAI integration, speech-to-text, text-to-speech
-- **Infrastructure**: Docker, PostgreSQL with TimescaleDB extension
+- **Infrastructure**: Google Cloud Run (Asia Southeast 1), GitHub Actions
 
 ## 📋 Development Status
 

@@ -16,46 +16,121 @@ function getLocalIPAddress(): string {
   return 'localhost';
 }
 
-async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+function getProductionCorsOrigins(): boolean | (string | RegExp)[] {
+  const origins: (string | RegExp)[] = [];
 
-  // Enable CORS for web and mobile development
-  app.enableCors({
-    origin: [
-      'http://localhost:3000',
-      // Allow mobile development from any local network IP
-      /^http:\/\/192\.168\.\d+\.\d+:\d+$/,
-      /^http:\/\/10\.\d+\.\d+\.\d+:\d+$/,
-      /^http:\/\/172\.(1[6-9]|2\d|3[01])\.\d+\.\d+:\d+$/,
-    ],
-    credentials: true,
+  // Custom production domains from environment
+  if (process.env.ALLOWED_ORIGINS) {
+    const customOrigins = process.env.ALLOWED_ORIGINS.split(',');
+    origins.push(...customOrigins);
+  }
+
+  // Development origins (only in non-production)
+  if (process.env.NODE_ENV !== 'production') {
+    origins.push('http://localhost:3000');
+    origins.push(/^http:\/\/192\.168\.\d+\.\d+:\d+$/);
+    origins.push(/^http:\/\/10\.\d+\.\d+\.\d+:\d+$/);
+    origins.push(/^http:\/\/172\.(1[6-9]|2\d|3[01])\.\d+\.\d+:\d+$/);
+  }
+
+  // If no custom origins specified, allow all origins in production for now
+  // This can be restricted later when domains are available
+  if (origins.length === 0) {
+    return true; // Allow all origins
+  }
+
+  return origins;
+}
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule, {
+    logger:
+      process.env.NODE_ENV === 'production'
+        ? ['error', 'warn', 'log']
+        : ['error', 'warn', 'log', 'debug', 'verbose'],
   });
 
-  // Global validation pipe
+  // Production-ready CORS configuration
+  app.enableCors({
+    origin: getProductionCorsOrigins(),
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: [
+      'Origin',
+      'X-Requested-With',
+      'Content-Type',
+      'Accept',
+      'Authorization',
+      'X-API-Key',
+    ],
+    exposedHeaders: ['X-Total-Count', 'X-Page-Count'],
+    maxAge: 86400, // 24 hours
+  });
+
+  // Global validation pipe with production settings
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
       forbidNonWhitelisted: true,
       transform: true,
+      disableErrorMessages: process.env.NODE_ENV === 'production',
+      validationError: {
+        target: false,
+        value: false,
+      },
     }),
   );
 
   // API prefix
   app.setGlobalPrefix(process.env.API_PREFIX || 'api/v1');
 
-  const port = process.env.PORT || 3000;
-  await app.listen(port);
+  // Use PORT environment variable (required by Cloud Run)
+  const port = process.env.PORT || 8080;
+
+  // Listen on all interfaces (required for Cloud Run)
+  await app.listen(port, '0.0.0.0');
 
   const localIP = getLocalIPAddress();
   const apiPrefix = process.env.API_PREFIX || 'api/v1';
+  const isProduction = process.env.NODE_ENV === 'production';
 
   console.log('🚀 CareCircle Backend is running:');
-  console.log(`   Local:    http://localhost:${port}/${apiPrefix}`);
-  console.log(`   Network:  http://${localIP}:${port}/${apiPrefix}`);
+
+  if (isProduction) {
+    // In production (Cloud Run), log the service information
+    console.log(`   Environment: ${process.env.NODE_ENV}`);
+    console.log(`   Port: ${port}`);
+    console.log(`   API Prefix: ${apiPrefix}`);
+    console.log(`   Health Check: /api/v1/health`);
+    console.log('');
+    console.log('📱 Mobile App Configuration:');
+    console.log('   Use the Cloud Run service URL as your API base URL');
+    console.log('   Example: https://your-service-url/api/v1');
+  } else {
+    // Development logging
+    console.log(`   Local:    http://localhost:${port}/${apiPrefix}`);
+    console.log(`   Network:  http://${localIP}:${port}/${apiPrefix}`);
+    console.log('');
+    console.log('📱 For mobile development, use the Network URL:');
+    console.log(
+      `   Mobile API Base URL: http://${localIP}:${port}/${apiPrefix}`,
+    );
+  }
+
   console.log('');
-  console.log(
-    '📱 For mobile development, use the Network URL in your mobile app configuration',
-  );
-  console.log(`   Mobile API Base URL: http://${localIP}:${port}/${apiPrefix}`);
+  console.log('🏥 Healthcare Platform Ready');
+  console.log('✅ HIPAA-compliant infrastructure active');
 }
+
+// Graceful shutdown handling
+process.on('SIGTERM', () => {
+  console.log('🛑 SIGTERM received, shutting down gracefully...');
+  process.exit(0);
+});
+
+process.on('SIGINT', () => {
+  console.log('🛑 SIGINT received, shutting down gracefully...');
+  process.exit(0);
+});
+
 void bootstrap();

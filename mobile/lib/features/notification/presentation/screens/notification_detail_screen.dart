@@ -18,10 +18,7 @@ import '../providers/notification_providers.dart';
 class NotificationDetailScreen extends ConsumerStatefulWidget {
   final String notificationId;
 
-  const NotificationDetailScreen({
-    super.key,
-    required this.notificationId,
-  });
+  const NotificationDetailScreen({super.key, required this.notificationId});
 
   @override
   ConsumerState<NotificationDetailScreen> createState() =>
@@ -35,7 +32,7 @@ class _NotificationDetailScreenState
   @override
   void initState() {
     super.initState();
-    
+
     // Log screen access
     _logger.info('Notification detail accessed', {
       'notificationId': widget.notificationId,
@@ -58,10 +55,7 @@ class _NotificationDetailScreenState
       foregroundColor: Colors.white,
       title: const Text(
         'Notification Details',
-        style: TextStyle(
-          fontSize: 18,
-          fontWeight: FontWeight.w600,
-        ),
+        style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
       ),
       actions: [
         PopupMenuButton<String>(
@@ -236,7 +230,8 @@ class _NotificationDetailScreenState
           _buildNotificationContent(notification),
           const SizedBox(height: 24),
           _buildNotificationMetadata(notification),
-          if (notification.context != null && notification.context!.isNotEmpty) ...[
+          if (notification.context != null &&
+              notification.context!.isNotEmpty) ...[
             const SizedBox(height: 24),
             _buildContextInformation(notification.context!),
           ],
@@ -253,10 +248,7 @@ class _NotificationDetailScreenState
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: _getTypeColor(notification.type),
-          width: 2,
-        ),
+        border: Border.all(color: _getTypeColor(notification.type), width: 2),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
@@ -320,7 +312,7 @@ class _NotificationDetailScreenState
   }
 
   Widget _buildPriorityBadge(NotificationPriority priority) {
-    if (priority == NotificationPriority.normal || 
+    if (priority == NotificationPriority.normal ||
         priority == NotificationPriority.low) {
       return const SizedBox.shrink();
     }
@@ -471,17 +463,37 @@ class _NotificationDetailScreenState
             ),
           ),
           const SizedBox(height: 16),
-          _buildMetadataRow('Channel', _getChannelDisplayName(notification.channel)),
+          _buildMetadataRow(
+            'Channel',
+            _getChannelDisplayName(notification.channel),
+          ),
           _buildMetadataRow('Priority', notification.priority.displayName),
-          _buildMetadataRow('Created', DateFormat('MMM d, y • h:mm a').format(notification.createdAt)),
+          _buildMetadataRow(
+            'Created',
+            DateFormat('MMM d, y • h:mm a').format(notification.createdAt),
+          ),
           if (notification.scheduledFor != null)
-            _buildMetadataRow('Scheduled For', DateFormat('MMM d, y • h:mm a').format(notification.scheduledFor!)),
+            _buildMetadataRow(
+              'Scheduled For',
+              DateFormat(
+                'MMM d, y • h:mm a',
+              ).format(notification.scheduledFor!),
+            ),
           if (notification.deliveredAt != null)
-            _buildMetadataRow('Delivered', DateFormat('MMM d, y • h:mm a').format(notification.deliveredAt!)),
+            _buildMetadataRow(
+              'Delivered',
+              DateFormat('MMM d, y • h:mm a').format(notification.deliveredAt!),
+            ),
           if (notification.readAt != null)
-            _buildMetadataRow('Read', DateFormat('MMM d, y • h:mm a').format(notification.readAt!)),
+            _buildMetadataRow(
+              'Read',
+              DateFormat('MMM d, y • h:mm a').format(notification.readAt!),
+            ),
           if (notification.expiresAt != null)
-            _buildMetadataRow('Expires', DateFormat('MMM d, y • h:mm a').format(notification.expiresAt!)),
+            _buildMetadataRow(
+              'Expires',
+              DateFormat('MMM d, y • h:mm a').format(notification.expiresAt!),
+            ),
         ],
       ),
     );
@@ -546,8 +558,9 @@ class _NotificationDetailScreenState
             ),
           ),
           const SizedBox(height: 16),
-          ...context.entries.map((entry) => 
-            _buildMetadataRow(entry.key, entry.value.toString())),
+          ...context.entries.map(
+            (entry) => _buildMetadataRow(entry.key, entry.value.toString()),
+          ),
         ],
       ),
     );
@@ -599,7 +612,9 @@ class _NotificationDetailScreenState
                 label: const Text('Share'),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: CareCircleDesignTokens.primaryMedicalBlue,
-                  side: BorderSide(color: CareCircleDesignTokens.primaryMedicalBlue),
+                  side: BorderSide(
+                    color: CareCircleDesignTokens.primaryMedicalBlue,
+                  ),
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -620,9 +635,10 @@ class _NotificationDetailScreenState
 
   Future<void> _markAsRead(Notification notification) async {
     try {
-      await ref.read(notificationNotifierProvider.notifier)
+      await ref
+          .read(notificationNotifierProvider.notifier)
           .markAsRead(notification.id);
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(

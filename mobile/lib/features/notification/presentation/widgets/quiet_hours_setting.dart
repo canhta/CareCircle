@@ -81,13 +81,12 @@ class _QuietHoursSettingState extends State<QuietHoursSetting> {
               'Allow Emergency Alerts',
               style: TextStyle(fontWeight: FontWeight.w600),
             ),
-            subtitle: const Text(
-              'Emergency alerts will bypass quiet hours',
-            ),
+            subtitle: const Text('Emergency alerts will bypass quiet hours'),
             value: _settings.allowEmergencyAlerts,
             onChanged: widget.onChanged != null
                 ? (value) => _updateSettings(
-                    _settings.copyWith(allowEmergencyAlerts: value))
+                    _settings.copyWith(allowEmergencyAlerts: value),
+                  )
                 : null,
             activeColor: CareCircleDesignTokens.errorRed,
           ),
@@ -154,7 +153,9 @@ class _QuietHoursSettingState extends State<QuietHoursSetting> {
             onPressed: () => _selectDays([1, 2, 3, 4, 5]), // Weekdays
             style: OutlinedButton.styleFrom(
               foregroundColor: CareCircleDesignTokens.primaryMedicalBlue,
-              side: BorderSide(color: CareCircleDesignTokens.primaryMedicalBlue),
+              side: BorderSide(
+                color: CareCircleDesignTokens.primaryMedicalBlue,
+              ),
             ),
             child: const Text('Weekdays'),
           ),
@@ -165,7 +166,9 @@ class _QuietHoursSettingState extends State<QuietHoursSetting> {
             onPressed: () => _selectDays([0, 6]), // Weekends
             style: OutlinedButton.styleFrom(
               foregroundColor: CareCircleDesignTokens.primaryMedicalBlue,
-              side: BorderSide(color: CareCircleDesignTokens.primaryMedicalBlue),
+              side: BorderSide(
+                color: CareCircleDesignTokens.primaryMedicalBlue,
+              ),
             ),
             child: const Text('Weekends'),
           ),
@@ -176,7 +179,9 @@ class _QuietHoursSettingState extends State<QuietHoursSetting> {
             onPressed: () => _selectDays([0, 1, 2, 3, 4, 5, 6]), // Every day
             style: OutlinedButton.styleFrom(
               foregroundColor: CareCircleDesignTokens.primaryMedicalBlue,
-              side: BorderSide(color: CareCircleDesignTokens.primaryMedicalBlue),
+              side: BorderSide(
+                color: CareCircleDesignTokens.primaryMedicalBlue,
+              ),
             ),
             child: const Text('Every Day'),
           ),
@@ -187,7 +192,7 @@ class _QuietHoursSettingState extends State<QuietHoursSetting> {
 
   Widget _buildDayCheckboxes() {
     const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    
+
     return Wrap(
       spacing: 8,
       runSpacing: 8,
@@ -206,7 +211,9 @@ class _QuietHoursSettingState extends State<QuietHoursSetting> {
             newActiveDays.sort();
             _updateSettings(_settings.copyWith(activeDays: newActiveDays));
           },
-          selectedColor: CareCircleDesignTokens.primaryMedicalBlue.withOpacity(0.2),
+          selectedColor: CareCircleDesignTokens.primaryMedicalBlue.withOpacity(
+            0.2,
+          ),
           checkmarkColor: CareCircleDesignTokens.primaryMedicalBlue,
         );
       }),
@@ -244,22 +251,28 @@ class _QuietHoursSettingState extends State<QuietHoursSetting> {
               const SizedBox(height: 12),
               ...NotificationType.values
                   .where((type) => type != NotificationType.emergencyAlert)
-                  .map((type) => CheckboxListTile(
-                        title: Text(type.displayName),
-                        subtitle: Text(_getTypeDescription(type)),
-                        value: _settings.allowedTypes.contains(type),
-                        onChanged: (checked) {
-                          final newAllowedTypes = List<NotificationType>.from(_settings.allowedTypes);
-                          if (checked == true) {
-                            newAllowedTypes.add(type);
-                          } else {
-                            newAllowedTypes.remove(type);
-                          }
-                          _updateSettings(_settings.copyWith(allowedTypes: newAllowedTypes));
-                        },
-                        activeColor: CareCircleDesignTokens.primaryMedicalBlue,
-                        dense: true,
-                      )),
+                  .map(
+                    (type) => CheckboxListTile(
+                      title: Text(type.displayName),
+                      subtitle: Text(_getTypeDescription(type)),
+                      value: _settings.allowedTypes.contains(type),
+                      onChanged: (checked) {
+                        final newAllowedTypes = List<NotificationType>.from(
+                          _settings.allowedTypes,
+                        );
+                        if (checked == true) {
+                          newAllowedTypes.add(type);
+                        } else {
+                          newAllowedTypes.remove(type);
+                        }
+                        _updateSettings(
+                          _settings.copyWith(allowedTypes: newAllowedTypes),
+                        );
+                      },
+                      activeColor: CareCircleDesignTokens.primaryMedicalBlue,
+                      dense: true,
+                    ),
+                  ),
             ],
           ),
         ),
@@ -278,10 +291,9 @@ class _QuietHoursSettingState extends State<QuietHoursSetting> {
         startTime: _settings.startTime,
         endTime: _settings.endTime,
         onTimeRangeSelected: (startTime, endTime) {
-          _updateSettings(_settings.copyWith(
-            startTime: startTime,
-            endTime: endTime,
-          ));
+          _updateSettings(
+            _settings.copyWith(startTime: startTime, endTime: endTime),
+          );
         },
       ),
     );
@@ -412,7 +424,8 @@ class _TimeRangePickerDialogState extends State<_TimeRangePickerDialog> {
     );
 
     if (selectedTime != null) {
-      final formattedTime = '${selectedTime.hour.toString().padLeft(2, '0')}:${selectedTime.minute.toString().padLeft(2, '0')}';
+      final formattedTime =
+          '${selectedTime.hour.toString().padLeft(2, '0')}:${selectedTime.minute.toString().padLeft(2, '0')}';
       setState(() {
         if (isStartTime) {
           _startTime = formattedTime;

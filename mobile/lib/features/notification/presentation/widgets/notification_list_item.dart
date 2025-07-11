@@ -45,7 +45,11 @@ class NotificationListItem extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           side: BorderSide(
             color: _getBorderColor(),
-            width: notification.status == notification_models.NotificationStatus.read ? 0.5 : 2,
+            width:
+                notification.status ==
+                    notification_models.NotificationStatus.read
+                ? 0.5
+                : 2,
           ),
         ),
         child: InkWell(
@@ -55,7 +59,9 @@ class NotificationListItem extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
-              color: notification.status == notification_models.NotificationStatus.read
+              color:
+                  notification.status ==
+                      notification_models.NotificationStatus.read
                   ? Colors.white
                   : CareCircleDesignTokens.primaryMedicalBlue.withOpacity(0.02),
             ),
@@ -80,8 +86,8 @@ class NotificationListItem extends StatelessWidget {
       alignment: isLeft ? Alignment.centerLeft : Alignment.centerRight,
       padding: const EdgeInsets.symmetric(horizontal: 20),
       decoration: BoxDecoration(
-        color: isLeft 
-            ? CareCircleDesignTokens.successGreen 
+        color: isLeft
+            ? CareCircleDesignTokens.successGreen
             : CareCircleDesignTokens.errorRed,
         borderRadius: BorderRadius.circular(12),
       ),
@@ -109,7 +115,9 @@ class NotificationListItem extends StatelessWidget {
                       notification.title,
                       style: TextStyle(
                         fontSize: 16,
-                        fontWeight: notification.status == notification_models.NotificationStatus.read
+                        fontWeight:
+                            notification.status ==
+                                notification_models.NotificationStatus.read
                             ? FontWeight.w500
                             : FontWeight.w600,
                         color: CareCircleDesignTokens.textPrimary,
@@ -156,7 +164,8 @@ class NotificationListItem extends StatelessWidget {
   }
 
   Widget _buildPriorityIndicator() {
-    if (notification.priority == notification_models.NotificationPriority.normal ||
+    if (notification.priority ==
+            notification_models.NotificationPriority.normal ||
         notification.priority == notification_models.NotificationPriority.low) {
       return const SizedBox.shrink();
     }
@@ -199,7 +208,8 @@ class NotificationListItem extends StatelessWidget {
       style: TextStyle(
         fontSize: 14,
         fontWeight: FontWeight.w400,
-        color: notification.status == notification_models.NotificationStatus.read
+        color:
+            notification.status == notification_models.NotificationStatus.read
             ? CareCircleDesignTokens.textSecondary
             : CareCircleDesignTokens.textPrimary,
         height: 1.4,
@@ -228,7 +238,8 @@ class NotificationListItem extends StatelessWidget {
         ),
         const Spacer(),
         _buildChannelIndicator(),
-        if (notification.status == notification_models.NotificationStatus.read) ...[
+        if (notification.status ==
+            notification_models.NotificationStatus.read) ...[
           const SizedBox(width: 8),
           Icon(
             Icons.check_circle,
@@ -257,11 +268,7 @@ class NotificationListItem extends StatelessWidget {
         break;
     }
 
-    return Icon(
-      icon,
-      size: 14,
-      color: CareCircleDesignTokens.textSecondary,
-    );
+    return Icon(icon, size: 14, color: CareCircleDesignTokens.textSecondary);
   }
 
   Color _getTypeColor() {
@@ -297,11 +304,14 @@ class NotificationListItem extends StatelessWidget {
   }
 
   Color _getBorderColor() {
-    if (notification.priority == notification_models.NotificationPriority.urgent) {
+    if (notification.priority ==
+        notification_models.NotificationPriority.urgent) {
       return CareCircleDesignTokens.errorRed;
-    } else if (notification.priority == notification_models.NotificationPriority.high) {
+    } else if (notification.priority ==
+        notification_models.NotificationPriority.high) {
       return CareCircleDesignTokens.warningOrange;
-    } else if (notification.status != notification_models.NotificationStatus.read) {
+    } else if (notification.status !=
+        notification_models.NotificationStatus.read) {
       return CareCircleDesignTokens.primaryMedicalBlue;
     } else {
       return CareCircleDesignTokens.borderLight;

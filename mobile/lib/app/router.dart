@@ -110,7 +110,12 @@ class AppRouter {
 
   /// Checks if a route requires authentication
   static bool _isProtectedRoute(String location) {
-    final protectedRoutes = ['/home', '/health_data', '/onboarding', '/notifications'];
+    final protectedRoutes = [
+      '/home',
+      '/health_data',
+      '/onboarding',
+      '/notifications',
+    ];
     return protectedRoutes.any((route) => location.startsWith(route));
   }
 

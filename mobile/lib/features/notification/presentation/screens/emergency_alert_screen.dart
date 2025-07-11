@@ -18,7 +18,8 @@ class EmergencyAlertScreen extends ConsumerStatefulWidget {
   const EmergencyAlertScreen({super.key});
 
   @override
-  ConsumerState<EmergencyAlertScreen> createState() => _EmergencyAlertScreenState();
+  ConsumerState<EmergencyAlertScreen> createState() =>
+      _EmergencyAlertScreenState();
 }
 
 class _EmergencyAlertScreenState extends ConsumerState<EmergencyAlertScreen>
@@ -30,7 +31,7 @@ class _EmergencyAlertScreenState extends ConsumerState<EmergencyAlertScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-    
+
     // Log screen access
     _logger.info('Emergency alert screen accessed', {
       'timestamp': DateTime.now().toIso8601String(),
@@ -54,10 +55,7 @@ class _EmergencyAlertScreenState extends ConsumerState<EmergencyAlertScreen>
           Expanded(
             child: TabBarView(
               controller: _tabController,
-              children: [
-                _buildActiveAlertsTab(),
-                _buildHistoryTab(),
-              ],
+              children: [_buildActiveAlertsTab(), _buildHistoryTab()],
             ),
           ),
         ],
@@ -76,10 +74,7 @@ class _EmergencyAlertScreenState extends ConsumerState<EmergencyAlertScreen>
           SizedBox(width: 8),
           Text(
             'Emergency Alerts',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w600,
-            ),
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
           ),
         ],
       ),
@@ -171,7 +166,8 @@ class _EmergencyAlertScreenState extends ConsumerState<EmergencyAlertScreen>
         id: '1',
         userId: 'user1',
         title: 'Critical Medication Alert',
-        message: 'Patient has missed critical heart medication for 4 hours. Immediate attention required.',
+        message:
+            'Patient has missed critical heart medication for 4 hours. Immediate attention required.',
         alertType: EmergencyAlertType.missedCriticalMedication,
         severity: EmergencyAlertSeverity.critical,
         status: EmergencyAlertStatus.active,
@@ -179,7 +175,9 @@ class _EmergencyAlertScreenState extends ConsumerState<EmergencyAlertScreen>
         metadata: {
           'medicationName': 'Metoprolol',
           'dosage': '50mg',
-          'lastTaken': DateTime.now().subtract(const Duration(hours: 4)).toIso8601String(),
+          'lastTaken': DateTime.now()
+              .subtract(const Duration(hours: 4))
+              .toIso8601String(),
         },
         actions: [
           const EmergencyAlertAction(
@@ -228,12 +226,15 @@ class _EmergencyAlertScreenState extends ConsumerState<EmergencyAlertScreen>
         id: '2',
         userId: 'user1',
         title: 'Fall Detection Alert',
-        message: 'Potential fall detected. Patient did not respond to check-in.',
+        message:
+            'Potential fall detected. Patient did not respond to check-in.',
         alertType: EmergencyAlertType.fallDetection,
         severity: EmergencyAlertSeverity.high,
         status: EmergencyAlertStatus.resolved,
         createdAt: DateTime.now().subtract(const Duration(hours: 2)),
-        resolvedAt: DateTime.now().subtract(const Duration(hours: 1, minutes: 45)),
+        resolvedAt: DateTime.now().subtract(
+          const Duration(hours: 1, minutes: 45),
+        ),
         resolvedBy: 'Caregiver',
       ),
       EmergencyAlert(
@@ -245,7 +246,9 @@ class _EmergencyAlertScreenState extends ConsumerState<EmergencyAlertScreen>
         severity: EmergencyAlertSeverity.medium,
         status: EmergencyAlertStatus.acknowledged,
         createdAt: DateTime.now().subtract(const Duration(days: 1)),
-        acknowledgedAt: DateTime.now().subtract(const Duration(days: 1)).add(const Duration(minutes: 10)),
+        acknowledgedAt: DateTime.now()
+            .subtract(const Duration(days: 1))
+            .add(const Duration(minutes: 10)),
         acknowledgedBy: 'Patient',
       ),
     ];
@@ -373,7 +376,7 @@ class _EmergencyAlertScreenState extends ConsumerState<EmergencyAlertScreen>
         'error': e.toString(),
         'timestamp': DateTime.now().toIso8601String(),
       });
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -506,7 +509,7 @@ class _EmergencyAlertScreenState extends ConsumerState<EmergencyAlertScreen>
     _logger.info('Emergency services call requested', {
       'timestamp': DateTime.now().toIso8601String(),
     });
-    
+
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Calling emergency services...'),
@@ -521,10 +524,12 @@ class _EmergencyAlertScreenState extends ConsumerState<EmergencyAlertScreen>
       'phoneNumber': phoneNumber,
       'timestamp': DateTime.now().toIso8601String(),
     });
-    
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Calling doctor${phoneNumber != null ? ' at $phoneNumber' : ''}...'),
+        content: Text(
+          'Calling doctor${phoneNumber != null ? ' at $phoneNumber' : ''}...',
+        ),
         backgroundColor: CareCircleDesignTokens.primaryMedicalBlue,
       ),
     );
@@ -535,7 +540,7 @@ class _EmergencyAlertScreenState extends ConsumerState<EmergencyAlertScreen>
     _logger.info('Caregiver contact requested', {
       'timestamp': DateTime.now().toIso8601String(),
     });
-    
+
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Contacting caregiver...'),
@@ -598,7 +603,10 @@ class _EmergencyAlertScreenState extends ConsumerState<EmergencyAlertScreen>
               },
             ),
             ListTile(
-              leading: Icon(Icons.local_hospital, color: CareCircleDesignTokens.primaryMedicalBlue),
+              leading: Icon(
+                Icons.local_hospital,
+                color: CareCircleDesignTokens.primaryMedicalBlue,
+              ),
               title: const Text('Call Doctor'),
               subtitle: const Text('Primary care physician'),
               onTap: () {
@@ -607,7 +615,10 @@ class _EmergencyAlertScreenState extends ConsumerState<EmergencyAlertScreen>
               },
             ),
             ListTile(
-              leading: Icon(Icons.people, color: CareCircleDesignTokens.successGreen),
+              leading: Icon(
+                Icons.people,
+                color: CareCircleDesignTokens.successGreen,
+              ),
               title: const Text('Contact Caregiver'),
               subtitle: const Text('Primary caregiver'),
               onTap: () {
@@ -616,7 +627,10 @@ class _EmergencyAlertScreenState extends ConsumerState<EmergencyAlertScreen>
               },
             ),
             ListTile(
-              leading: Icon(Icons.bug_report, color: CareCircleDesignTokens.warningOrange),
+              leading: Icon(
+                Icons.bug_report,
+                color: CareCircleDesignTokens.warningOrange,
+              ),
               title: const Text('Test Alert'),
               subtitle: const Text('Create test emergency alert'),
               onTap: () {
@@ -635,7 +649,7 @@ class _EmergencyAlertScreenState extends ConsumerState<EmergencyAlertScreen>
     _logger.info('Test emergency alert creation requested', {
       'timestamp': DateTime.now().toIso8601String(),
     });
-    
+
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Test emergency alert created'),

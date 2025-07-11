@@ -112,7 +112,8 @@ abstract class UpdateTemplateRequest with _$UpdateTemplateRequest {
 
 /// API response wrappers
 @freezed
-abstract class NotificationTemplateResponse with _$NotificationTemplateResponse {
+abstract class NotificationTemplateResponse
+    with _$NotificationTemplateResponse {
   const factory NotificationTemplateResponse({
     required bool success,
     required NotificationTemplate data,
@@ -133,8 +134,8 @@ abstract class NotificationTemplateListResponse
   }) = _NotificationTemplateListResponse;
 
   factory NotificationTemplateListResponse.fromJson(
-          Map<String, dynamic> json) =>
-      _$NotificationTemplateListResponseFromJson(json);
+    Map<String, dynamic> json,
+  ) => _$NotificationTemplateListResponseFromJson(json);
 }
 
 @freezed
@@ -229,21 +230,50 @@ extension HealthcareTemplateTypeExtension on HealthcareTemplateType {
       case HealthcareTemplateType.medicationMissed:
         return ['medicationName', 'dosage', 'missedTime', 'patientName'];
       case HealthcareTemplateType.medicationRefillReminder:
-        return ['medicationName', 'remainingDoses', 'pharmacyName', 'patientName'];
+        return [
+          'medicationName',
+          'remainingDoses',
+          'pharmacyName',
+          'patientName',
+        ];
       case HealthcareTemplateType.appointmentReminder:
-        return ['appointmentDate', 'appointmentTime', 'doctorName', 'clinicName', 'patientName'];
+        return [
+          'appointmentDate',
+          'appointmentTime',
+          'doctorName',
+          'clinicName',
+          'patientName',
+        ];
       case HealthcareTemplateType.appointmentConfirmation:
-        return ['appointmentDate', 'appointmentTime', 'doctorName', 'clinicName', 'confirmationCode'];
+        return [
+          'appointmentDate',
+          'appointmentTime',
+          'doctorName',
+          'clinicName',
+          'confirmationCode',
+        ];
       case HealthcareTemplateType.labResultsAvailable:
         return ['testName', 'resultDate', 'doctorName', 'patientName'];
       case HealthcareTemplateType.vitalsAlert:
         return ['vitalType', 'value', 'normalRange', 'severity', 'patientName'];
       case HealthcareTemplateType.emergencyAlert:
-        return ['alertType', 'severity', 'location', 'contactInfo', 'patientName'];
+        return [
+          'alertType',
+          'severity',
+          'location',
+          'contactInfo',
+          'patientName',
+        ];
       case HealthcareTemplateType.careGroupInvitation:
         return ['groupName', 'inviterName', 'role', 'patientName'];
       case HealthcareTemplateType.careGroupTaskAssigned:
-        return ['taskTitle', 'assignerName', 'dueDate', 'priority', 'patientName'];
+        return [
+          'taskTitle',
+          'assignerName',
+          'dueDate',
+          'priority',
+          'patientName',
+        ];
       case HealthcareTemplateType.careGroupTaskCompleted:
         return ['taskTitle', 'completedBy', 'completionDate', 'patientName'];
       case HealthcareTemplateType.systemMaintenance:
@@ -259,7 +289,7 @@ extension NotificationTemplateExtension on NotificationTemplate {
   /// Check if template has all required variables
   bool hasRequiredVariables(Map<String, dynamic> variables) {
     if (requiredVariables == null) return true;
-    
+
     for (final required in requiredVariables!) {
       if (!variables.containsKey(required) || variables[required] == null) {
         return false;
@@ -271,24 +301,27 @@ extension NotificationTemplateExtension on NotificationTemplate {
   /// Get missing required variables
   List<String> getMissingVariables(Map<String, dynamic> variables) {
     if (requiredVariables == null) return [];
-    
+
     return requiredVariables!
-        .where((required) => !variables.containsKey(required) || variables[required] == null)
+        .where(
+          (required) =>
+              !variables.containsKey(required) || variables[required] == null,
+        )
         .toList();
   }
 
   /// Validate template variables
   List<String> validateVariables(Map<String, dynamic> variables) {
     final errors = <String>[];
-    
+
     // Check required variables
     final missing = getMissingVariables(variables);
     if (missing.isNotEmpty) {
       errors.add('Missing required variables: ${missing.join(', ')}');
     }
-    
+
     // Add more validation logic as needed
-    
+
     return errors;
   }
 }

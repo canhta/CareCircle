@@ -37,7 +37,7 @@ class _NotificationCenterScreenState
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
-    
+
     // Log screen access
     _logger.info('Notification center accessed', {
       'timestamp': DateTime.now().toIso8601String(),
@@ -83,10 +83,7 @@ class _NotificationCenterScreenState
       foregroundColor: Colors.white,
       title: const Text(
         'Notifications',
-        style: TextStyle(
-          fontSize: 20,
-          fontWeight: FontWeight.w600,
-        ),
+        style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
       ),
       actions: [
         // Notification summary badge
@@ -183,7 +180,8 @@ class _NotificationCenterScreenState
               builder: (context, ref, child) {
                 final notificationsAsync = ref.watch(notificationsProvider);
                 return notificationsAsync.when(
-                  data: (notifications) => _buildTabWithCount('All', notifications.length),
+                  data: (notifications) =>
+                      _buildTabWithCount('All', notifications.length),
                   loading: () => const Text('All'),
                   error: (_, __) => const Text('All'),
                 );
@@ -218,7 +216,9 @@ class _NotificationCenterScreenState
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
             decoration: BoxDecoration(
-              color: CareCircleDesignTokens.primaryMedicalBlue.withValues(alpha: 0.1),
+              color: CareCircleDesignTokens.primaryMedicalBlue.withValues(
+                alpha: 0.1,
+              ),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Text(
@@ -239,7 +239,7 @@ class _NotificationCenterScreenState
     return Consumer(
       builder: (context, ref, child) {
         final notificationsAsync = ref.watch(filteredNotificationsProvider);
-        
+
         return notificationsAsync.when(
           data: (notifications) => _buildNotificationList(notifications),
           loading: () => _buildLoadingState(),
@@ -258,7 +258,7 @@ class _NotificationCenterScreenState
         });
 
         final notificationsAsync = ref.watch(filteredNotificationsProvider);
-        
+
         return notificationsAsync.when(
           data: (notifications) => _buildNotificationList(notifications),
           loading: () => _buildLoadingState(),
@@ -273,12 +273,12 @@ class _NotificationCenterScreenState
       builder: (context, ref, child) {
         // Set priority filter for important notifications
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          ref.read(notificationPriorityFilterProvider.notifier).state = 
+          ref.read(notificationPriorityFilterProvider.notifier).state =
               NotificationPriority.high;
         });
 
         final notificationsAsync = ref.watch(filteredNotificationsProvider);
-        
+
         return notificationsAsync.when(
           data: (notifications) => _buildNotificationList(notifications),
           loading: () => _buildLoadingState(),
@@ -288,7 +288,9 @@ class _NotificationCenterScreenState
     );
   }
 
-  Widget _buildNotificationList(List<notification_models.Notification> notifications) {
+  Widget _buildNotificationList(
+    List<notification_models.Notification> notifications,
+  ) {
     if (notifications.isEmpty) {
       return _buildEmptyState();
     }
@@ -419,7 +421,7 @@ class _NotificationCenterScreenState
   Future<void> _handleRefresh() async {
     try {
       await ref.read(notificationNotifierProvider.notifier).refresh();
-      
+
       _logger.info('Notifications refreshed', {
         'timestamp': DateTime.now().toIso8601String(),
       });
@@ -428,7 +430,7 @@ class _NotificationCenterScreenState
         'error': e.toString(),
         'timestamp': DateTime.now().toIso8601String(),
       });
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -456,11 +458,14 @@ class _NotificationCenterScreenState
     context.push('/notifications/${notification.id}');
   }
 
-  Future<void> _handleMarkAsRead(notification_models.Notification notification) async {
+  Future<void> _handleMarkAsRead(
+    notification_models.Notification notification,
+  ) async {
     try {
-      await ref.read(notificationNotifierProvider.notifier)
+      await ref
+          .read(notificationNotifierProvider.notifier)
           .markAsRead(notification.id);
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -475,7 +480,7 @@ class _NotificationCenterScreenState
         'error': e.toString(),
         'timestamp': DateTime.now().toIso8601String(),
       });
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -487,7 +492,9 @@ class _NotificationCenterScreenState
     }
   }
 
-  void _handleDeleteNotification(notification_models.Notification notification) {
+  void _handleDeleteNotification(
+    notification_models.Notification notification,
+  ) {
     // TODO: Implement delete notification
     _logger.info('Delete notification requested', {
       'notificationId': notification.id,

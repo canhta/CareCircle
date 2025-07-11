@@ -15,7 +15,8 @@ class NotificationSearchBar extends ConsumerStatefulWidget {
   const NotificationSearchBar({super.key});
 
   @override
-  ConsumerState<NotificationSearchBar> createState() => _NotificationSearchBarState();
+  ConsumerState<NotificationSearchBar> createState() =>
+      _NotificationSearchBarState();
 }
 
 class _NotificationSearchBarState extends ConsumerState<NotificationSearchBar> {
@@ -83,7 +84,7 @@ class _NotificationSearchBarState extends ConsumerState<NotificationSearchBar> {
         color: CareCircleDesignTokens.backgroundSecondary,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: _isSearchActive 
+          color: _isSearchActive
               ? CareCircleDesignTokens.primaryMedicalBlue
               : CareCircleDesignTokens.borderLight,
           width: _isSearchActive ? 2 : 1,
@@ -100,7 +101,7 @@ class _NotificationSearchBarState extends ConsumerState<NotificationSearchBar> {
           ),
           prefixIcon: Icon(
             Icons.search,
-            color: _isSearchActive 
+            color: _isSearchActive
                 ? CareCircleDesignTokens.primaryMedicalBlue
                 : CareCircleDesignTokens.textSecondary,
             size: 20,
@@ -256,7 +257,8 @@ class SearchResultsSummary extends ConsumerWidget {
                 ),
                 children: [
                   TextSpan(
-                    text: '$resultCount result${resultCount != 1 ? 's' : ''} for ',
+                    text:
+                        '$resultCount result${resultCount != 1 ? 's' : ''} for ',
                   ),
                   TextSpan(
                     text: '"$searchTerm"',

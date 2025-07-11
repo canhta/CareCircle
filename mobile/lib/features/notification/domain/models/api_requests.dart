@@ -29,7 +29,8 @@ class CreateNotificationRequest with _$CreateNotificationRequest {
 
 /// Update notification preferences request
 @freezed
-class UpdateNotificationPreferencesRequest with _$UpdateNotificationPreferencesRequest {
+class UpdateNotificationPreferencesRequest
+    with _$UpdateNotificationPreferencesRequest {
   const factory UpdateNotificationPreferencesRequest({
     bool? globalEnabled,
     QuietHoursSettings? quietHours,
@@ -39,8 +40,9 @@ class UpdateNotificationPreferencesRequest with _$UpdateNotificationPreferencesR
     Map<String, bool>? contextPreferences,
   }) = _UpdateNotificationPreferencesRequest;
 
-  factory UpdateNotificationPreferencesRequest.fromJson(Map<String, dynamic> json) =>
-      _$UpdateNotificationPreferencesRequestFromJson(json);
+  factory UpdateNotificationPreferencesRequest.fromJson(
+    Map<String, dynamic> json,
+  ) => _$UpdateNotificationPreferencesRequestFromJson(json);
 }
 
 /// Update specific preference request

@@ -3,7 +3,8 @@ import 'dart:io';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart' as local_notifications;
+import 'package:flutter_local_notifications/flutter_local_notifications.dart'
+    as local_notifications;
 
 import '../../../../core/logging/bounded_context_loggers.dart';
 import '../../../../core/design/design_tokens.dart';
@@ -69,7 +70,9 @@ class FCMService {
 
   /// Initialize local notifications
   Future<void> _initializeLocalNotifications() async {
-    const androidSettings = local_notifications.AndroidInitializationSettings('@mipmap/ic_launcher');
+    const androidSettings = local_notifications.AndroidInitializationSettings(
+      '@mipmap/ic_launcher',
+    );
     const iosSettings = local_notifications.DarwinInitializationSettings(
       requestAlertPermission: true,
       requestBadgePermission: true,
@@ -94,8 +97,10 @@ class FCMService {
 
   /// Create notification channels for different types
   Future<void> _createNotificationChannels() async {
-    final androidPlugin = _localNotifications.resolvePlatformSpecificImplementation<
-        local_notifications.AndroidFlutterLocalNotificationsPlugin>();
+    final androidPlugin = _localNotifications
+        .resolvePlatformSpecificImplementation<
+          local_notifications.AndroidFlutterLocalNotificationsPlugin
+        >();
 
     if (androidPlugin != null) {
       // General notifications channel
@@ -115,7 +120,9 @@ class FCMService {
           'Medication Reminders',
           description: 'Medication reminder notifications',
           importance: local_notifications.Importance.high,
-          sound: local_notifications.RawResourceAndroidNotificationSound('medication_reminder'),
+          sound: local_notifications.RawResourceAndroidNotificationSound(
+            'medication_reminder',
+          ),
         ),
       );
 
@@ -371,7 +378,9 @@ class FCMService {
   }
 
   /// Handle notification tap
-  Future<void> _onNotificationTapped(local_notifications.NotificationResponse response) async {
+  Future<void> _onNotificationTapped(
+    local_notifications.NotificationResponse response,
+  ) async {
     try {
       _logger.info('Notification tapped', {
         'notificationId': response.id,
@@ -381,17 +390,15 @@ class FCMService {
 
       if (response.payload != null) {
         final data = jsonDecode(response.payload!) as Map<String, dynamic>;
-        
+
         // Track interaction
         if (data['notificationId'] != null) {
-          await _apiService.trackNotificationInteraction(
-            data['notificationId'] as String,
-            {
-              'interactionType': 'OPENED',
-              'timestamp': DateTime.now().toIso8601String(),
-              'source': 'local_notification',
-            },
-          );
+          await _apiService
+              .trackNotificationInteraction(data['notificationId'] as String, {
+                'interactionType': 'OPENED',
+                'timestamp': DateTime.now().toIso8601String(),
+                'source': 'local_notification',
+              });
         }
 
         // Handle navigation or action
@@ -413,15 +420,13 @@ class FCMService {
     try {
       final notificationId = message.data['notificationId'];
       if (notificationId != null) {
-        await _apiService.trackNotificationInteraction(
-          notificationId as String,
-          {
-            'interactionType': interactionType.toUpperCase(),
-            'timestamp': DateTime.now().toIso8601String(),
-            'messageId': message.messageId,
-            'source': 'fcm',
-          },
-        );
+        await _apiService
+            .trackNotificationInteraction(notificationId as String, {
+              'interactionType': interactionType.toUpperCase(),
+              'timestamp': DateTime.now().toIso8601String(),
+              'messageId': message.messageId,
+              'source': 'fcm',
+            });
       }
     } catch (e) {
       _logger.error('Failed to track message interaction', {
@@ -466,18 +471,14 @@ class FCMService {
             final alertId = data['alertId'] as String?;
             if (alertId != null) {
               // TODO: Handle emergency alert action
-              _logger.info('Handling emergency action', {
-                'alertId': alertId,
-              });
+              _logger.info('Handling emergency action', {'alertId': alertId});
             }
             break;
         }
       } else if (route != null) {
         // Navigate to specific route
         // TODO: Use GoRouter to navigate
-        _logger.info('Navigating to route', {
-          'route': route,
-        });
+        _logger.info('Navigating to route', {'route': route});
       }
     } catch (e) {
       _logger.error('Failed to handle notification data', {
@@ -489,7 +490,9 @@ class FCMService {
   }
 
   /// Get notification type from message data
-  notification_models.NotificationType _getNotificationTypeFromData(Map<String, dynamic> data) {
+  notification_models.NotificationType _getNotificationTypeFromData(
+    Map<String, dynamic> data,
+  ) {
     final typeString = data['type'] as String?;
     if (typeString != null) {
       try {

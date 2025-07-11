@@ -17,7 +17,7 @@ import '../../domain/models/models.dart' as notification_models;
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   // Initialize Hive for background storage
   await Hive.initFlutter();
-  
+
   final handler = BackgroundMessageHandler();
   await handler.handleBackgroundMessage(message);
 }
@@ -26,7 +26,7 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 class BackgroundMessageHandler {
   static const String _backgroundMessagesBox = 'background_messages';
   static const String _notificationCounterKey = 'notification_counter';
-  
+
   final _logger = BoundedContextLoggers.notification;
 
   /// Handle background message
@@ -70,7 +70,7 @@ class BackgroundMessageHandler {
   Future<void> _storeBackgroundMessage(RemoteMessage message) async {
     try {
       final box = await Hive.openBox<String>(_backgroundMessagesBox);
-      
+
       final messageData = {
         'messageId': message.messageId,
         'title': message.notification?.title,
@@ -155,7 +155,9 @@ class BackgroundMessageHandler {
   Future<void> _initializeLocalNotifications(
     FlutterLocalNotificationsPlugin localNotifications,
   ) async {
-    const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const androidSettings = AndroidInitializationSettings(
+      '@mipmap/ic_launcher',
+    );
     const iosSettings = DarwinInitializationSettings();
 
     const initializationSettings = InitializationSettings(
@@ -175,8 +177,10 @@ class BackgroundMessageHandler {
   Future<void> _createNotificationChannels(
     FlutterLocalNotificationsPlugin localNotifications,
   ) async {
-    final androidPlugin = localNotifications.resolvePlatformSpecificImplementation<
-        AndroidFlutterLocalNotificationsPlugin>();
+    final androidPlugin = localNotifications
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >();
 
     if (androidPlugin != null) {
       // General notifications channel
@@ -226,7 +230,9 @@ class BackgroundMessageHandler {
   }
 
   /// Get Android notification details based on type
-  AndroidNotificationDetails _getAndroidNotificationDetails(notification_models.NotificationType type) {
+  AndroidNotificationDetails _getAndroidNotificationDetails(
+    notification_models.NotificationType type,
+  ) {
     switch (type) {
       case notification_models.NotificationType.medicationReminder:
         return const AndroidNotificationDetails(
@@ -277,7 +283,8 @@ class BackgroundMessageHandler {
   Future<void> _updateBadgeCount() async {
     try {
       final box = await Hive.openBox<int>('notification_settings');
-      final currentCount = box.get(_notificationCounterKey, defaultValue: 0) ?? 0;
+      final currentCount =
+          box.get(_notificationCounterKey, defaultValue: 0) ?? 0;
       await box.put(_notificationCounterKey, currentCount + 1);
 
       _logger.info('Badge count updated', {
@@ -398,7 +405,9 @@ class BackgroundMessageHandler {
   }
 
   /// Get notification type from message data
-  notification_models.NotificationType _getNotificationTypeFromData(Map<String, dynamic> data) {
+  notification_models.NotificationType _getNotificationTypeFromData(
+    Map<String, dynamic> data,
+  ) {
     final typeString = data['type'] as String?;
     if (typeString != null) {
       try {
@@ -413,7 +422,8 @@ class BackgroundMessageHandler {
   }
 
   /// Get stored background messages
-  static Future<List<Map<String, dynamic>>> getStoredBackgroundMessages() async {
+  static Future<List<Map<String, dynamic>>>
+  getStoredBackgroundMessages() async {
     try {
       final box = await Hive.openBox<String>(_backgroundMessagesBox);
       final messages = <Map<String, dynamic>>[];
@@ -435,10 +445,10 @@ class BackgroundMessageHandler {
 
       return messages;
     } catch (e) {
-      BoundedContextLoggers.notification.error('Failed to get stored background messages', {
-        'error': e.toString(),
-        'timestamp': DateTime.now().toIso8601String(),
-      });
+      BoundedContextLoggers.notification.error(
+        'Failed to get stored background messages',
+        {'error': e.toString(), 'timestamp': DateTime.now().toIso8601String()},
+      );
       return [];
     }
   }
@@ -448,20 +458,21 @@ class BackgroundMessageHandler {
     try {
       final box = await Hive.openBox<String>(_backgroundMessagesBox);
       final messageJson = box.get(messageId);
-      
+
       if (messageJson != null) {
         final messageData = jsonDecode(messageJson) as Map<String, dynamic>;
         messageData['processed'] = true;
         messageData['processedAt'] = DateTime.now().toIso8601String();
-        
+
         await box.put(messageId, jsonEncode(messageData));
       }
     } catch (e) {
-      BoundedContextLoggers.notification.error('Failed to mark message as processed', {
-        'messageId': messageId,
-        'error': e.toString(),
-        'timestamp': DateTime.now().toIso8601String(),
-      });
+      BoundedContextLoggers.notification
+          .error('Failed to mark message as processed', {
+            'messageId': messageId,
+            'error': e.toString(),
+            'timestamp': DateTime.now().toIso8601String(),
+          });
     }
   }
 
@@ -476,8 +487,10 @@ class BackgroundMessageHandler {
         final messageJson = box.get(key);
         if (messageJson != null) {
           final messageData = jsonDecode(messageJson) as Map<String, dynamic>;
-          final receivedAt = DateTime.parse(messageData['receivedAt'] as String);
-          
+          final receivedAt = DateTime.parse(
+            messageData['receivedAt'] as String,
+          );
+
           if (receivedAt.isBefore(cutoffDate)) {
             keysToDelete.add(key as String);
           }
@@ -488,16 +501,17 @@ class BackgroundMessageHandler {
         await box.delete(key);
       }
 
-      BoundedContextLoggers.notification.info('Cleared old background messages', {
-        'deletedCount': keysToDelete.length,
-        'daysToKeep': daysToKeep,
-        'timestamp': DateTime.now().toIso8601String(),
-      });
+      BoundedContextLoggers.notification
+          .info('Cleared old background messages', {
+            'deletedCount': keysToDelete.length,
+            'daysToKeep': daysToKeep,
+            'timestamp': DateTime.now().toIso8601String(),
+          });
     } catch (e) {
-      BoundedContextLoggers.notification.error('Failed to clear old background messages', {
-        'error': e.toString(),
-        'timestamp': DateTime.now().toIso8601String(),
-      });
+      BoundedContextLoggers.notification.error(
+        'Failed to clear old background messages',
+        {'error': e.toString(), 'timestamp': DateTime.now().toIso8601String()},
+      );
     }
   }
 }

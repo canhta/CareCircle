@@ -9,8 +9,6 @@ import 'emergency_alert.dart';
 part 'api_responses.freezed.dart';
 part 'api_responses.g.dart';
 
-
-
 /// Notification response wrapper
 @freezed
 class NotificationResponse with _$NotificationResponse {
@@ -161,8 +159,9 @@ class NotificationTemplateListResponse with _$NotificationTemplateListResponse {
     PaginationMeta? pagination,
   }) = _NotificationTemplateListResponse;
 
-  factory NotificationTemplateListResponse.fromJson(Map<String, dynamic> json) =>
-      _$NotificationTemplateListResponseFromJson(json);
+  factory NotificationTemplateListResponse.fromJson(
+    Map<String, dynamic> json,
+  ) => _$NotificationTemplateListResponseFromJson(json);
 }
 
 /// Rendered template response wrapper

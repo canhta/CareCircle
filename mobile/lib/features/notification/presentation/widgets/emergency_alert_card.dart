@@ -123,16 +123,10 @@ class EmergencyAlertCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: _getSeverityColor(alert.severity).withOpacity(0.1),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(
-          color: _getSeverityColor(alert.severity),
-          width: 2,
-        ),
+        border: Border.all(color: _getSeverityColor(alert.severity), width: 2),
       ),
       child: Center(
-        child: Text(
-          alert.alertType.icon,
-          style: const TextStyle(fontSize: 24),
-        ),
+        child: Text(alert.alertType.icon, style: const TextStyle(fontSize: 24)),
       ),
     );
   }
@@ -229,33 +223,35 @@ class EmergencyAlertCard extends StatelessWidget {
 
     // Show relevant metadata as chips
     if (metadata['medicationName'] != null) {
-      chips.add(_buildMetadataChip(
-        '💊 ${metadata['medicationName']}',
-        CareCircleDesignTokens.primaryMedicalBlue,
-      ));
+      chips.add(
+        _buildMetadataChip(
+          '💊 ${metadata['medicationName']}',
+          CareCircleDesignTokens.primaryMedicalBlue,
+        ),
+      );
     }
 
     if (metadata['location'] != null) {
-      chips.add(_buildMetadataChip(
-        '📍 ${metadata['location']}',
-        CareCircleDesignTokens.warningOrange,
-      ));
+      chips.add(
+        _buildMetadataChip(
+          '📍 ${metadata['location']}',
+          CareCircleDesignTokens.warningOrange,
+        ),
+      );
     }
 
     if (metadata['vitalType'] != null && metadata['value'] != null) {
-      chips.add(_buildMetadataChip(
-        '💓 ${metadata['vitalType']}: ${metadata['value']}',
-        CareCircleDesignTokens.errorRed,
-      ));
+      chips.add(
+        _buildMetadataChip(
+          '💓 ${metadata['vitalType']}: ${metadata['value']}',
+          CareCircleDesignTokens.errorRed,
+        ),
+      );
     }
 
     if (chips.isEmpty) return const SizedBox.shrink();
 
-    return Wrap(
-      spacing: 8,
-      runSpacing: 4,
-      children: chips,
-    );
+    return Wrap(spacing: 8, runSpacing: 4, children: chips);
   }
 
   Widget _buildMetadataChip(String text, Color color) {
@@ -351,33 +347,35 @@ class EmergencyAlertCard extends StatelessWidget {
     return Column(
       children: [
         // Primary actions (full width)
-        ...primaryActions.map((action) => Container(
-          width: double.infinity,
-          margin: const EdgeInsets.only(bottom: 8),
-          child: ElevatedButton.icon(
-            onPressed: () => onAction!(action),
-            icon: Icon(_getActionIcon(action.actionType)),
-            label: Text(action.label),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: action.isDestructive
-                  ? CareCircleDesignTokens.errorRed
-                  : _getSeverityColor(alert.severity),
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+        ...primaryActions.map(
+          (action) => Container(
+            width: double.infinity,
+            margin: const EdgeInsets.only(bottom: 8),
+            child: ElevatedButton.icon(
+              onPressed: () => onAction!(action),
+              icon: Icon(_getActionIcon(action.actionType)),
+              label: Text(action.label),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: action.isDestructive
+                    ? CareCircleDesignTokens.errorRed
+                    : _getSeverityColor(alert.severity),
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
             ),
           ),
-        )),
-        
+        ),
+
         // Secondary actions (in a row)
         if (secondaryActions.isNotEmpty)
           Row(
             children: secondaryActions.asMap().entries.map((entry) {
               final index = entry.key;
               final action = entry.value;
-              
+
               return Expanded(
                 child: Container(
                   margin: EdgeInsets.only(

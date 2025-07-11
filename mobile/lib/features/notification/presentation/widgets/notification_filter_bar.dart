@@ -22,10 +22,11 @@ class NotificationFilterBar extends ConsumerWidget {
     final statusFilter = ref.watch(notificationStatusFilterProvider);
     final showOnlyUnread = ref.watch(showOnlyUnreadProvider);
 
-    final hasActiveFilters = typeFilter != null || 
-                           priorityFilter != null || 
-                           statusFilter != null ||
-                           showOnlyUnread;
+    final hasActiveFilters =
+        typeFilter != null ||
+        priorityFilter != null ||
+        statusFilter != null ||
+        showOnlyUnread;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -93,10 +94,7 @@ class NotificationFilterBar extends ConsumerWidget {
         ref.read(notificationTypeFilterProvider.notifier).state = type;
       },
       itemBuilder: (context) => [
-        const PopupMenuItem(
-          value: null,
-          child: Text('All Types'),
-        ),
+        const PopupMenuItem(value: null, child: Text('All Types')),
         ...NotificationType.values.map(
           (type) => PopupMenuItem(
             value: type,
@@ -118,16 +116,16 @@ class NotificationFilterBar extends ConsumerWidget {
     );
   }
 
-  Widget _buildPriorityFilter(WidgetRef ref, NotificationPriority? currentFilter) {
+  Widget _buildPriorityFilter(
+    WidgetRef ref,
+    NotificationPriority? currentFilter,
+  ) {
     return PopupMenuButton<NotificationPriority?>(
       onSelected: (priority) {
         ref.read(notificationPriorityFilterProvider.notifier).state = priority;
       },
       itemBuilder: (context) => [
-        const PopupMenuItem(
-          value: null,
-          child: Text('All Priorities'),
-        ),
+        const PopupMenuItem(value: null, child: Text('All Priorities')),
         ...NotificationPriority.values.map(
           (priority) => PopupMenuItem(
             value: priority,
@@ -157,7 +155,7 @@ class NotificationFilterBar extends ConsumerWidget {
   }
 
   Widget _buildStatusFilter(
-    WidgetRef ref, 
+    WidgetRef ref,
     NotificationStatus? currentFilter,
     bool showOnlyUnread,
   ) {
@@ -173,7 +171,7 @@ class NotificationFilterBar extends ConsumerWidget {
             ref.read(showOnlyUnreadProvider.notifier).state = true;
             break;
           case 'read':
-            ref.read(notificationStatusFilterProvider.notifier).state = 
+            ref.read(notificationStatusFilterProvider.notifier).state =
                 NotificationStatus.read;
             ref.read(showOnlyUnreadProvider.notifier).state = false;
             break;
@@ -212,16 +210,16 @@ class NotificationFilterBar extends ConsumerWidget {
         ),
       ],
       child: _buildFilterChip(
-        label: showOnlyUnread 
-            ? 'Unread' 
-            : currentFilter == NotificationStatus.read 
-                ? 'Read' 
-                : 'Status',
-        icon: showOnlyUnread 
-            ? '📧' 
-            : currentFilter == NotificationStatus.read 
-                ? '✅' 
-                : null,
+        label: showOnlyUnread
+            ? 'Unread'
+            : currentFilter == NotificationStatus.read
+            ? 'Read'
+            : 'Status',
+        icon: showOnlyUnread
+            ? '📧'
+            : currentFilter == NotificationStatus.read
+            ? '✅'
+            : null,
         isActive: showOnlyUnread || currentFilter != null,
       ),
     );
@@ -236,11 +234,13 @@ class NotificationFilterBar extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: isActive 
-            ? (color ?? CareCircleDesignTokens.primaryMedicalBlue).withOpacity(0.1)
+        color: isActive
+            ? (color ?? CareCircleDesignTokens.primaryMedicalBlue).withOpacity(
+                0.1,
+              )
             : CareCircleDesignTokens.backgroundSecondary,
         border: Border.all(
-          color: isActive 
+          color: isActive
               ? (color ?? CareCircleDesignTokens.primaryMedicalBlue)
               : CareCircleDesignTokens.borderLight,
           width: isActive ? 2 : 1,
@@ -259,7 +259,7 @@ class NotificationFilterBar extends ConsumerWidget {
             style: TextStyle(
               fontSize: 12,
               fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
-              color: isActive 
+              color: isActive
                   ? (color ?? CareCircleDesignTokens.primaryMedicalBlue)
                   : CareCircleDesignTokens.textSecondary,
             ),
@@ -268,7 +268,7 @@ class NotificationFilterBar extends ConsumerWidget {
           Icon(
             Icons.keyboard_arrow_down,
             size: 16,
-            color: isActive 
+            color: isActive
                 ? (color ?? CareCircleDesignTokens.primaryMedicalBlue)
                 : CareCircleDesignTokens.textSecondary,
           ),
@@ -310,7 +310,7 @@ class ActiveFiltersIndicator extends ConsumerWidget {
     final showOnlyUnread = ref.watch(showOnlyUnreadProvider);
 
     final activeFilters = <String>[];
-    
+
     if (typeFilter != null) {
       activeFilters.add(typeFilter.displayName);
     }

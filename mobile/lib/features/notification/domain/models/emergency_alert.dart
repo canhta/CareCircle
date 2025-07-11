@@ -88,7 +88,8 @@ abstract class EmergencyAlertAction with _$EmergencyAlertAction {
   const factory EmergencyAlertAction({
     required String id,
     required String label,
-    required String actionType, // 'acknowledge', 'resolve', 'escalate', 'call_emergency', 'contact_caregiver'
+    required String
+    actionType, // 'acknowledge', 'resolve', 'escalate', 'call_emergency', 'contact_caregiver'
     String? phoneNumber,
     String? url,
     Map<String, dynamic>? parameters,
@@ -113,7 +114,8 @@ abstract class EmergencyEscalation with _$EmergencyEscalation {
     required DateTime scheduledAt,
     DateTime? sentAt,
     DateTime? acknowledgedAt,
-    @Default('pending') String status, // 'pending', 'sent', 'acknowledged', 'failed'
+    @Default('pending')
+    String status, // 'pending', 'sent', 'acknowledged', 'failed'
     String? failureReason,
     @Default(1) int attemptNumber,
     @Default(1) int priority,
@@ -300,7 +302,9 @@ extension EmergencyAlertExtension on EmergencyAlert {
 
   /// Check if alert requires immediate attention
   bool get requiresImmediateAttention =>
-      isActive && (severity == EmergencyAlertSeverity.critical || severity == EmergencyAlertSeverity.high);
+      isActive &&
+      (severity == EmergencyAlertSeverity.critical ||
+          severity == EmergencyAlertSeverity.high);
 
   /// Get time since alert was created
   Duration get timeSinceCreated => DateTime.now().difference(createdAt);
@@ -313,11 +317,10 @@ extension EmergencyAlertExtension on EmergencyAlert {
 
   /// Get next escalation contact
   EmergencyEscalation? get nextEscalation {
-    final pendingEscalations = escalations
-        .where((e) => e.status == 'pending')
-        .toList()
-      ..sort((a, b) => a.priority.compareTo(b.priority));
-    
+    final pendingEscalations =
+        escalations.where((e) => e.status == 'pending').toList()
+          ..sort((a, b) => a.priority.compareTo(b.priority));
+
     return pendingEscalations.isNotEmpty ? pendingEscalations.first : null;
   }
 
@@ -326,7 +329,7 @@ extension EmergencyAlertExtension on EmergencyAlert {
     return actions.where((a) => a.isPrimary).isNotEmpty
         ? actions.firstWhere((a) => a.isPrimary)
         : actions.isNotEmpty
-            ? actions.first
-            : null;
+        ? actions.first
+        : null;
   }
 }

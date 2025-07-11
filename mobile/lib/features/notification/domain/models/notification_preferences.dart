@@ -117,8 +117,8 @@ abstract class UpdateNotificationPreferencesRequest
   }) = _UpdateNotificationPreferencesRequest;
 
   factory UpdateNotificationPreferencesRequest.fromJson(
-          Map<String, dynamic> json) =>
-      _$UpdateNotificationPreferencesRequestFromJson(json);
+    Map<String, dynamic> json,
+  ) => _$UpdateNotificationPreferencesRequestFromJson(json);
 }
 
 /// Request for updating specific preference
@@ -149,8 +149,7 @@ abstract class NotificationPreferencesResponse
     String? message,
   }) = _NotificationPreferencesResponse;
 
-  factory NotificationPreferencesResponse.fromJson(
-          Map<String, dynamic> json) =>
+  factory NotificationPreferencesResponse.fromJson(Map<String, dynamic> json) =>
       _$NotificationPreferencesResponseFromJson(json);
 }
 
@@ -167,7 +166,8 @@ abstract class EmergencyContactResponse with _$EmergencyContactResponse {
 }
 
 @freezed
-abstract class EmergencyContactListResponse with _$EmergencyContactListResponse {
+abstract class EmergencyContactListResponse
+    with _$EmergencyContactListResponse {
   const factory EmergencyContactListResponse({
     required bool success,
     required List<EmergencyContact> data,
@@ -183,7 +183,7 @@ extension NotificationPreferencesExtension on NotificationPreferences {
   /// Check if notifications are enabled for a specific context and channel
   bool isEnabledFor(ContextType context, NotificationChannel channel) {
     if (!globalEnabled) return false;
-    
+
     final preference = preferences.firstWhere(
       (p) => p.contextType == context && p.channel == channel,
       orElse: () => const NotificationPreference(
@@ -194,44 +194,49 @@ extension NotificationPreferencesExtension on NotificationPreferences {
         createdAt: null,
       ),
     );
-    
+
     return preference.id.isNotEmpty ? preference.enabled : true;
   }
 
   /// Check if currently in quiet hours
   bool get isInQuietHours {
     if (!quietHours.enabled) return false;
-    
+
     final now = DateTime.now();
-    final currentTime = '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
+    final currentTime =
+        '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
     final currentDay = now.weekday % 7; // Convert to 0-6 format
-    
+
     // Check if today is an active day
-    if (quietHours.activeDays.isNotEmpty && !quietHours.activeDays.contains(currentDay)) {
+    if (quietHours.activeDays.isNotEmpty &&
+        !quietHours.activeDays.contains(currentDay)) {
       return false;
     }
-    
+
     // Check time range
     final start = quietHours.startTime;
     final end = quietHours.endTime;
-    
+
     if (start.compareTo(end) <= 0) {
       // Same day range (e.g., 22:00 to 23:59)
-      return currentTime.compareTo(start) >= 0 && currentTime.compareTo(end) <= 0;
+      return currentTime.compareTo(start) >= 0 &&
+          currentTime.compareTo(end) <= 0;
     } else {
       // Overnight range (e.g., 22:00 to 08:00)
-      return currentTime.compareTo(start) >= 0 || currentTime.compareTo(end) <= 0;
+      return currentTime.compareTo(start) >= 0 ||
+          currentTime.compareTo(end) <= 0;
     }
   }
 
   /// Check if a notification type is allowed during quiet hours
   bool isAllowedDuringQuietHours(NotificationType type) {
     if (!isInQuietHours) return true;
-    
-    if (type == NotificationType.emergencyAlert && quietHours.allowEmergencyAlerts) {
+
+    if (type == NotificationType.emergencyAlert &&
+        quietHours.allowEmergencyAlerts) {
       return true;
     }
-    
+
     return quietHours.allowedTypes.contains(type);
   }
 }
@@ -240,18 +245,22 @@ extension QuietHoursSettingsExtension on QuietHoursSettings {
   /// Get display text for active days
   String get activeDaysText {
     if (activeDays.isEmpty) return 'Every day';
-    
+
     const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     final sortedDays = List<int>.from(activeDays)..sort();
-    
+
     if (sortedDays.length == 7) return 'Every day';
-    if (sortedDays.length == 5 && !sortedDays.contains(0) && !sortedDays.contains(6)) {
+    if (sortedDays.length == 5 &&
+        !sortedDays.contains(0) &&
+        !sortedDays.contains(6)) {
       return 'Weekdays';
     }
-    if (sortedDays.length == 2 && sortedDays.contains(0) && sortedDays.contains(6)) {
+    if (sortedDays.length == 2 &&
+        sortedDays.contains(0) &&
+        sortedDays.contains(6)) {
       return 'Weekends';
     }
-    
+
     return sortedDays.map((day) => dayNames[day]).join(', ');
   }
 

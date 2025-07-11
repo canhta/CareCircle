@@ -26,7 +26,9 @@ class HomeScreen extends ConsumerWidget {
           // Notification icon with badge
           Consumer(
             builder: (context, ref, child) {
-              final unreadCountAsync = ref.watch(unreadNotificationCountProvider);
+              final unreadCountAsync = ref.watch(
+                unreadNotificationCountProvider,
+              );
               return unreadCountAsync.when(
                 data: (unreadCount) => Stack(
                   children: [
