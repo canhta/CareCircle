@@ -331,7 +331,9 @@ class ActiveFiltersIndicator extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: CareCircleDesignTokens.primaryMedicalBlue.withValues(alpha: 0.05),
+        color: CareCircleDesignTokens.primaryMedicalBlue.withValues(
+          alpha: 0.05,
+        ),
         border: Border(
           bottom: BorderSide(
             color: CareCircleDesignTokens.borderLight,

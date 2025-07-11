@@ -70,7 +70,9 @@ class CareCircleButton extends StatelessWidget {
             height: 20,
             child: CircularProgressIndicator(
               strokeWidth: 2,
-              valueColor: AlwaysStoppedAnimation<Color>(buttonConfig['foregroundColor']),
+              valueColor: AlwaysStoppedAnimation<Color>(
+                buttonConfig['foregroundColor'],
+              ),
             ),
           ),
           SizedBox(width: CareCircleSpacingTokens.sm),
@@ -127,7 +129,10 @@ class CareCircleButton extends StatelessWidget {
   // Helper Methods
 
   /// Get button configuration based on variant and state
-  Map<String, dynamic> _getButtonConfiguration(bool isDisabled, ThemeData theme) {
+  Map<String, dynamic> _getButtonConfiguration(
+    bool isDisabled,
+    ThemeData theme,
+  ) {
     Color backgroundColor;
     Color foregroundColor;
     Color? borderColor;
@@ -231,9 +236,10 @@ class CareCircleButton extends StatelessWidget {
         );
       default:
         return theme.textTheme.labelLarge?.copyWith(
-          color: foregroundColor,
-          fontWeight: FontWeight.w600,
-        ) ?? TextStyle(color: foregroundColor);
+              color: foregroundColor,
+              fontWeight: FontWeight.w600,
+            ) ??
+            TextStyle(color: foregroundColor);
     }
   }
 

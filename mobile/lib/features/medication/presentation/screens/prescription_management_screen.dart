@@ -74,6 +74,7 @@ class _PrescriptionManagementScreenState
         ],
       ),
       floatingActionButton: FloatingActionButton(
+        heroTag: 'prescription_scan',
         onPressed: () => _navigateToScanPrescription(),
         backgroundColor: CareCircleDesignTokens.primaryMedicalBlue,
         tooltip: 'Scan New Prescription',

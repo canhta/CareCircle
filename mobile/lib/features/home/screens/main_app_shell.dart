@@ -41,7 +41,9 @@ class _MainAppShellState extends ConsumerState<MainAppShell> {
     return Scaffold(
       body: IndexedStack(index: _currentIndex, children: _screens),
       bottomNavigationBar: _buildHealthcareTabBar(),
-      floatingActionButton: _currentIndex == 2 ? null : _buildHealthcareAIAssistantFAB(),
+      floatingActionButton: _currentIndex == 2
+          ? null
+          : _buildHealthcareAIAssistantFAB(),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }
@@ -91,11 +93,7 @@ class _MainAppShellState extends ConsumerState<MainAppShell> {
 
   void _onTabTapped(int index) {
     final previousIndex = _currentIndex;
-    NavigationService.logTabNavigation(
-      previousIndex,
-      index,
-      _tabNames[index],
-    );
+    NavigationService.logTabNavigation(previousIndex, index, _tabNames[index]);
     setState(() => _currentIndex = index);
   }
 
@@ -128,15 +126,12 @@ class _MainAppShellState extends ConsumerState<MainAppShell> {
     return HealthcareAIAssistantFAB(
       onPressed: () {
         final previousIndex = _currentIndex;
-        NavigationService.logTabNavigation(
-          previousIndex,
-          2,
-          _tabNames[2],
-        );
+        NavigationService.logTabNavigation(previousIndex, 2, _tabNames[2]);
         setState(() => _currentIndex = 2);
       },
       semanticLabel: 'AI Health Assistant',
-      semanticHint: 'Tap to open your AI health assistant for personalized healthcare guidance and emergency support',
+      semanticHint:
+          'Tap to open your AI health assistant for personalized healthcare guidance and emergency support',
       hasUrgentNotifications: _hasUrgentHealthNotifications(),
       lastInteraction: _getLastAIInteraction(),
       healthContext: _getCurrentHealthContext(),

@@ -1,5 +1,5 @@
 // CareCircle Healthcare Performance Optimizations
-// 
+//
 // Performance optimization utilities specifically designed for healthcare
 // applications with large medical datasets and real-time health monitoring.
 
@@ -27,11 +27,11 @@ class HealthDashboardOptimizations {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return _buildLoadingSkeleton();
             }
-            
+
             if (snapshot.hasError) {
               return _buildErrorState(snapshot.error);
             }
-            
+
             return metricBuilder(type, snapshot.data);
           },
         );
@@ -42,44 +42,44 @@ class HealthDashboardOptimizations {
   /// Efficient caching for health data with automatic cleanup
   static Future<dynamic> _loadHealthMetricData(String type) async {
     final cacheKey = '${type}_${DateTime.now().day}';
-    
+
     if (_healthDataCache.containsKey(cacheKey)) {
       return _healthDataCache[cacheKey];
     }
-    
+
     // Simulate API call - replace with actual health data repository
     await Future.delayed(const Duration(milliseconds: 500));
     final data = _generateMockHealthData(type);
-    
+
     _healthDataCache[cacheKey] = data;
-    
+
     // Set cache expiry timer
     _cacheTimers[cacheKey]?.cancel();
     _cacheTimers[cacheKey] = Timer(_cacheExpiry, () {
       _healthDataCache.remove(cacheKey);
       _cacheTimers.remove(cacheKey);
     });
-    
+
     // Clean old cache entries
     _cleanCache();
-    
+
     return data;
   }
 
   /// Memory optimization for large datasets
   static List<T> downsampleData<T>(List<T> data, int maxPoints) {
     if (data.length <= maxPoints) return data;
-    
+
     final step = data.length / maxPoints;
     final downsampled = <T>[];
-    
+
     for (int i = 0; i < maxPoints; i++) {
       final index = (i * step).round();
       if (index < data.length) {
         downsampled.add(data[index]);
       }
     }
-    
+
     return downsampled;
   }
 
@@ -90,10 +90,10 @@ class HealthDashboardOptimizations {
     required Widget Function(List<dynamic>, String) chartBuilder,
   }) {
     // Downsample data for performance if dataset is large
-    final optimizedData = data.length > 1000 
-      ? downsampleData(data, 1000)
-      : data;
-    
+    final optimizedData = data.length > 1000
+        ? downsampleData(data, 1000)
+        : data;
+
     return chartBuilder(optimizedData, metricType);
   }
 
@@ -101,15 +101,15 @@ class HealthDashboardOptimizations {
   static void _cleanCache() {
     final now = DateTime.now();
     final keysToRemove = <String>[];
-    
+
     for (final key in _healthDataCache.keys) {
       // Remove entries older than 1 hour
-      if (key.contains('_') && 
+      if (key.contains('_') &&
           now.difference(DateTime.parse(key.split('_').last)).inHours > 1) {
         keysToRemove.add(key);
       }
     }
-    
+
     for (final key in keysToRemove) {
       _healthDataCache.remove(key);
       _cacheTimers[key]?.cancel();
@@ -204,11 +204,7 @@ class HealthDashboardOptimizations {
 
 /// Lazy IndexedStack that only builds visible children
 class LazyIndexedStack extends StatefulWidget {
-  const LazyIndexedStack({
-    super.key,
-    this.index = 0,
-    required this.children,
-  });
+  const LazyIndexedStack({super.key, this.index = 0, required this.children});
 
   final int index;
   final List<Widget> children;
@@ -242,7 +238,7 @@ class _LazyIndexedStackState extends State<LazyIndexedStack> {
       children: widget.children.asMap().entries.map((entry) {
         final index = entry.key;
         final child = entry.value;
-        
+
         return _activated[index] ? child : const SizedBox.shrink();
       }).toList(),
     );

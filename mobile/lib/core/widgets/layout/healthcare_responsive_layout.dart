@@ -3,7 +3,7 @@ import '../../design/spacing_tokens.dart';
 import 'care_circle_breakpoints.dart';
 
 /// Healthcare-optimized responsive layout wrapper
-/// 
+///
 /// Provides consistent layout patterns for healthcare applications with
 /// proper spacing, maximum content width, and accessibility considerations.
 class HealthcareResponsiveLayout extends StatelessWidget {
@@ -26,9 +26,10 @@ class HealthcareResponsiveLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final maxContentWidth = maxWidth ?? CareCircleBreakpoints.getMaxContentWidth(context);
+    final maxContentWidth =
+        maxWidth ?? CareCircleBreakpoints.getMaxContentWidth(context);
     final responsivePadding = padding ?? _getDefaultPadding(context);
-    
+
     return Semantics(
       label: semanticLabel,
       child: Container(
@@ -37,18 +38,12 @@ class HealthcareResponsiveLayout extends StatelessWidget {
             ? Center(
                 child: ConstrainedBox(
                   constraints: BoxConstraints(maxWidth: maxContentWidth),
-                  child: Padding(
-                    padding: responsivePadding,
-                    child: child,
-                  ),
+                  child: Padding(padding: responsivePadding, child: child),
                 ),
               )
             : ConstrainedBox(
                 constraints: BoxConstraints(maxWidth: maxContentWidth),
-                child: Padding(
-                  padding: responsivePadding,
-                  child: child,
-                ),
+                child: Padding(padding: responsivePadding, child: child),
               ),
       ),
     );
@@ -65,7 +60,7 @@ class HealthcareResponsiveLayout extends StatelessWidget {
 }
 
 /// Responsive two-column layout for healthcare content
-/// 
+///
 /// Automatically switches between single and two-column layouts based on screen size.
 /// Optimized for healthcare data display and form layouts.
 class HealthcareTwoColumnLayout extends StatelessWidget {
@@ -90,25 +85,21 @@ class HealthcareTwoColumnLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final currentBreakpoint = CareCircleBreakpoints.getBreakpointFromContext(context);
+    final currentBreakpoint = CareCircleBreakpoints.getBreakpointFromContext(
+      context,
+    );
     final shouldUseTwoColumns = _shouldUseTwoColumns(currentBreakpoint);
     final columnSpacing = spacing ?? CareCircleSpacingTokens.lg;
-    
+
     return Semantics(
       label: semanticLabel ?? 'Healthcare two-column layout',
       child: shouldUseTwoColumns
           ? Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  flex: primaryFlex,
-                  child: primaryChild,
-                ),
+                Expanded(flex: primaryFlex, child: primaryChild),
                 SizedBox(width: columnSpacing),
-                Expanded(
-                  flex: secondaryFlex,
-                  child: secondaryChild,
-                ),
+                Expanded(flex: secondaryFlex, child: secondaryChild),
               ],
             )
           : Column(
@@ -126,8 +117,8 @@ class HealthcareTwoColumnLayout extends StatelessWidget {
       case ScreenBreakpoint.mobile:
         return false; // Never use two columns for mobile breakpoint
       case ScreenBreakpoint.tablet:
-        return currentBreakpoint == ScreenBreakpoint.tablet || 
-               currentBreakpoint == ScreenBreakpoint.desktop;
+        return currentBreakpoint == ScreenBreakpoint.tablet ||
+            currentBreakpoint == ScreenBreakpoint.desktop;
       case ScreenBreakpoint.desktop:
         return currentBreakpoint == ScreenBreakpoint.desktop;
     }
@@ -135,7 +126,7 @@ class HealthcareTwoColumnLayout extends StatelessWidget {
 }
 
 /// Responsive card layout for healthcare content
-/// 
+///
 /// Provides consistent card layouts that adapt to different screen sizes
 /// with proper spacing and accessibility considerations.
 class HealthcareCardLayout extends StatelessWidget {
@@ -160,7 +151,7 @@ class HealthcareCardLayout extends StatelessWidget {
     final columnCount = crossAxisCount ?? _getDefaultColumnCount(breakpoint);
     final cardSpacing = spacing ?? CareCircleSpacingTokens.md;
     final aspectRatio = childAspectRatio ?? _getDefaultAspectRatio(breakpoint);
-    
+
     return Semantics(
       label: semanticLabel ?? 'Healthcare card layout',
       child: GridView.builder(
@@ -202,7 +193,7 @@ class HealthcareCardLayout extends StatelessWidget {
 }
 
 /// Responsive form layout for healthcare forms
-/// 
+///
 /// Optimizes form layouts for different screen sizes with proper field spacing
 /// and accessibility considerations.
 class HealthcareFormLayout extends StatelessWidget {
@@ -222,9 +213,10 @@ class HealthcareFormLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final breakpoint = CareCircleBreakpoints.getBreakpointFromContext(context);
-    final shouldUseCompactLayout = useCompactLayout || _shouldUseCompactLayout(breakpoint);
+    final shouldUseCompactLayout =
+        useCompactLayout || _shouldUseCompactLayout(breakpoint);
     final formSpacing = spacing ?? _getDefaultSpacing(breakpoint);
-    
+
     return Semantics(
       label: semanticLabel ?? 'Healthcare form layout',
       child: Column(
@@ -236,16 +228,16 @@ class HealthcareFormLayout extends StatelessWidget {
 
   List<Widget> _buildFormChildren(bool compact, double spacing) {
     final List<Widget> formChildren = [];
-    
+
     for (int i = 0; i < children.length; i++) {
       formChildren.add(children[i]);
-      
+
       // Add spacing between children (except after the last one)
       if (i < children.length - 1) {
         formChildren.add(SizedBox(height: compact ? spacing * 0.75 : spacing));
       }
     }
-    
+
     return formChildren;
   }
 
@@ -267,7 +259,7 @@ class HealthcareFormLayout extends StatelessWidget {
 }
 
 /// Responsive navigation layout for healthcare apps
-/// 
+///
 /// Adapts navigation patterns based on screen size and orientation.
 class HealthcareNavigationLayout extends StatelessWidget {
   const HealthcareNavigationLayout({
@@ -290,8 +282,9 @@ class HealthcareNavigationLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final breakpoint = CareCircleBreakpoints.getBreakpointFromContext(context);
-    final shouldUseRail = useNavigationRail && _shouldUseNavigationRail(breakpoint);
-    
+    final shouldUseRail =
+        useNavigationRail && _shouldUseNavigationRail(breakpoint);
+
     return Semantics(
       label: semanticLabel ?? 'Healthcare navigation layout',
       child: Scaffold(
@@ -311,7 +304,7 @@ class HealthcareNavigationLayout extends StatelessWidget {
 
   bool _shouldUseNavigationRail(ScreenBreakpoint breakpoint) {
     // Use navigation rail on tablet and desktop
-    return breakpoint == ScreenBreakpoint.tablet || 
-           breakpoint == ScreenBreakpoint.desktop;
+    return breakpoint == ScreenBreakpoint.tablet ||
+        breakpoint == ScreenBreakpoint.desktop;
   }
 }

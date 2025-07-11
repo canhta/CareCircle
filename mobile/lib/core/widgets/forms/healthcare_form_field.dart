@@ -15,7 +15,7 @@ enum HealthcareDataType {
 }
 
 /// Healthcare-optimized form field component
-/// 
+///
 /// Provides HIPAA-compliant input handling with medical data validation,
 /// accessibility features, and healthcare-specific styling.
 class HealthcareFormField extends StatelessWidget {
@@ -50,11 +50,11 @@ class HealthcareFormField extends StatelessWidget {
   final bool isSensitive; // HIPAA compliance
   final HealthcareDataType dataType;
   final String? medicalUnit;
-  
+
   // Accessibility properties
   final String? semanticLabel;
   final String? semanticHint;
-  
+
   // Form properties
   final Function(String)? onChanged;
   final List<TextInputFormatter>? inputFormatters;
@@ -102,9 +102,7 @@ class HealthcareFormField extends StatelessWidget {
           if (isRequired)
             TextSpan(
               text: ' *',
-              style: TextStyle(
-                color: CareCircleColorTokens.criticalAlert,
-              ),
+              style: TextStyle(color: CareCircleColorTokens.criticalAlert),
             ),
           if (medicalUnit != null)
             TextSpan(
@@ -117,9 +115,7 @@ class HealthcareFormField extends StatelessWidget {
           if (isSensitive)
             TextSpan(
               text: ' 🔒',
-              style: TextStyle(
-                color: CareCircleColorTokens.primaryMedicalBlue,
-              ),
+              style: TextStyle(color: CareCircleColorTokens.primaryMedicalBlue),
             ),
         ],
       ),
@@ -140,17 +136,11 @@ class HealthcareFormField extends StatelessWidget {
         hintText: hint,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(CareCircleSpacingTokens.sm),
-          borderSide: BorderSide(
-            color: _getBorderColor(),
-            width: 1,
-          ),
+          borderSide: BorderSide(color: _getBorderColor(), width: 1),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(CareCircleSpacingTokens.sm),
-          borderSide: BorderSide(
-            color: _getBorderColor(),
-            width: 1,
-          ),
+          borderSide: BorderSide(color: _getBorderColor(), width: 1),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(CareCircleSpacingTokens.sm),
@@ -180,7 +170,9 @@ class HealthcareFormField extends StatelessWidget {
         prefixIcon: prefixIcon ?? _getPrefixIcon(),
         suffixIcon: suffixIcon ?? _getSuffixIcon(),
         filled: !enabled,
-        fillColor: enabled ? null : CareCircleColorTokens.lightColorScheme.surfaceContainerHighest,
+        fillColor: enabled
+            ? null
+            : CareCircleColorTokens.lightColorScheme.surfaceContainerHighest,
       ),
     );
   }
@@ -242,7 +234,9 @@ class HealthcareFormField extends StatelessWidget {
 
   Color _getBorderColor() {
     if (!enabled) {
-      return CareCircleColorTokens.lightColorScheme.outline.withValues(alpha: 0.5);
+      return CareCircleColorTokens.lightColorScheme.outline.withValues(
+        alpha: 0.5,
+      );
     }
     return CareCircleColorTokens.lightColorScheme.outline;
   }
@@ -250,17 +244,29 @@ class HealthcareFormField extends StatelessWidget {
   Widget? _getPrefixIcon() {
     switch (dataType) {
       case HealthcareDataType.medication:
-        return Icon(Icons.medication, color: CareCircleColorTokens.prescriptionBlue);
+        return Icon(
+          Icons.medication,
+          color: CareCircleColorTokens.prescriptionBlue,
+        );
       case HealthcareDataType.vitalSign:
-        return Icon(Icons.monitor_heart, color: CareCircleColorTokens.heartRateRed);
+        return Icon(
+          Icons.monitor_heart,
+          color: CareCircleColorTokens.heartRateRed,
+        );
       case HealthcareDataType.emergencyContact:
         return Icon(Icons.emergency, color: CareCircleColorTokens.emergencyRed);
       case HealthcareDataType.allergies:
         return Icon(Icons.warning, color: CareCircleColorTokens.warningAmber);
       case HealthcareDataType.symptoms:
-        return Icon(Icons.health_and_safety, color: CareCircleColorTokens.healthGreen);
+        return Icon(
+          Icons.health_and_safety,
+          color: CareCircleColorTokens.healthGreen,
+        );
       case HealthcareDataType.medicalId:
-        return Icon(Icons.badge, color: CareCircleColorTokens.primaryMedicalBlue);
+        return Icon(
+          Icons.badge,
+          color: CareCircleColorTokens.primaryMedicalBlue,
+        );
       default:
         return null;
     }
@@ -282,7 +288,7 @@ class HealthcareFormField extends StatelessWidget {
       if (isRequired && (value == null || value.isEmpty)) {
         return '$label is required';
       }
-      
+
       switch (dataType) {
         case HealthcareDataType.dosage:
           if (value != null && value.isNotEmpty) {
@@ -311,7 +317,7 @@ class HealthcareFormField extends StatelessWidget {
         default:
           break;
       }
-      
+
       return null;
     };
   }
@@ -320,9 +326,7 @@ class HealthcareFormField extends StatelessWidget {
     switch (dataType) {
       case HealthcareDataType.dosage:
       case HealthcareDataType.vitalSign:
-        return [
-          FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
-        ];
+        return [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*'))];
       case HealthcareDataType.emergencyContact:
         return [
           FilteringTextInputFormatter.digitsOnly,

@@ -1,5 +1,5 @@
 // CareCircle Healthcare Micro-Interactions
-// 
+//
 // Comprehensive micro-interaction system for healthcare applications
 // with accessibility-compliant feedback and medical workflow optimization.
 
@@ -187,10 +187,7 @@ class _InteractiveButtonState extends State<_InteractiveButton>
     _scaleAnimation = Tween<double>(
       begin: 1.0,
       end: 0.95,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeInOut,
-    ));
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
   }
 
   @override
@@ -202,9 +199,15 @@ class _InteractiveButtonState extends State<_InteractiveButton>
   @override
   Widget build(BuildContext context) {
     Widget button = GestureDetector(
-      onTapDown: widget.enableScaleAnimation ? (_) => _controller.forward() : null,
-      onTapUp: widget.enableScaleAnimation ? (_) => _controller.reverse() : null,
-      onTapCancel: widget.enableScaleAnimation ? () => _controller.reverse() : null,
+      onTapDown: widget.enableScaleAnimation
+          ? (_) => _controller.forward()
+          : null,
+      onTapUp: widget.enableScaleAnimation
+          ? (_) => _controller.reverse()
+          : null,
+      onTapCancel: widget.enableScaleAnimation
+          ? () => _controller.reverse()
+          : null,
       onTap: () {
         if (widget.enableHaptics) {
           HealthcareMicroInteractions.provideMedicalFeedback(widget.actionType);
@@ -221,10 +224,7 @@ class _InteractiveButtonState extends State<_InteractiveButton>
       button = AnimatedBuilder(
         animation: _scaleAnimation,
         builder: (context, child) {
-          return Transform.scale(
-            scale: _scaleAnimation.value,
-            child: child,
-          );
+          return Transform.scale(scale: _scaleAnimation.value, child: child);
         },
         child: button,
       );
@@ -236,14 +236,21 @@ class _InteractiveButtonState extends State<_InteractiveButton>
         child: InkWell(
           onTap: () {
             if (widget.enableHaptics) {
-              HealthcareMicroInteractions.provideMedicalFeedback(widget.actionType);
+              HealthcareMicroInteractions.provideMedicalFeedback(
+                widget.actionType,
+              );
             }
             widget.onPressed();
           },
-          borderRadius: widget.borderRadius ?? BorderRadius.circular(CareCircleSpacingTokens.sm),
-          splashColor: widget.rippleColor ?? CareCircleColorTokens.primaryMedicalBlue.withValues(alpha: 0.2),
-          highlightColor: widget.rippleColor?.withValues(alpha: 0.1) ?? 
-                         CareCircleColorTokens.primaryMedicalBlue.withValues(alpha: 0.1),
+          borderRadius:
+              widget.borderRadius ??
+              BorderRadius.circular(CareCircleSpacingTokens.sm),
+          splashColor:
+              widget.rippleColor ??
+              CareCircleColorTokens.primaryMedicalBlue.withValues(alpha: 0.2),
+          highlightColor:
+              widget.rippleColor?.withValues(alpha: 0.1) ??
+              CareCircleColorTokens.primaryMedicalBlue.withValues(alpha: 0.1),
           child: button,
         ),
       );
@@ -285,13 +292,9 @@ class _HealthcareFABState extends State<_HealthcareFAB>
       duration: HealthcareAnimationTokens.emergencyPulseDuration,
       vsync: this,
     );
-    _pulseAnimation = Tween<double>(
-      begin: 1.0,
-      end: 1.1,
-    ).animate(CurvedAnimation(
-      parent: _pulseController,
-      curve: Curves.easeInOut,
-    ));
+    _pulseAnimation = Tween<double>(begin: 1.0, end: 1.1).animate(
+      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+    );
 
     if (widget.showPulse) {
       _pulseController.repeat(reverse: true);
@@ -324,17 +327,18 @@ class _HealthcareFABState extends State<_HealthcareFAB>
         return Transform.scale(
           scale: widget.showPulse ? _pulseAnimation.value : 1.0,
           child: FloatingActionButton(
+            heroTag: 'healthcare_micro_fab',
             onPressed: () {
               HealthcareMicroInteractions.provideMedicalFeedback(
-                widget.isEmergency 
-                  ? MedicalActionType.emergencyActivated
-                  : MedicalActionType.dataUpdated,
+                widget.isEmergency
+                    ? MedicalActionType.emergencyActivated
+                    : MedicalActionType.dataUpdated,
               );
               widget.onPressed();
             },
-            backgroundColor: widget.isEmergency 
-              ? CareCircleColorTokens.emergencyRed
-              : CareCircleColorTokens.primaryMedicalBlue,
+            backgroundColor: widget.isEmergency
+                ? CareCircleColorTokens.emergencyRed
+                : CareCircleColorTokens.primaryMedicalBlue,
             foregroundColor: Colors.white,
             tooltip: widget.tooltip,
             elevation: widget.isEmergency ? 8 : 6,
@@ -387,10 +391,7 @@ class _InteractiveCardState extends State<_InteractiveCard>
     _elevationAnimation = Tween<double>(
       begin: 2.0,
       end: 8.0,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeInOut,
-    ));
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
   }
 
   @override
@@ -407,22 +408,34 @@ class _InteractiveCardState extends State<_InteractiveCard>
         return Container(
           margin: widget.margin,
           child: Material(
-            elevation: widget.enableHoverEffect ? _elevationAnimation.value : 2.0,
-            borderRadius: widget.borderRadius ?? BorderRadius.circular(CareCircleSpacingTokens.md),
+            elevation: widget.enableHoverEffect
+                ? _elevationAnimation.value
+                : 2.0,
+            borderRadius:
+                widget.borderRadius ??
+                BorderRadius.circular(CareCircleSpacingTokens.md),
             child: InkWell(
-              onTap: widget.onTap != null ? () {
-                HealthcareMicroInteractions.provideMedicalFeedback(MedicalActionType.dataUpdated);
-                widget.onTap!();
-              } : null,
+              onTap: widget.onTap != null
+                  ? () {
+                      HealthcareMicroInteractions.provideMedicalFeedback(
+                        MedicalActionType.dataUpdated,
+                      );
+                      widget.onTap!();
+                    }
+                  : null,
               onLongPress: widget.onLongPress,
-              onHover: widget.enableHoverEffect ? (hovering) {
-                if (hovering) {
-                  _controller.forward();
-                } else {
-                  _controller.reverse();
-                }
-              } : null,
-              borderRadius: widget.borderRadius ?? BorderRadius.circular(CareCircleSpacingTokens.md),
+              onHover: widget.enableHoverEffect
+                  ? (hovering) {
+                      if (hovering) {
+                        _controller.forward();
+                      } else {
+                        _controller.reverse();
+                      }
+                    }
+                  : null,
+              borderRadius:
+                  widget.borderRadius ??
+                  BorderRadius.circular(CareCircleSpacingTokens.md),
               child: widget.child,
             ),
           ),
@@ -451,10 +464,12 @@ class _HealthcareProgressIndicator extends StatefulWidget {
   final bool animate;
 
   @override
-  State<_HealthcareProgressIndicator> createState() => _HealthcareProgressIndicatorState();
+  State<_HealthcareProgressIndicator> createState() =>
+      _HealthcareProgressIndicatorState();
 }
 
-class _HealthcareProgressIndicatorState extends State<_HealthcareProgressIndicator>
+class _HealthcareProgressIndicatorState
+    extends State<_HealthcareProgressIndicator>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _progressAnimation;
@@ -469,10 +484,7 @@ class _HealthcareProgressIndicatorState extends State<_HealthcareProgressIndicat
     _progressAnimation = Tween<double>(
       begin: 0.0,
       end: widget.progress,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeInOut,
-    ));
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
 
     if (widget.animate) {
       _controller.forward();
@@ -486,10 +498,7 @@ class _HealthcareProgressIndicatorState extends State<_HealthcareProgressIndicat
       _progressAnimation = Tween<double>(
         begin: oldWidget.progress,
         end: widget.progress,
-      ).animate(CurvedAnimation(
-        parent: _controller,
-        curve: Curves.easeInOut,
-      ));
+      ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
       _controller.forward(from: 0.0);
     }
   }
@@ -505,8 +514,10 @@ class _HealthcareProgressIndicatorState extends State<_HealthcareProgressIndicat
     return AnimatedBuilder(
       animation: _progressAnimation,
       builder: (context, child) {
-        final currentProgress = widget.animate ? _progressAnimation.value : widget.progress;
-        
+        final currentProgress = widget.animate
+            ? _progressAnimation.value
+            : widget.progress;
+
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -529,7 +540,8 @@ class _HealthcareProgressIndicatorState extends State<_HealthcareProgressIndicat
             SizedBox(height: CareCircleSpacingTokens.xs),
             LinearProgressIndicator(
               value: currentProgress,
-              backgroundColor: widget.backgroundColor ?? Colors.grey.withValues(alpha: 0.2),
+              backgroundColor:
+                  widget.backgroundColor ?? Colors.grey.withValues(alpha: 0.2),
               valueColor: AlwaysStoppedAnimation<Color>(
                 widget.progressColor ?? CareCircleColorTokens.healthGreen,
               ),
@@ -562,27 +574,27 @@ class _HealthcareToggle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      title: Text(
-        label,
-        style: CareCircleTypographyTokens.healthMetricTitle,
-      ),
-      subtitle: description != null ? Text(
-        description!,
-        style: CareCircleTypographyTokens.medicalLabel,
-      ) : null,
+      title: Text(label, style: CareCircleTypographyTokens.healthMetricTitle),
+      subtitle: description != null
+          ? Text(description!, style: CareCircleTypographyTokens.medicalLabel)
+          : null,
       trailing: Switch(
         value: value,
-        onChanged: isEnabled ? (newValue) {
-          HealthcareMicroInteractions.provideMedicalFeedback(actionType);
-          onChanged(newValue);
-        } : null,
+        onChanged: isEnabled
+            ? (newValue) {
+                HealthcareMicroInteractions.provideMedicalFeedback(actionType);
+                onChanged(newValue);
+              }
+            : null,
         activeColor: CareCircleColorTokens.healthGreen,
       ),
       enabled: isEnabled,
-      onTap: isEnabled ? () {
-        HealthcareMicroInteractions.provideMedicalFeedback(actionType);
-        onChanged(!value);
-      } : null,
+      onTap: isEnabled
+          ? () {
+              HealthcareMicroInteractions.provideMedicalFeedback(actionType);
+              onChanged(!value);
+            }
+          : null,
     );
   }
 }

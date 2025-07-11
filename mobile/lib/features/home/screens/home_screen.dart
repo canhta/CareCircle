@@ -98,8 +98,12 @@ class HomeScreen extends ConsumerWidget {
             children: [
               // Healthcare Welcome Card
               HealthcareWelcomeCard(
-                userName: profile?.displayName ?? (user?.isGuest == true ? 'Guest' : 'User'),
-                lastHealthUpdate: DateTime.now().subtract(const Duration(hours: 2)),
+                userName:
+                    profile?.displayName ??
+                    (user?.isGuest == true ? 'Guest' : 'User'),
+                lastHealthUpdate: DateTime.now().subtract(
+                  const Duration(hours: 2),
+                ),
                 healthStatus: _getHealthStatus(user),
                 onHealthCheckTap: () {
                   NavigationService.navigateToHealthData(context);
@@ -108,7 +112,8 @@ class HomeScreen extends ConsumerWidget {
                     ? 'Create an account to save your health data and access all features.'
                     : null,
                 semanticLabel: 'Welcome section with health overview',
-                semanticHint: 'Your current health status and quick access to health check',
+                semanticHint:
+                    'Your current health status and quick access to health check',
               ),
 
               // Guest Account Conversion
@@ -122,7 +127,8 @@ class HomeScreen extends ConsumerWidget {
                   variant: CareCircleButtonVariant.primary,
                   isFullWidth: false,
                   semanticLabel: 'Create account button',
-                  semanticHint: 'Convert guest account to full account to save data',
+                  semanticHint:
+                      'Convert guest account to full account to save data',
                 ),
               ],
 
@@ -154,8 +160,11 @@ class HomeScreen extends ConsumerWidget {
                         NavigationService.navigateToHealthData(context);
                       },
                       semanticLabel: 'Health metrics',
-                      semanticHint: 'View and track your vital signs and health trends',
-                      lastUpdated: DateTime.now().subtract(const Duration(hours: 1)),
+                      semanticHint:
+                          'View and track your vital signs and health trends',
+                      lastUpdated: DateTime.now().subtract(
+                        const Duration(hours: 1),
+                      ),
                       urgencyLevel: _getHealthMetricsUrgency(),
                     ),
                     HealthcareActionCard(
@@ -167,10 +176,13 @@ class HomeScreen extends ConsumerWidget {
                         NavigationService.navigateToMedications(context);
                       },
                       semanticLabel: 'Medications',
-                      semanticHint: 'Manage your medications and view reminders',
+                      semanticHint:
+                          'Manage your medications and view reminders',
                       badge: _getMedicationsBadge(),
                       urgencyLevel: _getMedicationsUrgency(),
-                      lastUpdated: DateTime.now().subtract(const Duration(minutes: 30)),
+                      lastUpdated: DateTime.now().subtract(
+                        const Duration(minutes: 30),
+                      ),
                     ),
                     HealthcareActionCard(
                       icon: CareCircleIcons.careCircle,
@@ -185,7 +197,8 @@ class HomeScreen extends ConsumerWidget {
                         );
                       },
                       semanticLabel: 'Care circle',
-                      semanticHint: 'Connect with your care team and family members',
+                      semanticHint:
+                          'Connect with your care team and family members',
                       isEnabled: false, // Coming soon
                     ),
                     HealthcareActionCard(
@@ -197,7 +210,8 @@ class HomeScreen extends ConsumerWidget {
                         _showEmergencyDialog(context);
                       },
                       semanticLabel: 'Emergency access',
-                      semanticHint: 'Quick access to emergency contacts and services',
+                      semanticHint:
+                          'Quick access to emergency contacts and services',
                       urgencyLevel: UrgencyLevel.critical,
                     ),
                   ],
@@ -240,7 +254,9 @@ class HomeScreen extends ConsumerWidget {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Emergency Access'),
-        content: const Text('Emergency features are coming soon. In case of a real emergency, please call 911 or your local emergency services.'),
+        content: const Text(
+          'Emergency features are coming soon. In case of a real emergency, please call 911 or your local emergency services.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),

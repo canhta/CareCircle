@@ -174,7 +174,8 @@ final interactionManagementProvider =
 class InteractionManagementNotifier extends StateNotifier<AsyncValue<void>> {
   final DrugInteractionApiService _apiService;
   // ignore: unused_field
-  final Ref _ref; // TODO: Will be used for provider invalidation when API integration is complete
+  final Ref
+  _ref; // TODO: Will be used for provider invalidation when API integration is complete
 
   InteractionManagementNotifier(this._apiService, this._ref)
     : super(const AsyncValue.data(null));

@@ -308,7 +308,9 @@ class PreferenceItem extends StatelessWidget {
               style: TextStyle(
                 color: enabled
                     ? CareCircleDesignTokens.textSecondary
-                    : CareCircleDesignTokens.textSecondary.withValues(alpha: 0.6),
+                    : CareCircleDesignTokens.textSecondary.withValues(
+                        alpha: 0.6,
+                      ),
               ),
             )
           : null,
@@ -357,7 +359,9 @@ class SwitchPreferenceItem extends StatelessWidget {
               style: TextStyle(
                 color: onChanged != null
                     ? CareCircleDesignTokens.textSecondary
-                    : CareCircleDesignTokens.textSecondary.withValues(alpha: 0.6),
+                    : CareCircleDesignTokens.textSecondary.withValues(
+                        alpha: 0.6,
+                      ),
               ),
             )
           : null,
@@ -414,7 +418,9 @@ class SliderPreferenceItem extends StatelessWidget {
                   style: TextStyle(
                     color: onChanged != null
                         ? CareCircleDesignTokens.textSecondary
-                        : CareCircleDesignTokens.textSecondary.withValues(alpha: 0.6),
+                        : CareCircleDesignTokens.textSecondary.withValues(
+                            alpha: 0.6,
+                          ),
                   ),
                 )
               : null,
@@ -436,8 +442,9 @@ class SliderPreferenceItem extends StatelessWidget {
             divisions: divisions,
             onChanged: onChanged,
             activeColor: CareCircleDesignTokens.primaryMedicalBlue,
-            inactiveColor: CareCircleDesignTokens.primaryMedicalBlue
-                .withValues(alpha: 0.3),
+            inactiveColor: CareCircleDesignTokens.primaryMedicalBlue.withValues(
+              alpha: 0.3,
+            ),
           ),
         ),
       ],

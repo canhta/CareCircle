@@ -219,7 +219,9 @@ class _NotificationDetailScreenState
     );
   }
 
-  Widget _buildNotificationDetail(notification_models.Notification notification) {
+  Widget _buildNotificationDetail(
+    notification_models.Notification notification,
+  ) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -242,7 +244,9 @@ class _NotificationDetailScreenState
     );
   }
 
-  Widget _buildNotificationHeader(notification_models.Notification notification) {
+  Widget _buildNotificationHeader(
+    notification_models.Notification notification,
+  ) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -266,7 +270,9 @@ class _NotificationDetailScreenState
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: _getTypeColor(notification.type).withValues(alpha: 0.1),
+                  color: _getTypeColor(
+                    notification.type,
+                  ).withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(24),
                 ),
                 child: Center(
@@ -311,7 +317,9 @@ class _NotificationDetailScreenState
     );
   }
 
-  Widget _buildPriorityBadge(notification_models.NotificationPriority priority) {
+  Widget _buildPriorityBadge(
+    notification_models.NotificationPriority priority,
+  ) {
     if (priority == notification_models.NotificationPriority.normal ||
         priority == notification_models.NotificationPriority.low) {
       return const SizedBox.shrink();
@@ -396,7 +404,9 @@ class _NotificationDetailScreenState
     );
   }
 
-  Widget _buildNotificationContent(notification_models.Notification notification) {
+  Widget _buildNotificationContent(
+    notification_models.Notification notification,
+  ) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
@@ -436,7 +446,9 @@ class _NotificationDetailScreenState
     );
   }
 
-  Widget _buildNotificationMetadata(notification_models.Notification notification) {
+  Widget _buildNotificationMetadata(
+    notification_models.Notification notification,
+  ) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
@@ -633,7 +645,9 @@ class _NotificationDetailScreenState
     return repository.getNotification(widget.notificationId);
   }
 
-  Future<void> _markAsRead(notification_models.Notification notification) async {
+  Future<void> _markAsRead(
+    notification_models.Notification notification,
+  ) async {
     try {
       await ref
           .read(notificationNotifierProvider.notifier)
@@ -717,7 +731,9 @@ class _NotificationDetailScreenState
     }
   }
 
-  String _getChannelDisplayName(notification_models.NotificationChannel channel) {
+  String _getChannelDisplayName(
+    notification_models.NotificationChannel channel,
+  ) {
     switch (channel) {
       case notification_models.NotificationChannel.push:
         return 'Push Notification';

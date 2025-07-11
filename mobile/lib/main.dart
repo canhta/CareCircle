@@ -65,10 +65,8 @@ class CareCircleApp extends ConsumerWidget {
         elevation: 0,
         backgroundColor: CareCircleColorTokens.primaryMedicalBlue,
         foregroundColor: Colors.white,
-        titleTextStyle: CareCircleTypographyTokens.textTheme.titleLarge?.copyWith(
-          color: Colors.white,
-          fontWeight: FontWeight.w600,
-        ),
+        titleTextStyle: CareCircleTypographyTokens.textTheme.titleLarge
+            ?.copyWith(color: Colors.white, fontWeight: FontWeight.w600),
       ),
       cardTheme: CardThemeData(
         elevation: 2,

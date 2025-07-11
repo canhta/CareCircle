@@ -152,6 +152,7 @@ class _MedicationListScreenState extends ConsumerState<MedicationListScreen>
           ],
         ),
         floatingActionButton: FloatingActionButton(
+          heroTag: 'medication_list_add',
           onPressed: () => _navigateToAddMedication(),
           backgroundColor: CareCircleDesignTokens.primaryMedicalBlue,
           child: const Icon(Icons.add, color: Colors.white),

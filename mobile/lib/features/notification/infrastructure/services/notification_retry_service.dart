@@ -76,14 +76,18 @@ class NotificationRetryService {
           'errorType': notificationException.runtimeType.toString(),
           'errorCode': notificationException.code,
           'errorMessage': notificationException.message,
-          'isRetryable': NotificationErrorHandler.isRetryable(notificationException),
+          'isRetryable': NotificationErrorHandler.isRetryable(
+            notificationException,
+          ),
           'context': context,
           'timestamp': DateTime.now().toIso8601String(),
         });
 
         // Check if we should retry
         final customShouldRetry = shouldRetry?.call(notificationException);
-        final defaultShouldRetry = NotificationErrorHandler.isRetryable(notificationException);
+        final defaultShouldRetry = NotificationErrorHandler.isRetryable(
+          notificationException,
+        );
         final willRetry = customShouldRetry ?? defaultShouldRetry;
 
         if (!willRetry || attempt >= maxAttempts) {
@@ -121,11 +125,12 @@ class NotificationRetryService {
     }
 
     // This should never be reached, but just in case
-    throw lastException ?? NotificationUnknownException(
-      'Operation failed after $maxAttempts attempts',
-      code: 'MAX_ATTEMPTS_EXCEEDED',
-      details: {'maxAttempts': maxAttempts, 'operation': operationName},
-    );
+    throw lastException ??
+        NotificationUnknownException(
+          'Operation failed after $maxAttempts attempts',
+          code: 'MAX_ATTEMPTS_EXCEEDED',
+          details: {'maxAttempts': maxAttempts, 'operation': operationName},
+        );
   }
 
   /// Execute operation with circuit breaker pattern
@@ -135,7 +140,7 @@ class NotificationRetryService {
     Map<String, dynamic>? context,
   }) async {
     final circuitBreaker = _getCircuitBreaker(operationName ?? 'default');
-    
+
     if (circuitBreaker.isOpen) {
       _logger.warning('Circuit breaker is open, rejecting operation', {
         'operation': operationName ?? 'unknown',
@@ -143,7 +148,7 @@ class NotificationRetryService {
         'failureCount': circuitBreaker.failureCount,
         'timestamp': DateTime.now().toIso8601String(),
       });
-      
+
       throw NotificationServiceException(
         'Service is temporarily unavailable due to repeated failures',
         code: 'CIRCUIT_BREAKER_OPEN',
@@ -185,7 +190,8 @@ class NotificationRetryService {
     NotificationException exception,
   ) {
     // Use custom delay if specified in exception
-    if (exception is NotificationRateLimitException && exception.retryAfter != null) {
+    if (exception is NotificationRateLimitException &&
+        exception.retryAfter != null) {
       return exception.retryAfter!;
     }
 
@@ -195,11 +201,17 @@ class NotificationRetryService {
     );
 
     // Cap at maximum delay
-    final cappedDelay = exponentialDelay > maxDelay ? maxDelay : exponentialDelay;
+    final cappedDelay = exponentialDelay > maxDelay
+        ? maxDelay
+        : exponentialDelay;
 
     // Add jitter to prevent thundering herd
-    final jitterMs = (cappedDelay.inMilliseconds * jitterFactor * _random.nextDouble()).round();
-    final finalDelay = Duration(milliseconds: cappedDelay.inMilliseconds + jitterMs);
+    final jitterMs =
+        (cappedDelay.inMilliseconds * jitterFactor * _random.nextDouble())
+            .round();
+    final finalDelay = Duration(
+      milliseconds: cappedDelay.inMilliseconds + jitterMs,
+    );
 
     return finalDelay;
   }
@@ -222,39 +234,40 @@ class _CircuitBreaker {
   final String operationName;
   int failureCount = 0;
   DateTime? nextAttemptTime;
-  
+
   static const _failureThreshold = 5;
   static const _recoveryTimeout = Duration(minutes: 1);
 
   bool get isOpen {
     if (nextAttemptTime == null) return false;
-    
+
     if (DateTime.now().isAfter(nextAttemptTime!)) {
       // Recovery timeout has passed, allow one attempt
       nextAttemptTime = null;
       return false;
     }
-    
+
     return failureCount >= _failureThreshold;
   }
 
   void recordSuccess() {
     failureCount = 0;
     nextAttemptTime = null;
-    
-    BoundedContextLoggers.notification.info('Circuit breaker recorded success', {
-      'operation': operationName,
-      'circuitBreakerState': 'closed',
-      'timestamp': DateTime.now().toIso8601String(),
-    });
+
+    BoundedContextLoggers.notification
+        .info('Circuit breaker recorded success', {
+          'operation': operationName,
+          'circuitBreakerState': 'closed',
+          'timestamp': DateTime.now().toIso8601String(),
+        });
   }
 
   void recordFailure() {
     failureCount++;
-    
+
     if (failureCount >= _failureThreshold) {
       nextAttemptTime = DateTime.now().add(_recoveryTimeout);
-      
+
       BoundedContextLoggers.notification.warning('Circuit breaker opened', {
         'operation': operationName,
         'failureCount': failureCount,

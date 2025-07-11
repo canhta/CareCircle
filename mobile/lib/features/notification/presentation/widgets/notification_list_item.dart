@@ -63,7 +63,9 @@ class NotificationListItem extends StatelessWidget {
                   notification.status ==
                       notification_models.NotificationStatus.read
                   ? Colors.white
-                  : CareCircleDesignTokens.primaryMedicalBlue.withValues(alpha: 0.02),
+                  : CareCircleDesignTokens.primaryMedicalBlue.withValues(
+                      alpha: 0.02,
+                    ),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

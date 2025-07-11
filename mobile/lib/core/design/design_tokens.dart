@@ -27,7 +27,8 @@ import 'spacing_tokens.dart';
 /// - CareCircleComponentTokens for component configurations
 class CareCircleDesignTokens {
   // Re-export commonly used color tokens for backward compatibility
-  static const Color primaryMedicalBlue = CareCircleColorTokens.primaryMedicalBlue;
+  static const Color primaryMedicalBlue =
+      CareCircleColorTokens.primaryMedicalBlue;
   static const Color healthGreen = CareCircleColorTokens.healthGreen;
   static const Color criticalAlert = CareCircleColorTokens.criticalAlert;
 
@@ -49,8 +50,10 @@ class CareCircleDesignTokens {
 
   // Re-export commonly used spacing tokens for backward compatibility
   static const double touchTargetMin = CareCircleSpacingTokens.touchTargetMin;
-  static const double emergencyButtonMin = CareCircleSpacingTokens.emergencyButtonMin;
+  static const double emergencyButtonMin =
+      CareCircleSpacingTokens.emergencyButtonMin;
 
   // Re-export commonly used typography tokens for backward compatibility
-  static const TextStyle vitalSignsStyle = CareCircleTypographyTokens.vitalSignsLarge;
+  static const TextStyle vitalSignsStyle =
+      CareCircleTypographyTokens.vitalSignsLarge;
 }

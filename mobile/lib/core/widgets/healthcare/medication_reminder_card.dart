@@ -1,5 +1,5 @@
 // CareCircle Medication Reminder Card
-// 
+//
 // Healthcare-optimized medication reminder with adherence tracking,
 // animated states, and accessibility-compliant medication management.
 
@@ -39,7 +39,7 @@ class _MedicationReminderCardState extends State<MedicationReminderCard>
   late AnimationController _pulseController;
   late AnimationController _successController;
   late AnimationController _streakController;
-  
+
   bool _showSuccessAnimation = false;
   bool _showStreakCelebration = false;
 
@@ -47,8 +47,12 @@ class _MedicationReminderCardState extends State<MedicationReminderCard>
   void initState() {
     super.initState();
     _pulseController = MedicationReminderAnimations.createPulseAnimation(this);
-    _successController = MedicationReminderAnimations.createSuccessAnimation(this);
-    _streakController = MedicationReminderAnimations.createStreakAnimation(this);
+    _successController = MedicationReminderAnimations.createSuccessAnimation(
+      this,
+    );
+    _streakController = MedicationReminderAnimations.createStreakAnimation(
+      this,
+    );
 
     // Start pulse animation for overdue medications
     if (widget.medication.state == MedicationReminderState.overdue) {
@@ -59,7 +63,7 @@ class _MedicationReminderCardState extends State<MedicationReminderCard>
   @override
   void didUpdateWidget(MedicationReminderCard oldWidget) {
     super.didUpdateWidget(oldWidget);
-    
+
     // Update animations based on state changes
     if (widget.medication.state != oldWidget.medication.state) {
       _updateAnimationsForState();
@@ -117,7 +121,8 @@ class _MedicationReminderCardState extends State<MedicationReminderCard>
               child: MedicationReminderAnimations.buildStreakCelebration(
                 controller: _streakController,
                 streakDays: widget.medication.adherenceStreak,
-                message: 'Great job! ${widget.medication.adherenceStreak} days in a row!',
+                message:
+                    'Great job! ${widget.medication.adherenceStreak} days in a row!',
               ),
             ),
         ],
@@ -131,10 +136,7 @@ class _MedicationReminderCardState extends State<MedicationReminderCard>
       decoration: BoxDecoration(
         color: _getCardBackgroundColor(),
         borderRadius: BorderRadius.circular(CareCircleSpacingTokens.md),
-        border: Border.all(
-          color: _getCardBorderColor(),
-          width: 2,
-        ),
+        border: Border.all(color: _getCardBorderColor(), width: 2),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -145,7 +147,8 @@ class _MedicationReminderCardState extends State<MedicationReminderCard>
           SizedBox(height: CareCircleSpacingTokens.md),
           if (widget.medication.state != MedicationReminderState.taken)
             _buildActionButtons(),
-          if (widget.showAdherenceStreak && widget.medication.adherenceStreak > 0)
+          if (widget.showAdherenceStreak &&
+              widget.medication.adherenceStreak > 0)
             _buildAdherenceStreak(),
         ],
       ),
@@ -162,11 +165,7 @@ class _MedicationReminderCardState extends State<MedicationReminderCard>
             color: _getIconBackgroundColor(),
             borderRadius: BorderRadius.circular(CareCircleSpacingTokens.sm),
           ),
-          child: Icon(
-            _getMedicationIcon(),
-            color: _getIconColor(),
-            size: 24,
-          ),
+          child: Icon(_getMedicationIcon(), color: _getIconColor(), size: 24),
         ),
         SizedBox(width: CareCircleSpacingTokens.md),
         Expanded(
@@ -206,10 +205,7 @@ class _MedicationReminderCardState extends State<MedicationReminderCard>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Dosage',
-                  style: CareCircleTypographyTokens.medicalLabel,
-                ),
+                Text('Dosage', style: CareCircleTypographyTokens.medicalLabel),
                 Text(
                   widget.medication.dosage,
                   style: CareCircleTypographyTokens.healthMetricTitle,
@@ -320,15 +316,15 @@ class _MedicationReminderCardState extends State<MedicationReminderCard>
 
   void _handleTakeDose() {
     widget.onTakeDose();
-    
+
     // Show success animation
     setState(() {
       _showSuccessAnimation = true;
     });
     _successController.forward();
-    
+
     // Check for streak milestone
-    if (widget.medication.adherenceStreak > 0 && 
+    if (widget.medication.adherenceStreak > 0 &&
         widget.medication.adherenceStreak % 7 == 0) {
       Future.delayed(const Duration(milliseconds: 800), () {
         if (mounted) {
@@ -423,11 +419,11 @@ class _MedicationReminderCardState extends State<MedicationReminderCard>
   String _getTimeDisplayText() {
     final now = DateTime.now();
     final scheduledTime = widget.medication.scheduledTime;
-    
+
     if (widget.medication.state == MedicationReminderState.taken) {
       return 'Taken';
     }
-    
+
     if (scheduledTime.isBefore(now)) {
       final difference = now.difference(scheduledTime);
       if (difference.inHours > 0) {

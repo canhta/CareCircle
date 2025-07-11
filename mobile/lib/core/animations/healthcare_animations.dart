@@ -1,5 +1,5 @@
 // CareCircle Healthcare Animations
-// 
+//
 // This file provides healthcare-specific animations and micro-interactions
 // that enhance the user experience for medical workflows.
 
@@ -10,8 +10,12 @@ import '../design/design_tokens.dart';
 class HealthcareAnimationTokens {
   // Medication-related animations
   static const Duration medicationPulseDuration = Duration(milliseconds: 1500);
-  static const Duration successConfirmationDuration = Duration(milliseconds: 800);
-  static const Duration streakCelebrationDuration = Duration(milliseconds: 1200);
+  static const Duration successConfirmationDuration = Duration(
+    milliseconds: 800,
+  );
+  static const Duration streakCelebrationDuration = Duration(
+    milliseconds: 1200,
+  );
 
   // Emergency animations
   static const Duration emergencyPulseDuration = Duration(milliseconds: 1000);
@@ -42,7 +46,7 @@ abstract class HealthcareAnimation {
   final TickerProvider vsync;
   late final AnimationController controller;
   late final Animation<double> animation;
-  
+
   HealthcareAnimation({
     required this.vsync,
     required Duration duration,
@@ -51,7 +55,7 @@ abstract class HealthcareAnimation {
     controller = AnimationController(duration: duration, vsync: vsync);
     animation = CurvedAnimation(parent: controller, curve: curve);
   }
-  
+
   void start() => controller.forward();
   void stop() => controller.stop();
   void reset() => controller.reset();
@@ -63,15 +67,15 @@ abstract class HealthcareAnimation {
 /// Pulse animation for overdue medications
 class MedicationPulseAnimation extends HealthcareAnimation {
   MedicationPulseAnimation({required super.vsync})
-      : super(
-          duration: HealthcareAnimationTokens.medicationPulseDuration,
-          curve: Curves.easeInOut,
-        );
-  
+    : super(
+        duration: HealthcareAnimationTokens.medicationPulseDuration,
+        curve: Curves.easeInOut,
+      );
+
   void startPulse() {
     controller.repeat(reverse: true);
   }
-  
+
   Widget buildPulsingWidget({
     required Widget child,
     double minScale = 0.95,
@@ -81,10 +85,7 @@ class MedicationPulseAnimation extends HealthcareAnimation {
       animation: animation,
       builder: (context, _) {
         final scale = minScale + (maxScale - minScale) * animation.value;
-        return Transform.scale(
-          scale: scale,
-          child: child,
-        );
+        return Transform.scale(scale: scale, child: child);
       },
     );
   }
@@ -93,11 +94,11 @@ class MedicationPulseAnimation extends HealthcareAnimation {
 /// Success confirmation animation with checkmark
 class SuccessConfirmationAnimation extends HealthcareAnimation {
   SuccessConfirmationAnimation({required super.vsync})
-      : super(
-          duration: HealthcareAnimationTokens.successConfirmationDuration,
-          curve: HealthcareAnimationTokens.successEase,
-        );
-  
+    : super(
+        duration: HealthcareAnimationTokens.successConfirmationDuration,
+        curve: HealthcareAnimationTokens.successEase,
+      );
+
   Widget buildSuccessCheckmark({
     double size = 24.0,
     Color color = Colors.green,
@@ -110,15 +111,8 @@ class SuccessConfirmationAnimation extends HealthcareAnimation {
           child: Container(
             width: size,
             height: size,
-            decoration: BoxDecoration(
-              color: color,
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              Icons.check,
-              color: Colors.white,
-              size: size * 0.6,
-            ),
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+            child: Icon(Icons.check, color: Colors.white, size: size * 0.6),
           ),
         );
       },
@@ -129,11 +123,11 @@ class SuccessConfirmationAnimation extends HealthcareAnimation {
 /// Streak celebration animation
 class StreakCelebrationAnimation extends HealthcareAnimation {
   StreakCelebrationAnimation({required super.vsync})
-      : super(
-          duration: HealthcareAnimationTokens.streakCelebrationDuration,
-          curve: HealthcareAnimationTokens.successEase,
-        );
-  
+    : super(
+        duration: HealthcareAnimationTokens.streakCelebrationDuration,
+        curve: HealthcareAnimationTokens.successEase,
+      );
+
   Widget buildCelebrationEffect({
     required Widget child,
     List<Color> colors = const [Colors.orange, Colors.yellow, Colors.green],
@@ -144,7 +138,9 @@ class StreakCelebrationAnimation extends HealthcareAnimation {
         return Container(
           decoration: BoxDecoration(
             gradient: RadialGradient(
-              colors: colors.map((c) => c.withValues(alpha: animation.value * 0.3)).toList(),
+              colors: colors
+                  .map((c) => c.withValues(alpha: animation.value * 0.3))
+                  .toList(),
               stops: const [0.0, 0.5, 1.0],
             ),
             borderRadius: BorderRadius.circular(CareCircleSpacingTokens.md),
@@ -162,15 +158,15 @@ class StreakCelebrationAnimation extends HealthcareAnimation {
 /// Emergency button urgent state animation
 class EmergencyUrgentAnimation extends HealthcareAnimation {
   EmergencyUrgentAnimation({required super.vsync})
-      : super(
-          duration: HealthcareAnimationTokens.emergencyPulseDuration,
-          curve: Curves.easeInOut,
-        );
-  
+    : super(
+        duration: HealthcareAnimationTokens.emergencyPulseDuration,
+        curve: Curves.easeInOut,
+      );
+
   void startUrgentPulse() {
     controller.repeat(reverse: true);
   }
-  
+
   Widget buildUrgentButton({
     required Widget child,
     required VoidCallback onPressed,
@@ -183,24 +179,26 @@ class EmergencyUrgentAnimation extends HealthcareAnimation {
         return Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(CareCircleSpacingTokens.sm),
-            boxShadow: isUrgent ? [
-              BoxShadow(
-                color: CareCircleColorTokens.emergencyRed.withValues(
-                  alpha: 0.3 + (glowIntensity * 0.4),
-                ),
-                blurRadius: 8 + (glowIntensity * 8),
-                spreadRadius: 2 + (glowIntensity * 2),
-              ),
-            ] : null,
+            boxShadow: isUrgent
+                ? [
+                    BoxShadow(
+                      color: CareCircleColorTokens.emergencyRed.withValues(
+                        alpha: 0.3 + (glowIntensity * 0.4),
+                      ),
+                      blurRadius: 8 + (glowIntensity * 8),
+                      spreadRadius: 2 + (glowIntensity * 2),
+                    ),
+                  ]
+                : null,
           ),
           child: Transform.scale(
             scale: isUrgent ? 1.0 + (glowIntensity * 0.05) : 1.0,
             child: ElevatedButton(
               onPressed: onPressed,
               style: ElevatedButton.styleFrom(
-                backgroundColor: isUrgent 
-                  ? CareCircleColorTokens.emergencyRed
-                  : CareCircleColorTokens.primaryMedicalBlue,
+                backgroundColor: isUrgent
+                    ? CareCircleColorTokens.emergencyRed
+                    : CareCircleColorTokens.primaryMedicalBlue,
                 foregroundColor: Colors.white,
                 elevation: isUrgent ? 4 + (glowIntensity * 4) : 2,
               ),
@@ -216,11 +214,11 @@ class EmergencyUrgentAnimation extends HealthcareAnimation {
 /// Health status transition animation
 class HealthStatusTransitionAnimation extends HealthcareAnimation {
   HealthStatusTransitionAnimation({required super.vsync})
-      : super(
-          duration: HealthcareAnimationTokens.healthStatusTransition,
-          curve: HealthcareAnimationTokens.medicalEaseInOut,
-        );
-  
+    : super(
+        duration: HealthcareAnimationTokens.healthStatusTransition,
+        curve: HealthcareAnimationTokens.medicalEaseInOut,
+      );
+
   Widget buildStatusTransition({
     required Color fromColor,
     required Color toColor,
@@ -234,10 +232,7 @@ class HealthStatusTransitionAnimation extends HealthcareAnimation {
           decoration: BoxDecoration(
             color: color.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(CareCircleSpacingTokens.md),
-            border: Border.all(
-              color: color.withValues(alpha: 0.3),
-              width: 2,
-            ),
+            border: Border.all(color: color.withValues(alpha: 0.3), width: 2),
           ),
           child: child,
         );
@@ -249,11 +244,11 @@ class HealthStatusTransitionAnimation extends HealthcareAnimation {
 /// Vital sign update animation
 class VitalSignUpdateAnimation extends HealthcareAnimation {
   VitalSignUpdateAnimation({required super.vsync})
-      : super(
-          duration: HealthcareAnimationTokens.vitalSignUpdate,
-          curve: HealthcareAnimationTokens.medicalEaseInOut,
-        );
-  
+    : super(
+        duration: HealthcareAnimationTokens.vitalSignUpdate,
+        curve: HealthcareAnimationTokens.medicalEaseInOut,
+      );
+
   Widget buildValueUpdate({
     required String oldValue,
     required String newValue,

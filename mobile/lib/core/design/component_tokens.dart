@@ -1,12 +1,12 @@
 import 'spacing_tokens.dart';
 
 /// CareCircle Component Token System
-/// 
+///
 /// Component-specific design tokens for consistent styling across the application.
 /// Defines reusable component configurations for healthcare UI elements.
 class CareCircleComponentTokens {
   // Button Component Tokens
-  
+
   /// Standard button configuration
   static const Map<String, dynamic> standardButton = {
     'minHeight': CareCircleSpacingTokens.touchTargetMin,
@@ -45,7 +45,7 @@ class CareCircleComponentTokens {
   };
 
   // Card Component Tokens
-  
+
   /// Standard card configuration
   static const Map<String, dynamic> standardCard = {
     'borderRadius': CareCircleSpacingTokens.sm,
@@ -89,7 +89,7 @@ class CareCircleComponentTokens {
   };
 
   // Form Component Tokens
-  
+
   /// Standard form field configuration
   static const Map<String, dynamic> standardFormField = {
     'borderRadius': CareCircleSpacingTokens.sm,
@@ -119,7 +119,7 @@ class CareCircleComponentTokens {
   };
 
   // Navigation Component Tokens
-  
+
   /// Bottom navigation bar configuration
   static const Map<String, dynamic> bottomNavigationBar = {
     'height': 80.0,
@@ -144,7 +144,7 @@ class CareCircleComponentTokens {
   };
 
   // List Component Tokens
-  
+
   /// Standard list tile configuration
   static const Map<String, dynamic> standardListTile = {
     'minHeight': CareCircleSpacingTokens.touchTargetMin,
@@ -162,7 +162,7 @@ class CareCircleComponentTokens {
   };
 
   // Chart Component Tokens
-  
+
   /// Standard chart configuration
   static const Map<String, dynamic> standardChart = {
     'padding': CareCircleSpacingTokens.chartPadding,
@@ -181,7 +181,7 @@ class CareCircleComponentTokens {
   };
 
   // Modal Component Tokens
-  
+
   /// Standard modal configuration
   static const Map<String, dynamic> standardModal = {
     'borderRadius': CareCircleSpacingTokens.md,
@@ -200,7 +200,7 @@ class CareCircleComponentTokens {
   };
 
   // Alert Component Tokens
-  
+
   /// Standard alert configuration
   static const Map<String, dynamic> standardAlert = {
     'borderRadius': CareCircleSpacingTokens.sm,
@@ -219,7 +219,7 @@ class CareCircleComponentTokens {
   };
 
   // Helper Methods
-  
+
   /// Get button configuration by type
   static Map<String, dynamic> getButtonConfig(String buttonType) {
     switch (buttonType.toLowerCase()) {

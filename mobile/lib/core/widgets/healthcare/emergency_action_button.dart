@@ -1,5 +1,5 @@
 // CareCircle Emergency Action Button
-// 
+//
 // Healthcare-optimized emergency button with urgent state animations,
 // accessibility compliance, and emergency workflow integration.
 
@@ -42,19 +42,15 @@ class _EmergencyActionButtonState extends State<EmergencyActionButton>
   void initState() {
     super.initState();
     _urgentAnimation = EmergencyUrgentAnimation(vsync: this);
-    
+
     _pressController = AnimationController(
       duration: HealthcareAnimationTokens.buttonPress,
       vsync: this,
     );
-    
-    _pressAnimation = Tween<double>(
-      begin: 1.0,
-      end: 0.95,
-    ).animate(CurvedAnimation(
-      parent: _pressController,
-      curve: Curves.easeInOut,
-    ));
+
+    _pressAnimation = Tween<double>(begin: 1.0, end: 0.95).animate(
+      CurvedAnimation(parent: _pressController, curve: Curves.easeInOut),
+    );
 
     if (widget.isUrgent) {
       _urgentAnimation.startUrgentPulse();
@@ -84,7 +80,8 @@ class _EmergencyActionButtonState extends State<EmergencyActionButton>
   Widget build(BuildContext context) {
     return Semantics(
       label: widget.semanticLabel ?? '${widget.label} button',
-      hint: widget.semanticHint ?? 'Tap for ${widget.emergencyType.description}',
+      hint:
+          widget.semanticHint ?? 'Tap for ${widget.emergencyType.description}',
       button: true,
       child: GestureDetector(
         onTapDown: (_) => _pressController.forward(),
@@ -120,9 +117,9 @@ class _EmergencyActionButtonState extends State<EmergencyActionButton>
         color: _getButtonColor(),
         borderRadius: BorderRadius.circular(CareCircleSpacingTokens.md),
         border: Border.all(
-          color: widget.isUrgent 
-            ? Colors.white.withValues(alpha: 0.3)
-            : Colors.transparent,
+          color: widget.isUrgent
+              ? Colors.white.withValues(alpha: 0.3)
+              : Colors.transparent,
           width: 2,
         ),
       ),
@@ -137,11 +134,7 @@ class _EmergencyActionButtonState extends State<EmergencyActionButton>
           ),
           if (widget.size != EmergencyButtonSize.compact) ...[
             SizedBox(height: CareCircleSpacingTokens.xs),
-            Text(
-              widget.label,
-              style: textStyle,
-              textAlign: TextAlign.center,
-            ),
+            Text(widget.label, style: textStyle, textAlign: TextAlign.center),
           ],
           if (widget.isUrgent && widget.size == EmergencyButtonSize.large) ...[
             SizedBox(height: CareCircleSpacingTokens.xs),
@@ -218,7 +211,7 @@ class _EmergencyActionButtonState extends State<EmergencyActionButton>
     if (widget.isUrgent) {
       return CareCircleColorTokens.emergencyRed;
     }
-    
+
     switch (widget.emergencyType) {
       case EmergencyType.medical:
         return CareCircleColorTokens.emergencyRed;
@@ -242,11 +235,7 @@ class _EmergencyActionButtonState extends State<EmergencyActionButton>
 }
 
 /// Emergency button types for different healthcare scenarios
-enum EmergencyType {
-  medical,
-  medication,
-  general,
-}
+enum EmergencyType { medical, medication, general }
 
 extension EmergencyTypeExtension on EmergencyType {
   String get description {
@@ -262,11 +251,7 @@ extension EmergencyTypeExtension on EmergencyType {
 }
 
 /// Emergency button sizes for different use cases
-enum EmergencyButtonSize {
-  compact,
-  standard,
-  large,
-}
+enum EmergencyButtonSize { compact, standard, large }
 
 /// Emergency Button Animations utility class
 class EmergencyButtonAnimations {
@@ -285,9 +270,9 @@ class EmergencyButtonAnimations {
       emergencyType: type,
       size: size,
       semanticLabel: '$label emergency button',
-      semanticHint: isUrgent 
-        ? 'Urgent: Tap immediately for emergency assistance'
-        : 'Tap for emergency assistance',
+      semanticHint: isUrgent
+          ? 'Urgent: Tap immediately for emergency assistance'
+          : 'Tap for emergency assistance',
     );
   }
 

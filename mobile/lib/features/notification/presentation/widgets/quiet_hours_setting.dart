@@ -369,7 +369,9 @@ class _TimeRangePickerDialogState extends State<_TimeRangePickerDialog> {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: CareCircleDesignTokens.primaryMedicalBlue.withValues(alpha: 0.1),
+              color: CareCircleDesignTokens.primaryMedicalBlue.withValues(
+                alpha: 0.1,
+              ),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Row(

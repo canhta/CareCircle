@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 
 /// CareCircle Color Token System
-/// 
+///
 /// Comprehensive healthcare-optimized color palette with WCAG 2.2 AA compliance.
 /// All colors have been validated for accessibility and medical application use.
 class CareCircleColorTokens {
   // Primary Healthcare Colors (WCAG 2.2 AA Compliant)
   /// Primary medical blue - 4.51:1 contrast ratio
   static const Color primaryMedicalBlue = Color(0xFF1565C0);
-  
+
   /// Health green for positive indicators - 4.52:1 contrast ratio
   static const Color healthGreen = Color(0xFF2E7D32);
-  
+
   /// Critical alert red - 4.5:1 contrast ratio
   static const Color criticalAlert = Color(0xFFD32F2F);
-  
+
   /// Warning amber for caution states - 4.5:1 contrast ratio
   static const Color warningAmber = Color(0xFFED6C02);
 
@@ -24,52 +24,52 @@ class CareCircleColorTokens {
   // Medical Semantic Colors
   /// Heart rate monitoring color
   static const Color heartRateRed = Color(0xFFE53935);
-  
+
   /// Blood pressure monitoring color
   static const Color bloodPressureBlue = Color(0xFF1E88E5);
-  
+
   /// Temperature monitoring color
   static const Color temperatureOrange = Color(0xFFFF9800);
-  
+
   /// Oxygen saturation monitoring color
   static const Color oxygenSaturationCyan = Color(0xFF00ACC1);
-  
+
   /// Respiratory rate monitoring color
   static const Color respiratoryPurple = Color(0xFF8E24AA);
-  
+
   /// Blood glucose monitoring color
   static const Color bloodGlucoseIndigo = Color(0xFF3F51B5);
 
   // Accessibility High Contrast Colors
   /// High contrast text for accessibility
   static const Color highContrastText = Color(0xFF000000);
-  
+
   /// High contrast background for accessibility
   static const Color highContrastBackground = Color(0xFFFFFFFF);
-  
+
   /// High contrast border for accessibility
   static const Color highContrastBorder = Color(0xFF000000);
 
   // Status Colors for Medical Data
   /// Normal range indicator
   static const Color normalRange = Color(0xFF4CAF50);
-  
+
   /// Caution range indicator
   static const Color cautionRange = Color(0xFFFF9800);
-  
+
   /// Danger range indicator
   static const Color dangerRange = Color(0xFFD32F2F);
-  
+
   /// Unknown/missing data indicator
   static const Color unknownData = Color(0xFF9E9E9E);
 
   // Emergency and Priority Colors
   /// Emergency action color
   static const Color emergencyRed = Color(0xFFB71C1C);
-  
+
   /// Urgent action color
   static const Color urgentOrange = Color(0xFFE65100);
-  
+
   /// Important action color
   static const Color importantBlue = Color(0xFF0D47A1);
 
@@ -102,7 +102,6 @@ class CareCircleColorTokens {
     inverseSurface: Color(0xFF313033),
     onInverseSurface: Color(0xFFF4EFF4),
     inversePrimary: Color(0xFF90CAF9),
-
   );
 
   // Material Design 3 Dark Color Scheme
@@ -134,7 +133,6 @@ class CareCircleColorTokens {
     inverseSurface: Color(0xFFE6E1E5),
     onInverseSurface: Color(0xFF313033),
     inversePrimary: Color(0xFF1565C0),
-
   );
 
   // High Contrast Color Scheme for Accessibility
@@ -166,50 +164,49 @@ class CareCircleColorTokens {
     inverseSurface: Color(0xFF000000),
     onInverseSurface: Color(0xFFFFFFFF),
     inversePrimary: Color(0xFFFFFFFF),
-
   );
 
   // Medication-Specific Colors
   /// Prescription medication color
   static const Color prescriptionBlue = Color(0xFF1976D2);
-  
+
   /// Over-the-counter medication color
   static const Color otcGreen = Color(0xFF388E3C);
-  
+
   /// Supplement color
   static const Color supplementOrange = Color(0xFFF57C00);
-  
+
   /// Controlled substance color
   static const Color controlledRed = Color(0xFFD32F2F);
 
   // Appointment and Schedule Colors
   /// Scheduled appointment color
   static const Color scheduledBlue = Color(0xFF1976D2);
-  
+
   /// Completed appointment color
   static const Color completedGreen = Color(0xFF388E3C);
-  
+
   /// Cancelled appointment color
   static const Color cancelledRed = Color(0xFFD32F2F);
-  
+
   /// Pending appointment color
   static const Color pendingOrange = Color(0xFFFF9800);
 
   // Data Quality Indicators
   /// High quality data
   static const Color highQualityGreen = Color(0xFF4CAF50);
-  
+
   /// Medium quality data
   static const Color mediumQualityYellow = Color(0xFFFFEB3B);
-  
+
   /// Low quality data
   static const Color lowQualityRed = Color(0xFFD32F2F);
-  
+
   /// No data available
   static const Color noDataGrey = Color(0xFF9E9E9E);
 
   // Helper Methods
-  
+
   /// Get color for vital sign type
   static Color getVitalSignColor(String vitalSignType) {
     switch (vitalSignType.toLowerCase()) {

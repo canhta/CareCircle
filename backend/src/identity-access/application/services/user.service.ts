@@ -38,7 +38,9 @@ export class UserService {
     return this.userRepository.findByPhoneNumber(phoneNumber);
   }
 
-  async createFromFirebaseToken(decodedToken: DecodedIdToken): Promise<UserAccount> {
+  async createFromFirebaseToken(
+    decodedToken: DecodedIdToken,
+  ): Promise<UserAccount> {
     // Create user account with Firebase UID as ID
     const user = UserAccount.create({
       id: decodedToken.uid,

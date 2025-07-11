@@ -4,39 +4,39 @@ import 'package:flutter/material.dart';
 enum ScreenBreakpoint {
   /// Mobile phones (< 600px)
   mobile,
-  
+
   /// Tablets (600px - 1024px)
   tablet,
-  
+
   /// Desktop and large screens (> 1024px)
   desktop,
 }
 
 /// CareCircle responsive breakpoint system
-/// 
+///
 /// Provides consistent breakpoints and responsive utilities for healthcare UI.
 /// Based on Material Design 3 breakpoints with healthcare-specific optimizations.
 class CareCircleBreakpoints {
   // Breakpoint values in logical pixels
   /// Mobile breakpoint threshold (600px)
   static const double mobile = 600.0;
-  
+
   /// Tablet breakpoint threshold (1024px)
   static const double tablet = 1024.0;
-  
+
   /// Desktop breakpoint threshold (1440px)
   static const double desktop = 1440.0;
 
   // Healthcare-specific breakpoints
   /// Compact mobile (< 360px) - Small phones
   static const double compactMobile = 360.0;
-  
+
   /// Large mobile (480px - 600px) - Large phones
   static const double largeMobile = 480.0;
-  
+
   /// Small tablet (600px - 768px) - Small tablets
   static const double smallTablet = 768.0;
-  
+
   /// Large tablet (768px - 1024px) - Large tablets
   static const double largeTablet = 1024.0;
 
@@ -85,7 +85,8 @@ class CareCircleBreakpoints {
   }
 
   /// Get optimal column count for grid layouts
-  static int getOptimalColumnCount(BuildContext context, {
+  static int getOptimalColumnCount(
+    BuildContext context, {
     int mobileColumns = 2,
     int tabletColumns = 3,
     int desktopColumns = 4,
@@ -102,7 +103,8 @@ class CareCircleBreakpoints {
   }
 
   /// Get optimal aspect ratio for cards
-  static double getOptimalAspectRatio(BuildContext context, {
+  static double getOptimalAspectRatio(
+    BuildContext context, {
     double mobileRatio = 1.2,
     double tabletRatio = 1.3,
     double desktopRatio = 1.4,
@@ -119,7 +121,8 @@ class CareCircleBreakpoints {
   }
 
   /// Get responsive padding based on screen size
-  static EdgeInsets getResponsivePadding(BuildContext context, {
+  static EdgeInsets getResponsivePadding(
+    BuildContext context, {
     EdgeInsets? mobile,
     EdgeInsets? tablet,
     EdgeInsets? desktop,
@@ -136,7 +139,8 @@ class CareCircleBreakpoints {
   }
 
   /// Get responsive font size scaling
-  static double getResponsiveFontScale(BuildContext context, {
+  static double getResponsiveFontScale(
+    BuildContext context, {
     double mobileScale = 1.0,
     double tabletScale = 1.1,
     double desktopScale = 1.2,
@@ -153,7 +157,8 @@ class CareCircleBreakpoints {
   }
 
   /// Get responsive spacing based on screen size
-  static double getResponsiveSpacing(BuildContext context, {
+  static double getResponsiveSpacing(
+    BuildContext context, {
     double mobileSpacing = 8.0,
     double tabletSpacing = 12.0,
     double desktopSpacing = 16.0,
@@ -218,14 +223,20 @@ class CareCircleBreakpoints {
   static Map<String, dynamic> getOrientationConfig(BuildContext context) {
     final isLandscapeMode = isLandscape(context);
     final breakpoint = getBreakpointFromContext(context);
-    
+
     return {
       'isLandscape': isLandscapeMode,
       'breakpoint': breakpoint,
-      'shouldUseTabletLayout': isLandscapeMode && breakpoint == ScreenBreakpoint.mobile,
-      'columnCount': isLandscapeMode ? 
-        getOptimalColumnCount(context, mobileColumns: 3, tabletColumns: 4, desktopColumns: 5) :
-        getOptimalColumnCount(context),
+      'shouldUseTabletLayout':
+          isLandscapeMode && breakpoint == ScreenBreakpoint.mobile,
+      'columnCount': isLandscapeMode
+          ? getOptimalColumnCount(
+              context,
+              mobileColumns: 3,
+              tabletColumns: 4,
+              desktopColumns: 5,
+            )
+          : getOptimalColumnCount(context),
     };
   }
 }

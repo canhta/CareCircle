@@ -4,7 +4,7 @@ import '../../design/care_circle_icons.dart';
 import '../navigation/care_circle_tab_bar.dart';
 
 /// Healthcare action card component
-/// 
+///
 /// Displays healthcare actions with urgency indicators, badges, and accessibility support.
 /// Optimized for quick access to healthcare functionality from the home screen.
 class HealthcareActionCard extends StatelessWidget {
@@ -91,19 +91,13 @@ class HealthcareActionCard extends StatelessWidget {
           ),
           child: Stack(
             children: [
-              Icon(
-                icon,
-                color: color,
-                size: 24,
-              ),
-              if (urgencyLevel != UrgencyLevel.none)
-                _buildUrgencyIndicator(),
+              Icon(icon, color: color, size: 24),
+              if (urgencyLevel != UrgencyLevel.none) _buildUrgencyIndicator(),
             ],
           ),
         ),
         const Spacer(),
-        if (badge != null)
-          _buildBadge(),
+        if (badge != null) _buildBadge(),
       ],
     );
   }
@@ -169,14 +163,10 @@ class HealthcareActionCard extends StatelessWidget {
 
   Widget _buildLastUpdated(BuildContext context) {
     final timeAgo = _formatTimeAgo(lastUpdated!);
-    
+
     return Row(
       children: [
-        Icon(
-          CareCircleIcons.sync,
-          color: _getSubtitleColor(context),
-          size: 12,
-        ),
+        Icon(CareCircleIcons.sync, color: _getSubtitleColor(context), size: 12),
         SizedBox(width: CareCircleSpacingTokens.xs / 2),
         Text(
           timeAgo,
@@ -190,7 +180,7 @@ class HealthcareActionCard extends StatelessWidget {
 
   Widget _buildUrgencyIndicator() {
     final urgencyColor = _getUrgencyColor();
-    
+
     return Positioned(
       top: -2,
       right: -2,
@@ -200,10 +190,7 @@ class HealthcareActionCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: urgencyColor,
           shape: BoxShape.circle,
-          border: Border.all(
-            color: Colors.white,
-            width: 1,
-          ),
+          border: Border.all(color: Colors.white, width: 1),
         ),
       ),
     );
@@ -211,10 +198,7 @@ class HealthcareActionCard extends StatelessWidget {
 
   Widget _buildBadge() {
     return Container(
-      constraints: const BoxConstraints(
-        minWidth: 20,
-        minHeight: 20,
-      ),
+      constraints: const BoxConstraints(minWidth: 20, minHeight: 20),
       padding: EdgeInsets.symmetric(
         horizontal: CareCircleSpacingTokens.xs,
         vertical: CareCircleSpacingTokens.xs / 2,
@@ -238,7 +222,7 @@ class HealthcareActionCard extends StatelessWidget {
   // Helper methods
   double _getCardElevation() {
     if (!isEnabled) return 1;
-    
+
     switch (urgencyLevel) {
       case UrgencyLevel.critical:
         return 8;
@@ -255,11 +239,11 @@ class HealthcareActionCard extends StatelessWidget {
     if (!isEnabled) {
       return CareCircleColorTokens.lightColorScheme.surfaceContainerHighest;
     }
-    
+
     if (urgencyLevel == UrgencyLevel.critical) {
       return CareCircleColorTokens.criticalAlert.withValues(alpha: 0.05);
     }
-    
+
     return CareCircleColorTokens.lightColorScheme.surface;
   }
 
@@ -270,23 +254,27 @@ class HealthcareActionCard extends StatelessWidget {
         width: 1,
       );
     }
-    
+
     return BorderSide.none;
   }
 
   Color _getTextColor(BuildContext context) {
     if (!isEnabled) {
-      return CareCircleColorTokens.lightColorScheme.onSurfaceVariant.withValues(alpha: 0.5);
+      return CareCircleColorTokens.lightColorScheme.onSurfaceVariant.withValues(
+        alpha: 0.5,
+      );
     }
-    
+
     return CareCircleColorTokens.lightColorScheme.onSurface;
   }
 
   Color _getSubtitleColor(BuildContext context) {
     if (!isEnabled) {
-      return CareCircleColorTokens.lightColorScheme.onSurfaceVariant.withValues(alpha: 0.3);
+      return CareCircleColorTokens.lightColorScheme.onSurfaceVariant.withValues(
+        alpha: 0.3,
+      );
     }
-    
+
     return CareCircleColorTokens.lightColorScheme.onSurfaceVariant;
   }
 
@@ -308,7 +296,7 @@ class HealthcareActionCard extends StatelessWidget {
   String _formatTimeAgo(DateTime dateTime) {
     final now = DateTime.now();
     final difference = now.difference(dateTime);
-    
+
     if (difference.inMinutes < 1) {
       return 'just now';
     } else if (difference.inHours < 1) {

@@ -1,5 +1,5 @@
 // CareCircle Medication Animations
-// 
+//
 // This file provides medication-specific animations for adherence tracking,
 // reminders, and medication management workflows.
 
@@ -69,21 +69,20 @@ class MedicationReminderAnimations {
     return AnimatedBuilder(
       animation: controller,
       builder: (context, _) {
-        final slideAnimation = Tween<Offset>(
-          begin: const Offset(0, 1),
-          end: Offset.zero,
-        ).animate(CurvedAnimation(
-          parent: controller,
-          curve: const Interval(0.0, 0.6, curve: Curves.easeOutBack),
-        ));
+        final slideAnimation =
+            Tween<Offset>(begin: const Offset(0, 1), end: Offset.zero).animate(
+              CurvedAnimation(
+                parent: controller,
+                curve: const Interval(0.0, 0.6, curve: Curves.easeOutBack),
+              ),
+            );
 
-        final fadeAnimation = Tween<double>(
-          begin: 0.0,
-          end: 1.0,
-        ).animate(CurvedAnimation(
-          parent: controller,
-          curve: const Interval(0.2, 0.8, curve: Curves.easeInOut),
-        ));
+        final fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+          CurvedAnimation(
+            parent: controller,
+            curve: const Interval(0.2, 0.8, curve: Curves.easeInOut),
+          ),
+        );
 
         return SlideTransition(
           position: slideAnimation,
@@ -122,9 +121,10 @@ class MedicationReminderAnimations {
                       children: [
                         Text(
                           'Dose Taken',
-                          style: CareCircleTypographyTokens.healthMetricTitle.copyWith(
-                            color: CareCircleColorTokens.healthGreen,
-                          ),
+                          style: CareCircleTypographyTokens.healthMetricTitle
+                              .copyWith(
+                                color: CareCircleColorTokens.healthGreen,
+                              ),
                         ),
                         Text(
                           '$medicationName - $dosage',
@@ -151,29 +151,26 @@ class MedicationReminderAnimations {
     return AnimatedBuilder(
       animation: controller,
       builder: (context, _) {
-        final scaleAnimation = Tween<double>(
-          begin: 0.0,
-          end: 1.0,
-        ).animate(CurvedAnimation(
-          parent: controller,
-          curve: const Interval(0.0, 0.5, curve: Curves.elasticOut),
-        ));
+        final scaleAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+          CurvedAnimation(
+            parent: controller,
+            curve: const Interval(0.0, 0.5, curve: Curves.elasticOut),
+          ),
+        );
 
-        final rotationAnimation = Tween<double>(
-          begin: 0.0,
-          end: 0.1,
-        ).animate(CurvedAnimation(
-          parent: controller,
-          curve: const Interval(0.3, 0.7, curve: Curves.easeInOut),
-        ));
+        final rotationAnimation = Tween<double>(begin: 0.0, end: 0.1).animate(
+          CurvedAnimation(
+            parent: controller,
+            curve: const Interval(0.3, 0.7, curve: Curves.easeInOut),
+          ),
+        );
 
-        final glowAnimation = Tween<double>(
-          begin: 0.0,
-          end: 1.0,
-        ).animate(CurvedAnimation(
-          parent: controller,
-          curve: const Interval(0.0, 1.0, curve: Curves.easeInOut),
-        ));
+        final glowAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+          CurvedAnimation(
+            parent: controller,
+            curve: const Interval(0.0, 1.0, curve: Curves.easeInOut),
+          ),
+        );
 
         return Transform.scale(
           scale: scaleAnimation.value,
@@ -207,7 +204,9 @@ class MedicationReminderAnimations {
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.orange.withValues(alpha: glowAnimation.value * 0.5),
+                          color: Colors.orange.withValues(
+                            alpha: glowAnimation.value * 0.5,
+                          ),
                           blurRadius: 20,
                           spreadRadius: 5,
                         ),
@@ -218,19 +217,21 @@ class MedicationReminderAnimations {
                       children: [
                         Text(
                           '$streakDays',
-                          style: CareCircleTypographyTokens.healthMetricValue.copyWith(
-                            color: Colors.white,
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: CareCircleTypographyTokens.healthMetricValue
+                              .copyWith(
+                                color: Colors.white,
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                              ),
                         ),
                         Text(
                           'DAYS',
-                          style: CareCircleTypographyTokens.medicalLabel.copyWith(
-                            color: Colors.white,
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: CareCircleTypographyTokens.medicalLabel
+                              .copyWith(
+                                color: Colors.white,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
                         ),
                       ],
                     ),
@@ -251,7 +252,10 @@ class MedicationReminderAnimations {
   }
 
   /// Gets the scale factor for different medication reminder states
-  static double _getScaleForState(MedicationReminderState state, double animationValue) {
+  static double _getScaleForState(
+    MedicationReminderState state,
+    double animationValue,
+  ) {
     switch (state) {
       case MedicationReminderState.upcoming:
         return 1.0;
@@ -267,7 +271,10 @@ class MedicationReminderAnimations {
   }
 
   /// Gets the shadow for different medication reminder states
-  static List<BoxShadow> _getShadowForState(MedicationReminderState state, double animationValue) {
+  static List<BoxShadow> _getShadowForState(
+    MedicationReminderState state,
+    double animationValue,
+  ) {
     switch (state) {
       case MedicationReminderState.upcoming:
         return [
@@ -280,7 +287,9 @@ class MedicationReminderAnimations {
       case MedicationReminderState.due:
         return [
           BoxShadow(
-            color: CareCircleColorTokens.warningAmber.withValues(alpha: 0.3 + (animationValue * 0.2)),
+            color: CareCircleColorTokens.warningAmber.withValues(
+              alpha: 0.3 + (animationValue * 0.2),
+            ),
             blurRadius: 8 + (animationValue * 4),
             offset: const Offset(0, 4),
           ),
@@ -288,7 +297,9 @@ class MedicationReminderAnimations {
       case MedicationReminderState.overdue:
         return [
           BoxShadow(
-            color: CareCircleColorTokens.emergencyRed.withValues(alpha: 0.4 + (animationValue * 0.3)),
+            color: CareCircleColorTokens.emergencyRed.withValues(
+              alpha: 0.4 + (animationValue * 0.3),
+            ),
             blurRadius: 12 + (animationValue * 8),
             offset: const Offset(0, 6),
           ),
@@ -314,10 +325,4 @@ class MedicationReminderAnimations {
 }
 
 /// Medication reminder states for animations
-enum MedicationReminderState {
-  upcoming,
-  due,
-  overdue,
-  taken,
-  missed,
-}
+enum MedicationReminderState { upcoming, due, overdue, taken, missed }

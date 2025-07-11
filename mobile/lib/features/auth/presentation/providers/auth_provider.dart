@@ -118,9 +118,12 @@ class AuthNotifier extends _$AuthNotifier {
       // Provide user-friendly error message
       String userMessage = e.toString();
       if (e.toString().contains('Firebase')) {
-        userMessage = 'Authentication failed. Please check your email and password.';
-      } else if (e.toString().contains('network') || e.toString().contains('connection')) {
-        userMessage = 'Network error. Please check your internet connection and try again.';
+        userMessage =
+            'Authentication failed. Please check your email and password.';
+      } else if (e.toString().contains('network') ||
+          e.toString().contains('connection')) {
+        userMessage =
+            'Network error. Please check your internet connection and try again.';
       } else if (e.toString().contains('timeout')) {
         userMessage = 'Request timed out. Please try again.';
       }

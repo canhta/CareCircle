@@ -65,7 +65,7 @@ class HealthMetricData {
 }
 
 /// Healthcare-optimized chart component for health metrics
-/// 
+///
 /// Displays health data with accessibility compliance, interactive features,
 /// and medical context awareness including normal ranges and trend analysis.
 class HealthMetricChart extends StatelessWidget {
@@ -93,7 +93,7 @@ class HealthMetricChart extends StatelessWidget {
   final double height;
   final double? normalRangeMin;
   final double? normalRangeMax;
-  
+
   // Accessibility properties
   final String chartDescription;
   final List<String> dataPointDescriptions;
@@ -115,9 +115,7 @@ class HealthMetricChart extends StatelessWidget {
           children: [
             _buildChartHeader(),
             SizedBox(height: CareCircleSpacingTokens.sm),
-            Expanded(
-              child: _buildChart(),
-            ),
+            Expanded(child: _buildChart()),
             if (isInteractive) ...[
               SizedBox(height: CareCircleSpacingTokens.sm),
               _buildChartLegend(),
@@ -165,11 +163,7 @@ class HealthMetricChart extends StatelessWidget {
   Widget _buildChartHeader() {
     return Row(
       children: [
-        Icon(
-          _getMetricIcon(),
-          color: _getMetricColor(),
-          size: 24,
-        ),
+        Icon(_getMetricIcon(), color: _getMetricColor(), size: 24),
         SizedBox(width: CareCircleSpacingTokens.sm),
         Expanded(
           child: Column(
@@ -193,23 +187,27 @@ class HealthMetricChart extends StatelessWidget {
 
   Widget _buildCurrentValue() {
     if (data.isEmpty) return const SizedBox.shrink();
-    
+
     final currentValue = data.last.value;
     final isAbnormal = data.last.isAbnormal;
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         Text(
           currentValue.toStringAsFixed(_getDecimalPlaces()),
           style: CareCircleTypographyTokens.vitalSignsMedium.copyWith(
-            color: isAbnormal ? CareCircleColorTokens.dangerRange : _getMetricColor(),
+            color: isAbnormal
+                ? CareCircleColorTokens.dangerRange
+                : _getMetricColor(),
           ),
         ),
         Text(
           metricType.unit,
           style: CareCircleTypographyTokens.medicalLabel.copyWith(
-            color: isAbnormal ? CareCircleColorTokens.dangerRange : _getMetricColor(),
+            color: isAbnormal
+                ? CareCircleColorTokens.dangerRange
+                : _getMetricColor(),
           ),
         ),
       ],
@@ -251,20 +249,28 @@ class HealthMetricChart extends StatelessWidget {
         maxY: _getMaxY(),
         lineBarsData: [
           _buildMainDataLine(),
-          if (showNormalRange && normalRangeMin != null && normalRangeMax != null) 
+          if (showNormalRange &&
+              normalRangeMin != null &&
+              normalRangeMax != null)
             ..._buildNormalRangeLines(),
         ],
-        lineTouchData: isInteractive ? _buildTouchData() : LineTouchData(enabled: false),
+        lineTouchData: isInteractive
+            ? _buildTouchData()
+            : LineTouchData(enabled: false),
       ),
     );
   }
 
   LineChartBarData _buildMainDataLine() {
     return LineChartBarData(
-      spots: data.map((point) => FlSpot(
-        point.timestamp.millisecondsSinceEpoch.toDouble(),
-        point.value,
-      )).toList(),
+      spots: data
+          .map(
+            (point) => FlSpot(
+              point.timestamp.millisecondsSinceEpoch.toDouble(),
+              point.value,
+            ),
+          )
+          .toList(),
       isCurved: true,
       color: _getMetricColor(),
       barWidth: 3,
@@ -272,10 +278,14 @@ class HealthMetricChart extends StatelessWidget {
       dotData: FlDotData(
         show: true,
         getDotPainter: (spot, percent, barData, index) {
-          final isAbnormal = index < data.length ? data[index].isAbnormal : false;
+          final isAbnormal = index < data.length
+              ? data[index].isAbnormal
+              : false;
           return FlDotCirclePainter(
             radius: 4,
-            color: isAbnormal ? CareCircleColorTokens.dangerRange : _getMetricColor(),
+            color: isAbnormal
+                ? CareCircleColorTokens.dangerRange
+                : _getMetricColor(),
             strokeWidth: 2,
             strokeColor: Colors.white,
           );
@@ -290,17 +300,14 @@ class HealthMetricChart extends StatelessWidget {
 
   List<LineChartBarData> _buildNormalRangeLines() {
     if (normalRangeMin == null || normalRangeMax == null) return [];
-    
+
     final minX = _getMinX();
     final maxX = _getMaxX();
-    
+
     return [
       // Normal range minimum line
       LineChartBarData(
-        spots: [
-          FlSpot(minX, normalRangeMin!),
-          FlSpot(maxX, normalRangeMin!),
-        ],
+        spots: [FlSpot(minX, normalRangeMin!), FlSpot(maxX, normalRangeMin!)],
         isCurved: false,
         color: CareCircleColorTokens.normalRange.withValues(alpha: 0.6),
         barWidth: 1,
@@ -309,10 +316,7 @@ class HealthMetricChart extends StatelessWidget {
       ),
       // Normal range maximum line
       LineChartBarData(
-        spots: [
-          FlSpot(minX, normalRangeMax!),
-          FlSpot(maxX, normalRangeMax!),
-        ],
+        spots: [FlSpot(minX, normalRangeMax!), FlSpot(maxX, normalRangeMax!)],
         isCurved: false,
         color: CareCircleColorTokens.normalRange.withValues(alpha: 0.6),
         barWidth: 1,
@@ -326,7 +330,9 @@ class HealthMetricChart extends StatelessWidget {
     return Row(
       children: [
         _buildLegendItem('Current', _getMetricColor()),
-        if (showNormalRange && normalRangeMin != null && normalRangeMax != null) ...[
+        if (showNormalRange &&
+            normalRangeMin != null &&
+            normalRangeMax != null) ...[
           SizedBox(width: CareCircleSpacingTokens.md),
           _buildLegendItem('Normal Range', CareCircleColorTokens.normalRange),
         ],
@@ -343,16 +349,10 @@ class HealthMetricChart extends StatelessWidget {
         Container(
           width: 12,
           height: 12,
-          decoration: BoxDecoration(
-            color: color,
-            shape: BoxShape.circle,
-          ),
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
         SizedBox(width: CareCircleSpacingTokens.xs),
-        Text(
-          label,
-          style: CareCircleTypographyTokens.medicalNote,
-        ),
+        Text(label, style: CareCircleTypographyTokens.medicalNote),
       ],
     );
   }
@@ -507,7 +507,8 @@ class HealthMetricChart extends StatelessWidget {
         },
       ),
       touchCallback: (event, response) {
-        if (event is FlTapUpEvent && response?.lineBarSpots?.isNotEmpty == true) {
+        if (event is FlTapUpEvent &&
+            response?.lineBarSpots?.isNotEmpty == true) {
           final spot = response!.lineBarSpots!.first;
           final index = spot.spotIndex;
           if (index < data.length && onDataPointTap != null) {

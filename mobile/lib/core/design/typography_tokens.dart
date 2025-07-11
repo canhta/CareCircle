@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
 /// CareCircle Typography Token System
-/// 
+///
 /// Comprehensive typography system optimized for medical data display and healthcare UI.
 /// Supports Dynamic Type and accessibility requirements.
 class CareCircleTypographyTokens {
   // Medical Data Display Typography
-  
+
   /// Large vital signs display (e.g., main dashboard readings)
   static const TextStyle vitalSignsLarge = TextStyle(
     fontFamily: 'JetBrains Mono',

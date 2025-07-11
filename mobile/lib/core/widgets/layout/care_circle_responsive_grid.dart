@@ -3,7 +3,7 @@ import '../../design/spacing_tokens.dart';
 import 'care_circle_breakpoints.dart';
 
 /// Responsive grid widget optimized for healthcare UI
-/// 
+///
 /// Automatically adapts column count, spacing, and aspect ratios based on screen size.
 /// Follows healthcare design principles for optimal touch targets and readability.
 class CareCircleResponsiveGrid extends StatelessWidget {
@@ -41,8 +41,10 @@ class CareCircleResponsiveGrid extends StatelessWidget {
     }
 
     final breakpoint = CareCircleBreakpoints.getBreakpointFromContext(context);
-    final orientationConfig = CareCircleBreakpoints.getOrientationConfig(context);
-    
+    final orientationConfig = CareCircleBreakpoints.getOrientationConfig(
+      context,
+    );
+
     return Semantics(
       label: semanticLabel ?? 'Healthcare content grid',
       child: Padding(
@@ -100,12 +102,15 @@ class CareCircleResponsiveGrid extends StatelessWidget {
     );
   }
 
-  int _getCrossAxisCount(ScreenBreakpoint breakpoint, Map<String, dynamic> orientationConfig) {
+  int _getCrossAxisCount(
+    ScreenBreakpoint breakpoint,
+    Map<String, dynamic> orientationConfig,
+  ) {
     // Use orientation-aware column count if available
     if (orientationConfig['columnCount'] != null) {
       return orientationConfig['columnCount'] as int;
     }
-    
+
     // Fallback to breakpoint-based column count
     switch (breakpoint) {
       case ScreenBreakpoint.mobile:
@@ -119,7 +124,7 @@ class CareCircleResponsiveGrid extends StatelessWidget {
 
   double _getCrossAxisSpacing(BuildContext context) {
     if (crossAxisSpacing != null) return crossAxisSpacing!;
-    
+
     return CareCircleBreakpoints.getResponsiveSpacing(
       context,
       mobileSpacing: CareCircleSpacingTokens.sm,
@@ -130,7 +135,7 @@ class CareCircleResponsiveGrid extends StatelessWidget {
 
   double _getMainAxisSpacing(BuildContext context) {
     if (mainAxisSpacing != null) return mainAxisSpacing!;
-    
+
     return CareCircleBreakpoints.getResponsiveSpacing(
       context,
       mobileSpacing: CareCircleSpacingTokens.sm,
@@ -141,7 +146,7 @@ class CareCircleResponsiveGrid extends StatelessWidget {
 
   double _getChildAspectRatio(ScreenBreakpoint breakpoint) {
     if (childAspectRatio != null) return childAspectRatio!;
-    
+
     // Healthcare-optimized aspect ratios for different screen sizes
     switch (breakpoint) {
       case ScreenBreakpoint.mobile:
@@ -185,7 +190,7 @@ class CareCircleStaggeredGrid extends StatelessWidget {
 
     final breakpoint = CareCircleBreakpoints.getBreakpointFromContext(context);
     final columnCount = _getColumnCount(breakpoint);
-    
+
     return Semantics(
       label: semanticLabel ?? 'Healthcare staggered content grid',
       child: Padding(
@@ -222,27 +227,35 @@ class CareCircleStaggeredGrid extends StatelessWidget {
 
   Widget _buildStaggeredLayout(BuildContext context, int columnCount) {
     final columns = List.generate(columnCount, (index) => <Widget>[]);
-    
+
     // Distribute children across columns
     for (int i = 0; i < children.length; i++) {
       final columnIndex = i % columnCount;
       columns[columnIndex].add(children[i]);
     }
-    
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: columns.map((column) => Expanded(
-        child: Column(
-          children: column.map((child) => Padding(
-            padding: EdgeInsets.only(
-              bottom: _getMainAxisSpacing(context),
-              right: _getCrossAxisSpacing(context) / 2,
-              left: _getCrossAxisSpacing(context) / 2,
+      children: columns
+          .map(
+            (column) => Expanded(
+              child: Column(
+                children: column
+                    .map(
+                      (child) => Padding(
+                        padding: EdgeInsets.only(
+                          bottom: _getMainAxisSpacing(context),
+                          right: _getCrossAxisSpacing(context) / 2,
+                          left: _getCrossAxisSpacing(context) / 2,
+                        ),
+                        child: child,
+                      ),
+                    )
+                    .toList(),
+              ),
             ),
-            child: child,
-          )).toList(),
-        ),
-      )).toList(),
+          )
+          .toList(),
     );
   }
 
@@ -268,7 +281,7 @@ class CareCircleStaggeredGrid extends StatelessWidget {
 
   double _getCrossAxisSpacing(BuildContext context) {
     if (crossAxisSpacing != null) return crossAxisSpacing!;
-    
+
     return CareCircleBreakpoints.getResponsiveSpacing(
       context,
       mobileSpacing: CareCircleSpacingTokens.sm,
@@ -279,7 +292,7 @@ class CareCircleStaggeredGrid extends StatelessWidget {
 
   double _getMainAxisSpacing(BuildContext context) {
     if (mainAxisSpacing != null) return mainAxisSpacing!;
-    
+
     return CareCircleBreakpoints.getResponsiveSpacing(
       context,
       mobileSpacing: CareCircleSpacingTokens.sm,

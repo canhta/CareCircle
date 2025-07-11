@@ -171,10 +171,7 @@ class AuthService {
 
       final response = await _dio.post(
         '/auth/guest',
-        data: {
-          'deviceId': deviceId,
-          'idToken': idToken,
-        },
+        data: {'deviceId': deviceId, 'idToken': idToken},
       );
 
       final authResponse = AuthResponse.fromJson(response.data);
@@ -356,13 +353,15 @@ class AuthService {
         case 401:
           return errorMessage ?? 'Authentication failed. Please sign in again.';
         case 403:
-          return errorMessage ?? 'Access denied. You don\'t have permission to perform this action.';
+          return errorMessage ??
+              'Access denied. You don\'t have permission to perform this action.';
         case 404:
           return errorMessage ?? 'Service not found. Please try again later.';
         case 409:
           return errorMessage ?? 'Conflict. This action cannot be completed.';
         case 422:
-          return errorMessage ?? 'Invalid data provided. Please check your input.';
+          return errorMessage ??
+              'Invalid data provided. Please check your input.';
         case 429:
           return 'Too many requests. Please wait a moment and try again.';
         case 500:
@@ -370,7 +369,8 @@ class AuthService {
         case 503:
           return 'Service temporarily unavailable. Please try again later.';
         default:
-          return errorMessage ?? 'An unexpected error occurred. Please try again.';
+          return errorMessage ??
+              'An unexpected error occurred. Please try again.';
       }
     }
 

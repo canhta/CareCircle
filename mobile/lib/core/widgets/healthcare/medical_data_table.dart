@@ -1,5 +1,5 @@
 // CareCircle Medical Data Table
-// 
+//
 // Healthcare-optimized data table with sorting, filtering, and accessibility
 // compliance for medical records and health metrics display.
 
@@ -152,16 +152,12 @@ class _MedicalDataTableState extends State<MedicalDataTable> {
     }
 
     final textStyle = _getCellTextStyle(cell);
-    
+
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         if (cell.icon != null) ...[
-          Icon(
-            cell.icon,
-            size: 16,
-            color: _getCellIconColor(cell),
-          ),
+          Icon(cell.icon, size: 16, color: _getCellIconColor(cell)),
           SizedBox(width: CareCircleSpacingTokens.xs),
         ],
         Flexible(
@@ -198,11 +194,13 @@ class _MedicalDataTableState extends State<MedicalDataTable> {
 
   TextStyle _getCellTextStyle(MedicalDataCell cell) {
     var baseStyle = CareCircleTypographyTokens.textTheme.bodyMedium!;
-    
+
     if (cell.isNumeric) {
-      baseStyle = baseStyle.copyWith(fontFeatures: [const FontFeature.tabularFigures()]);
+      baseStyle = baseStyle.copyWith(
+        fontFeatures: [const FontFeature.tabularFigures()],
+      );
     }
-    
+
     switch (cell.severity) {
       case MedicalSeverity.critical:
         return baseStyle.copyWith(
@@ -215,9 +213,7 @@ class _MedicalDataTableState extends State<MedicalDataTable> {
           fontWeight: FontWeight.w600,
         );
       case MedicalSeverity.normal:
-        return baseStyle.copyWith(
-          color: CareCircleColorTokens.healthGreen,
-        );
+        return baseStyle.copyWith(color: CareCircleColorTokens.healthGreen);
       case MedicalSeverity.info:
         return baseStyle.copyWith(
           color: CareCircleColorTokens.primaryMedicalBlue,
@@ -265,7 +261,7 @@ class _MedicalDataTableState extends State<MedicalDataTable> {
       if (states.contains(WidgetState.selected)) {
         return CareCircleColorTokens.primaryMedicalBlue.withValues(alpha: 0.1);
       }
-      
+
       if (row.severity != null) {
         switch (row.severity!) {
           case MedicalSeverity.critical:
@@ -278,7 +274,7 @@ class _MedicalDataTableState extends State<MedicalDataTable> {
             return null;
         }
       }
-      
+
       return null;
     });
   }
@@ -287,10 +283,7 @@ class _MedicalDataTableState extends State<MedicalDataTable> {
     return BoxDecoration(
       color: Colors.white,
       borderRadius: BorderRadius.circular(CareCircleSpacingTokens.md),
-      border: Border.all(
-        color: Colors.grey.withValues(alpha: 0.2),
-        width: 1,
-      ),
+      border: Border.all(color: Colors.grey.withValues(alpha: 0.2), width: 1),
       boxShadow: [
         BoxShadow(
           color: Colors.black.withValues(alpha: 0.05),
@@ -411,9 +404,4 @@ class MedicalDataCell {
 }
 
 /// Medical severity levels for data visualization
-enum MedicalSeverity {
-  critical,
-  warning,
-  normal,
-  info,
-}
+enum MedicalSeverity { critical, warning, normal, info }

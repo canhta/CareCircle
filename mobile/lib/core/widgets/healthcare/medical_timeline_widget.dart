@@ -1,5 +1,5 @@
 // CareCircle Medical Timeline Widget
-// 
+//
 // Interactive timeline for medical history visualization with healthcare-compliant
 // data presentation and accessibility-optimized navigation.
 
@@ -76,7 +76,7 @@ class MedicalTimelineWidget extends StatelessWidget {
 
   Widget _buildTimelineItem(MedicalTimelineEvent event, int index) {
     final isLast = index == events.length - 1;
-    
+
     return Semantics(
       label: '${event.type.displayName} on ${_formatDate(event.date)}',
       hint: event.description,
@@ -94,9 +94,7 @@ class MedicalTimelineWidget extends StatelessWidget {
             children: [
               _buildTimelineIndicator(event, isLast),
               SizedBox(width: CareCircleSpacingTokens.md),
-              Expanded(
-                child: _buildEventContent(event),
-              ),
+              Expanded(child: _buildEventContent(event)),
             ],
           ),
         ),
@@ -113,10 +111,7 @@ class MedicalTimelineWidget extends StatelessWidget {
           decoration: BoxDecoration(
             color: _getEventColor(event.type),
             shape: BoxShape.circle,
-            border: Border.all(
-              color: Colors.white,
-              width: 3,
-            ),
+            border: Border.all(color: Colors.white, width: 3),
             boxShadow: [
               BoxShadow(
                 color: _getEventColor(event.type).withValues(alpha: 0.3),
@@ -125,11 +120,7 @@ class MedicalTimelineWidget extends StatelessWidget {
               ),
             ],
           ),
-          child: Icon(
-            _getEventIcon(event.type),
-            size: 16,
-            color: Colors.white,
-          ),
+          child: Icon(_getEventIcon(event.type), size: 16, color: Colors.white),
         ),
         if (!isLast)
           Container(
@@ -177,7 +168,9 @@ class MedicalTimelineWidget extends StatelessWidget {
                   ),
                   decoration: BoxDecoration(
                     color: _getEventColor(event.type).withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(CareCircleSpacingTokens.xs),
+                    borderRadius: BorderRadius.circular(
+                      CareCircleSpacingTokens.xs,
+                    ),
                   ),
                   child: Text(
                     _formatDate(event.date),
@@ -252,7 +245,7 @@ class MedicalTimelineWidget extends StatelessWidget {
   String _formatDate(DateTime date) {
     final now = DateTime.now();
     final difference = now.difference(date).inDays;
-    
+
     if (difference == 0) {
       return 'Today';
     } else if (difference == 1) {

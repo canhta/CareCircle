@@ -224,5 +224,3 @@ abstract class NotificationSummary with _$NotificationSummary {
   factory NotificationSummary.fromJson(Map<String, dynamic> json) =>
       _$NotificationSummaryFromJson(json);
 }
-
-

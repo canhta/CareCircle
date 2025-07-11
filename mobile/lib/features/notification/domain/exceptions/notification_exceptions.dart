@@ -24,7 +24,8 @@ class NotificationNetworkException extends NotificationException {
   final bool isRetryable;
 
   @override
-  String toString() => 'NotificationNetworkException: $message (Status: $statusCode)';
+  String toString() =>
+      'NotificationNetworkException: $message (Status: $statusCode)';
 }
 
 /// Authentication/authorization errors
@@ -56,7 +57,8 @@ class NotificationValidationException extends NotificationException {
   final List<String>? validationErrors;
 
   @override
-  String toString() => 'NotificationValidationException: $message (Field: $field)';
+  String toString() =>
+      'NotificationValidationException: $message (Field: $field)';
 }
 
 /// Cache-related errors
@@ -88,7 +90,8 @@ class NotificationPermissionException extends NotificationException {
   final bool canRequestAgain;
 
   @override
-  String toString() => 'NotificationPermissionException: $message (Type: $permissionType)';
+  String toString() =>
+      'NotificationPermissionException: $message (Type: $permissionType)';
 }
 
 /// Emergency alert specific errors
@@ -122,7 +125,8 @@ class NotificationTemplateException extends NotificationException {
   final List<String>? missingVariables;
 
   @override
-  String toString() => 'NotificationTemplateException: $message (Template: $templateId)';
+  String toString() =>
+      'NotificationTemplateException: $message (Template: $templateId)';
 }
 
 /// Rate limiting errors
@@ -139,7 +143,8 @@ class NotificationRateLimitException extends NotificationException {
   final int? limit;
 
   @override
-  String toString() => 'NotificationRateLimitException: $message (Retry after: $retryAfter)';
+  String toString() =>
+      'NotificationRateLimitException: $message (Retry after: $retryAfter)';
 }
 
 /// Healthcare compliance errors
@@ -156,7 +161,8 @@ class NotificationComplianceException extends NotificationException {
   final String? requiredAction;
 
   @override
-  String toString() => 'NotificationComplianceException: $message (Type: $complianceType)';
+  String toString() =>
+      'NotificationComplianceException: $message (Type: $complianceType)';
 }
 
 /// Service unavailable errors
@@ -173,7 +179,8 @@ class NotificationServiceException extends NotificationException {
   final Duration? estimatedRecovery;
 
   @override
-  String toString() => 'NotificationServiceException: $message (Service: $serviceName)';
+  String toString() =>
+      'NotificationServiceException: $message (Service: $serviceName)';
 }
 
 /// Configuration errors
@@ -190,7 +197,8 @@ class NotificationConfigException extends NotificationException {
   final String? expectedType;
 
   @override
-  String toString() => 'NotificationConfigException: $message (Key: $configKey)';
+  String toString() =>
+      'NotificationConfigException: $message (Key: $configKey)';
 }
 
 /// Unknown/unexpected errors
@@ -207,5 +215,6 @@ class NotificationUnknownException extends NotificationException {
   final StackTrace? stackTrace;
 
   @override
-  String toString() => 'NotificationUnknownException: $message (Original: $originalException)';
+  String toString() =>
+      'NotificationUnknownException: $message (Original: $originalException)';
 }

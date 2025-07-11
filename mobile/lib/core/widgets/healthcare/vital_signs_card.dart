@@ -25,7 +25,7 @@ class VitalSignReading {
 }
 
 /// Healthcare-optimized vital signs card component
-/// 
+///
 /// Displays vital sign data with accessibility compliance and medical context awareness.
 /// Supports trend indicators, normal ranges, and emergency state highlighting.
 class VitalSignsCard extends StatelessWidget {
@@ -57,13 +57,13 @@ class VitalSignsCard extends StatelessWidget {
   final List<VitalSignReading> historicalData;
   final DateTime? lastUpdated;
   final VoidCallback? onTap;
-  
+
   // Healthcare-specific properties
   final bool showTrend;
   final bool isAbnormal;
   final String? medicalNote;
   final String? recordedBy;
-  
+
   // Accessibility properties
   final String? semanticLabel;
   final String? semanticValue;
@@ -119,11 +119,7 @@ class VitalSignsCard extends StatelessWidget {
   Widget _buildHeader() {
     return Row(
       children: [
-        Icon(
-          _getVitalSignIcon(),
-          color: _getVitalSignColor(),
-          size: 24,
-        ),
+        Icon(_getVitalSignIcon(), color: _getVitalSignColor(), size: 24),
         SizedBox(width: CareCircleSpacingTokens.sm),
         Expanded(
           child: Text(
@@ -165,11 +161,11 @@ class VitalSignsCard extends StatelessWidget {
 
   Widget _buildTrendIndicator() {
     if (historicalData.length < 2) return const SizedBox.shrink();
-    
+
     final trend = _calculateTrend();
     IconData trendIcon;
     Color trendColor;
-    
+
     if (trend > 0.05) {
       trendIcon = Icons.trending_up;
       trendColor = CareCircleColorTokens.dangerRange;
@@ -180,7 +176,7 @@ class VitalSignsCard extends StatelessWidget {
       trendIcon = Icons.trending_flat;
       trendColor = CareCircleColorTokens.unknownData;
     }
-    
+
     return Row(
       children: [
         Icon(trendIcon, size: 16, color: trendColor),
@@ -222,15 +218,9 @@ class VitalSignsCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Medical Note:',
-            style: CareCircleTypographyTokens.medicalLabel,
-          ),
+          Text('Medical Note:', style: CareCircleTypographyTokens.medicalLabel),
           SizedBox(height: CareCircleSpacingTokens.xs),
-          Text(
-            medicalNote!,
-            style: CareCircleTypographyTokens.medicalNote,
-          ),
+          Text(medicalNote!, style: CareCircleTypographyTokens.medicalNote),
           if (recordedBy != null) ...[
             SizedBox(height: CareCircleSpacingTokens.xs),
             Text(
@@ -326,17 +316,17 @@ class VitalSignsCard extends StatelessWidget {
 
   double _calculateTrend() {
     if (historicalData.length < 2) return 0.0;
-    
+
     final recent = historicalData.last.value;
     final previous = historicalData[historicalData.length - 2].value;
-    
+
     return (recent - previous) / previous;
   }
 
   String _formatTimeAgo(DateTime dateTime) {
     final now = DateTime.now();
     final difference = now.difference(dateTime);
-    
+
     if (difference.inMinutes < 1) {
       return 'just now';
     } else if (difference.inHours < 1) {

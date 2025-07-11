@@ -102,11 +102,6 @@ abstract class EmergencyContact with _$EmergencyContact {
       _$EmergencyContactFromJson(json);
 }
 
-
-
-
-
-
 /// Extensions for convenience methods
 extension NotificationPreferencesExtension on NotificationPreferences {
   /// Check if notifications are enabled for a specific context and channel

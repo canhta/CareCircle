@@ -1,5 +1,5 @@
 // CareCircle Activity Ring Component
-// 
+//
 // Apple Health HIG-compliant Activity Rings for healthcare activity tracking.
 // Follows strict Apple Human Interface Guidelines for activity visualization.
 
@@ -71,14 +71,11 @@ class _ActivityRingComponentState extends State<ActivityRingComponent>
 
     // Start animations with staggered delay
     for (int i = 0; i < _animationControllers.length; i++) {
-      Future.delayed(
-        Duration(milliseconds: i * 200),
-        () {
-          if (mounted) {
-            _animationControllers[i].forward();
-          }
-        },
-      );
+      Future.delayed(Duration(milliseconds: i * 200), () {
+        if (mounted) {
+          _animationControllers[i].forward();
+        }
+      });
     }
   }
 
@@ -123,7 +120,7 @@ class _ActivityRingComponentState extends State<ActivityRingComponent>
 
   Widget _buildCenterContent() {
     if (widget.activities.isEmpty) return const SizedBox.shrink();
-    
+
     final primaryActivity = widget.activities.first;
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -148,7 +145,7 @@ class _ActivityRingComponentState extends State<ActivityRingComponent>
   void _handleTap(TapUpDetails details) {
     final center = Offset(widget.size / 2, widget.size / 2);
     final distance = (details.localPosition - center).distance;
-    
+
     final ringIndex = _calculateRingIndex(distance);
     if (ringIndex >= 0 && ringIndex < widget.activities.length) {
       widget.onRingTap?.call(widget.activities[ringIndex]);
@@ -157,18 +154,19 @@ class _ActivityRingComponentState extends State<ActivityRingComponent>
 
   int _calculateRingIndex(double distance) {
     final ringSpacing = widget.strokeWidth + 4; // 4px gap between rings
-    final innerRadius = (widget.size / 2) - (widget.activities.length * ringSpacing);
-    
+    final innerRadius =
+        (widget.size / 2) - (widget.activities.length * ringSpacing);
+
     for (int i = 0; i < widget.activities.length; i++) {
       final ringRadius = innerRadius + (i * ringSpacing);
       final ringInnerRadius = ringRadius - (widget.strokeWidth / 2);
       final ringOuterRadius = ringRadius + (widget.strokeWidth / 2);
-      
+
       if (distance >= ringInnerRadius && distance <= ringOuterRadius) {
         return i;
       }
     }
-    
+
     return -1;
   }
 }
@@ -254,17 +252,18 @@ class ActivityRingPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
-    final ringSpacing = strokeWidth + 4; // 4px gap between rings as per Apple HIG
+    final ringSpacing =
+        strokeWidth + 4; // 4px gap between rings as per Apple HIG
     final outerRadius = (size.width / 2) - (strokeWidth / 2);
-    
+
     for (int i = 0; i < activities.length; i++) {
       final activity = activities[i];
       final animation = animations[i];
       final radius = outerRadius - (i * ringSpacing);
-      
+
       // Draw background ring
       _drawBackgroundRing(canvas, center, radius, activity.color);
-      
+
       // Draw progress ring
       _drawProgressRing(
         canvas,
@@ -276,7 +275,12 @@ class ActivityRingPainter extends CustomPainter {
     }
   }
 
-  void _drawBackgroundRing(Canvas canvas, Offset center, double radius, Color color) {
+  void _drawBackgroundRing(
+    Canvas canvas,
+    Offset center,
+    double radius,
+    Color color,
+  ) {
     final paint = Paint()
       ..color = color.withValues(alpha: 0.2)
       ..style = PaintingStyle.stroke
@@ -314,6 +318,6 @@ class ActivityRingPainter extends CustomPainter {
   @override
   bool shouldRepaint(ActivityRingPainter oldDelegate) {
     return oldDelegate.activities != activities ||
-           oldDelegate.animations != animations;
+        oldDelegate.animations != animations;
   }
 }

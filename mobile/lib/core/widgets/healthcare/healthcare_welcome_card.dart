@@ -3,16 +3,10 @@ import '../../design/design_tokens.dart';
 import '../../design/care_circle_icons.dart';
 
 /// Health status levels for the welcome card
-enum HealthStatus {
-  excellent,
-  good,
-  fair,
-  needsAttention,
-  unknown,
-}
+enum HealthStatus { excellent, good, fair, needsAttention, unknown }
 
 /// Healthcare-optimized welcome card component
-/// 
+///
 /// Displays personalized welcome message with health status overview,
 /// last health update, and quick access to health check functionality.
 class HealthcareWelcomeCard extends StatelessWidget {
@@ -43,7 +37,9 @@ class HealthcareWelcomeCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Semantics(
       label: semanticLabel ?? 'Welcome section',
-      hint: semanticHint ?? 'Your current health overview and quick health check access',
+      hint:
+          semanticHint ??
+          'Your current health overview and quick health check access',
       child: Container(
         width: double.infinity,
         padding: EdgeInsets.all(CareCircleSpacingTokens.lg),
@@ -52,7 +48,9 @@ class HealthcareWelcomeCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(CareCircleSpacingTokens.md),
           boxShadow: [
             BoxShadow(
-              color: CareCircleColorTokens.lightColorScheme.shadow.withValues(alpha: 0.1),
+              color: CareCircleColorTokens.lightColorScheme.shadow.withValues(
+                alpha: 0.1,
+              ),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -83,7 +81,7 @@ class HealthcareWelcomeCard extends StatelessWidget {
   Widget _buildWelcomeHeader(BuildContext context) {
     final timeOfDay = _getTimeOfDayGreeting();
     final message = customMessage ?? _getHealthStatusMessage();
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -114,11 +112,7 @@ class HealthcareWelcomeCard extends StatelessWidget {
             color: Colors.white.withValues(alpha: 0.2),
             borderRadius: BorderRadius.circular(CareCircleSpacingTokens.sm),
           ),
-          child: Icon(
-            _getHealthStatusIcon(),
-            color: Colors.white,
-            size: 24,
-          ),
+          child: Icon(_getHealthStatusIcon(), color: Colors.white, size: 24),
         ),
         SizedBox(width: CareCircleSpacingTokens.md),
         Expanded(
@@ -147,7 +141,7 @@ class HealthcareWelcomeCard extends StatelessWidget {
 
   Widget _buildLastUpdateSection(BuildContext context) {
     final timeAgo = _formatTimeAgo(lastHealthUpdate!);
-    
+
     return Row(
       children: [
         Icon(
@@ -221,11 +215,7 @@ class HealthcareWelcomeCard extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
-                icon,
-                color: Colors.white,
-                size: 18,
-              ),
+              Icon(icon, color: Colors.white, size: 18),
               SizedBox(width: CareCircleSpacingTokens.xs),
               Flexible(
                 child: Text(
@@ -356,7 +346,7 @@ class HealthcareWelcomeCard extends StatelessWidget {
   String _formatTimeAgo(DateTime dateTime) {
     final now = DateTime.now();
     final difference = now.difference(dateTime);
-    
+
     if (difference.inMinutes < 1) {
       return 'just now';
     } else if (difference.inHours < 1) {
