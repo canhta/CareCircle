@@ -57,14 +57,14 @@ export class UserService {
 
     // Create basic profile
     const displayName =
-      decodedToken.name ||
+      (decodedToken.name as string) ||
       (decodedToken.email ? decodedToken.email.split('@')[0] : 'Guest User');
 
     const profile = UserProfile.create({
       userId: createdUser.id,
       displayName,
-      firstName: decodedToken.given_name,
-      lastName: decodedToken.family_name,
+      firstName: decodedToken.given_name as string | undefined,
+      lastName: decodedToken.family_name as string | undefined,
     });
     await this.userRepository.createProfile(profile);
 

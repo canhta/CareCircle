@@ -1,25 +1,20 @@
 import {
   Controller,
   Post,
+  Get,
+  Put,
   Body,
-  HttpCode,
-  HttpStatus,
   UseGuards,
   Request,
-  BadRequestException,
-  InternalServerErrorException,
+  HttpCode,
+  HttpStatus,
   Logger,
 } from '@nestjs/common';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiBearerAuth,
-} from '@nestjs/swagger';
 import {
   AuthService,
   LoginResult,
 } from '../../application/services/auth.service';
+import { UserService } from '../../application/services/user.service';
 import {
   GuestLoginDto,
   ConvertGuestDto,
@@ -28,39 +23,25 @@ import {
   LinkOAuthProviderDto,
   FirebaseLoginDto,
   FirebaseRegisterDto,
+  UpdateProfileDto,
+  ProfileResponseDto,
 } from '../dtos/auth.dto';
 import {
   FirebaseAuthGuard,
   FirebaseUserPayload,
 } from '../guards/firebase-auth.guard';
 
-@ApiTags('Authentication')
 @Controller('auth')
 export class AuthController {
   private readonly logger = new Logger(AuthController.name);
 
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly userService: UserService,
+  ) {}
 
   @Post('firebase-login')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({
-    summary: 'Login with Firebase ID token',
-    description:
-      'Authenticate user using Firebase ID token from email/password authentication',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'User successfully authenticated',
-    type: AuthResponseDto,
-  })
-  @ApiResponse({
-    status: 400,
-    description: 'Invalid Firebase ID token',
-  })
-  @ApiResponse({
-    status: 500,
-    description: 'Internal server error',
-  })
   async firebaseLogin(
     @Body() firebaseLoginDto: FirebaseLoginDto,
   ): Promise<AuthResponseDto> {
@@ -73,36 +54,14 @@ export class AuthController {
       return this.formatAuthResponse(result);
     } catch (error) {
       const errorMessage =
-        error instanceof Error ? error.message : 'Unknown error';
-      const errorStack = error instanceof Error ? error.stack : undefined;
-      this.logger.error('Firebase login failed', errorStack);
-      if (errorMessage.includes('Firebase')) {
-        throw new BadRequestException('Invalid Firebase ID token');
-      }
-      throw new InternalServerErrorException('Authentication failed');
+        error instanceof Error ? error.message : 'Firebase login failed';
+      this.logger.error(`Firebase login failed: ${errorMessage}`);
+      throw new Error(errorMessage);
     }
   }
 
   @Post('firebase-register')
   @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({
-    summary: 'Register new user with Firebase ID token',
-    description:
-      'Create new user account using Firebase ID token with profile information',
-  })
-  @ApiResponse({
-    status: 201,
-    description: 'User successfully registered',
-    type: AuthResponseDto,
-  })
-  @ApiResponse({
-    status: 400,
-    description: 'Invalid Firebase ID token or user already exists',
-  })
-  @ApiResponse({
-    status: 500,
-    description: 'Internal server error',
-  })
   async firebaseRegister(
     @Body() firebaseRegisterDto: FirebaseRegisterDto,
   ): Promise<AuthResponseDto> {
@@ -111,7 +70,7 @@ export class AuthController {
       const result = await this.authService.registerWithFirebaseToken(
         firebaseRegisterDto.idToken,
         {
-          displayName: firebaseRegisterDto.displayName || 'User',
+          displayName: firebaseRegisterDto.displayName || '',
           firstName: firebaseRegisterDto.firstName,
           lastName: firebaseRegisterDto.lastName,
         },
@@ -122,90 +81,39 @@ export class AuthController {
       return this.formatAuthResponse(result);
     } catch (error) {
       const errorMessage =
-        error instanceof Error ? error.message : 'Unknown error';
-      const errorStack = error instanceof Error ? error.stack : undefined;
-      this.logger.error('Firebase registration failed', errorStack);
-      if (errorMessage.includes('already exists')) {
-        throw new BadRequestException(
-          'User already exists with this Firebase UID',
-        );
-      }
-      if (errorMessage.includes('Firebase')) {
-        throw new BadRequestException('Invalid Firebase ID token');
-      }
-      throw new InternalServerErrorException('Registration failed');
+        error instanceof Error ? error.message : 'Firebase registration failed';
+      this.logger.error(`Firebase registration failed: ${errorMessage}`);
+      throw new Error(errorMessage);
     }
   }
 
   @Post('guest')
   @UseGuards(FirebaseAuthGuard)
-  @ApiBearerAuth()
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({
-    summary: 'Login as guest user',
-    description:
-      'Create or login guest user using Firebase anonymous authentication',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Guest user successfully authenticated',
-    type: AuthResponseDto,
-  })
-  @ApiResponse({
-    status: 401,
-    description: 'Invalid Firebase anonymous token',
-  })
-  @ApiResponse({
-    status: 500,
-    description: 'Internal server error',
-  })
-  async loginAsGuest(
-    @Request() req: { user: FirebaseUserPayload },
+  async guestLogin(
     @Body() guestLoginDto: GuestLoginDto,
   ): Promise<AuthResponseDto> {
     try {
       this.logger.log(
-        `Guest login attempt for Firebase UID: ${req.user.firebaseUid}`,
+        `Guest login attempt for device: ${guestLoginDto.deviceId}`,
       );
       const result = await this.authService.loginAsGuest(
-        req.user.firebaseUid,
+        guestLoginDto.idToken,
         guestLoginDto.deviceId,
       );
       this.logger.log(`Guest login successful for user: ${result.user.id}`);
       return this.formatAuthResponse(result);
     } catch (error) {
-      const errorStack = error instanceof Error ? error.stack : undefined;
-      this.logger.error('Guest login failed', errorStack);
-      throw new InternalServerErrorException('Guest authentication failed');
+      const errorMessage =
+        error instanceof Error ? error.message : 'Guest login failed';
+      this.logger.error(`Guest login failed: ${errorMessage}`);
+      throw new Error(errorMessage);
     }
   }
 
   @Post('convert-guest')
   @UseGuards(FirebaseAuthGuard)
-  @ApiBearerAuth()
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({
-    summary: 'Convert guest account to registered user',
-    description:
-      'Convert existing guest account to permanent registered user account',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Guest account successfully converted',
-    type: AuthResponseDto,
-  })
-  @ApiResponse({
-    status: 400,
-    description: 'Invalid conversion data or user is not a guest',
-  })
-  @ApiResponse({
-    status: 401,
-    description: 'Unauthorized - invalid token',
-  })
-  @ApiResponse({
-    status: 500,
-    description: 'Internal server error',
-  })
   async convertGuest(
     @Request() req: { user: FirebaseUserPayload },
     @Body() convertGuestDto: ConvertGuestDto,
@@ -222,38 +130,14 @@ export class AuthController {
       return this.formatAuthResponse(result);
     } catch (error) {
       const errorMessage =
-        error instanceof Error ? error.message : 'Unknown error';
-      const errorStack = error instanceof Error ? error.stack : undefined;
-      this.logger.error('Guest conversion failed', errorStack);
-      if (errorMessage.includes('not a guest')) {
-        throw new BadRequestException('User is not a guest account');
-      }
-      if (errorMessage.includes('already exists')) {
-        throw new BadRequestException('Email or phone number already in use');
-      }
-      throw new InternalServerErrorException('Guest conversion failed');
+        error instanceof Error ? error.message : 'Guest conversion failed';
+      this.logger.error(`Guest conversion failed: ${errorMessage}`);
+      throw new Error(errorMessage);
     }
   }
 
   @Post('oauth/google')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({
-    summary: 'Sign in with Google',
-    description: 'Authenticate user using Google OAuth via Firebase',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Google sign-in successful',
-    type: AuthResponseDto,
-  })
-  @ApiResponse({
-    status: 400,
-    description: 'Invalid Google ID token',
-  })
-  @ApiResponse({
-    status: 500,
-    description: 'Internal server error',
-  })
   async googleSignIn(
     @Body() oauthLoginDto: OAuthLoginDto,
   ): Promise<AuthResponseDto> {
@@ -266,38 +150,14 @@ export class AuthController {
       return this.formatAuthResponse(result);
     } catch (error) {
       const errorMessage =
-        error instanceof Error ? error.message : 'Unknown error';
-      const errorStack = error instanceof Error ? error.stack : undefined;
-      this.logger.error('Google sign-in failed', errorStack);
-      if (
-        errorMessage.includes('Google') ||
-        errorMessage.includes('Firebase')
-      ) {
-        throw new BadRequestException('Invalid Google ID token');
-      }
-      throw new InternalServerErrorException('Google authentication failed');
+        error instanceof Error ? error.message : 'Google sign-in failed';
+      this.logger.error(`Google sign-in failed: ${errorMessage}`);
+      throw new Error(errorMessage);
     }
   }
 
   @Post('oauth/apple')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({
-    summary: 'Sign in with Apple',
-    description: 'Authenticate user using Apple OAuth via Firebase',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Apple sign-in successful',
-    type: AuthResponseDto,
-  })
-  @ApiResponse({
-    status: 400,
-    description: 'Invalid Apple ID token',
-  })
-  @ApiResponse({
-    status: 500,
-    description: 'Internal server error',
-  })
   async appleSignIn(
     @Body() oauthLoginDto: OAuthLoginDto,
   ): Promise<AuthResponseDto> {
@@ -310,47 +170,15 @@ export class AuthController {
       return this.formatAuthResponse(result);
     } catch (error) {
       const errorMessage =
-        error instanceof Error ? error.message : 'Unknown error';
-      const errorStack = error instanceof Error ? error.stack : undefined;
-      this.logger.error('Apple sign-in failed', errorStack);
-      if (errorMessage.includes('Apple') || errorMessage.includes('Firebase')) {
-        throw new BadRequestException('Invalid Apple ID token');
-      }
-      throw new InternalServerErrorException('Apple authentication failed');
+        error instanceof Error ? error.message : 'Apple sign-in failed';
+      this.logger.error(`Apple sign-in failed: ${errorMessage}`);
+      throw new Error(errorMessage);
     }
   }
 
   @Post('oauth/link')
   @UseGuards(FirebaseAuthGuard)
-  @ApiBearerAuth()
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({
-    summary: 'Link OAuth provider to existing account',
-    description: 'Link Google or Apple OAuth provider to existing user account',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'OAuth provider successfully linked',
-    schema: {
-      type: 'object',
-      properties: {
-        success: { type: 'boolean' },
-        message: { type: 'string' },
-      },
-    },
-  })
-  @ApiResponse({
-    status: 400,
-    description: 'Invalid provider data or provider already linked',
-  })
-  @ApiResponse({
-    status: 401,
-    description: 'Unauthorized - invalid token',
-  })
-  @ApiResponse({
-    status: 500,
-    description: 'Internal server error',
-  })
   async linkOAuthProvider(
     @Request() req: { user: FirebaseUserPayload },
     @Body() linkOAuthDto: LinkOAuthProviderDto,
@@ -373,21 +201,49 @@ export class AuthController {
       };
     } catch (error) {
       const errorMessage =
-        error instanceof Error ? error.message : 'Unknown error';
-      const errorStack = error instanceof Error ? error.stack : undefined;
-      this.logger.error('OAuth provider linking failed', errorStack);
-      if (errorMessage.includes('already linked')) {
-        throw new BadRequestException(
-          'OAuth provider already linked to this account',
-        );
-      }
-      throw new InternalServerErrorException('Failed to link OAuth provider');
+        error instanceof Error ? error.message : 'OAuth linking failed';
+      this.logger.error(`OAuth linking failed: ${errorMessage}`);
+      throw new Error(errorMessage);
     }
   }
 
-  /**
-   * Helper method to format authentication responses consistently
-   */
+  @Get('profile')
+  @UseGuards(FirebaseAuthGuard)
+  async getProfile(
+    @Request() req: { user: FirebaseUserPayload },
+  ): Promise<ProfileResponseDto> {
+    try {
+      const profile = await this.userService.getProfile(req.user.id);
+      return profile as ProfileResponseDto;
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Failed to get profile';
+      this.logger.error(`Get profile failed: ${errorMessage}`);
+      throw new Error(errorMessage);
+    }
+  }
+
+  @Put('profile')
+  @UseGuards(FirebaseAuthGuard)
+  async updateProfile(
+    @Request() req: { user: FirebaseUserPayload },
+    @Body() updateProfileDto: UpdateProfileDto,
+  ): Promise<ProfileResponseDto> {
+    try {
+      const profile = await this.userService.updateProfile(
+        req.user.id,
+        updateProfileDto,
+      );
+      this.logger.log(`Profile updated for user: ${req.user.id}`);
+      return profile as ProfileResponseDto;
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Failed to update profile';
+      this.logger.error(`Update profile failed: ${errorMessage}`);
+      throw new Error(errorMessage);
+    }
+  }
+
   private formatAuthResponse(result: LoginResult): AuthResponseDto {
     return {
       user: {
