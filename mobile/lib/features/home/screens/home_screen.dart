@@ -5,6 +5,7 @@ import '../../../core/design/design_tokens.dart';
 import '../../../core/navigation/navigation_service.dart';
 import '../../../core/widgets/care_circle_button.dart';
 import '../../auth/presentation/providers/auth_provider.dart';
+import '../../notification/presentation/providers/notification_providers.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -22,6 +23,58 @@ class HomeScreen extends ConsumerWidget {
         backgroundColor: CareCircleDesignTokens.primaryMedicalBlue,
         foregroundColor: Colors.white,
         actions: [
+          // Notification icon with badge
+          Consumer(
+            builder: (context, ref, child) {
+              final unreadCountAsync = ref.watch(unreadNotificationCountProvider);
+              return unreadCountAsync.when(
+                data: (unreadCount) => Stack(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.notifications),
+                      onPressed: () => context.push('/notifications'),
+                      tooltip: 'Notifications',
+                    ),
+                    if (unreadCount > 0)
+                      Positioned(
+                        right: 8,
+                        top: 8,
+                        child: Container(
+                          padding: const EdgeInsets.all(2),
+                          decoration: BoxDecoration(
+                            color: CareCircleDesignTokens.errorRed,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          constraints: const BoxConstraints(
+                            minWidth: 16,
+                            minHeight: 16,
+                          ),
+                          child: Text(
+                            unreadCount > 99 ? '99+' : unreadCount.toString(),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+                loading: () => IconButton(
+                  icon: const Icon(Icons.notifications),
+                  onPressed: () => context.push('/notifications'),
+                  tooltip: 'Notifications',
+                ),
+                error: (_, __) => IconButton(
+                  icon: const Icon(Icons.notifications),
+                  onPressed: () => context.push('/notifications'),
+                  tooltip: 'Notifications',
+                ),
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () {
