@@ -11,6 +11,7 @@ import '../../../core/widgets/layout/care_circle_responsive_grid.dart';
 import '../../../core/widgets/navigation/care_circle_tab_bar.dart';
 import '../../auth/presentation/providers/auth_provider.dart';
 import '../../notification/presentation/providers/notification_providers.dart';
+import 'modern_ui_showcase_screen.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -135,10 +136,37 @@ class HomeScreen extends ConsumerWidget {
               const SizedBox(height: 32),
 
               // Healthcare Quick Actions
-              Text(
-                'Quick Actions',
-                style: theme.textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
+              Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: CareCircleSpacingTokens.md,
+                  vertical: CareCircleSpacingTokens.sm,
+                ),
+                decoration: CareCircleGlassmorphismTokens.lightCardGlass(
+                  borderRadius: CareCircleModernEffectsTokens.radiusSM,
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: EdgeInsets.all(CareCircleSpacingTokens.xs),
+                      decoration: BoxDecoration(
+                        gradient: CareCircleGradientTokens.primaryMedical,
+                        borderRadius: CareCircleModernEffectsTokens.radiusXS,
+                      ),
+                      child: const Icon(
+                        Icons.dashboard,
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                    ),
+                    SizedBox(width: CareCircleSpacingTokens.sm),
+                    Text(
+                      'Quick Actions',
+                      style: theme.textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: CareCircleColorTokens.primaryMedicalBlue,
+                      ),
+                    ),
+                  ],
                 ),
               ),
 
@@ -213,6 +241,22 @@ class HomeScreen extends ConsumerWidget {
                       semanticHint:
                           'Quick access to emergency contacts and services',
                       urgencyLevel: UrgencyLevel.critical,
+                    ),
+                    HealthcareActionCard(
+                      icon: Icons.palette,
+                      title: 'Modern UI Showcase',
+                      subtitle: 'See new design features',
+                      color: const Color(0xFF7C4DFF),
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => const ModernUIShowcaseScreen(),
+                          ),
+                        );
+                      },
+                      semanticLabel: 'Modern UI showcase',
+                      semanticHint:
+                          'View the new modern design features and components',
                     ),
                   ],
                 ),

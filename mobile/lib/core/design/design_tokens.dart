@@ -8,6 +8,9 @@ export 'typography_tokens.dart';
 export 'spacing_tokens.dart';
 export 'animation_tokens.dart';
 export 'component_tokens.dart';
+export 'gradient_tokens.dart';
+export 'glassmorphism_tokens.dart';
+export 'modern_effects_tokens.dart';
 
 import 'package:flutter/material.dart';
 import 'color_tokens.dart';
