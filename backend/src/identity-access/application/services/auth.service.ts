@@ -40,7 +40,10 @@ export class AuthService {
     private readonly firebaseAuthService: FirebaseAuthService,
   ) {}
 
-  async loginAsGuest(firebaseUid: string, deviceId: string): Promise<LoginResult> {
+  async loginAsGuest(
+    firebaseUid: string,
+    deviceId: string,
+  ): Promise<LoginResult> {
     // Check if guest user already exists by Firebase UID (using ID as Firebase UID)
     let user = await this.userRepository.findById(firebaseUid);
 
@@ -209,7 +212,9 @@ export class AuthService {
       // Check if user already exists by Firebase UID
       const existingUser = await this.userRepository.findById(decodedToken.uid);
       if (existingUser) {
-        throw new ConflictException('User already exists with this Firebase UID');
+        throw new ConflictException(
+          'User already exists with this Firebase UID',
+        );
       }
 
       // Create new user account with Firebase UID as ID

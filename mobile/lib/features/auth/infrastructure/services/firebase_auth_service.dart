@@ -2,11 +2,15 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
+import '../../../../core/logging/logging.dart';
 
 class FirebaseAuthService {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
   final GoogleSignIn _googleSignIn = GoogleSignIn.instance;
+
+  // Healthcare-compliant logger for Firebase authentication
+  static final _logger = BoundedContextLoggers.auth;
 
   // Initialize Google Sign In if needed
   Future<void> _initializeGoogleSignIn() async {
@@ -168,27 +172,80 @@ class FirebaseAuthService {
     }
   }
 
-  // Handle Firebase Auth exceptions
+  // Handle Firebase Auth exceptions with comprehensive error mapping
   String _handleFirebaseAuthException(FirebaseAuthException e) {
+    _logger.error('Firebase Auth Error: ${e.code} - ${e.message}');
+
     switch (e.code) {
+      // Email/Password Authentication Errors
       case 'user-not-found':
-        return 'No user found with this email address.';
+        return 'No account found with this email address. Please check your email or create a new account.';
       case 'wrong-password':
-        return 'Incorrect password. Please try again.';
-      case 'email-already-in-use':
-        return 'An account already exists with this email address.';
-      case 'weak-password':
-        return 'Password is too weak. Please choose a stronger password.';
+        return 'Incorrect password. Please try again or reset your password.';
       case 'invalid-email':
         return 'Please enter a valid email address.';
       case 'user-disabled':
-        return 'This account has been disabled. Please contact support.';
+        return 'This account has been disabled. Please contact support for assistance.';
+      case 'email-already-in-use':
+        return 'An account already exists with this email address. Please sign in instead.';
+      case 'weak-password':
+        return 'Password is too weak. Please choose a password with at least 6 characters.';
+
+      // Rate Limiting and Security
       case 'too-many-requests':
-        return 'Too many failed attempts. Please try again later.';
+        return 'Too many failed attempts. Please wait a few minutes before trying again.';
       case 'operation-not-allowed':
         return 'This sign-in method is not enabled. Please contact support.';
+
+      // Network and Connection Errors
+      case 'network-request-failed':
+        return 'Network error. Please check your internet connection and try again.';
+      case 'timeout':
+        return 'Request timed out. Please try again.';
+
+      // Token and Session Errors
+      case 'invalid-credential':
+        return 'Invalid credentials provided. Please try again.';
+      case 'credential-already-in-use':
+        return 'This credential is already associated with another account.';
+      case 'invalid-verification-code':
+        return 'Invalid verification code. Please check and try again.';
+      case 'invalid-verification-id':
+        return 'Invalid verification ID. Please restart the verification process.';
+
+      // OAuth Specific Errors
+      case 'account-exists-with-different-credential':
+        return 'An account already exists with the same email but different sign-in method.';
+      case 'invalid-oauth-provider':
+        return 'Invalid OAuth provider. Please try a different sign-in method.';
+      case 'oauth-account-not-linked':
+        return 'OAuth account is not linked. Please link your account first.';
+
+      // Apple Sign-In Specific
+      case 'sign_in_canceled':
+        return 'Sign-in was cancelled. Please try again.';
+      case 'sign_in_failed':
+        return 'Apple Sign-In failed. Please try again.';
+
+      // Google Sign-In Specific
+      case 'sign_in_required':
+        return 'Please sign in to continue.';
+
+      // Anonymous Authentication
+      case 'anonymous-provider-disabled':
+        return 'Anonymous sign-in is disabled. Please use another sign-in method.';
+
+      // General Errors
+      case 'internal-error':
+        return 'An internal error occurred. Please try again later.';
+      case 'invalid-api-key':
+        return 'Invalid API configuration. Please contact support.';
+      case 'app-not-authorized':
+        return 'App is not authorized to use Firebase Authentication.';
+
       default:
-        return 'Authentication failed: ${e.message}';
+        _logger.error('Unhandled Firebase Auth Error: ${e.code}');
+        return 'Authentication failed. Please try again or contact support if the problem persists.';
     }
   }
 }

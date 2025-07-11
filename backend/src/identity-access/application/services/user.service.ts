@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { DecodedIdToken } from 'firebase-admin/auth';
 import { UserRepository } from '../../domain/repositories/user.repository';
 import {
   UserAccount,
@@ -37,7 +38,7 @@ export class UserService {
     return this.userRepository.findByPhoneNumber(phoneNumber);
   }
 
-  async createFromFirebaseToken(decodedToken: any): Promise<UserAccount> {
+  async createFromFirebaseToken(decodedToken: DecodedIdToken): Promise<UserAccount> {
     // Create user account with Firebase UID as ID
     const user = UserAccount.create({
       id: decodedToken.uid,
@@ -53,10 +54,13 @@ export class UserService {
     const createdUser = await this.userRepository.create(user);
 
     // Create basic profile
+    const displayName =
+      decodedToken.name ||
+      (decodedToken.email ? decodedToken.email.split('@')[0] : 'Guest User');
+
     const profile = UserProfile.create({
       userId: createdUser.id,
-      displayName: decodedToken.name ||
-                   (decodedToken.email ? decodedToken.email.split('@')[0] : 'Guest User'),
+      displayName,
       firstName: decodedToken.given_name,
       lastName: decodedToken.family_name,
     });
