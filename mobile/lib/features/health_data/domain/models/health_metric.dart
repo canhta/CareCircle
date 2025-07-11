@@ -1,6 +1,8 @@
-import 'package:json_annotation/json_annotation.dart';
+// Health metric models with JSON serialization using freezed and json_serializable
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'health_metric_type.dart';
 
+part 'health_metric.freezed.dart';
 part 'health_metric.g.dart';
 
 enum DataSource {
@@ -29,75 +31,31 @@ enum ValidationStatus {
   pending,
 }
 
-@JsonSerializable()
-class HealthMetric {
-  final String id;
-  final String userId;
-  final HealthMetricType metricType;
-  final double value;
-  final String unit;
-  final DateTime timestamp;
-  final DataSource source;
-  final String? deviceId;
-  final String? notes;
-  final bool isManualEntry;
-  final ValidationStatus validationStatus;
-  final Map<String, dynamic> metadata;
-  final DateTime createdAt;
-
-  const HealthMetric({
-    required this.id,
-    required this.userId,
-    required this.metricType,
-    required this.value,
-    required this.unit,
-    required this.timestamp,
-    required this.source,
-    this.deviceId,
-    this.notes,
-    required this.isManualEntry,
-    required this.validationStatus,
-    required this.metadata,
-    required this.createdAt,
-  });
+/// Main health metric entity
+@freezed
+abstract class HealthMetric with _$HealthMetric {
+  const factory HealthMetric({
+    required String id,
+    required String userId,
+    required HealthMetricType metricType,
+    required double value,
+    required String unit,
+    required DateTime timestamp,
+    required DataSource source,
+    String? deviceId,
+    String? notes,
+    required bool isManualEntry,
+    required ValidationStatus validationStatus,
+    @Default({}) Map<String, dynamic> metadata,
+    required DateTime createdAt,
+  }) = _HealthMetric;
 
   factory HealthMetric.fromJson(Map<String, dynamic> json) =>
       _$HealthMetricFromJson(json);
+}
 
-  Map<String, dynamic> toJson() => _$HealthMetricToJson(this);
-
-  HealthMetric copyWith({
-    String? id,
-    String? userId,
-    HealthMetricType? metricType,
-    double? value,
-    String? unit,
-    DateTime? timestamp,
-    DataSource? source,
-    String? deviceId,
-    String? notes,
-    bool? isManualEntry,
-    ValidationStatus? validationStatus,
-    Map<String, dynamic>? metadata,
-    DateTime? createdAt,
-  }) {
-    return HealthMetric(
-      id: id ?? this.id,
-      userId: userId ?? this.userId,
-      metricType: metricType ?? this.metricType,
-      value: value ?? this.value,
-      unit: unit ?? this.unit,
-      timestamp: timestamp ?? this.timestamp,
-      source: source ?? this.source,
-      deviceId: deviceId ?? this.deviceId,
-      notes: notes ?? this.notes,
-      isManualEntry: isManualEntry ?? this.isManualEntry,
-      validationStatus: validationStatus ?? this.validationStatus,
-      metadata: metadata ?? this.metadata,
-      createdAt: createdAt ?? this.createdAt,
-    );
-  }
-
+/// Extension methods for HealthMetric
+extension HealthMetricExtension on HealthMetric {
   String get displayValue {
     switch (metricType) {
       case HealthMetricType.bloodPressure:

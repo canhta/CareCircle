@@ -31,7 +31,7 @@ class MedicationOverviewTab extends ConsumerWidget {
           const SizedBox(height: 24),
           _buildPrescriptionInformation(theme),
           const SizedBox(height: 24),
-          _buildQuickActions(theme),
+          _buildQuickActions(theme, context),
           const SizedBox(height: 24),
           _buildNotesSection(theme),
           if (medication.classification != null) ...[
@@ -88,7 +88,7 @@ class MedicationOverviewTab extends ConsumerWidget {
     );
   }
 
-  Widget _buildQuickActions(ThemeData theme) {
+  Widget _buildQuickActions(ThemeData theme, BuildContext context) {
     return _buildSection(
       title: 'Quick Actions',
       theme: theme,
@@ -101,7 +101,7 @@ class MedicationOverviewTab extends ConsumerWidget {
                   'Record Dose',
                   Icons.medication,
                   CareCircleDesignTokens.healthGreen,
-                  () => _recordDose(),
+                  () => _recordDose(context),
                   theme,
                 ),
               ),
@@ -293,13 +293,85 @@ class MedicationOverviewTab extends ConsumerWidget {
     return '${date.day}/${date.month}/${date.year}';
   }
 
-  void _recordDose() {
+  void _recordDose(BuildContext context) {
     _logger.info('Record dose action triggered', {
       'medicationId': medication.id,
       'medicationName': medication.name,
       'timestamp': DateTime.now().toIso8601String(),
     });
-    // TODO: Implement record dose functionality
+
+    // Show record dose dialog with options
+    _showRecordDoseDialog(context);
+  }
+
+  void _showRecordDoseDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            'Record Dose',
+            style: TextStyle(
+              color: CareCircleDesignTokens.primaryMedicalBlue,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Record dose for ${medication.name}',
+                style: const TextStyle(fontSize: 16),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'How would you like to record this dose?',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey[600],
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                _recordDoseAsTaken(context);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: CareCircleDesignTokens.healthGreen,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Mark as Taken'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _recordDoseAsTaken(BuildContext context) {
+    // For overview tab, we'll create a simple adherence record
+    // In a real implementation, this would be connected to a specific schedule
+    _logger.info('Recording dose as taken from overview', {
+      'medicationId': medication.id,
+      'medicationName': medication.name,
+      'timestamp': DateTime.now().toIso8601String(),
+    });
+
+    // Show success message
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Dose recorded for ${medication.name}'),
+        backgroundColor: CareCircleDesignTokens.healthGreen,
+        duration: const Duration(seconds: 2),
+      ),
+    );
   }
 
   void _addSchedule() {

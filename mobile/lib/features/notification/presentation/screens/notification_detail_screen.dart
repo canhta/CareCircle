@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -674,20 +675,130 @@ class _NotificationDetailScreenState
     }
   }
 
-  void _deleteNotification(notification_models.Notification notification) {
-    // TODO: Implement delete notification
-    _logger.info('Delete notification requested', {
-      'notificationId': notification.id,
-      'timestamp': DateTime.now().toIso8601String(),
-    });
+  void _deleteNotification(notification_models.Notification notification) async {
+    // Show confirmation dialog
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Notification'),
+        content: const Text('Are you sure you want to delete this notification? This action cannot be undone.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: CareCircleDesignTokens.criticalAlert,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      try {
+        _logger.info('Delete notification confirmed', {
+          'notificationId': notification.id,
+          'timestamp': DateTime.now().toIso8601String(),
+        });
+
+        final notificationNotifier = ref.read(notificationNotifierProvider.notifier);
+        await notificationNotifier.deleteNotification(notification.id);
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text('Notification deleted successfully'),
+              backgroundColor: CareCircleDesignTokens.healthGreen,
+              duration: const Duration(seconds: 2),
+            ),
+          );
+          Navigator.of(context).pop(); // Go back to notification list
+        }
+      } catch (e) {
+        _logger.error('Delete notification failed', {
+          'notificationId': notification.id,
+          'error': e.toString(),
+          'timestamp': DateTime.now().toIso8601String(),
+        });
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text('Failed to delete notification'),
+              backgroundColor: CareCircleDesignTokens.criticalAlert,
+              duration: const Duration(seconds: 3),
+            ),
+          );
+        }
+      }
+    }
   }
 
-  void _shareNotification(notification_models.Notification notification) {
-    // TODO: Implement share notification
-    _logger.info('Share notification requested', {
-      'notificationId': notification.id,
-      'timestamp': DateTime.now().toIso8601String(),
-    });
+  void _shareNotification(notification_models.Notification notification) async {
+    try {
+      _logger.info('Share notification requested', {
+        'notificationId': notification.id,
+        'timestamp': DateTime.now().toIso8601String(),
+      });
+
+      // Create shareable content (healthcare-compliant)
+      final shareContent = '''
+CareCircle Notification
+
+Title: ${notification.title}
+Date: ${notification.createdAt.toString().split('.')[0]}
+Type: ${notification.type.displayName}
+
+${notification.message}
+
+---
+Shared from CareCircle Healthcare App
+''';
+
+      // Use the share package to share content
+      // Note: This would require adding the share package to pubspec.yaml
+      // For now, we'll copy to clipboard as a fallback
+
+      await Clipboard.setData(ClipboardData(text: shareContent));
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Notification content copied to clipboard'),
+            backgroundColor: CareCircleDesignTokens.healthGreen,
+            duration: const Duration(seconds: 2),
+            action: SnackBarAction(
+              label: 'OK',
+              textColor: Colors.white,
+              onPressed: () {
+                ScaffoldMessenger.of(context).hideCurrentSnackBar();
+              },
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      _logger.error('Share notification failed', {
+        'notificationId': notification.id,
+        'error': e.toString(),
+        'timestamp': DateTime.now().toIso8601String(),
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Failed to share notification'),
+            backgroundColor: CareCircleDesignTokens.criticalAlert,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    }
   }
 
   void _handleMenuAction(String action) {

@@ -608,9 +608,43 @@ class _AdherenceTrackingScreenState
         'timestamp': DateTime.now().toIso8601String(),
       });
 
-      // TODO: Update the adherence record using provider method
-      // final adherenceRecord = AdherenceRecord(...);
-      // await ref.read(adherenceNotifierProvider.notifier).updateRecord(adherenceRecord);
+      // Record dose using the appropriate provider method
+      final adherenceNotifier = ref.read(adherenceManagementProvider.notifier);
+
+      switch (status) {
+        case DoseStatus.taken:
+          await adherenceNotifier.recordDoseTaken(
+            dose.medicationId,
+            dose.scheduleId,
+            dose.scheduledTime,
+            dose.dosage,
+            dose.unit,
+            notes: 'Marked as taken from adherence tracking',
+          );
+          break;
+        case DoseStatus.missed:
+          await adherenceNotifier.recordDoseMissed(
+            dose.medicationId,
+            dose.scheduleId,
+            dose.scheduledTime,
+            dose.dosage,
+            dose.unit,
+            reason: 'Marked as missed from adherence tracking',
+          );
+          break;
+        case DoseStatus.skipped:
+          await adherenceNotifier.recordDoseSkipped(
+            dose.medicationId,
+            dose.scheduleId,
+            dose.scheduledTime,
+            dose.dosage,
+            dose.unit,
+            reason: 'Marked as skipped from adherence tracking',
+          );
+          break;
+        default:
+          throw Exception('Invalid dose status: $status');
+      }
 
       if (mounted) {
         _logger.info('Dose status recorded successfully', {

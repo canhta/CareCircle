@@ -10,7 +10,7 @@ part of 'medication_inventory_api_service.dart';
 
 class _MedicationInventoryApiService implements MedicationInventoryApiService {
   _MedicationInventoryApiService(this._dio, {this.baseUrl, this.errorLogger}) {
-    baseUrl ??= 'http://192.168.1.237:3000/api/v1';
+    baseUrl ??= 'http://192.168.9.103:3000/api/v1';
   }
 
   final Dio _dio;

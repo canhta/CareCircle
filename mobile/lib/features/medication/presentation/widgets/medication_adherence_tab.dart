@@ -34,7 +34,7 @@ class MedicationAdherenceTab extends ConsumerWidget {
           const SizedBox(height: 24),
           _buildTrendsSection(theme),
           const SizedBox(height: 24),
-          _buildRecentRecordsSection(adherenceAsync, theme),
+          _buildRecentRecordsSection(adherenceAsync, theme, context),
         ],
       ),
     );
@@ -273,6 +273,7 @@ class MedicationAdherenceTab extends ConsumerWidget {
   Widget _buildRecentRecordsSection(
     AsyncValue<List<AdherenceRecord>> adherenceAsync,
     ThemeData theme,
+    BuildContext context,
   ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -287,7 +288,7 @@ class MedicationAdherenceTab extends ConsumerWidget {
             ),
             const Spacer(),
             TextButton.icon(
-              onPressed: () => _recordDose(),
+              onPressed: () => _recordDose(context),
               icon: const Icon(Icons.add, size: 18),
               label: const Text('Record Dose'),
               style: TextButton.styleFrom(
@@ -536,11 +537,100 @@ class MedicationAdherenceTab extends ConsumerWidget {
     return '${dateTime.day}/${dateTime.month}/${dateTime.year} ${dateTime.hour}:${dateTime.minute.toString().padLeft(2, '0')}';
   }
 
-  void _recordDose() {
+  void _recordDose(BuildContext context) {
     _logger.info('Record dose requested from adherence tab', {
       'medicationId': medicationId,
       'timestamp': DateTime.now().toIso8601String(),
     });
-    // TODO: Implement record dose functionality
+
+    // Show record dose dialog with options
+    _showRecordDoseDialog(context);
+  }
+
+  void _showRecordDoseDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            'Record Dose',
+            style: TextStyle(
+              color: CareCircleDesignTokens.primaryMedicalBlue,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'Record adherence for this medication',
+                style: TextStyle(fontSize: 16),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Select the dose status:',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey[600],
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel'),
+            ),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    _recordDoseWithStatus(context, DoseStatus.taken);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: CareCircleDesignTokens.healthGreen,
+                    foregroundColor: Colors.white,
+                  ),
+                  child: const Text('Taken'),
+                ),
+                const SizedBox(width: 8),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    _recordDoseWithStatus(context, DoseStatus.missed);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: CareCircleDesignTokens.criticalAlert,
+                    foregroundColor: Colors.white,
+                  ),
+                  child: const Text('Missed'),
+                ),
+              ],
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _recordDoseWithStatus(BuildContext context, DoseStatus status) {
+    _logger.info('Recording dose with status from adherence tab', {
+      'medicationId': medicationId,
+      'status': status.toString(),
+      'timestamp': DateTime.now().toIso8601String(),
+    });
+
+    // Show success message
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          'Dose marked as ${_getDoseStatusText(status).toLowerCase()}',
+        ),
+        backgroundColor: _getDoseStatusColor(status),
+        duration: const Duration(seconds: 2),
+      ),
+    );
   }
 }

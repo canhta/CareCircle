@@ -586,4 +586,53 @@ class FCMService {
       });
     }
   }
+
+  /// Show a test local notification
+  Future<void> showLocalNotification({
+    required String title,
+    required String body,
+    String? payload,
+  }) async {
+    try {
+      const androidDetails = local_notifications.AndroidNotificationDetails(
+        'test_channel',
+        'Test Notifications',
+        channelDescription: 'Test notifications for CareCircle',
+        importance: local_notifications.Importance.high,
+        priority: local_notifications.Priority.high,
+        icon: '@mipmap/ic_launcher',
+      );
+
+      const iosDetails = local_notifications.DarwinNotificationDetails(
+        presentAlert: true,
+        presentBadge: true,
+        presentSound: true,
+      );
+
+      const notificationDetails = local_notifications.NotificationDetails(
+        android: androidDetails,
+        iOS: iosDetails,
+      );
+
+      await _localNotifications.show(
+        DateTime.now().millisecondsSinceEpoch ~/ 1000,
+        title,
+        body,
+        notificationDetails,
+        payload: payload,
+      );
+
+      _logger.info('Test notification shown successfully', {
+        'title': title,
+        'timestamp': DateTime.now().toIso8601String(),
+      });
+    } catch (e) {
+      _logger.error('Failed to show test notification', {
+        'title': title,
+        'error': e.toString(),
+        'timestamp': DateTime.now().toIso8601String(),
+      });
+      rethrow;
+    }
+  }
 }

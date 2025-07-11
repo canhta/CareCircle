@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/config/app_config.dart';
 import '../../../../core/logging/bounded_context_loggers.dart';
+import '../../../../core/network/base_api_service.dart';
 import '../../domain/models/health_metric.dart';
 import '../../domain/models/health_profile.dart';
 import '../../domain/models/health_device.dart';
@@ -10,57 +11,38 @@ import '../../domain/models/health_device.dart';
 ///
 /// This service handles all health data operations with strict privacy
 /// protection and HIPAA-compliant logging practices.
-class HealthDataApiService {
-  final Dio _dio;
+class HealthDataApiService extends BaseApiService {
+  @override
+  String get serviceName => 'HealthDataApiService';
 
-  // Healthcare-compliant logger for health data context
-  static final _logger = BoundedContextLoggers.healthData;
-
-  HealthDataApiService(this._dio);
+  HealthDataApiService(Dio dio) : super(
+    dio: dio,
+    logger: BoundedContextLoggers.healthData,
+  );
 
   /// Get user's health profile with privacy-compliant logging
   Future<HealthProfile> getHealthProfile(String userId) async {
-    _logger.info('Health profile access initiated', {
-      'userId': userId,
-      'operation': 'getHealthProfile',
-      'timestamp': DateTime.now().toIso8601String(),
-    });
+    return get<HealthProfile>(
+      '/health-data/profile/$userId',
+      fromJson: (data) {
+        final healthProfile = HealthProfile.fromJson(data);
 
-    try {
-      final response = await _dio.get('/health-data/profile/$userId');
-      final healthProfile = HealthProfile.fromJson(response.data);
+        // Log access with sanitized summary
+        _logger.logHealthDataAccess('Health profile accessed', {
+          'userId': userId,
+          'dataType': 'health_profile',
+          'hasBasicInfo':
+              healthProfile.baselineMetrics.height > 0 ||
+              healthProfile.baselineMetrics.weight > 0,
+          'hasConditions': healthProfile.healthConditions.isNotEmpty,
+          'hasAllergies': healthProfile.allergies.isNotEmpty,
+          'timestamp': DateTime.now().toIso8601String(),
+        });
 
-      // Log access with sanitized summary
-      _logger.logHealthDataAccess('Health profile accessed', {
-        'userId': userId,
-        'dataType': 'health_profile',
-        'hasBasicInfo':
-            healthProfile.baselineMetrics.height > 0 ||
-            healthProfile.baselineMetrics.weight > 0,
-        'hasConditions': healthProfile.healthConditions.isNotEmpty,
-        'hasAllergies': healthProfile.allergies.isNotEmpty,
-        'timestamp': DateTime.now().toIso8601String(),
-      });
-
-      return healthProfile;
-    } on DioException catch (e) {
-      _logger.error('Health profile access failed', {
-        'userId': userId,
-        'operation': 'getHealthProfile',
-        'errorType': e.type.name,
-        'statusCode': e.response?.statusCode,
-        'timestamp': DateTime.now().toIso8601String(),
-      });
-      rethrow;
-    } catch (e) {
-      _logger.error('Unexpected error in health profile access', {
-        'userId': userId,
-        'operation': 'getHealthProfile',
-        'error': e.toString(),
-        'timestamp': DateTime.now().toIso8601String(),
-      });
-      rethrow;
-    }
+        return healthProfile;
+      },
+      operationName: 'getHealthProfile',
+    );
   }
 
   /// Update user's health profile with comprehensive logging

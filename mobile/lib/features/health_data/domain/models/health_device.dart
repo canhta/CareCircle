@@ -1,5 +1,7 @@
-import 'package:json_annotation/json_annotation.dart';
+// Health device models with JSON serialization using freezed and json_serializable
+import 'package:freezed_annotation/freezed_annotation.dart';
 
+part 'health_device.freezed.dart';
 part 'health_device.g.dart';
 
 enum DeviceType {
@@ -30,75 +32,31 @@ enum ConnectionStatus {
   error,
 }
 
-@JsonSerializable()
-class HealthDevice {
-  final String id;
-  final String userId;
-  final DeviceType deviceType;
-  final String manufacturer;
-  final String model;
-  final String? serialNumber;
-  final DateTime lastSyncTimestamp;
-  final ConnectionStatus connectionStatus;
-  final int? batteryLevel;
-  final String? firmware;
-  final Map<String, dynamic> settings;
-  final DateTime createdAt;
-  final DateTime updatedAt;
-
-  const HealthDevice({
-    required this.id,
-    required this.userId,
-    required this.deviceType,
-    required this.manufacturer,
-    required this.model,
-    this.serialNumber,
-    required this.lastSyncTimestamp,
-    required this.connectionStatus,
-    this.batteryLevel,
-    this.firmware,
-    required this.settings,
-    required this.createdAt,
-    required this.updatedAt,
-  });
+/// Health device entity
+@freezed
+abstract class HealthDevice with _$HealthDevice {
+  const factory HealthDevice({
+    required String id,
+    required String userId,
+    required DeviceType deviceType,
+    required String manufacturer,
+    required String model,
+    String? serialNumber,
+    required DateTime lastSyncTimestamp,
+    required ConnectionStatus connectionStatus,
+    int? batteryLevel,
+    String? firmware,
+    @Default({}) Map<String, dynamic> settings,
+    required DateTime createdAt,
+    required DateTime updatedAt,
+  }) = _HealthDevice;
 
   factory HealthDevice.fromJson(Map<String, dynamic> json) =>
       _$HealthDeviceFromJson(json);
+}
 
-  Map<String, dynamic> toJson() => _$HealthDeviceToJson(this);
-
-  HealthDevice copyWith({
-    String? id,
-    String? userId,
-    DeviceType? deviceType,
-    String? manufacturer,
-    String? model,
-    String? serialNumber,
-    DateTime? lastSyncTimestamp,
-    ConnectionStatus? connectionStatus,
-    int? batteryLevel,
-    String? firmware,
-    Map<String, dynamic>? settings,
-    DateTime? createdAt,
-    DateTime? updatedAt,
-  }) {
-    return HealthDevice(
-      id: id ?? this.id,
-      userId: userId ?? this.userId,
-      deviceType: deviceType ?? this.deviceType,
-      manufacturer: manufacturer ?? this.manufacturer,
-      model: model ?? this.model,
-      serialNumber: serialNumber ?? this.serialNumber,
-      lastSyncTimestamp: lastSyncTimestamp ?? this.lastSyncTimestamp,
-      connectionStatus: connectionStatus ?? this.connectionStatus,
-      batteryLevel: batteryLevel ?? this.batteryLevel,
-      firmware: firmware ?? this.firmware,
-      settings: settings ?? this.settings,
-      createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
-    );
-  }
-
+/// Extension methods for HealthDevice
+extension HealthDeviceExtension on HealthDevice {
   bool get isConnected => connectionStatus == ConnectionStatus.connected;
   bool get isPairing => connectionStatus == ConnectionStatus.pairing;
   bool get hasError => connectionStatus == ConnectionStatus.error;
