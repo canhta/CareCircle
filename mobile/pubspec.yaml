@@ -57,7 +57,6 @@ dependencies:
   flutter_chat_types: ^3.6.2
 
   # Healthcare UI Components
-  fl_chart: ^1.0.0
   percent_indicator: ^4.2.3
 
   # Design System
@@ -81,6 +80,9 @@ dependencies:
   flutter_animate: ^4.5.2
   timezone: ^0.10.1
   firebase_messaging: ^15.2.9
+
+  # Charts and Data Visualization
+  fl_chart: ^0.69.0
 
 dev_dependencies:
   flutter_test:

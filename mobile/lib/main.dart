@@ -58,20 +58,76 @@ class CareCircleApp extends ConsumerWidget {
   ThemeData _createTheme() {
     return ThemeData(
       useMaterial3: true,
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: CareCircleDesignTokens.primaryMedicalBlue,
-        brightness: Brightness.light,
+      colorScheme: CareCircleColorTokens.lightColorScheme,
+      textTheme: CareCircleTypographyTokens.textTheme,
+      appBarTheme: AppBarTheme(
+        centerTitle: true,
+        elevation: 0,
+        backgroundColor: CareCircleColorTokens.primaryMedicalBlue,
+        foregroundColor: Colors.white,
+        titleTextStyle: CareCircleTypographyTokens.textTheme.titleLarge?.copyWith(
+          color: Colors.white,
+          fontWeight: FontWeight.w600,
+        ),
       ),
-      appBarTheme: const AppBarTheme(centerTitle: true, elevation: 0),
       cardTheme: CardThemeData(
         elevation: 2,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(CareCircleSpacingTokens.sm),
+        ),
+        margin: EdgeInsets.all(CareCircleSpacingTokens.sm),
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          minimumSize: Size(
+            CareCircleSpacingTokens.touchTargetMin,
+            CareCircleSpacingTokens.touchTargetMin,
+          ),
+          padding: EdgeInsets.symmetric(
+            horizontal: CareCircleSpacingTokens.md,
+            vertical: CareCircleSpacingTokens.sm,
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(CareCircleSpacingTokens.sm),
+          ),
+        ),
       ),
       inputDecorationTheme: InputDecorationTheme(
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 16,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(CareCircleSpacingTokens.sm),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(CareCircleSpacingTokens.sm),
+          borderSide: BorderSide(
+            color: CareCircleColorTokens.lightColorScheme.outline,
+            width: 1,
+          ),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(CareCircleSpacingTokens.sm),
+          borderSide: BorderSide(
+            color: CareCircleColorTokens.primaryMedicalBlue,
+            width: 2,
+          ),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(CareCircleSpacingTokens.sm),
+          borderSide: BorderSide(
+            color: CareCircleColorTokens.criticalAlert,
+            width: 2,
+          ),
+        ),
+        contentPadding: EdgeInsets.symmetric(
+          horizontal: CareCircleSpacingTokens.md,
+          vertical: CareCircleSpacingTokens.md,
+        ),
+      ),
+      floatingActionButtonTheme: FloatingActionButtonThemeData(
+        elevation: 6,
+        highlightElevation: 12,
+        sizeConstraints: BoxConstraints.tightFor(
+          width: CareCircleSpacingTokens.emergencyButtonMin,
+          height: CareCircleSpacingTokens.emergencyButtonMin,
         ),
       ),
     );

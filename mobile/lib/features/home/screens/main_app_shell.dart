@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../core/design/design_tokens.dart';
+import '../../../core/design/care_circle_icons.dart';
+import '../../../core/widgets/navigation/care_circle_tab_bar.dart';
 
 import '../../../core/navigation/navigation_service.dart';
 import '../../ai-assistant/presentation/screens/ai_assistant_home_screen.dart';
 import '../../medication/presentation/screens/medication_list_screen.dart';
+import '../../health_data/presentation/screens/health_dashboard_screen.dart';
 import 'home_screen.dart';
 
 class MainAppShell extends ConsumerStatefulWidget {
@@ -28,7 +30,7 @@ class _MainAppShellState extends ConsumerState<MainAppShell> {
 
   final List<Widget> _screens = [
     const HomeScreen(),
-    const Placeholder(), // Health Data Screen (placeholder)
+    const HealthDashboardScreen(), // Health Data Screen
     const AIAssistantHomeScreen(), // AI Assistant - Central position
     const MedicationListScreen(), // Medications Screen
     const Placeholder(), // Care Circle Screen (placeholder)
@@ -38,161 +40,128 @@ class _MainAppShellState extends ConsumerState<MainAppShell> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: IndexedStack(index: _currentIndex, children: _screens),
-      bottomNavigationBar: _buildBottomNavigationBar(),
-      floatingActionButton: _currentIndex == 2 ? null : _buildAIAssistantFAB(),
+      bottomNavigationBar: _buildHealthcareTabBar(),
+      floatingActionButton: _currentIndex == 2 ? null : _buildHealthcareAIAssistantFAB(),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }
 
-  Widget _buildBottomNavigationBar() {
-    return BottomAppBar(
-      shape: const CircularNotchedRectangle(),
-      notchMargin: 8.0,
-      child: SizedBox(
-        height: 70,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            _buildNavItem(icon: Icons.home, label: 'Home', index: 0),
-            _buildNavItem(
-              icon: Icons.health_and_safety,
-              label: 'Health',
-              index: 1,
-            ),
-            const SizedBox(width: 40), // Space for FAB
-            _buildNavItem(icon: Icons.medication, label: 'Meds', index: 3),
-            _buildNavItem(icon: Icons.family_restroom, label: 'Care', index: 4),
-          ],
+  Widget _buildHealthcareTabBar() {
+    return CareCircleTabBar(
+      currentIndex: _currentIndex,
+      onTap: _onTabTapped,
+      tabs: [
+        CareCircleTab(
+          icon: CareCircleIcons.home,
+          label: 'Home',
+          semanticLabel: 'Home dashboard',
+          semanticHint: 'View your health overview and quick actions',
         ),
-      ),
+        CareCircleTab(
+          icon: CareCircleIcons.healthData,
+          label: 'Health Data',
+          semanticLabel: 'Health data',
+          semanticHint: 'View detailed health metrics and trends',
+          badge: _getHealthDataBadge(),
+          urgencyIndicator: _getHealthDataUrgency(),
+        ),
+        CareCircleTab(
+          icon: CareCircleIcons.aiAssistant,
+          label: 'AI Assistant',
+          semanticLabel: 'AI health assistant',
+          semanticHint: 'Get personalized healthcare guidance and support',
+        ),
+        CareCircleTab(
+          icon: CareCircleIcons.medication,
+          label: 'Medications',
+          semanticLabel: 'Medications',
+          semanticHint: 'Manage medications and view reminders',
+          badge: _getMedicationBadge(),
+          urgencyIndicator: _getMedicationUrgency(),
+        ),
+        CareCircleTab(
+          icon: CareCircleIcons.careCircle,
+          label: 'Care Circle',
+          semanticLabel: 'Care circle',
+          semanticHint: 'Connect with your care team and family',
+        ),
+      ],
     );
   }
 
-  Widget _buildNavItem({
-    required IconData icon,
-    required String label,
-    required int index,
-  }) {
-    final isSelected = _currentIndex == index;
-    final color = isSelected
-        ? CareCircleDesignTokens.primaryMedicalBlue
-        : Colors.grey;
+  void _onTabTapped(int index) {
+    final previousIndex = _currentIndex;
+    NavigationService.logTabNavigation(
+      previousIndex,
+      index,
+      _tabNames[index],
+    );
+    setState(() => _currentIndex = index);
+  }
 
-    return InkWell(
-      onTap: () {
+  // Healthcare-specific badge and urgency methods
+  String? _getHealthDataBadge() {
+    // TODO: Implement health data badge logic
+    // Return number of unread health alerts or null
+    return null;
+  }
+
+  UrgencyLevel _getHealthDataUrgency() {
+    // TODO: Implement health data urgency logic
+    // Check for critical health metrics
+    return UrgencyLevel.none;
+  }
+
+  String? _getMedicationBadge() {
+    // TODO: Implement medication badge logic
+    // Return number of missed medications or null
+    return null;
+  }
+
+  UrgencyLevel _getMedicationUrgency() {
+    // TODO: Implement medication urgency logic
+    // Check for missed critical medications
+    return UrgencyLevel.none;
+  }
+
+  Widget _buildHealthcareAIAssistantFAB() {
+    return HealthcareAIAssistantFAB(
+      onPressed: () {
         final previousIndex = _currentIndex;
         NavigationService.logTabNavigation(
           previousIndex,
-          index,
-          _tabNames[index],
+          2,
+          _tabNames[2],
         );
-        setState(() => _currentIndex = index);
+        setState(() => _currentIndex = 2);
       },
-      borderRadius: BorderRadius.circular(12),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, color: color, size: 22),
-            const SizedBox(height: 2),
-            Text(
-              label,
-              style: TextStyle(
-                color: color,
-                fontSize: 11,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                height: 1.2, // Tighter line height
-              ),
-            ),
-          ],
-        ),
-      ),
+      semanticLabel: 'AI Health Assistant',
+      semanticHint: 'Tap to open your AI health assistant for personalized healthcare guidance and emergency support',
+      hasUrgentNotifications: _hasUrgentHealthNotifications(),
+      lastInteraction: _getLastAIInteraction(),
+      healthContext: _getCurrentHealthContext(),
+      emergencyMode: _isEmergencyModeActive(),
     );
   }
 
-  Widget _buildAIAssistantFAB() {
-    return Semantics(
-      label: 'AI Health Assistant',
-      hint:
-          'Tap to open your AI health assistant for personalized healthcare guidance',
-      button: true,
-      child: Container(
-        width: CareCircleDesignTokens.emergencyButtonMin,
-        height: CareCircleDesignTokens.emergencyButtonMin,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              CareCircleDesignTokens.primaryMedicalBlue,
-              CareCircleDesignTokens.primaryMedicalBlue.withValues(alpha: 0.8),
-            ],
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: CareCircleDesignTokens.primaryMedicalBlue.withValues(
-                alpha: 0.3,
-              ),
-              blurRadius: 12,
-              offset: const Offset(0, 6),
-              spreadRadius: 0,
-            ),
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.1),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-              spreadRadius: 0,
-            ),
-          ],
-        ),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: () {
-              final previousIndex = _currentIndex;
-              NavigationService.logTabNavigation(
-                previousIndex,
-                2,
-                _tabNames[2],
-              );
-              setState(() => _currentIndex = 2);
-            },
-            borderRadius: BorderRadius.circular(
-              CareCircleDesignTokens.emergencyButtonMin / 2,
-            ),
-            splashColor: Colors.white.withValues(alpha: 0.2),
-            highlightColor: Colors.white.withValues(alpha: 0.1),
-            child: Container(
-              width: CareCircleDesignTokens.emergencyButtonMin,
-              height: CareCircleDesignTokens.emergencyButtonMin,
-              decoration: const BoxDecoration(shape: BoxShape.circle),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.health_and_safety,
-                    size: 24,
-                    color: Colors.white,
-                    semanticLabel: 'AI Health Assistant Icon',
-                  ),
-                  const SizedBox(height: 2),
-                  const Text(
-                    'AI',
-                    style: TextStyle(
-                      fontSize: 9,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white,
-                      letterSpacing: 0.5,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
+  // Healthcare AI Assistant helper methods
+  bool _hasUrgentHealthNotifications() {
+    // TODO: Implement urgent health notifications check
+    return false;
+  }
+
+  DateTime? _getLastAIInteraction() {
+    // TODO: Implement last AI interaction tracking
+    return null;
+  }
+
+  String? _getCurrentHealthContext() {
+    // TODO: Implement current health context
+    return null;
+  }
+
+  bool _isEmergencyModeActive() {
+    // TODO: Implement emergency mode detection
+    return false;
   }
 }
