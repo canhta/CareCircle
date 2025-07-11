@@ -436,12 +436,49 @@ class _NotificationPreferencesScreenState
     ContextType contextType,
     bool enabled,
   ) async {
-    // TODO: Implement context-specific preference updates
-    _logger.info('Context preference update requested', {
-      'contextType': contextType.name,
-      'enabled': enabled,
-      'timestamp': DateTime.now().toIso8601String(),
-    });
+    try {
+      final notifier = ref.read(notificationPreferencesNotifierProvider.notifier);
+      await notifier.updateContextPreference(contextType, enabled);
+
+      _logger.info('Context preference updated successfully', {
+        'contextType': contextType.name,
+        'enabled': enabled,
+        'timestamp': DateTime.now().toIso8601String(),
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              enabled
+                ? '${contextType.displayName} notifications enabled'
+                : '${contextType.displayName} notifications disabled',
+            ),
+            backgroundColor: enabled
+              ? CareCircleDesignTokens.healthGreen
+              : CareCircleDesignTokens.criticalAlert,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      _logger.error('Context preference update failed', {
+        'contextType': contextType.name,
+        'enabled': enabled,
+        'error': e.toString(),
+        'timestamp': DateTime.now().toIso8601String(),
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to update ${contextType.displayName} preferences'),
+            backgroundColor: CareCircleDesignTokens.criticalAlert,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    }
   }
 
   Future<void> _updateChannelPreference(
@@ -515,18 +552,52 @@ class _NotificationPreferencesScreenState
     }
   }
 
-  void _sendTestNotification() {
-    // TODO: Implement test notification
-    _logger.info('Test notification requested', {
-      'timestamp': DateTime.now().toIso8601String(),
-    });
+  void _sendTestNotification() async {
+    try {
+      _logger.info('Test notification requested', {
+        'timestamp': DateTime.now().toIso8601String(),
+      });
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Test notification sent!'),
-        duration: Duration(seconds: 2),
-      ),
-    );
+      // Send test notification through the FCM service
+      final fcmService = ref.read(fcmServiceProvider);
+      await fcmService.showLocalNotification(
+        title: 'CareCircle Test',
+        body: 'This is a test notification to verify your settings are working correctly.',
+        payload: 'test_notification',
+      );
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Test notification sent successfully!'),
+            backgroundColor: CareCircleDesignTokens.healthGreen,
+            duration: const Duration(seconds: 3),
+            action: SnackBarAction(
+              label: 'OK',
+              textColor: Colors.white,
+              onPressed: () {
+                ScaffoldMessenger.of(context).hideCurrentSnackBar();
+              },
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      _logger.error('Test notification failed', {
+        'error': e.toString(),
+        'timestamp': DateTime.now().toIso8601String(),
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Failed to send test notification'),
+            backgroundColor: CareCircleDesignTokens.criticalAlert,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    }
   }
 
   void _resetToDefaults() {

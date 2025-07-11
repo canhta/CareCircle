@@ -171,6 +171,25 @@ extension NotificationPriorityExtension on NotificationPriority {
   }
 }
 
+extension ContextTypeExtension on ContextType {
+  String get displayName {
+    switch (this) {
+      case ContextType.medication:
+        return 'Medication Reminders';
+      case ContextType.healthData:
+        return 'Health Alerts';
+      case ContextType.careGroup:
+        return 'Care Group Updates';
+      case ContextType.appointment:
+        return 'Appointment Reminders';
+      case ContextType.system:
+        return 'System Notifications';
+      case ContextType.emergency:
+        return 'Emergency Alerts';
+    }
+  }
+}
+
 /// Main notification entity (matches backend structure)
 @freezed
 abstract class Notification with _$Notification {

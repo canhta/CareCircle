@@ -198,6 +198,34 @@ class NotificationNotifier
     }
   }
 
+  /// Delete notification
+  Future<void> deleteNotification(String notificationId) async {
+    try {
+      await _repository.deleteNotification(notificationId);
+
+      // Remove from local state
+      state = state.whenData((notifications) {
+        return notifications.where((n) => n.id != notificationId).toList();
+      });
+
+      // Invalidate related providers
+      _ref.invalidate(unreadNotificationsProvider);
+      _ref.invalidate(notificationSummaryProvider);
+
+      _logger.info('Notification deleted successfully', {
+        'notificationId': notificationId,
+        'timestamp': DateTime.now().toIso8601String(),
+      });
+    } catch (error) {
+      _logger.error('Failed to delete notification', {
+        'notificationId': notificationId,
+        'error': error.toString(),
+        'timestamp': DateTime.now().toIso8601String(),
+      });
+      rethrow;
+    }
+  }
+
   /// Refresh notifications
   Future<void> refresh() async {
     await loadNotifications(forceRefresh: true);
@@ -279,6 +307,26 @@ class NotificationPreferencesNotifier
     try {
       final request = notification_models.UpdateNotificationPreferencesRequest(
         globalEnabled: enabled,
+      );
+      await updatePreferences(request);
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  /// Update context-specific preference
+  Future<void> updateContextPreference(
+    notification_models.ContextType contextType,
+    bool enabled,
+  ) async {
+    try {
+      // Create a context preference update
+      final contextPreferences = <String, bool>{
+        contextType.name: enabled,
+      };
+
+      final request = notification_models.UpdateNotificationPreferencesRequest(
+        contextPreferences: contextPreferences,
       );
       await updatePreferences(request);
     } catch (error) {

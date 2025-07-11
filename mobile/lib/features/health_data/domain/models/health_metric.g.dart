@@ -6,26 +6,27 @@ part of 'health_metric.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-HealthMetric _$HealthMetricFromJson(Map<String, dynamic> json) => HealthMetric(
-  id: json['id'] as String,
-  userId: json['userId'] as String,
-  metricType: $enumDecode(_$HealthMetricTypeEnumMap, json['metricType']),
-  value: (json['value'] as num).toDouble(),
-  unit: json['unit'] as String,
-  timestamp: DateTime.parse(json['timestamp'] as String),
-  source: $enumDecode(_$DataSourceEnumMap, json['source']),
-  deviceId: json['deviceId'] as String?,
-  notes: json['notes'] as String?,
-  isManualEntry: json['isManualEntry'] as bool,
-  validationStatus: $enumDecode(
-    _$ValidationStatusEnumMap,
-    json['validationStatus'],
-  ),
-  metadata: json['metadata'] as Map<String, dynamic>,
-  createdAt: DateTime.parse(json['createdAt'] as String),
-);
+_HealthMetric _$HealthMetricFromJson(Map<String, dynamic> json) =>
+    _HealthMetric(
+      id: json['id'] as String,
+      userId: json['userId'] as String,
+      metricType: $enumDecode(_$HealthMetricTypeEnumMap, json['metricType']),
+      value: (json['value'] as num).toDouble(),
+      unit: json['unit'] as String,
+      timestamp: DateTime.parse(json['timestamp'] as String),
+      source: $enumDecode(_$DataSourceEnumMap, json['source']),
+      deviceId: json['deviceId'] as String?,
+      notes: json['notes'] as String?,
+      isManualEntry: json['isManualEntry'] as bool,
+      validationStatus: $enumDecode(
+        _$ValidationStatusEnumMap,
+        json['validationStatus'],
+      ),
+      metadata: json['metadata'] as Map<String, dynamic>? ?? const {},
+      createdAt: DateTime.parse(json['createdAt'] as String),
+    );
 
-Map<String, dynamic> _$HealthMetricToJson(HealthMetric instance) =>
+Map<String, dynamic> _$HealthMetricToJson(_HealthMetric instance) =>
     <String, dynamic>{
       'id': instance.id,
       'userId': instance.userId,

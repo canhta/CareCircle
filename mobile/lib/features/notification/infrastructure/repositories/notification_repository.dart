@@ -460,6 +460,55 @@ class NotificationRepository {
     }
   }
 
+  /// Delete a notification
+  Future<void> deleteNotification(String notificationId) async {
+    try {
+      _logger.info('Deleting notification', {
+        'notificationId': notificationId,
+        'timestamp': DateTime.now().toIso8601String(),
+      });
+
+      await _apiService.deleteNotification(notificationId);
+
+      // Remove from cache
+      await _removeNotificationFromCache(notificationId);
+
+      _logger.info('Notification deleted successfully', {
+        'notificationId': notificationId,
+        'timestamp': DateTime.now().toIso8601String(),
+      });
+    } on DioException catch (e) {
+      _logger.error('Failed to delete notification', {
+        'notificationId': notificationId,
+        'error': e.toString(),
+        'timestamp': DateTime.now().toIso8601String(),
+      });
+      throw _handleError(e);
+    } catch (e) {
+      _logger.error('Unexpected error deleting notification', {
+        'notificationId': notificationId,
+        'error': e.toString(),
+        'timestamp': DateTime.now().toIso8601String(),
+      });
+      rethrow;
+    }
+  }
+
+  Future<void> _removeNotificationFromCache(String notificationId) async {
+    try {
+      final cached = await _getCachedNotifications();
+      if (cached != null) {
+        final updated = cached.where((n) => n.id != notificationId).toList();
+        await _cacheNotifications(updated);
+      }
+    } catch (e) {
+      _logger.warning('Failed to remove notification from cache', {
+        'notificationId': notificationId,
+        'error': e.toString(),
+      });
+    }
+  }
+
   Future<void> _clearNotificationCache() async {
     try {
       final box = await Hive.openBox<String>('notification_cache');
