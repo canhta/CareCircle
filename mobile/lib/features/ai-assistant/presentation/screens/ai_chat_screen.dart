@@ -50,12 +50,14 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
   }
 
   Future<void> _loadMessages() async {
-    if (_currentConversationId == null) return;
+    if (_currentConversationId == null || !mounted) return;
 
     try {
       final messages = await ref.read(
         messagesProvider(_currentConversationId!).future,
       );
+
+      if (!mounted) return;
 
       final chatMessages = messages
           .map((msg) => _convertToChatMessage(msg))
@@ -86,6 +88,8 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
       return;
     }
 
+    if (!mounted) return;
+
     // Add user message to chat controller
     final userMessage = TextMessage(
       id: 'temp_${DateTime.now().millisecondsSinceEpoch}',
@@ -111,14 +115,18 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
           .read(aiAssistantNotifierProvider.notifier)
           .sendMessage(_currentConversationId!, text);
 
+      if (!mounted) return;
+
       // Add assistant response
       final assistantMessage = _convertToChatMessage(response.assistantMessage);
       _chatController.insertMessage(assistantMessage);
     } catch (e) {
       _showError('Failed to send message: ${e.toString()}');
 
-      // Remove the user message on error
-      _chatController.removeMessage(userMessage);
+      if (mounted) {
+        // Remove the user message on error
+        _chatController.removeMessage(userMessage);
+      }
     }
   }
 
@@ -214,6 +222,8 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
   }
 
   void _handleEmergencyConfirmed(String message) {
+    if (!mounted) return;
+
     // Add emergency advice message
     final emergencyAdvice = EmergencyDetectionService.getEmergencyAdvice(
       message,

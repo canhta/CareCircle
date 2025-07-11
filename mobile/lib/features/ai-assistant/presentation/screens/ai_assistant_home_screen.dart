@@ -92,6 +92,8 @@ class _AIAssistantHomeScreenState extends ConsumerState<AIAssistantHomeScreen> {
   }
 
   void _addWelcomeMessage() {
+    if (!mounted) return;
+
     final welcomeMessage = TextMessage(
       id: 'welcome_${DateTime.now().millisecondsSinceEpoch}',
       authorId: _assistantId,
@@ -104,12 +106,14 @@ class _AIAssistantHomeScreenState extends ConsumerState<AIAssistantHomeScreen> {
   }
 
   Future<void> _loadMessages() async {
-    if (_currentConversationId == null) return;
+    if (_currentConversationId == null || !mounted) return;
 
     try {
       final messages = await ref
           .read(aiAssistantNotifierProvider.notifier)
           .getMessages(_currentConversationId!);
+
+      if (!mounted) return;
 
       final chatMessages = messages
           .map((msg) => _convertToChatMessage(msg))
@@ -157,6 +161,8 @@ class _AIAssistantHomeScreenState extends ConsumerState<AIAssistantHomeScreen> {
       return;
     }
 
+    if (!mounted) return;
+
     // Add user message to chat controller
     final userMessage = TextMessage(
       id: 'temp_${DateTime.now().millisecondsSinceEpoch}',
@@ -173,16 +179,18 @@ class _AIAssistantHomeScreenState extends ConsumerState<AIAssistantHomeScreen> {
           .read(aiAssistantNotifierProvider.notifier)
           .sendMessage(_currentConversationId!, text);
 
+      if (!mounted) return;
+
       // Add assistant response
       final assistantMessage = _convertToChatMessage(response.assistantMessage);
       _chatController.insertMessage(assistantMessage);
     } catch (e) {
       debugPrint('Failed to send message: $e');
 
-      // Remove the user message on error
-      _chatController.removeMessage(userMessage);
-
       if (mounted) {
+        // Remove the user message on error
+        _chatController.removeMessage(userMessage);
+
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text('Failed to send message: $e')));
@@ -322,6 +330,8 @@ class _AIAssistantHomeScreenState extends ConsumerState<AIAssistantHomeScreen> {
   }
 
   void _handleEmergencyConfirmed(String message) {
+    if (!mounted) return;
+
     // Add emergency advice message
     final emergencyAdvice = EmergencyDetectionService.getEmergencyAdvice(
       message,
