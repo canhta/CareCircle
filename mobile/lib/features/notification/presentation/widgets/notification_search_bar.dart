@@ -139,10 +139,14 @@ class _NotificationSearchBarState extends ConsumerState<NotificationSearchBar> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: CareCircleDesignTokens.primaryMedicalBlue.withValues(alpha: 0.05),
+        color: CareCircleDesignTokens.primaryMedicalBlue.withValues(
+          alpha: 0.05,
+        ),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: CareCircleDesignTokens.primaryMedicalBlue.withValues(alpha: 0.2),
+          color: CareCircleDesignTokens.primaryMedicalBlue.withValues(
+            alpha: 0.2,
+          ),
           width: 1,
         ),
       ),
@@ -224,7 +228,7 @@ class SearchResultsSummary extends ConsumerWidget {
     return filteredNotifications.when(
       data: (notifications) => _buildSummary(searchTerm, notifications.length),
       loading: () => _buildLoadingSummary(searchTerm),
-      error: (_, __) => const SizedBox.shrink(),
+      error: (_, _) => const SizedBox.shrink(),
     );
   }
 

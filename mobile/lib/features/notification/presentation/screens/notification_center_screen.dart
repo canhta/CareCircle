@@ -93,7 +93,7 @@ class _NotificationCenterScreenState
             return summaryAsync.when(
               data: (summary) => _buildNotificationBadge(summary.unread),
               loading: () => const SizedBox.shrink(),
-              error: (_, __) => const SizedBox.shrink(),
+              error: (_, _) => const SizedBox.shrink(),
             );
           },
         ),
@@ -183,7 +183,7 @@ class _NotificationCenterScreenState
                   data: (notifications) =>
                       _buildTabWithCount('All', notifications.length),
                   loading: () => const Text('All'),
-                  error: (_, __) => const Text('All'),
+                  error: (_, _) => const Text('All'),
                 );
               },
             ),
@@ -195,7 +195,7 @@ class _NotificationCenterScreenState
                 return unreadAsync.when(
                   data: (unread) => _buildTabWithCount('Unread', unread.length),
                   loading: () => const Text('Unread'),
-                  error: (_, __) => const Text('Unread'),
+                  error: (_, _) => const Text('Unread'),
                 );
               },
             ),

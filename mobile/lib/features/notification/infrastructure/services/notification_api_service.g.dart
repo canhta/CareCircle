@@ -1044,15 +1044,13 @@ class _NotificationApiService implements NotificationApiService {
   }
 
   @override
-  Future<Map<String, dynamic>> registerFcmToken(
-    Map<String, String> request,
-  ) async {
+  Future<GenericResponse> registerFcmToken(Map<String, String> request) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     final _data = <String, dynamic>{};
     _data.addAll(request);
-    final _options = _setStreamType<Map<String, dynamic>>(
+    final _options = _setStreamType<GenericResponse>(
       Options(method: 'POST', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
@@ -1063,12 +1061,9 @@ class _NotificationApiService implements NotificationApiService {
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late Map<String, dynamic> _value;
+    late GenericResponse _value;
     try {
-      _value = _result.data!.map(
-        (k, dynamic v) =>
-            MapEntry(k, dynamic.fromJson(v as Map<String, dynamic>)),
-      );
+      _value = GenericResponse.fromJson(_result.data!);
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options);
       rethrow;
@@ -1077,7 +1072,7 @@ class _NotificationApiService implements NotificationApiService {
   }
 
   @override
-  Future<Map<String, dynamic>> unregisterFcmToken(
+  Future<GenericResponse> unregisterFcmToken(
     Map<String, String> request,
   ) async {
     final _extra = <String, dynamic>{};
@@ -1085,7 +1080,7 @@ class _NotificationApiService implements NotificationApiService {
     final _headers = <String, dynamic>{};
     final _data = <String, dynamic>{};
     _data.addAll(request);
-    final _options = _setStreamType<Map<String, dynamic>>(
+    final _options = _setStreamType<GenericResponse>(
       Options(method: 'DELETE', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
@@ -1096,12 +1091,9 @@ class _NotificationApiService implements NotificationApiService {
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late Map<String, dynamic> _value;
+    late GenericResponse _value;
     try {
-      _value = _result.data!.map(
-        (k, dynamic v) =>
-            MapEntry(k, dynamic.fromJson(v as Map<String, dynamic>)),
-      );
+      _value = GenericResponse.fromJson(_result.data!);
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options);
       rethrow;
@@ -1110,15 +1102,13 @@ class _NotificationApiService implements NotificationApiService {
   }
 
   @override
-  Future<Map<String, dynamic>> updateFcmToken(
-    Map<String, String> request,
-  ) async {
+  Future<GenericResponse> updateFcmToken(Map<String, String> request) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     final _data = <String, dynamic>{};
     _data.addAll(request);
-    final _options = _setStreamType<Map<String, dynamic>>(
+    final _options = _setStreamType<GenericResponse>(
       Options(method: 'PUT', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
@@ -1129,12 +1119,9 @@ class _NotificationApiService implements NotificationApiService {
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late Map<String, dynamic> _value;
+    late GenericResponse _value;
     try {
-      _value = _result.data!.map(
-        (k, dynamic v) =>
-            MapEntry(k, dynamic.fromJson(v as Map<String, dynamic>)),
-      );
+      _value = GenericResponse.fromJson(_result.data!);
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options);
       rethrow;
@@ -1143,7 +1130,7 @@ class _NotificationApiService implements NotificationApiService {
   }
 
   @override
-  Future<Map<String, dynamic>> trackNotificationInteraction(
+  Future<GenericResponse> trackNotificationInteraction(
     String notificationId,
     Map<String, dynamic> request,
   ) async {
@@ -1152,7 +1139,7 @@ class _NotificationApiService implements NotificationApiService {
     final _headers = <String, dynamic>{};
     final _data = <String, dynamic>{};
     _data.addAll(request);
-    final _options = _setStreamType<Map<String, dynamic>>(
+    final _options = _setStreamType<GenericResponse>(
       Options(method: 'POST', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
@@ -1163,12 +1150,9 @@ class _NotificationApiService implements NotificationApiService {
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late Map<String, dynamic> _value;
+    late GenericResponse _value;
     try {
-      _value = _result.data!.map(
-        (k, dynamic v) =>
-            MapEntry(k, dynamic.fromJson(v as Map<String, dynamic>)),
-      );
+      _value = GenericResponse.fromJson(_result.data!);
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options);
       rethrow;
@@ -1177,14 +1161,14 @@ class _NotificationApiService implements NotificationApiService {
   }
 
   @override
-  Future<Map<String, dynamic>> getNotificationInteractions(
+  Future<GenericResponse> getNotificationInteractions(
     String notificationId,
   ) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<Map<String, dynamic>>(
+    final _options = _setStreamType<GenericResponse>(
       Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
@@ -1195,12 +1179,9 @@ class _NotificationApiService implements NotificationApiService {
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late Map<String, dynamic> _value;
+    late GenericResponse _value;
     try {
-      _value = _result.data!.map(
-        (k, dynamic v) =>
-            MapEntry(k, dynamic.fromJson(v as Map<String, dynamic>)),
-      );
+      _value = GenericResponse.fromJson(_result.data!);
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options);
       rethrow;
@@ -1209,7 +1190,7 @@ class _NotificationApiService implements NotificationApiService {
   }
 
   @override
-  Future<Map<String, dynamic>> getNotificationStats(
+  Future<GenericResponse> getNotificationStats(
     String? startDate,
     String? endDate,
   ) async {
@@ -1221,7 +1202,7 @@ class _NotificationApiService implements NotificationApiService {
     queryParameters.removeWhere((k, v) => v == null);
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<Map<String, dynamic>>(
+    final _options = _setStreamType<GenericResponse>(
       Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
@@ -1232,12 +1213,9 @@ class _NotificationApiService implements NotificationApiService {
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late Map<String, dynamic> _value;
+    late GenericResponse _value;
     try {
-      _value = _result.data!.map(
-        (k, dynamic v) =>
-            MapEntry(k, dynamic.fromJson(v as Map<String, dynamic>)),
-      );
+      _value = GenericResponse.fromJson(_result.data!);
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options);
       rethrow;
@@ -1246,7 +1224,7 @@ class _NotificationApiService implements NotificationApiService {
   }
 
   @override
-  Future<Map<String, dynamic>> getDeliveryStats(
+  Future<GenericResponse> getDeliveryStats(
     String? startDate,
     String? endDate,
   ) async {
@@ -1258,7 +1236,7 @@ class _NotificationApiService implements NotificationApiService {
     queryParameters.removeWhere((k, v) => v == null);
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<Map<String, dynamic>>(
+    final _options = _setStreamType<GenericResponse>(
       Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
@@ -1269,12 +1247,9 @@ class _NotificationApiService implements NotificationApiService {
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late Map<String, dynamic> _value;
+    late GenericResponse _value;
     try {
-      _value = _result.data!.map(
-        (k, dynamic v) =>
-            MapEntry(k, dynamic.fromJson(v as Map<String, dynamic>)),
-      );
+      _value = GenericResponse.fromJson(_result.data!);
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options);
       rethrow;

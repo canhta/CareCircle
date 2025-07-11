@@ -25,8 +25,6 @@ class NotificationRepository {
   // Cache keys
   static const String _notificationsCacheKey = 'notifications_cache';
   static const String _preferencesCacheKey = 'notification_preferences_cache';
-  static const String _emergencyContactsCacheKey = 'emergency_contacts_cache';
-  static const String _templatesCacheKey = 'notification_templates_cache';
   static const String _lastSyncKey = 'notifications_last_sync';
 
   // Cache expiry duration
@@ -136,7 +134,9 @@ class NotificationRepository {
 
       final response = await _apiService.getNotificationSummary();
       if (response.data == null) {
-        throw Exception('Failed to fetch notification summary: No data received');
+        throw Exception(
+          'Failed to fetch notification summary: No data received',
+        );
       }
       return response.data!;
     } on DioException catch (e) {
@@ -186,7 +186,9 @@ class NotificationRepository {
       final response = await _apiService.markAsRead(id);
 
       if (response.data == null) {
-        throw Exception('Failed to mark notification as read: No data received');
+        throw Exception(
+          'Failed to mark notification as read: No data received',
+        );
       }
 
       // Update cache
@@ -265,10 +267,7 @@ class NotificationRepository {
       },
       operationName: 'createNotification',
       maxAttempts: 3,
-      context: {
-        'type': request.type.name,
-        'priority': request.priority.name,
-      },
+      context: {'type': request.type.name, 'priority': request.priority.name},
     );
   }
 
@@ -295,7 +294,9 @@ class NotificationRepository {
       final preferences = response.data;
 
       if (preferences == null) {
-        throw Exception('Failed to fetch notification preferences: No data received');
+        throw Exception(
+          'Failed to fetch notification preferences: No data received',
+        );
       }
 
       // Cache the results
@@ -334,7 +335,9 @@ class NotificationRepository {
       final preferences = response.data;
 
       if (preferences == null) {
-        throw Exception('Failed to update notification preferences: No data received');
+        throw Exception(
+          'Failed to update notification preferences: No data received',
+        );
       }
 
       // Update cache

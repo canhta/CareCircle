@@ -3985,4 +3985,295 @@ as DateTime?,
 
 }
 
+
+/// @nodoc
+mixin _$GenericResponse {
+
+ bool get success; String? get message; Map<String, dynamic>? get data; Map<String, dynamic>? get errors; DateTime? get timestamp;
+/// Create a copy of GenericResponse
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$GenericResponseCopyWith<GenericResponse> get copyWith => _$GenericResponseCopyWithImpl<GenericResponse>(this as GenericResponse, _$identity);
+
+  /// Serializes this GenericResponse to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is GenericResponse&&(identical(other.success, success) || other.success == success)&&(identical(other.message, message) || other.message == message)&&const DeepCollectionEquality().equals(other.data, data)&&const DeepCollectionEquality().equals(other.errors, errors)&&(identical(other.timestamp, timestamp) || other.timestamp == timestamp));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,success,message,const DeepCollectionEquality().hash(data),const DeepCollectionEquality().hash(errors),timestamp);
+
+@override
+String toString() {
+  return 'GenericResponse(success: $success, message: $message, data: $data, errors: $errors, timestamp: $timestamp)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $GenericResponseCopyWith<$Res>  {
+  factory $GenericResponseCopyWith(GenericResponse value, $Res Function(GenericResponse) _then) = _$GenericResponseCopyWithImpl;
+@useResult
+$Res call({
+ bool success, String? message, Map<String, dynamic>? data, Map<String, dynamic>? errors, DateTime? timestamp
+});
+
+
+
+
+}
+/// @nodoc
+class _$GenericResponseCopyWithImpl<$Res>
+    implements $GenericResponseCopyWith<$Res> {
+  _$GenericResponseCopyWithImpl(this._self, this._then);
+
+  final GenericResponse _self;
+  final $Res Function(GenericResponse) _then;
+
+/// Create a copy of GenericResponse
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? success = null,Object? message = freezed,Object? data = freezed,Object? errors = freezed,Object? timestamp = freezed,}) {
+  return _then(_self.copyWith(
+success: null == success ? _self.success : success // ignore: cast_nullable_to_non_nullable
+as bool,message: freezed == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
+as String?,data: freezed == data ? _self.data : data // ignore: cast_nullable_to_non_nullable
+as Map<String, dynamic>?,errors: freezed == errors ? _self.errors : errors // ignore: cast_nullable_to_non_nullable
+as Map<String, dynamic>?,timestamp: freezed == timestamp ? _self.timestamp : timestamp // ignore: cast_nullable_to_non_nullable
+as DateTime?,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [GenericResponse].
+extension GenericResponsePatterns on GenericResponse {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _GenericResponse value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _GenericResponse() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _GenericResponse value)  $default,){
+final _that = this;
+switch (_that) {
+case _GenericResponse():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _GenericResponse value)?  $default,){
+final _that = this;
+switch (_that) {
+case _GenericResponse() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool success,  String? message,  Map<String, dynamic>? data,  Map<String, dynamic>? errors,  DateTime? timestamp)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _GenericResponse() when $default != null:
+return $default(_that.success,_that.message,_that.data,_that.errors,_that.timestamp);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool success,  String? message,  Map<String, dynamic>? data,  Map<String, dynamic>? errors,  DateTime? timestamp)  $default,) {final _that = this;
+switch (_that) {
+case _GenericResponse():
+return $default(_that.success,_that.message,_that.data,_that.errors,_that.timestamp);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool success,  String? message,  Map<String, dynamic>? data,  Map<String, dynamic>? errors,  DateTime? timestamp)?  $default,) {final _that = this;
+switch (_that) {
+case _GenericResponse() when $default != null:
+return $default(_that.success,_that.message,_that.data,_that.errors,_that.timestamp);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _GenericResponse implements GenericResponse {
+  const _GenericResponse({required this.success, this.message, final  Map<String, dynamic>? data, final  Map<String, dynamic>? errors, this.timestamp}): _data = data,_errors = errors;
+  factory _GenericResponse.fromJson(Map<String, dynamic> json) => _$GenericResponseFromJson(json);
+
+@override final  bool success;
+@override final  String? message;
+ final  Map<String, dynamic>? _data;
+@override Map<String, dynamic>? get data {
+  final value = _data;
+  if (value == null) return null;
+  if (_data is EqualUnmodifiableMapView) return _data;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableMapView(value);
+}
+
+ final  Map<String, dynamic>? _errors;
+@override Map<String, dynamic>? get errors {
+  final value = _errors;
+  if (value == null) return null;
+  if (_errors is EqualUnmodifiableMapView) return _errors;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableMapView(value);
+}
+
+@override final  DateTime? timestamp;
+
+/// Create a copy of GenericResponse
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$GenericResponseCopyWith<_GenericResponse> get copyWith => __$GenericResponseCopyWithImpl<_GenericResponse>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$GenericResponseToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _GenericResponse&&(identical(other.success, success) || other.success == success)&&(identical(other.message, message) || other.message == message)&&const DeepCollectionEquality().equals(other._data, _data)&&const DeepCollectionEquality().equals(other._errors, _errors)&&(identical(other.timestamp, timestamp) || other.timestamp == timestamp));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,success,message,const DeepCollectionEquality().hash(_data),const DeepCollectionEquality().hash(_errors),timestamp);
+
+@override
+String toString() {
+  return 'GenericResponse(success: $success, message: $message, data: $data, errors: $errors, timestamp: $timestamp)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$GenericResponseCopyWith<$Res> implements $GenericResponseCopyWith<$Res> {
+  factory _$GenericResponseCopyWith(_GenericResponse value, $Res Function(_GenericResponse) _then) = __$GenericResponseCopyWithImpl;
+@override @useResult
+$Res call({
+ bool success, String? message, Map<String, dynamic>? data, Map<String, dynamic>? errors, DateTime? timestamp
+});
+
+
+
+
+}
+/// @nodoc
+class __$GenericResponseCopyWithImpl<$Res>
+    implements _$GenericResponseCopyWith<$Res> {
+  __$GenericResponseCopyWithImpl(this._self, this._then);
+
+  final _GenericResponse _self;
+  final $Res Function(_GenericResponse) _then;
+
+/// Create a copy of GenericResponse
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? success = null,Object? message = freezed,Object? data = freezed,Object? errors = freezed,Object? timestamp = freezed,}) {
+  return _then(_GenericResponse(
+success: null == success ? _self.success : success // ignore: cast_nullable_to_non_nullable
+as bool,message: freezed == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
+as String?,data: freezed == data ? _self._data : data // ignore: cast_nullable_to_non_nullable
+as Map<String, dynamic>?,errors: freezed == errors ? _self._errors : errors // ignore: cast_nullable_to_non_nullable
+as Map<String, dynamic>?,timestamp: freezed == timestamp ? _self.timestamp : timestamp // ignore: cast_nullable_to_non_nullable
+as DateTime?,
+  ));
+}
+
+
+}
+
 // dart format on

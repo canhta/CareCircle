@@ -69,7 +69,7 @@ class HomeScreen extends ConsumerWidget {
                   onPressed: () => context.push('/notifications'),
                   tooltip: 'Notifications',
                 ),
-                error: (_, __) => IconButton(
+                error: (_, _) => IconButton(
                   icon: const Icon(Icons.notifications),
                   onPressed: () => context.push('/notifications'),
                   tooltip: 'Notifications',

@@ -213,48 +213,68 @@ class NotificationValidator {
   }
 
   /// Validate notification type
-  static bool _isValidNotificationType(notification_models.NotificationType type) {
+  static bool _isValidNotificationType(
+    notification_models.NotificationType type,
+  ) {
     return notification_models.NotificationType.values.contains(type);
   }
 
   /// Validate notification channel
-  static bool _isValidNotificationChannel(notification_models.NotificationChannel channel) {
+  static bool _isValidNotificationChannel(
+    notification_models.NotificationChannel channel,
+  ) {
     return notification_models.NotificationChannel.values.contains(channel);
   }
 
   /// Validate notification priority
-  static bool _isValidNotificationPriority(notification_models.NotificationPriority priority) {
+  static bool _isValidNotificationPriority(
+    notification_models.NotificationPriority priority,
+  ) {
     return notification_models.NotificationPriority.values.contains(priority);
   }
 
   /// Validate emergency alert type
-  static bool _isValidEmergencyAlertType(notification_models.EmergencyAlertType type) {
+  static bool _isValidEmergencyAlertType(
+    notification_models.EmergencyAlertType type,
+  ) {
     return notification_models.EmergencyAlertType.values.contains(type);
   }
 
   /// Validate emergency alert severity
-  static bool _isValidEmergencyAlertSeverity(notification_models.EmergencyAlertSeverity severity) {
+  static bool _isValidEmergencyAlertSeverity(
+    notification_models.EmergencyAlertSeverity severity,
+  ) {
     return notification_models.EmergencyAlertSeverity.values.contains(severity);
   }
 
   /// Validate metadata
-  static void _validateMetadata(Map<String, dynamic> metadata, List<String> errors) {
+  static void _validateMetadata(
+    Map<String, dynamic> metadata,
+    List<String> errors,
+  ) {
     if (metadata.length > 10) {
       errors.add('Metadata cannot have more than 10 entries');
     }
 
     for (final entry in metadata.entries) {
       if (entry.key.length > 50) {
-        errors.add('Metadata key "${entry.key}" is too long (max 50 characters)');
+        errors.add(
+          'Metadata key "${entry.key}" is too long (max 50 characters)',
+        );
       }
       if (entry.value.toString().length > 200) {
-        errors.add('Metadata value for "${entry.key}" is too long (max 200 characters)');
+        errors.add(
+          'Metadata value for "${entry.key}" is too long (max 200 characters)',
+        );
       }
     }
   }
 
   /// Validate scheduled time
-  static void _validateScheduledTime(DateTime scheduledFor, List<String> errors) {
+  static void _validateScheduledTime(
+    DateTime scheduledFor,
+    List<String> errors,
+  ) {
     final now = DateTime.now();
     final maxFuture = now.add(const Duration(days: 365));
 
@@ -266,7 +286,10 @@ class NotificationValidator {
   }
 
   /// Validate quiet hours settings
-  static void _validateQuietHours(notification_models.QuietHoursSettings quietHours, List<String> errors) {
+  static void _validateQuietHours(
+    notification_models.QuietHoursSettings quietHours,
+    List<String> errors,
+  ) {
     // Validate start and end times are valid time strings
     try {
       final startParts = quietHours.startTime.split(':');
@@ -291,16 +314,25 @@ class NotificationValidator {
   }
 
   /// Validate emergency settings
-  static void _validateEmergencySettings(notification_models.EmergencyAlertSettings settings, List<String> errors) {
+  static void _validateEmergencySettings(
+    notification_models.EmergencyAlertSettings settings,
+    List<String> errors,
+  ) {
     // Emergency settings validation logic
-    if (settings.escalationDelayMinutes < 1 || settings.escalationDelayMinutes > 60) {
+    if (settings.escalationDelayMinutes < 1 ||
+        settings.escalationDelayMinutes > 60) {
       errors.add('Emergency escalation delay must be between 1 and 60 minutes');
     }
   }
 
   /// Validate channel preferences
-  static void _validateChannelPreferences(Map<String, bool> preferences, List<String> errors) {
-    final validChannels = notification_models.NotificationChannel.values.map((e) => e.name).toSet();
+  static void _validateChannelPreferences(
+    Map<String, bool> preferences,
+    List<String> errors,
+  ) {
+    final validChannels = notification_models.NotificationChannel.values
+        .map((e) => e.name)
+        .toSet();
     for (final channel in preferences.keys) {
       if (!validChannels.contains(channel)) {
         errors.add('Invalid notification channel: $channel');
@@ -309,8 +341,13 @@ class NotificationValidator {
   }
 
   /// Validate type preferences
-  static void _validateTypePreferences(Map<String, bool> preferences, List<String> errors) {
-    final validTypes = notification_models.NotificationType.values.map((e) => e.name).toSet();
+  static void _validateTypePreferences(
+    Map<String, bool> preferences,
+    List<String> errors,
+  ) {
+    final validTypes = notification_models.NotificationType.values
+        .map((e) => e.name)
+        .toSet();
     for (final type in preferences.keys) {
       if (!validTypes.contains(type)) {
         errors.add('Invalid notification type: $type');
@@ -325,36 +362,45 @@ class NotificationValidator {
   }
 
   /// Validate template variables
-  static void _validateTemplateVariables(String titleTemplate, String messageTemplate, List<String> errors) {
+  static void _validateTemplateVariables(
+    String titleTemplate,
+    String messageTemplate,
+    List<String> errors,
+  ) {
     final variablePattern = RegExp(r'\{\{(\w+)\}\}');
-    
-    final titleVariables = variablePattern.allMatches(titleTemplate).map((m) => m.group(1)!).toSet();
-    final messageVariables = variablePattern.allMatches(messageTemplate).map((m) => m.group(1)!).toSet();
-    
+
+    final titleVariables = variablePattern
+        .allMatches(titleTemplate)
+        .map((m) => m.group(1)!)
+        .toSet();
+    final messageVariables = variablePattern
+        .allMatches(messageTemplate)
+        .map((m) => m.group(1)!)
+        .toSet();
+
     // Check for invalid variable names
-    final invalidVariables = [...titleVariables, ...messageVariables].where((v) => !_isValidVariableName(v));
+    final invalidVariables = [
+      ...titleVariables,
+      ...messageVariables,
+    ].where((v) => !_isValidVariableName(v));
     if (invalidVariables.isNotEmpty) {
       errors.add('Invalid template variables: ${invalidVariables.join(', ')}');
     }
   }
 
-  /// Validate required variables
-  static void _validateRequiredVariables(List<String> variables, List<String> errors) {
-    for (final variable in variables) {
-      if (!_isValidVariableName(variable)) {
-        errors.add('Invalid required variable name: $variable');
-      }
-    }
-  }
-
   /// Validate template variable map
-  static void _validateTemplateVariableMap(Map<String, String> variables, List<String> errors) {
+  static void _validateTemplateVariableMap(
+    Map<String, String> variables,
+    List<String> errors,
+  ) {
     for (final entry in variables.entries) {
       if (!_isValidVariableName(entry.key)) {
         errors.add('Invalid variable name: ${entry.key}');
       }
       if (entry.value.length > 100) {
-        errors.add('Variable description for "${entry.key}" is too long (max 100 characters)');
+        errors.add(
+          'Variable description for "${entry.key}" is too long (max 100 characters)',
+        );
       }
     }
   }

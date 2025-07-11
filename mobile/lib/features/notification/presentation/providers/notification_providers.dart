@@ -258,6 +258,9 @@ class NotificationPreferencesNotifier
       );
       state = AsyncValue.data(preferences);
 
+      // Invalidate related providers when preferences change
+      _ref.invalidate(notificationSummaryProvider);
+
       _logger.info('Notification preferences updated successfully', {
         'timestamp': DateTime.now().toIso8601String(),
       });

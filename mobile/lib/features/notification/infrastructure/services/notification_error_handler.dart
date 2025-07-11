@@ -110,14 +110,22 @@ class NotificationErrorHandler {
         return NotificationValidationException(
           'Invalid request data. Please check your input and try again.',
           code: 'BAD_REQUEST',
-          details: {'statusCode': statusCode, 'response': responseData, ...?context},
+          details: {
+            'statusCode': statusCode,
+            'response': responseData,
+            ...?context,
+          },
         );
 
       case 401:
         return NotificationAuthException(
           'Authentication required. Please sign in again.',
           code: 'UNAUTHORIZED',
-          details: {'statusCode': statusCode, 'response': responseData, ...?context},
+          details: {
+            'statusCode': statusCode,
+            'response': responseData,
+            ...?context,
+          },
           requiresReauth: true,
         );
 
@@ -125,7 +133,11 @@ class NotificationErrorHandler {
         return NotificationAuthException(
           'Access denied. You do not have permission to perform this action.',
           code: 'FORBIDDEN',
-          details: {'statusCode': statusCode, 'response': responseData, ...?context},
+          details: {
+            'statusCode': statusCode,
+            'response': responseData,
+            ...?context,
+          },
         );
 
       case 404:
@@ -142,7 +154,11 @@ class NotificationErrorHandler {
         return NotificationRateLimitException(
           'Too many requests. Please wait before trying again.',
           code: 'RATE_LIMITED',
-          details: {'statusCode': statusCode, 'response': responseData, ...?context},
+          details: {
+            'statusCode': statusCode,
+            'response': responseData,
+            ...?context,
+          },
           retryAfter: retryAfter,
         );
 
@@ -153,7 +169,11 @@ class NotificationErrorHandler {
         return NotificationServiceException(
           'Service temporarily unavailable. Please try again later.',
           code: 'SERVICE_ERROR',
-          details: {'statusCode': statusCode, 'response': responseData, ...?context},
+          details: {
+            'statusCode': statusCode,
+            'response': responseData,
+            ...?context,
+          },
           serviceName: 'notification-api',
           estimatedRecovery: const Duration(minutes: 5),
         );
@@ -181,8 +201,6 @@ class NotificationErrorHandler {
       isRetryable: true,
     );
   }
-
-
 
   /// Handle format exceptions
   static NotificationException _handleFormatException(
@@ -215,7 +233,7 @@ class NotificationErrorHandler {
   static String getUserFriendlyMessage(NotificationException error) {
     switch (error) {
       case NotificationNetworkException _:
-        final networkError = error as NotificationNetworkException;
+        final networkError = error;
         if (!networkError.isRetryable) {
           return 'This action cannot be completed right now. Please contact support if the problem persists.';
         }
@@ -248,7 +266,7 @@ class NotificationErrorHandler {
   static bool isRetryable(NotificationException error) {
     switch (error) {
       case NotificationNetworkException _:
-        return (error as NotificationNetworkException).isRetryable;
+        return error.isRetryable;
       case NotificationServiceException _:
       case NotificationRateLimitException _:
         return true;
@@ -270,7 +288,9 @@ class NotificationErrorHandler {
 
     // Exponential backoff with jitter
     final baseDelay = Duration(seconds: 2 * (1 << (attemptCount - 1)));
-    final jitter = Duration(milliseconds: (baseDelay.inMilliseconds * 0.1).round());
+    final jitter = Duration(
+      milliseconds: (baseDelay.inMilliseconds * 0.1).round(),
+    );
     return baseDelay + jitter;
   }
 }

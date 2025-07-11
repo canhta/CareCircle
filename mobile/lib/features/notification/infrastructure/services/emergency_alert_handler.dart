@@ -41,7 +41,13 @@ class EmergencyAlertHandler {
   /// Initialize emergency alert handler
   Future<void> initialize() async {
     try {
+      // Check secure storage for emergency data persistence
+      final hasEmergencyData = await _secureStorage.containsKey(
+        'emergency_alerts',
+      );
+
       _logger.info('Initializing emergency alert handler', {
+        'hasStoredEmergencyData': hasEmergencyData,
         'timestamp': DateTime.now().toIso8601String(),
       });
 

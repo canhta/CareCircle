@@ -333,3 +333,23 @@ Map<String, dynamic> _$RenderedTemplateToJson(_RenderedTemplate instance) =>
       'variables': instance.variables,
       'renderedAt': instance.renderedAt?.toIso8601String(),
     };
+
+_GenericResponse _$GenericResponseFromJson(Map<String, dynamic> json) =>
+    _GenericResponse(
+      success: json['success'] as bool,
+      message: json['message'] as String?,
+      data: json['data'] as Map<String, dynamic>?,
+      errors: json['errors'] as Map<String, dynamic>?,
+      timestamp: json['timestamp'] == null
+          ? null
+          : DateTime.parse(json['timestamp'] as String),
+    );
+
+Map<String, dynamic> _$GenericResponseToJson(_GenericResponse instance) =>
+    <String, dynamic>{
+      'success': instance.success,
+      'message': instance.message,
+      'data': instance.data,
+      'errors': instance.errors,
+      'timestamp': instance.timestamp?.toIso8601String(),
+    };

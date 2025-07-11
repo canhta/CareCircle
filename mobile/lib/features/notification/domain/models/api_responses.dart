@@ -57,7 +57,8 @@ abstract class NotificationSummaryResponse with _$NotificationSummaryResponse {
 
 /// Notification preferences response wrapper
 @freezed
-abstract class NotificationPreferencesResponse with _$NotificationPreferencesResponse {
+abstract class NotificationPreferencesResponse
+    with _$NotificationPreferencesResponse {
   const factory NotificationPreferencesResponse({
     required bool success,
     required String message,
@@ -118,7 +119,8 @@ abstract class EmergencyContactResponse with _$EmergencyContactResponse {
 
 /// Emergency contact list response wrapper
 @freezed
-abstract class EmergencyContactListResponse with _$EmergencyContactListResponse {
+abstract class EmergencyContactListResponse
+    with _$EmergencyContactListResponse {
   const factory EmergencyContactListResponse({
     required bool success,
     required String message,
@@ -134,7 +136,8 @@ abstract class EmergencyContactListResponse with _$EmergencyContactListResponse 
 
 /// Notification template response wrapper
 @freezed
-abstract class NotificationTemplateResponse with _$NotificationTemplateResponse {
+abstract class NotificationTemplateResponse
+    with _$NotificationTemplateResponse {
   const factory NotificationTemplateResponse({
     required bool success,
     required String message,
@@ -149,7 +152,8 @@ abstract class NotificationTemplateResponse with _$NotificationTemplateResponse 
 
 /// Notification template list response wrapper
 @freezed
-abstract class NotificationTemplateListResponse with _$NotificationTemplateListResponse {
+abstract class NotificationTemplateListResponse
+    with _$NotificationTemplateListResponse {
   const factory NotificationTemplateListResponse({
     required bool success,
     required String message,
@@ -208,4 +212,19 @@ abstract class RenderedTemplate with _$RenderedTemplate {
 
   factory RenderedTemplate.fromJson(Map<String, dynamic> json) =>
       _$RenderedTemplateFromJson(json);
+}
+
+/// Generic response wrapper for simple Map responses
+@freezed
+abstract class GenericResponse with _$GenericResponse {
+  const factory GenericResponse({
+    required bool success,
+    String? message,
+    Map<String, dynamic>? data,
+    Map<String, dynamic>? errors,
+    DateTime? timestamp,
+  }) = _GenericResponse;
+
+  factory GenericResponse.fromJson(Map<String, dynamic> json) =>
+      _$GenericResponseFromJson(json);
 }
