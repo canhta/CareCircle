@@ -1,4 +1,4 @@
-import { CareGroup as PrismaCareGroup } from '@prisma/client';
+import { CareGroup as PrismaCareGroup, Prisma } from '@prisma/client';
 
 /**
  * Simplified Care Group Entity matching actual Prisma schema
@@ -57,7 +57,7 @@ export class CareGroupEntity {
       description: this.description,
       createdBy: this.createdBy,
       isActive: this.isActive,
-      settings: this.settings as any,
+      settings: this.settings as Prisma.JsonValue,
       inviteCode: this.inviteCode,
       inviteExpiration: this.inviteExpiration,
     };

@@ -628,7 +628,7 @@ export class PrismaCareActivityRepository implements CareActivityRepository {
       memberId: activity.memberId,
       activityType: activity.activityType,
       description: activity.description,
-      data: (activity.data as any) || {},
+      data: (activity.data as Prisma.JsonValue) || {},
       timestamp: activity.timestamp,
     }));
 

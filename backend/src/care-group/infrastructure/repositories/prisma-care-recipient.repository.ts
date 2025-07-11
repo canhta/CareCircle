@@ -27,8 +27,8 @@ export class PrismaCareRecipientRepository implements CareRecipientRepository {
         name: recipientData.name,
         relationship: recipientData.relationship,
         dateOfBirth: recipientData.dateOfBirth,
-        healthSummary: recipientData.healthSummary,
-        carePreferences: recipientData.carePreferences,
+        healthSummary: recipientData.healthSummary as Prisma.InputJsonValue,
+        carePreferences: recipientData.carePreferences as Prisma.InputJsonValue,
         isActive: recipientData.isActive,
       },
     });
@@ -143,7 +143,7 @@ export class PrismaCareRecipientRepository implements CareRecipientRepository {
           emergencyContacts: updates.emergencyContacts,
         }),
         ...updates.carePreferences,
-      } as any;
+      } as Prisma.InputJsonValue;
     }
     if (updates.isActive !== undefined) updateData.isActive = updates.isActive;
 
@@ -632,7 +632,7 @@ export class PrismaCareRecipientRepository implements CareRecipientRepository {
         groupId,
         carePreferences: {
           path: [preferenceKey],
-          equals: preferenceValue as any,
+          equals: preferenceValue as Prisma.InputJsonValue,
         },
       },
       orderBy: { name: 'asc' },

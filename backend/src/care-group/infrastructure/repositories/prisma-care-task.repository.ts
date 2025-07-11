@@ -29,8 +29,8 @@ export class PrismaCareTaskRepository implements CareTaskRepository {
         status: task.status,
         dueDate: task.dueDate,
         completedAt: task.completedAt,
-        recurrence: task.recurrence as any,
-        metadata: task.metadata as any,
+        recurrence: task.recurrence as Prisma.InputJsonValue,
+        metadata: task.metadata as Prisma.InputJsonValue,
       },
     });
 
@@ -172,9 +172,9 @@ export class PrismaCareTaskRepository implements CareTaskRepository {
     if (updates.completedAt !== undefined)
       updateData.completedAt = updates.completedAt;
     if (updates.recurrence !== undefined)
-      updateData.recurrence = updates.recurrence as any;
+      updateData.recurrence = updates.recurrence as Prisma.InputJsonValue;
     if (updates.metadata !== undefined)
-      updateData.metadata = updates.metadata as any;
+      updateData.metadata = updates.metadata as Prisma.InputJsonValue;
 
     const updated = await this.prisma.careTask.update({
       where: { id },
@@ -590,8 +590,8 @@ export class PrismaCareTaskRepository implements CareTaskRepository {
         priority: originalTask.priority,
         status: TaskStatus.PENDING,
         dueDate: newDueDate,
-        recurrence: originalTask.recurrence as any,
-        metadata: originalTask.metadata as any,
+        recurrence: originalTask.recurrence as Prisma.InputJsonValue,
+        metadata: originalTask.metadata as Prisma.InputJsonValue,
       },
     });
 

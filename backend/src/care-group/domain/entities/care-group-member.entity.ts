@@ -1,6 +1,7 @@
 import {
   CareGroupMember as PrismaCareGroupMember,
   MemberRole,
+  Prisma,
 } from '@prisma/client';
 
 /**
@@ -69,7 +70,7 @@ export class CareGroupMemberEntity {
       customTitle: this.customTitle,
       isActive: this.isActive,
       invitedBy: this.invitedBy,
-      notificationPreferences: this.notificationPreferences as any,
+      notificationPreferences: this.notificationPreferences as Prisma.JsonValue,
       permissions: this.permissions,
     };
   }
