@@ -1,272 +1,174 @@
-# CareCircle AI Agent System - Implementation Guide
+# CareCircle AI Agent System Documentation
 
 ## Overview
 
-This directory contains comprehensive documentation for implementing CareCircle's state-of-the-art multi-agent AI system. The system leverages the latest LangGraph.js patterns, Docker containerization, and healthcare compliance best practices to deliver a production-ready, HIPAA-compliant healthcare assistant.
+This directory contains streamlined documentation for the CareCircle AI Agent System, designed following lean MVP principles to provide essential information without unnecessary complexity.
 
-## 🏗️ Architecture Overview
+## Documentation Structure
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                    CareCircle AI Agent System                   │
-├─────────────────────────────────────────────────────────────────┤
-│  Multi-Agent Orchestration (LangGraph.js)                      │
-│  ├── Supervisor Agent (Central Coordinator)                    │
-│  ├── Health Advisor Agent (General Health)                     │
-│  ├── Medication Assistant Agent (Drug Management)              │
-│  ├── Emergency Triage Agent (Critical Care)                    │
-│  ├── Data Interpreter Agent (Health Analytics)                 │
-│  └── Care Coordinator Agent (Family Communication)             │
-├─────────────────────────────────────────────────────────────────┤
-│  Supporting Infrastructure                                      │
-│  ├── Vector Database (Milvus) - Semantic Memory               │
-│  ├── Redis - Session Management & Caching                     │
-│  ├── Compliance Service - HIPAA Audit & PHI Protection        │
-│  └── Cost Optimizer - Multi-Model Routing                     │
-├─────────────────────────────────────────────────────────────────┤
-│  Existing CareCircle Platform                                  │
-│  ├── NestJS Backend (DDD Architecture)                        │
-│  ├── PostgreSQL + TimescaleDB                                 │
-│  ├── Firebase Authentication                                  │
-│  └── Flutter Mobile App                                       │
-└─────────────────────────────────────────────────────────────────┘
-```
+The documentation has been consolidated into three focused files:
 
-## 📚 Documentation Structure
+### 📋 [Agent System Overview](./agent-system-overview.md)
+**Core system architecture and design concepts**
+- System architecture diagram
+- Agent capabilities and responsibilities  
+- Technology stack overview
+- Integration points with existing CareCircle platform
+- Quick start guide
 
-### Core Architecture Documents
-- **[multi-agent-ai-system.md](./multi-agent-ai-system.md)** - Updated system architecture with 2025 best practices
-- **[agent-specifications.md](./agent-specifications.md)** - Detailed technical specifications for each agent
-- **[multi-model-strategy.md](./multi-model-strategy.md)** - Cost optimization and model selection strategy
+### 🛠️ [Implementation Guide](./implementation-guide.md)
+**Practical implementation steps and configuration**
+- Three-phase implementation approach
+- Environment setup and configuration
+- Docker containerization
+- Database integration
+- Testing and troubleshooting
 
-### Implementation Guides
-- **[multi-agent-implementation-plan.md](./multi-agent-implementation-plan.md)** - Updated 8-week implementation roadmap
-- **[docker-containerization-guide.md](./docker-containerization-guide.md)** - Complete containerization setup
-- **[production-deployment-guide.md](./production-deployment-guide.md)** - Kubernetes production deployment
+### 🔒 [Compliance & Deployment](./compliance-and-deployment.md)
+**Healthcare compliance and production deployment**
+- HIPAA compliance essentials
+- Security requirements and best practices
+- Production deployment strategies
+- Cost management and monitoring
+- Backup and recovery procedures
 
-### Compliance & Security
-- **[healthcare-compliance-framework.md](./healthcare-compliance-framework.md)** - HIPAA compliance implementation
+## Quick Navigation
 
-## 🚀 Quick Start Guide
+**Getting Started?** → Start with [Agent System Overview](./agent-system-overview.md)
+
+**Ready to Implement?** → Follow the [Implementation Guide](./implementation-guide.md)
+
+**Deploying to Production?** → Review [Compliance & Deployment](./compliance-and-deployment.md)
+
+## Key Features
+
+- **Lean MVP Approach**: Single intelligent agent with minimal infrastructure dependencies
+- **Healthcare-First Design**: HIPAA compliance and patient safety prioritized
+- **Seamless Integration**: Works with existing CareCircle NestJS backend and Flutter mobile app
+- **Cost-Optimized**: Intelligent model routing and usage controls
+- **Production-Ready**: Containerized deployment with monitoring and compliance
+
+## Prerequisites
+
+- Node.js 22+ with npm/yarn
+- Docker Desktop
+- PostgreSQL 15+ database
+- Redis 7+ for session management
+- OpenAI API access
+
+## 🚀 Quick Start (5 Minutes)
 
 ### Prerequisites
-- Node.js 22+ with npm/yarn
-- Docker Desktop with BuildKit enabled
-- PostgreSQL 15+ with TimescaleDB extension
-- Redis 7+ for session management
-- Access to OpenAI API and LangChain services
+- Node.js 22+ installed
+- Docker Desktop running
+- OpenAI API key
+- Git access to CareCircle repository
 
-### 1. Environment Setup
+### Rapid Setup
+
 ```bash
-# Clone the repository
+# 1. Clone and navigate to project
 git clone https://github.com/canhta/CareCircle.git
-cd CareCircle
+cd CareCircle/backend
 
-# Install dependencies
-npm install
+# 2. Install healthcare agent dependencies
+npm install @langchain/core@^0.3.0 @langchain/openai@^0.3.0
+npm install @langchain/langgraph@^0.2.0 fhir@^4.11.1
+npm install crypto-js@^4.2.0 @milvus-io/milvus2-sdk-node@^2.3.0
 
-# Set up environment variables
-cp docs/agent/ai-agents.env.example .env
-# Edit .env with your API keys and configuration
-```
+# 3. Configure environment (minimal setup)
+cp .env.example .env.healthcare-agents
+echo "OPENAI_API_KEY=your_openai_key_here" >> .env.healthcare-agents
+echo "ENABLE_PHI_DETECTION=true" >> .env.healthcare-agents
+echo "ENABLE_COMPLIANCE_MONITORING=true" >> .env.healthcare-agents
 
-### 2. Docker Development Setup
-```bash
-# Apply security hardening
-chmod +x docs/agent/security-hardening.sh
-./docs/agent/security-hardening.sh
+# 4. Start healthcare agent services
+docker-compose -f docker-compose.healthcare.yml up -d
+npm run start:healthcare-agents
 
-# Start AI agent services
-docker-compose -f docker-compose.ai-agents.yml up -d
-
-# Start vector database
-docker-compose -f docker-compose.milvus.yml up -d
-
-# Verify deployment
-docker-compose ps
-```
-
-### 3. Database Setup
-```bash
-# Run database migrations
-npx prisma migrate dev --name add_agent_tables
-
-# Generate Prisma client
-npx prisma generate
-
-# Seed healthcare data
-npm run seed:healthcare-agents
-```
-
-### 4. Verify Installation
-```bash
-# Check agent orchestrator
+# 5. Verify installation (should return 200 OK)
 curl http://localhost:3001/health
-
-# Check healthcare agents
-curl http://localhost:3002/health
-
-# Check Redis
-docker exec carecircle-redis redis-cli ping
-
-# Check Milvus
-curl http://localhost:9091/healthz
+curl http://localhost:3001/agents/health
 ```
 
-## 🏥 Healthcare Compliance Features
+### Validation Steps
 
-### HIPAA Compliance
-- **PHI Detection & Masking** - Automatic detection and masking of Protected Health Information
-- **Audit Trails** - Comprehensive logging of all AI interactions with 7-year retention
-- **Access Controls** - Role-based and attribute-based access control systems
-- **Encryption** - End-to-end encryption for all healthcare data
-- **Emergency Protocols** - Automated emergency escalation and notification systems
-
-### Security Hardening
-- **Container Security** - Hardened Docker containers with non-root users
-- **Network Isolation** - Secure network policies and encrypted communication
-- **Secrets Management** - Kubernetes secrets and encrypted storage
-- **Rate Limiting** - API rate limiting and abuse prevention
-- **Monitoring** - Real-time security monitoring and alerting
-
-## 🤖 Agent Capabilities
-
-### Health Advisor Agent
-- General health questions and wellness advice
-- Symptom assessment and health education
-- Preventive care recommendations
-- Lifestyle and wellness coaching
-
-### Medication Assistant Agent
-- Drug interaction checking and analysis
-- Medication scheduling and reminders
-- Dosage guidance and adherence support
-- Prescription management integration
-
-### Emergency Triage Agent
-- Urgent health situation assessment
-- Emergency escalation protocols
-- Healthcare provider notifications
-- Emergency contact alerts
-
-### Data Interpreter Agent
-- Health metrics analysis and trends
-- Personalized health insights
-- Anomaly detection in health data
-- Predictive health analytics
-
-### Care Coordinator Agent
-- Family and caregiver communication
-- Care plan coordination and updates
-- Task assignment and tracking
-- Multi-user care management
-
-## 💰 Cost Optimization
-
-### Multi-Model Strategy
-- **GPT-4** for critical medical decisions and emergencies
-- **GPT-3.5-turbo** for general health questions and conversations
-- **Intelligent Routing** based on query complexity and user budget
-- **Response Caching** for common health information queries
-
-### Budget Management
-- Per-user monthly spending limits
-- Real-time cost tracking and alerts
-- Usage analytics and optimization recommendations
-- Automatic model downgrading when approaching limits
-
-## 📊 Monitoring & Observability
-
-### Health Checks
-- Container health monitoring
-- Service dependency checks
-- Database connectivity validation
-- API endpoint availability
-
-### Metrics & Alerts
-- Response time and throughput monitoring
-- Error rate and failure detection
-- PHI exposure risk alerts
-- Emergency response time tracking
-- Cost and usage monitoring
-
-### Compliance Monitoring
-- Automated HIPAA compliance checks
-- Audit log integrity verification
-- Access control validation
-- Data retention policy enforcement
-
-## 🔄 Development Workflow
-
-### Phase 1: Foundation (Weeks 1-2)
-1. Set up containerized development environment
-2. Implement LangGraph StateGraph orchestration
-3. Create healthcare context management
-4. Develop agent handoff mechanisms
-
-### Phase 2: Agent Implementation (Weeks 3-5)
-1. Build specialized healthcare agents
-2. Implement PHI protection and compliance
-3. Create emergency escalation protocols
-4. Develop cost optimization features
-
-### Phase 3: Integration & Testing (Weeks 6-7)
-1. Integrate with existing CareCircle modules
-2. Implement semantic memory with vector database
-3. Add real-time streaming and human-in-the-loop
-4. Comprehensive testing and optimization
-
-### Phase 4: Production Deployment (Week 8)
-1. Kubernetes cluster setup and configuration
-2. Security hardening and compliance validation
-3. Monitoring and observability implementation
-4. Production deployment and verification
-
-## 🛠️ Troubleshooting
-
-### Common Issues
-- **Container startup failures**: Check Docker logs and environment variables
-- **Database connection errors**: Verify PostgreSQL and Redis connectivity
-- **API key issues**: Ensure OpenAI and LangChain API keys are valid
-- **Memory issues**: Adjust container resource limits
-- **Network connectivity**: Check Docker network configuration
-
-### Debug Commands
 ```bash
-# Check container logs
-docker logs carecircle-agent-orchestrator
+# Test PHI detection
+curl -X POST http://localhost:3001/debug/phi-detection \
+  -H "Content-Type: application/json" \
+  -d '{"text": "Patient John Doe, SSN 123-45-6789"}'
 
-# Verify environment variables
-docker exec carecircle-agent-orchestrator env
+# Test agent orchestration
+curl -X POST http://localhost:3001/api/v1/healthcare/chat \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer your_firebase_token" \
+  -d '{"message": "I have a headache", "patientContext": {"age": 30}}'
 
-# Test database connection
-npm run test:database-connection
-
-# Check Redis connectivity
-docker exec carecircle-redis redis-cli ping
-
-# Monitor resource usage
-docker stats
+# Test emergency detection
+curl -X POST http://localhost:3001/api/v1/healthcare/chat \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer your_firebase_token" \
+  -d '{"message": "I am having severe chest pain"}'
 ```
 
-## 📞 Support & Contributing
+### Expected Results
+- ✅ Health endpoints return 200 OK
+- ✅ PHI detection identifies and masks SSN
+- ✅ Healthcare chat returns intelligent responses
+- ✅ Emergency detection triggers escalation protocols
 
-### Getting Help
-- Review the troubleshooting section above
-- Check existing GitHub issues
-- Create a new issue with detailed information
-- Contact the development team
+### Next Steps After Quick Start
+1. **Complete Setup**: Follow [Implementation Guide](./implementation-guide.md) for full configuration
+2. **Integration**: Connect with existing CareCircle backend modules
+3. **Testing**: Run comprehensive healthcare compliance tests
+4. **Production**: Deploy using [Compliance & Deployment](./compliance-and-deployment.md) guide
 
-### Contributing
-- Follow the existing code style and patterns
-- Add comprehensive tests for new features
-- Update documentation for any changes
-- Ensure HIPAA compliance for healthcare features
+## Architecture at a Glance
 
-## 📄 License
+```
+┌─────────────────────────────────────────────────────────────┐
+│                CareCircle AI Agent System                   │
+├─────────────────────────────────────────────────────────────┤
+│  Agent Orchestration (LangGraph.js)                        │
+│  ├── Supervisor Agent (Coordination)                       │
+│  ├── Health Advisor (General Health)                       │
+│  ├── Medication Assistant (Drug Management)                │
+│  ├── Emergency Triage (Critical Care)                      │
+│  └── Data Interpreter (Health Analytics)                   │
+├─────────────────────────────────────────────────────────────┤
+│  Supporting Services                                        │
+│  ├── Vector Database (Semantic Memory)                     │
+│  ├── Redis (Session Management)                            │
+│  └── Compliance Service (HIPAA Protection)                 │
+├─────────────────────────────────────────────────────────────┤
+│  Existing CareCircle Platform                              │
+│  ├── NestJS Backend (DDD Architecture)                     │
+│  ├── PostgreSQL Database                                   │
+│  ├── Firebase Authentication                               │
+│  └── Flutter Mobile App                                    │
+└─────────────────────────────────────────────────────────────┘
+```
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+## Documentation Principles
+
+This documentation follows lean MVP principles:
+
+- **Focused Content**: Essential information only, no redundancy
+- **Practical Guidance**: Implementation-focused rather than theoretical
+- **Streamlined Structure**: Three comprehensive files instead of 13+ scattered documents
+- **Healthcare-Centric**: Compliance and patient safety considerations throughout
+- **Iterative Approach**: User feedback-driven improvement over complex upfront design
+
+## Support
+
+For implementation questions or issues:
+
+1. Review the relevant documentation section
+2. Check the troubleshooting sections in each guide
+3. Create a GitHub issue with detailed information
+4. Contact the development team
 
 ---
 
-**Note**: This AI agent system handles Protected Health Information (PHI) and must be deployed in compliance with HIPAA regulations. Ensure proper security measures, audit trails, and access controls are in place before processing any real patient data.
+**Important**: This AI agent system handles Protected Health Information (PHI) and must be deployed in compliance with HIPAA regulations. Ensure proper security measures, audit trails, and access controls are in place before processing any real patient data.
