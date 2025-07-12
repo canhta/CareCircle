@@ -16,6 +16,10 @@ export interface HealthcareContext {
   medicalHistory?: string[];
   currentMedications?: string[];
   allergies?: string[];
+  symptoms?: string[];
+  emergencyIndicators?: string[];
+  age?: number;
+  urgencyLevel?: number;
   vitalSigns?: {
     bloodPressure?: string;
     heartRate?: number;
@@ -49,6 +53,37 @@ export interface AgentResponse {
     costUsd: number;
     phiDetected: boolean;
     complianceFlags: string[];
+    urgencyLevel?: number;
+    agentsInvolved?: string[];
+    severityScore?: number;
+    symptomAnalysis?: any;
+    triageAssessment?: any;
+    error?: string;
+    extractedMedications?: any[];
+    drugInteractions?: any[];
+    contraindications?: any[];
+    requiresPhysicianReview?: boolean;
+    adherenceRecommendations?: any;
+    traditionalMedicineConsiderations?: any;
+    traditionalMedicineRecommendations?: any;
+    culturalContext?: any;
+    integrationGuidance?: any;
+    vietnameseNLPAnalysis?: any;
+    languageDetected?: boolean;
+    traditionalMedicineTerms?: any;
+    agentType?: string;
+    clinicalGuidance?: any;
+    emergencyFallback?: boolean;
+    urgencyAssessment?: any;
+    emergencyKeywords?: any;
+    protocols?: any;
+    routedToAgent?: string;
+    classification?: any;
+    evidenceLevel?: any;
+    systemsInvolved?: any;
+    redFlags?: any;
+    recommendedTests?: any;
+    emergencyServicesRecommended?: boolean;
     medicalEntities?: Array<{
       text: string;
       type: string;
@@ -201,8 +236,6 @@ export abstract class BaseHealthcareAgent {
     // Base implementation - can be overridden by specific agents
     return {
       ...context,
-      agentType: this.agentType,
-      timestamp: new Date().toISOString(),
     };
   }
 
@@ -444,4 +477,6 @@ export abstract class BaseHealthcareAgent {
 
     return entities;
   }
+
+
 }

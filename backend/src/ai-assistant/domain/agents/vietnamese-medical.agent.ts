@@ -43,7 +43,7 @@ export interface IntegrationGuidance {
 
 @Injectable()
 export class VietnameseMedicalAgent extends BaseHealthcareAgent {
-  private readonly logger = new Logger(VietnameseMedicalAgent.name);
+  protected readonly logger = new Logger(VietnameseMedicalAgent.name);
 
   // Traditional Vietnamese medicine knowledge base
   private readonly traditionalMedicines = {
@@ -138,6 +138,7 @@ export class VietnameseMedicalAgent extends BaseHealthcareAgent {
     query: string,
     context: HealthcareContext,
   ): Promise<AgentResponse> {
+    const startTime = Date.now();
     try {
       this.logger.log(
         `Processing Vietnamese medical query: ${query.substring(0, 50)}...`,
@@ -185,8 +186,15 @@ export class VietnameseMedicalAgent extends BaseHealthcareAgent {
           traditionalAnalysis,
           enhancedContext,
         ),
+        urgencyLevel: (enhancedContext.vietnameseNLPAnalysis as any)?.urgencyAnalysis?.urgency_level || 0.3,
         requiresEscalation: integrationGuidance.physicianConsultationRequired,
         metadata: {
+          processingTime: Date.now() - startTime,
+          modelUsed: 'gpt-4',
+          tokensConsumed: 0,
+          costUsd: 0,
+          phiDetected: false,
+          complianceFlags: [],
           traditionalMedicineRecommendations:
             traditionalAnalysis.recommendations,
           culturalContext: culturalGuidance,

@@ -207,7 +207,6 @@ export class FirecrawlVietnameseHealthcareService implements OnModuleInit {
         scrapeOptions: {
           formats: ['markdown', 'html'],
           onlyMainContent: site.crawlConfig.onlyMainContent,
-          excludePaths: site.crawlConfig.excludePaths,
           includePaths: site.crawlConfig.includePaths,
         },
       };
@@ -216,13 +215,11 @@ export class FirecrawlVietnameseHealthcareService implements OnModuleInit {
       const crawlResponse = (await this.firecrawlApp.crawlUrl(
         site.baseUrl,
         crawlParams,
-        true, // wait for completion
-        30, // timeout in seconds
       )) as CrawlStatusResponse;
 
       if (!crawlResponse.success || !crawlResponse.data) {
         throw new Error(
-          `Crawl failed for ${site.name}: ${crawlResponse.error || 'Unknown error'}`,
+          `Crawl failed for ${site.name}: ${(crawlResponse as any).error || 'Unknown error'}`,
         );
       }
 

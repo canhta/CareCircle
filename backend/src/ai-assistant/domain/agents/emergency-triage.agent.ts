@@ -54,7 +54,7 @@ export interface EmergencyProtocol {
 
 @Injectable()
 export class EmergencyTriageAgent extends BaseHealthcareAgent {
-  private readonly logger = new Logger(EmergencyTriageAgent.name);
+  protected readonly logger = new Logger(EmergencyTriageAgent.name);
 
   // Vietnamese emergency keywords
   private readonly vietnameseEmergencyKeywords = [
@@ -145,6 +145,7 @@ export class EmergencyTriageAgent extends BaseHealthcareAgent {
     query: string,
     context: HealthcareContext,
   ): Promise<AgentResponse> {
+    const startTime = Date.now();
     try {
       this.logger.log(
         `Processing emergency query: ${query.substring(0, 50)}...`,
@@ -193,12 +194,18 @@ export class EmergencyTriageAgent extends BaseHealthcareAgent {
         confidence: triageAssessment.confidence,
         requiresEscalation: triageAssessment.severity >= 0.7,
         metadata: {
+          processingTime: Date.now() - startTime,
+          modelUsed: 'gpt-4',
+          tokensConsumed: 0,
+          costUsd: 0,
+          phiDetected: false,
+          complianceFlags: [],
           triageAssessment,
           emergencyKeywords,
           protocols,
           emergencyServicesRecommended: triageAssessment.emergencyServices,
           severityScore: triageAssessment.severity,
-          urgencyLevel: triageAssessment.urgencyLevel,
+          urgencyLevel: this.convertUrgencyLevelToNumber(triageAssessment.urgencyLevel),
           requiresImmediateAttention:
             triageAssessment.requiresImmediateAttention,
         },
@@ -211,8 +218,15 @@ export class EmergencyTriageAgent extends BaseHealthcareAgent {
         agentType: 'emergency_triage',
         response: this.getEmergencyFallbackResponse(),
         confidence: 0.5,
+        urgencyLevel: 1.0, // Maximum urgency for fallback
         requiresEscalation: true,
         metadata: {
+          processingTime: Date.now() - startTime,
+          modelUsed: 'gpt-4',
+          tokensConsumed: 0,
+          costUsd: 0,
+          phiDetected: false,
+          complianceFlags: [],
           error: 'Emergency processing failed - using fallback response',
           emergencyFallback: true,
         },
@@ -535,5 +549,20 @@ If this is a medical emergency:
 If symptoms are severe or life-threatening, do not wait - seek immediate medical attention.
 
 This is a safety fallback response. Please consult with healthcare professionals for proper medical evaluation.`;
+  }
+
+  private convertUrgencyLevelToNumber(urgencyLevel: 'routine' | 'urgent' | 'emergency' | 'critical'): number {
+    switch (urgencyLevel) {
+      case 'routine':
+        return 0.2;
+      case 'urgent':
+        return 0.6;
+      case 'emergency':
+        return 0.8;
+      case 'critical':
+        return 1.0;
+      default:
+        return 0.5;
+    }
   }
 }

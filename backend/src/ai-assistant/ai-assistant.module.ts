@@ -20,7 +20,7 @@ import { ChatAgentService } from './application/services/chat-agent.service';
 import { OpenAIService } from './infrastructure/services/openai.service';
 import { HealthcareAgentOrchestratorService } from './infrastructure/services/healthcare-agent-orchestrator.service';
 import { VectorDatabaseService } from './infrastructure/services/vector-database.service';
-import { PHIProtectionService } from '../../common/compliance/phi-protection.service';
+import { PHIProtectionService } from '../common/compliance/phi-protection.service';
 import { FirecrawlVietnameseHealthcareService } from './infrastructure/services/firecrawl-vietnamese-healthcare.service';
 
 // Repositories

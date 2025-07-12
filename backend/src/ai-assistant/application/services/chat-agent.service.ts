@@ -1,9 +1,9 @@
 import { Injectable, Inject, Logger } from '@nestjs/common';
+import { HealthcareAgentOrchestratorService } from '../../infrastructure/services/healthcare-agent-orchestrator.service';
 import {
-  HealthcareAgentOrchestratorService,
   HealthcareContext,
   AgentResponse,
-} from '../../infrastructure/services/healthcare-agent-orchestrator.service';
+} from '../../domain/agents/base-healthcare.agent';
 import {
   AgentSession,
   AgentSessionType,
@@ -88,7 +88,10 @@ export class ChatAgentService {
       // Enhance context with user health data
       const enhancedContext = await this.enhanceHealthcareContext(
         userId,
-        request.patientContext || {},
+        request.patientContext || {
+          userId,
+          sessionId: session.id,
+        },
       );
 
       // Process the query through the agent orchestrator
@@ -129,7 +132,7 @@ export class ChatAgentService {
       // Build response
       const response: ChatAgentResponse = {
         response: agentResponse.response,
-        urgencyLevel: this.mapUrgencyLevel(agentResponse.metadata.urgencyLevel),
+        urgencyLevel: this.mapUrgencyLevel(agentResponse.metadata.urgencyLevel || agentResponse.urgencyLevel || 0.3),
         agentType: agentResponse.agentType,
         recommendedActions: this.generateRecommendedActions(agentResponse),
         escalationTriggered,
@@ -175,7 +178,10 @@ export class ChatAgentService {
       // Enhance context
       const enhancedContext = await this.enhanceHealthcareContext(
         userId,
-        request.patientContext || {},
+        request.patientContext || {
+          userId,
+          sessionId: session.id,
+        },
       );
 
       yield {
@@ -377,7 +383,7 @@ export class ChatAgentService {
       userQuery,
       agentResponse: agentResponse.response,
       urgencyLevel: this.mapUrgencyLevelToEnum(
-        agentResponse.metadata.urgencyLevel,
+        agentResponse.metadata.urgencyLevel || agentResponse.urgencyLevel || 0.3,
       ),
       metadata: {
         processingTimeMs: processingTime,
@@ -431,7 +437,7 @@ export class ChatAgentService {
   ): Promise<boolean> {
     if (
       agentResponse.requiresEscalation ||
-      agentResponse.metadata.urgencyLevel > 0.8
+      (agentResponse.metadata.urgencyLevel || agentResponse.urgencyLevel || 0) > 0.8
     ) {
       session.triggerEscalation();
       await this.agentSessionRepository.update(session.id, session);

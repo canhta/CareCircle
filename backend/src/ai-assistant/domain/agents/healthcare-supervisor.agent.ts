@@ -43,8 +43,8 @@ export interface AgentHandoff {
 
 @Injectable()
 export class HealthcareSupervisorAgent extends BaseHealthcareAgent {
-  private readonly logger = new Logger(HealthcareSupervisorAgent.name);
-  private stateGraph: StateGraph<typeof MessagesAnnotation.State>;
+  protected readonly logger = new Logger(HealthcareSupervisorAgent.name);
+  private stateGraph: any;
 
   constructor(
     phiProtectionService: PHIProtectionService,
@@ -94,21 +94,32 @@ export class HealthcareSupervisorAgent extends BaseHealthcareAgent {
   }
 
   private initializeStateGraph() {
-    this.stateGraph = new StateGraph(MessagesAnnotation)
-      .addNode('analyze_query', this.analyzeQuery.bind(this))
-      .addNode('route_to_agent', this.routeToAgent.bind(this))
-      .addNode('coordinate_response', this.coordinateResponse.bind(this))
-      .addEdge('__start__', 'analyze_query')
-      .addEdge('analyze_query', 'route_to_agent')
-      .addEdge('route_to_agent', 'coordinate_response')
-      .addEdge('coordinate_response', '__end__')
-      .compile();
+    // Simplified state graph implementation
+    this.stateGraph = {
+      invoke: async (initialState: any) => {
+        // Step 1: Analyze query
+        const classification = await this.analyzeQuery(initialState);
+
+        // Step 2: Route to appropriate agent
+        const routedAgent = await this.routeToAgent({ ...initialState, classification });
+
+        // Step 3: Coordinate response
+        const finalResult = await this.coordinateResponse({
+          ...initialState,
+          classification,
+          routedAgent
+        });
+
+        return finalResult;
+      }
+    };
   }
 
   protected async processAgentSpecificQuery(
     query: string,
     context: HealthcareContext,
   ): Promise<AgentResponse> {
+    const startTime = Date.now();
     try {
       this.logger.log(
         `Supervisor processing query: ${query.substring(0, 100)}...`,
@@ -135,12 +146,17 @@ export class HealthcareSupervisorAgent extends BaseHealthcareAgent {
         agentType: 'healthcare_supervisor',
         response: lastMessage.content as string,
         confidence: 0.9,
+        urgencyLevel: result.urgencyLevel || 0.5,
         requiresEscalation: result.urgencyLevel >= 0.8,
         metadata: {
           urgencyLevel: result.urgencyLevel,
           agentType: result.agentType,
           complianceFlags: result.complianceFlags || [],
-          processingTimeMs: Date.now() - Date.now(), // Will be calculated properly
+          processingTime: Date.now() - startTime,
+          modelUsed: 'gpt-4',
+          tokensConsumed: 0,
+          costUsd: 0,
+          phiDetected: false,
           routedToAgent: result.agentType,
           classification: result.classification,
         },
@@ -153,46 +169,29 @@ export class HealthcareSupervisorAgent extends BaseHealthcareAgent {
     }
   }
 
-  private async analyzeQuery(
-    state: typeof MessagesAnnotation.State,
-  ): Promise<Command> {
+  private async analyzeQuery(state: any): Promise<QueryClassification> {
     const query = state.messages[0].content as string;
 
     try {
       const classification = await this.classifyHealthcareQuery(query);
-
-      return new Command({
-        goto: 'route_to_agent',
-        update: {
-          classification,
-          urgencyLevel: classification.urgencyLevel,
-        },
-      });
+      return classification;
     } catch (error) {
       this.logger.error('Query analysis failed:', error);
       // Fallback to general classification
-      return new Command({
-        goto: 'route_to_agent',
-        update: {
-          classification: {
-            primaryIntent: 'general',
-            urgencyLevel: 0.3,
-            culturalContext: 'mixed',
-            requiredAgents: ['general'],
-            medicalEntities: [],
-            languagePreference: 'english',
-            confidence: 0.5,
-            reasoning: 'Fallback classification due to analysis error',
-          },
-          urgencyLevel: 0.3,
-        },
-      });
+      return {
+        primaryIntent: 'general',
+        urgencyLevel: 0.3,
+        culturalContext: 'mixed',
+        requiredAgents: ['general'],
+        medicalEntities: [],
+        languagePreference: 'english',
+        confidence: 0.5,
+        reasoning: 'Fallback classification due to analysis error',
+      };
     }
   }
 
-  private async routeToAgent(
-    state: typeof MessagesAnnotation.State,
-  ): Promise<Command> {
+  private async routeToAgent(state: any): Promise<string> {
     const classification = state.classification as QueryClassification;
 
     // Determine the appropriate agent based on classification
@@ -212,18 +211,10 @@ export class HealthcareSupervisorAgent extends BaseHealthcareAgent {
       `Routing query to: ${targetAgent} (urgency: ${classification.urgencyLevel})`,
     );
 
-    return new Command({
-      goto: 'coordinate_response',
-      update: {
-        routedAgent: targetAgent,
-        agentType: 'supervisor',
-      },
-    });
+    return targetAgent;
   }
 
-  private async coordinateResponse(
-    state: typeof MessagesAnnotation.State,
-  ): Promise<Command> {
+  private async coordinateResponse(state: any): Promise<any> {
     const classification = state.classification as QueryClassification;
     const routedAgent = state.routedAgent as string;
 
@@ -233,19 +224,19 @@ export class HealthcareSupervisorAgent extends BaseHealthcareAgent {
       routedAgent,
     );
 
-    return new Command({
-      goto: '__end__',
-      update: {
-        messages: [
-          new AIMessage({
-            content: supervisorResponse,
-            name: 'healthcare_supervisor',
-          }),
-        ],
-        agentType: 'healthcare_supervisor',
-        finalAgent: routedAgent,
-      },
-    });
+    return {
+      messages: [
+        new AIMessage({
+          content: supervisorResponse,
+          name: 'healthcare_supervisor',
+        }),
+      ],
+      agentType: 'healthcare_supervisor',
+      finalAgent: routedAgent,
+      urgencyLevel: classification.urgencyLevel,
+      classification,
+      complianceFlags: [],
+    };
   }
 
   private async classifyHealthcareQuery(
@@ -295,7 +286,7 @@ Provide detailed reasoning for the classification.`;
       urgencyLevel,
       culturalContext,
       requiredAgents: [primaryIntent],
-      medicalEntities: this.extractMedicalEntities(originalQuery),
+      medicalEntities: this.extractMedicalEntitiesForClassification(originalQuery),
       languagePreference,
       confidence: 0.8,
       reasoning: content,
@@ -387,11 +378,11 @@ Provide detailed reasoning for the classification.`;
     return 'modern';
   }
 
-  private extractMedicalEntities(
-    query: string,
-  ): Array<{ type: string; value: string; confidence: number }> {
+  protected extractMedicalEntities(
+    text: string,
+  ): Array<{ text: string; type: string; confidence: number }> {
     // Basic medical entity extraction - in production, this would use NLP services
-    const entities: Array<{ type: string; value: string; confidence: number }> =
+    const entities: Array<{ text: string; type: string; confidence: number }> =
       [];
 
     // Common symptoms
@@ -406,12 +397,23 @@ Provide detailed reasoning for the classification.`;
       'đau',
     ];
     symptoms.forEach((symptom) => {
-      if (query.toLowerCase().includes(symptom)) {
-        entities.push({ type: 'symptom', value: symptom, confidence: 0.8 });
+      if (text.toLowerCase().includes(symptom)) {
+        entities.push({ text: symptom, type: 'symptom', confidence: 0.8 });
       }
     });
 
     return entities;
+  }
+
+  private extractMedicalEntitiesForClassification(
+    text: string,
+  ): Array<{ type: string; value: string; confidence: number }> {
+    const baseEntities = this.extractMedicalEntities(text);
+    return baseEntities.map(entity => ({
+      type: entity.type,
+      value: entity.text,
+      confidence: entity.confidence
+    }));
   }
 
   private generateSupervisorResponse(

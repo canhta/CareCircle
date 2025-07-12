@@ -82,7 +82,7 @@ export class HealthcareAgentOrchestratorService {
 
   async processHealthcareQuery(
     query: string,
-    healthcareContext: HealthcareContext = {},
+    healthcareContext: Partial<HealthcareContext> = {},
   ): Promise<AgentResponse> {
     try {
       this.logger.log(
@@ -320,7 +320,8 @@ export class HealthcareAgentOrchestratorService {
 
     return '__end__';
   }
-}
+
+  private async emergencyAgent(
     state: typeof MessagesAnnotation.State,
   ): Promise<Command> {
     const query = state.messages[0].content as string;
@@ -644,5 +645,17 @@ Vietnamese indicators: Vietnamese text, traditional medicine terms, cultural ref
     }
 
     return agents;
+  }
+
+  private extractAgentsFromMessages(messages: BaseMessage[]): string[] {
+    const agents: string[] = [];
+
+    messages.forEach((message) => {
+      if (message instanceof AIMessage && message.name) {
+        agents.push(message.name);
+      }
+    });
+
+    return [...new Set(agents)]; // Remove duplicates
   }
 }

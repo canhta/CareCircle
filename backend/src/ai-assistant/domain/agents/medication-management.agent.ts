@@ -9,16 +9,14 @@ import { PHIProtectionService } from '../../../common/compliance/phi-protection.
 import { VietnameseNLPIntegrationService } from '../../infrastructure/services/vietnamese-nlp-integration.service';
 
 export interface MedicationContext extends HealthcareContext {
-  currentMedications?: Array<{
+  detailedMedications?: Array<{
     name: string;
     dosage: string;
     frequency: string;
     startDate?: string;
     prescribedBy?: string;
   }>;
-  allergies?: string[];
   medicalConditions?: string[];
-  age?: number;
   weight?: number;
   kidneyFunction?: 'normal' | 'mild' | 'moderate' | 'severe';
   liverFunction?: 'normal' | 'mild' | 'moderate' | 'severe';
@@ -48,7 +46,7 @@ export interface MedicationRecommendation {
 
 @Injectable()
 export class MedicationManagementAgent extends BaseHealthcareAgent {
-  private readonly logger = new Logger(MedicationManagementAgent.name);
+  protected readonly logger = new Logger(MedicationManagementAgent.name);
 
   constructor(
     phiProtectionService: PHIProtectionService,
@@ -116,6 +114,7 @@ export class MedicationManagementAgent extends BaseHealthcareAgent {
     query: string,
     context: HealthcareContext,
   ): Promise<AgentResponse> {
+    const startTime = Date.now();
     try {
       this.logger.log(
         `Processing medication query: ${query.substring(0, 50)}...`,
@@ -128,9 +127,15 @@ export class MedicationManagementAgent extends BaseHealthcareAgent {
         await this.extractMedicationsFromQuery(query);
 
       // Analyze drug interactions
+      const currentMeds = medicationContext.detailedMedications ||
+        (medicationContext.currentMedications?.map(med => ({
+          name: med,
+          dosage: 'unknown',
+          frequency: 'unknown'
+        })) || []);
       const interactions = await this.analyzeDrugInteractions(
         extractedMedications,
-        medicationContext.currentMedications || [],
+        currentMeds,
       );
 
       // Check for contraindications
@@ -158,9 +163,16 @@ export class MedicationManagementAgent extends BaseHealthcareAgent {
       return {
         agentType: 'medication_management',
         response: guidance,
-        confidence: this.calculateConfidence(interactions, contraindications),
+        confidence: this.calculateMedicationConfidence(interactions, contraindications),
+        urgencyLevel: interactions.length > 0 ? 0.7 : 0.3,
         requiresEscalation: requiresPhysicianReview,
         metadata: {
+          processingTime: Date.now() - startTime,
+          modelUsed: 'gpt-4',
+          tokensConsumed: 0,
+          costUsd: 0,
+          phiDetected: false,
+          complianceFlags: [],
           extractedMedications,
           drugInteractions: interactions,
           contraindications,
@@ -312,7 +324,7 @@ Drug Interactions Found: ${interactions.length}
 Contraindications: ${contraindications.length}
 
 Patient Context:
-- Current Medications: ${context.currentMedications?.map((m) => `${m.name} ${m.dosage}`).join(', ') || 'none'}
+- Current Medications: ${context.detailedMedications?.map((m) => `${m.name} ${m.dosage}`).join(', ') || context.currentMedications?.join(', ') || 'none'}
 - Allergies: ${context.allergies?.join(', ') || 'none'}
 - Medical Conditions: ${context.medicalConditions?.join(', ') || 'none'}
 
@@ -347,7 +359,8 @@ Include appropriate medical disclaimers.`;
     const recommendations: MedicationRecommendation[] = [];
 
     // Analyze medication complexity
-    if (context.currentMedications.length > 5) {
+    const currentMeds = context.detailedMedications || [];
+    if (currentMeds.length > 5) {
       recommendations.push({
         type: 'monitoring',
         description:
@@ -359,7 +372,7 @@ Include appropriate medical disclaimers.`;
     }
 
     // Check for multiple daily dosing
-    const multiDoseCount = context.currentMedications.filter(
+    const multiDoseCount = currentMeds.filter(
       (med) =>
         med.frequency.includes('twice') ||
         med.frequency.includes('three times') ||
@@ -403,7 +416,7 @@ Include appropriate medical disclaimers.`;
 
     if (foundTraditional.length === 0) return [];
 
-    const considerations = [];
+    const considerations: string[] = [];
 
     // Check for specific interactions
     if (
@@ -485,7 +498,7 @@ Include appropriate medical disclaimers.`;
     return contraindications;
   }
 
-  private calculateConfidence(
+  private calculateMedicationConfidence(
     interactions: DrugInteraction[],
     contraindications: string[],
   ): number {

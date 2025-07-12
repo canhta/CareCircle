@@ -56,7 +56,7 @@ export interface SymptomAnalysis {
 
 @Injectable()
 export class ClinicalDecisionSupportAgent extends BaseHealthcareAgent {
-  private readonly logger = new Logger(ClinicalDecisionSupportAgent.name);
+  protected readonly logger = new Logger(ClinicalDecisionSupportAgent.name);
 
   constructor(
     phiProtectionService: PHIProtectionService,
@@ -127,6 +127,7 @@ export class ClinicalDecisionSupportAgent extends BaseHealthcareAgent {
     query: string,
     context: HealthcareContext,
   ): Promise<AgentResponse> {
+    const startTime = Date.now();
     try {
       this.logger.log(
         `Processing clinical query: ${query.substring(0, 50)}...`,
@@ -171,8 +172,13 @@ export class ClinicalDecisionSupportAgent extends BaseHealthcareAgent {
         ),
         requiresEscalation: urgencyAssessment.requiresImmediateAttention,
         metadata: {
+          processingTime: Date.now() - startTime,
+          modelUsed: 'gpt-4',
+          tokensConsumed: 0,
+          costUsd: 0,
+          phiDetected: false,
+          complianceFlags: [],
           symptomAnalysis,
-          clinicalGuidance,
           urgencyAssessment,
           evidenceLevel: clinicalGuidance.evidenceLevel,
           systemsInvolved: symptomAnalysis.systemsInvolved,

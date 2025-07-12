@@ -377,6 +377,20 @@ EMERGENCY INDICATORS: chest pain, difficulty breathing, severe bleeding, loss of
     return entities;
   }
 
+  async generateEmbedding(text: string): Promise<number[]> {
+    try {
+      const response = await this.openai.embeddings.create({
+        model: 'text-embedding-ada-002',
+        input: text,
+      });
+
+      return response.data[0].embedding;
+    } catch (error) {
+      console.error('OpenAI embedding API error:', error);
+      throw new Error('Failed to generate embedding');
+    }
+  }
+
   validateResponse(_response: string): {
     isValid: boolean;
     confidence: number;
