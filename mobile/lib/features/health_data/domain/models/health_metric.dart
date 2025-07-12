@@ -6,29 +6,27 @@ part 'health_metric.freezed.dart';
 part 'health_metric.g.dart';
 
 enum DataSource {
-  @JsonValue('manual')
-  manual,
-  @JsonValue('apple_health')
-  appleHealth,
-  @JsonValue('google_fit')
+  @JsonValue('MANUAL_ENTRY')
+  manualEntry,
+  @JsonValue('HEALTH_KIT')
+  healthKit,
+  @JsonValue('GOOGLE_FIT')
   googleFit,
-  @JsonValue('bluetooth_device')
-  bluetoothDevice,
-  @JsonValue('connected_api')
-  connectedApi,
-  @JsonValue('imported')
+  @JsonValue('DEVICE_SYNC')
+  deviceSync,
+  @JsonValue('IMPORTED')
   imported,
 }
 
 enum ValidationStatus {
-  @JsonValue('valid')
-  valid,
-  @JsonValue('suspicious')
-  suspicious,
-  @JsonValue('invalid')
-  invalid,
-  @JsonValue('pending')
+  @JsonValue('PENDING')
   pending,
+  @JsonValue('VALIDATED')
+  validated,
+  @JsonValue('FLAGGED')
+  flagged,
+  @JsonValue('REJECTED')
+  rejected,
 }
 
 /// Main health metric entity
@@ -70,9 +68,9 @@ extension HealthMetricExtension on HealthMetric {
 
   bool get isFromExternalAPI {
     return [
-      DataSource.appleHealth,
+      DataSource.healthKit,
       DataSource.googleFit,
-      DataSource.connectedApi,
+      DataSource.deviceSync,
     ].contains(source);
   }
 

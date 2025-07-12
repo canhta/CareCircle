@@ -216,26 +216,22 @@ abstract class BaseHealthChart extends StatelessWidget {
         return Colors.blue[600]!;
       case HealthMetricType.bloodGlucose:
         return Colors.orange[600]!;
-      case HealthMetricType.bodyTemperature:
+      case HealthMetricType.temperature:
         return Colors.amber[600]!;
       case HealthMetricType.weight:
         return Colors.green[600]!;
-      case HealthMetricType.height:
-        return Colors.teal[600]!;
       case HealthMetricType.steps:
         return Colors.purple[600]!;
-      case HealthMetricType.bloodOxygen:
+      case HealthMetricType.oxygenSaturation:
         return Colors.cyan[600]!;
-      case HealthMetricType.sleep:
+      case HealthMetricType.sleepDuration:
         return Colors.indigo[600]!;
-      case HealthMetricType.exercise:
+      case HealthMetricType.exerciseMinutes:
         return Colors.deepOrange[600]!;
-      case HealthMetricType.respiratoryRate:
-        return Colors.lightBlue[600]!;
-      case HealthMetricType.activity:
-        return Colors.lime[600]!;
       case HealthMetricType.mood:
         return Colors.pink[600]!;
+      case HealthMetricType.painLevel:
+        return Colors.red[600]!;
     }
   }
 
@@ -247,26 +243,22 @@ abstract class BaseHealthChart extends StatelessWidget {
         return Icons.monitor_heart;
       case HealthMetricType.bloodGlucose:
         return Icons.bloodtype;
-      case HealthMetricType.bodyTemperature:
+      case HealthMetricType.temperature:
         return Icons.thermostat;
       case HealthMetricType.weight:
         return Icons.scale;
-      case HealthMetricType.height:
-        return Icons.height;
       case HealthMetricType.steps:
         return Icons.directions_walk;
-      case HealthMetricType.bloodOxygen:
+      case HealthMetricType.oxygenSaturation:
         return Icons.air;
-      case HealthMetricType.sleep:
+      case HealthMetricType.sleepDuration:
         return Icons.bedtime;
-      case HealthMetricType.exercise:
+      case HealthMetricType.exerciseMinutes:
         return Icons.fitness_center;
-      case HealthMetricType.respiratoryRate:
-        return Icons.air;
-      case HealthMetricType.activity:
-        return Icons.directions_run;
       case HealthMetricType.mood:
         return Icons.mood;
+      case HealthMetricType.painLevel:
+        return Icons.healing;
     }
   }
 

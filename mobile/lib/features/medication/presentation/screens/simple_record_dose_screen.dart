@@ -276,6 +276,8 @@ class _SimpleRecordDoseScreenState extends ConsumerState<SimpleRecordDoseScreen>
         return ['puff', 'dose', 'inhalation'];
       case MedicationForm.cream:
         return ['g', 'ml', 'application'];
+      case MedicationForm.ointment:
+        return ['g', 'ml', 'application'];
       case MedicationForm.drops:
         return ['drop', 'ml'];
       case MedicationForm.suppository:
@@ -307,6 +309,7 @@ class _SimpleRecordDoseScreenState extends ConsumerState<SimpleRecordDoseScreen>
     }
     
     // Show time picker
+    if (!mounted) return;
     final pickedTime = await showTimePicker(
       context: context,
       initialTime: TimeOfDay.fromDateTime(_selectedTime),

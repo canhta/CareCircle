@@ -235,26 +235,22 @@ class HealthLineChart extends BaseHealthChart {
         return Colors.blue[600]!;
       case HealthMetricType.bloodGlucose:
         return Colors.orange[600]!;
-      case HealthMetricType.bodyTemperature:
+      case HealthMetricType.temperature:
         return Colors.amber[600]!;
       case HealthMetricType.weight:
         return Colors.green[600]!;
-      case HealthMetricType.height:
-        return Colors.teal[600]!;
       case HealthMetricType.steps:
         return Colors.purple[600]!;
-      case HealthMetricType.bloodOxygen:
+      case HealthMetricType.oxygenSaturation:
         return Colors.cyan[600]!;
-      case HealthMetricType.sleep:
+      case HealthMetricType.sleepDuration:
         return Colors.indigo[600]!;
-      case HealthMetricType.exercise:
+      case HealthMetricType.exerciseMinutes:
         return Colors.deepOrange[600]!;
-      case HealthMetricType.respiratoryRate:
-        return Colors.lightBlue[600]!;
-      case HealthMetricType.activity:
-        return Colors.lime[600]!;
       case HealthMetricType.mood:
         return Colors.pink[600]!;
+      case HealthMetricType.painLevel:
+        return Colors.red[600]!;
     }
   }
 

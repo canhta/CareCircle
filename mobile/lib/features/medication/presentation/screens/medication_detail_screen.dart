@@ -428,6 +428,8 @@ class _MedicationDetailScreenState extends ConsumerState<MedicationDetailScreen>
         return Icons.air;
       case MedicationForm.cream:
         return Icons.healing;
+      case MedicationForm.ointment:
+        return Icons.healing;
       case MedicationForm.drops:
         return Icons.water_drop;
       case MedicationForm.suppository:
@@ -467,143 +469,8 @@ class _MedicationDetailScreenState extends ConsumerState<MedicationDetailScreen>
     );
   }
 
-  void _showRecordDoseDialog(Medication medication) {
-    _logger.info('Record dose dialog requested', {
-      'medicationId': medication.id,
-      'timestamp': DateTime.now().toIso8601String(),
-    });
 
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(
-            'Record Dose',
-            style: TextStyle(
-              color: CareCircleDesignTokens.primaryMedicalBlue,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'Record dose for ${medication.name}',
-                style: const TextStyle(fontSize: 16),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Strength: ${medication.strength}',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey[600],
-                ),
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                'Select the dose status:',
-                style: TextStyle(fontSize: 14),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancel'),
-            ),
-            Wrap(
-              spacing: 8,
-              children: [
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                    _recordDoseWithStatus(medication, DoseStatus.taken);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: CareCircleDesignTokens.healthGreen,
-                    foregroundColor: Colors.white,
-                  ),
-                  child: const Text('Taken'),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                    _recordDoseWithStatus(medication, DoseStatus.missed);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: CareCircleDesignTokens.criticalAlert,
-                    foregroundColor: Colors.white,
-                  ),
-                  child: const Text('Missed'),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                    _recordDoseWithStatus(medication, DoseStatus.skipped);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.orange,
-                    foregroundColor: Colors.white,
-                  ),
-                  child: const Text('Skipped'),
-                ),
-              ],
-            ),
-          ],
-        );
-      },
-    );
-  }
 
-  void _recordDoseWithStatus(Medication medication, DoseStatus status) {
-    _logger.info('Recording dose with status from detail screen', {
-      'medicationId': medication.id,
-      'medicationName': medication.name,
-      'status': status.toString(),
-      'timestamp': DateTime.now().toIso8601String(),
-    });
-
-    // Show success message
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          'Dose for ${medication.name} marked as ${_getDoseStatusText(status).toLowerCase()}',
-        ),
-        backgroundColor: _getDoseStatusColor(status),
-        duration: const Duration(seconds: 3),
-      ),
-    );
-  }
-
-  String _getDoseStatusText(DoseStatus status) {
-    switch (status) {
-      case DoseStatus.taken:
-        return 'Taken';
-      case DoseStatus.missed:
-        return 'Missed';
-      case DoseStatus.skipped:
-        return 'Skipped';
-      case DoseStatus.late:
-        return 'Late';
-      case DoseStatus.scheduled:
-        return 'Scheduled';
-    }
-  }
-
-  Color _getDoseStatusColor(DoseStatus status) {
-    switch (status) {
-      case DoseStatus.taken:
-        return CareCircleDesignTokens.healthGreen;
-      case DoseStatus.missed:
-        return CareCircleDesignTokens.criticalAlert;
-      case DoseStatus.skipped:
-        return Colors.orange;
-      case DoseStatus.late:
-        return Colors.deepOrange;
-      case DoseStatus.scheduled:
-        return CareCircleDesignTokens.primaryMedicalBlue;
-    }
-  }
 
   void _handleMenuAction(String action, Medication medication) {
     _logger.info('Medication menu action selected', {

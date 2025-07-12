@@ -326,17 +326,17 @@ class HealthDataSyncService {
   /// Get data source from health data point
   DataSource _getDataSource(HealthDataPoint point) {
     if (point.recordingMethod == RecordingMethod.manual) {
-      return DataSource.manual;
+      return DataSource.manualEntry;
     }
 
     // Determine source based on platform and source
     final sourceName = point.sourceName.toLowerCase();
     if (sourceName.contains('health')) {
-      return DataSource.appleHealth;
+      return DataSource.healthKit;
     } else if (sourceName.contains('fit') || sourceName.contains('google')) {
       return DataSource.googleFit;
     } else {
-      return DataSource.bluetoothDevice;
+      return DataSource.deviceSync;
     }
   }
 

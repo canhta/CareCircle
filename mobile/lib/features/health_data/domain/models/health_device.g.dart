@@ -44,18 +44,19 @@ Map<String, dynamic> _$HealthDeviceToJson(_HealthDevice instance) =>
     };
 
 const _$DeviceTypeEnumMap = {
-  DeviceType.smartWatch: 'smart_watch',
-  DeviceType.fitnessTracker: 'fitness_tracker',
-  DeviceType.bloodPressureMonitor: 'blood_pressure_monitor',
-  DeviceType.glucoseMonitor: 'glucose_monitor',
-  DeviceType.pulseOximeter: 'pulse_oximeter',
-  DeviceType.scale: 'scale',
-  DeviceType.thermometer: 'thermometer',
+  DeviceType.bloodPressureMonitor: 'BLOOD_PRESSURE_MONITOR',
+  DeviceType.glucoseMeter: 'GLUCOSE_METER',
+  DeviceType.scale: 'SCALE',
+  DeviceType.fitnessTracker: 'FITNESS_TRACKER',
+  DeviceType.smartwatch: 'SMARTWATCH',
+  DeviceType.pulseOximeter: 'PULSE_OXIMETER',
+  DeviceType.thermometer: 'THERMOMETER',
+  DeviceType.other: 'OTHER',
 };
 
 const _$ConnectionStatusEnumMap = {
-  ConnectionStatus.connected: 'connected',
-  ConnectionStatus.disconnected: 'disconnected',
-  ConnectionStatus.pairing: 'pairing',
-  ConnectionStatus.error: 'error',
+  ConnectionStatus.connected: 'CONNECTED',
+  ConnectionStatus.disconnected: 'DISCONNECTED',
+  ConnectionStatus.syncing: 'SYNCING',
+  ConnectionStatus.error: 'ERROR',
 };
