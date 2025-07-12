@@ -3,33 +3,14 @@ import { StateGraph, MessagesAnnotation, Command } from '@langchain/langgraph';
 import { ChatOpenAI } from '@langchain/openai';
 import { z } from 'zod';
 import { BaseMessage, HumanMessage, AIMessage } from '@langchain/core/messages';
-import { VietnameseMedicalAgentService } from './vietnamese-medical-agent.service';
-import { MedicationManagementAgentService } from './medication-management-agent.service';
-import { EmergencyTriageAgentService } from './emergency-triage-agent.service';
-import { ClinicalDecisionSupportAgentService } from './clinical-decision-support-agent.service';
+import { HealthcareSupervisorAgent } from '../../domain/agents/healthcare-supervisor.agent';
+import { VietnameseMedicalAgent } from '../../domain/agents/vietnamese-medical.agent';
+import { MedicationManagementAgent } from '../../domain/agents/medication-management.agent';
+import { EmergencyTriageAgent } from '../../domain/agents/emergency-triage.agent';
+import { ClinicalDecisionSupportAgent } from '../../domain/agents/clinical-decision-support.agent';
+import { HealthcareContext, AgentResponse } from '../../domain/agents/base-healthcare.agent';
 
-// Types for healthcare agent system
-export interface HealthcareContext {
-  patientId?: string;
-  age?: number;
-  gender?: 'male' | 'female' | 'other';
-  medicalHistory?: string[];
-  currentMedications?: string[];
-  allergies?: string[];
-  vitalSigns?: {
-    bloodPressure?: string;
-    heartRate?: number;
-    temperature?: number;
-  };
-}
-
-export interface AgentResponse {
-  agentType: string;
-  response: string;
-  confidence: number;
-  requiresEscalation: boolean;
-  metadata: Record<string, any>;
-}
+// Types for healthcare agent system - using types from base agent
 
 export interface QueryClassification {
   primaryIntent:
@@ -53,7 +34,13 @@ export class HealthcareAgentOrchestratorService {
   private model: ChatOpenAI;
   private stateGraph: any; // Compiled StateGraph
 
-  constructor() {
+  constructor(
+    private readonly supervisorAgent: HealthcareSupervisorAgent,
+    private readonly vietnameseMedicalAgent: VietnameseMedicalAgent,
+    private readonly medicationAgent: MedicationManagementAgent,
+    private readonly emergencyAgent: EmergencyTriageAgent,
+    private readonly clinicalAgent: ClinicalDecisionSupportAgent,
+  ) {
     this.model = new ChatOpenAI({
       modelName: 'gpt-4',
       temperature: 0.1, // Low temperature for consistent medical routing
@@ -63,7 +50,7 @@ export class HealthcareAgentOrchestratorService {
 
   private initializeAgentGraph() {
     const graph = new StateGraph(MessagesAnnotation)
-      .addNode('supervisor', this.supervisorAgent.bind(this), {
+      .addNode('supervisor', this.handleSupervisorAgent.bind(this), {
         ends: [
           'medication_agent',
           'emergency_agent',
@@ -72,18 +59,18 @@ export class HealthcareAgentOrchestratorService {
           '__end__',
         ],
       })
-      .addNode('medication_agent', this.medicationAgent.bind(this), {
+      .addNode('medication_agent', this.handleMedicationAgent.bind(this), {
         ends: ['supervisor', '__end__'],
       })
-      .addNode('emergency_agent', this.emergencyAgent.bind(this), {
+      .addNode('emergency_agent', this.handleEmergencyAgent.bind(this), {
         ends: ['supervisor', '__end__'],
       })
-      .addNode('clinical_agent', this.clinicalAgent.bind(this), {
+      .addNode('clinical_agent', this.handleClinicalAgent.bind(this), {
         ends: ['supervisor', '__end__'],
       })
       .addNode(
         'vietnamese_medical_agent',
-        this.vietnameseMedicalAgent.bind(this),
+        this.handleVietnameseMedicalAgent.bind(this),
         {
           ends: ['supervisor', '__end__'],
         },
@@ -137,101 +124,203 @@ export class HealthcareAgentOrchestratorService {
     }
   }
 
-  private async supervisorAgent(
+  private async handleSupervisorAgent(
     state: typeof MessagesAnnotation.State,
   ): Promise<Command> {
     const lastMessage = state.messages[state.messages.length - 1];
     const query = lastMessage.content as string;
+    const healthcareContext = state.healthcareContext as HealthcareContext;
 
-    // Analyze the query to determine routing
-    const classification = await this.analyzeQuery(query);
+    try {
+      // Use the domain supervisor agent
+      const response = await this.supervisorAgent.processQuery(query, healthcareContext);
 
-    // Create system prompt for supervisor
-    const systemPrompt = `You are a healthcare supervisor AI coordinating specialized medical agents. 
-    Analyze this query and determine the appropriate specialist agent to handle it.
-    
-    Query: "${query}"
-    Classification: ${JSON.stringify(classification)}
-    
-    Available agents:
-    - medication_agent: Drug interactions, dosing, adherence, side effects
-    - emergency_agent: Urgent symptoms, severe conditions, immediate care
-    - clinical_agent: Diagnosis support, symptoms analysis, medical guidance
-    - vietnamese_medical_agent: Vietnamese medical terminology, traditional medicine integration
-    
-    Respond with your analysis and route to the appropriate agent.`;
+      // Extract routing decision from supervisor response
+      const routedAgent = this.extractRoutedAgent(response.metadata);
 
-    const response = await this.model.invoke([
-      { role: 'system', content: systemPrompt },
-      { role: 'user', content: query },
-    ]);
-
-    // Determine routing based on classification
-    let nextAgent = '__end__';
-    if (classification.urgencyLevel >= 0.8) {
-      nextAgent = 'emergency_agent';
-    } else if (classification.primaryIntent === 'medication') {
-      nextAgent = 'medication_agent';
-    } else if (classification.primaryIntent === 'vietnamese_medical') {
-      nextAgent = 'vietnamese_medical_agent';
-    } else if (classification.primaryIntent === 'clinical') {
-      nextAgent = 'clinical_agent';
+      return new Command({
+        goto: routedAgent || '__end__',
+        update: {
+          messages: [new AIMessage({ content: response.response, name: 'supervisor' })],
+          agentType: 'supervisor',
+          urgencyLevel: response.metadata.urgencyLevel || 0,
+          supervisorResponse: response,
+        },
+      });
+    } catch (error) {
+      this.logger.error('Supervisor agent failed:', error);
+      return new Command({
+        goto: '__end__',
+        update: {
+          messages: [new AIMessage({
+            content: 'I apologize, but I encountered an issue processing your request. Please try again or contact support.',
+            name: 'supervisor'
+          })],
+          agentType: 'supervisor',
+          error: error.message,
+        },
+      });
     }
-
-    return new Command({
-      goto: nextAgent,
-      update: {
-        messages: [
-          new AIMessage({
-            content: response.content as string,
-            name: 'supervisor',
-          }),
-        ],
-        urgencyLevel: classification.urgencyLevel,
-        agentType: 'supervisor',
-      },
-    });
   }
 
-  private async medicationAgent(
+  private async handleMedicationAgent(
     state: typeof MessagesAnnotation.State,
   ): Promise<Command> {
-    const query = state.messages[0].content as string;
+    const lastMessage = state.messages[state.messages.length - 1];
+    const query = lastMessage.content as string;
+    const healthcareContext = state.healthcareContext as HealthcareContext;
 
-    const medicationPrompt = `You are a specialized medication management AI assistant with expertise in Vietnamese healthcare.
-    Provide expert guidance on medications, drug interactions, dosing, and adherence.
+    try {
+      const response = await this.medicationAgent.processQuery(query, healthcareContext);
 
-    Query: "${query}"
-
-    Focus on:
-    - Drug interaction analysis with Vietnamese medications
-    - Dosage recommendations considering local practices
-    - Side effect information and management
-    - Medication adherence strategies for Vietnamese patients
-    - Integration with traditional medicine when appropriate
-
-    Always include appropriate medical disclaimers and emphasize the need for professional consultation.`;
-
-    const response = await this.model.invoke([
-      { role: 'system', content: medicationPrompt },
-      { role: 'user', content: query },
-    ]);
-
-    return new Command({
-      goto: '__end__',
-      update: {
-        messages: [
-          new AIMessage({
-            content: response.content as string,
-            name: 'medication_agent',
-          }),
-        ],
-        agentType: 'medication',
-      },
-    });
+      return new Command({
+        goto: response.requiresEscalation ? 'supervisor' : '__end__',
+        update: {
+          messages: [new AIMessage({ content: response.response, name: 'medication_agent' })],
+          agentType: 'medication_agent',
+          finalResponse: response,
+        },
+      });
+    } catch (error) {
+      this.logger.error('Medication agent failed:', error);
+      return new Command({
+        goto: '__end__',
+        update: {
+          messages: [new AIMessage({
+            content: 'I encountered an issue with medication analysis. Please consult with a healthcare provider.',
+            name: 'medication_agent'
+          })],
+          agentType: 'medication_agent',
+          error: error.message,
+        },
+      });
+    }
   }
 
-  private async emergencyAgent(
+  private async handleEmergencyAgent(
+    state: typeof MessagesAnnotation.State,
+  ): Promise<Command> {
+    const lastMessage = state.messages[state.messages.length - 1];
+    const query = lastMessage.content as string;
+    const healthcareContext = state.healthcareContext as HealthcareContext;
+
+    try {
+      const response = await this.emergencyAgent.processQuery(query, healthcareContext);
+
+      return new Command({
+        goto: '__end__', // Emergency agent always ends the flow
+        update: {
+          messages: [new AIMessage({ content: response.response, name: 'emergency_agent' })],
+          agentType: 'emergency_agent',
+          urgencyLevel: response.metadata.severityScore || 1.0,
+          finalResponse: response,
+        },
+      });
+    } catch (error) {
+      this.logger.error('Emergency agent failed:', error);
+      return new Command({
+        goto: '__end__',
+        update: {
+          messages: [new AIMessage({
+            content: '🚨 If this is a medical emergency, call 911 (US) or 115 (Vietnam) immediately. I encountered a technical issue.',
+            name: 'emergency_agent'
+          })],
+          agentType: 'emergency_agent',
+          error: error.message,
+        },
+      });
+    }
+  }
+
+  private async handleClinicalAgent(
+    state: typeof MessagesAnnotation.State,
+  ): Promise<Command> {
+    const lastMessage = state.messages[state.messages.length - 1];
+    const query = lastMessage.content as string;
+    const healthcareContext = state.healthcareContext as HealthcareContext;
+
+    try {
+      const response = await this.clinicalAgent.processQuery(query, healthcareContext);
+
+      return new Command({
+        goto: response.requiresEscalation ? 'supervisor' : '__end__',
+        update: {
+          messages: [new AIMessage({ content: response.response, name: 'clinical_agent' })],
+          agentType: 'clinical_agent',
+          finalResponse: response,
+        },
+      });
+    } catch (error) {
+      this.logger.error('Clinical agent failed:', error);
+      return new Command({
+        goto: '__end__',
+        update: {
+          messages: [new AIMessage({
+            content: 'I encountered an issue with clinical analysis. Please consult with a healthcare provider.',
+            name: 'clinical_agent'
+          })],
+          agentType: 'clinical_agent',
+          error: error.message,
+        },
+      });
+    }
+  }
+
+  private async handleVietnameseMedicalAgent(
+    state: typeof MessagesAnnotation.State,
+  ): Promise<Command> {
+    const lastMessage = state.messages[state.messages.length - 1];
+    const query = lastMessage.content as string;
+    const healthcareContext = state.healthcareContext as HealthcareContext;
+
+    try {
+      const response = await this.vietnameseMedicalAgent.processQuery(query, healthcareContext);
+
+      return new Command({
+        goto: response.requiresEscalation ? 'supervisor' : '__end__',
+        update: {
+          messages: [new AIMessage({ content: response.response, name: 'vietnamese_medical_agent' })],
+          agentType: 'vietnamese_medical_agent',
+          finalResponse: response,
+        },
+      });
+    } catch (error) {
+      this.logger.error('Vietnamese medical agent failed:', error);
+      return new Command({
+        goto: '__end__',
+        update: {
+          messages: [new AIMessage({
+            content: 'Tôi gặp sự cố kỹ thuật. Vui lòng tham khảo ý kiến bác sĩ. / I encountered a technical issue. Please consult with a healthcare provider.',
+            name: 'vietnamese_medical_agent'
+          })],
+          agentType: 'vietnamese_medical_agent',
+          error: error.message,
+        },
+      });
+    }
+  }
+
+  private extractRoutedAgent(metadata: any): string {
+    // Extract the routed agent from supervisor metadata
+    if (metadata.routedToAgent) {
+      const agentMap: Record<string, string> = {
+        'medication_agent': 'medication_agent',
+        'emergency_agent': 'emergency_agent',
+        'clinical_agent': 'clinical_agent',
+        'vietnamese_medical_agent': 'vietnamese_medical_agent',
+        'general': '__end__',
+      };
+      return agentMap[metadata.routedToAgent] || '__end__';
+    }
+
+    // Fallback based on urgency level
+    if (metadata.urgencyLevel >= 0.8) {
+      return 'emergency_agent';
+    }
+
+    return '__end__';
+  }
+}
     state: typeof MessagesAnnotation.State,
   ): Promise<Command> {
     const query = state.messages[0].content as string;

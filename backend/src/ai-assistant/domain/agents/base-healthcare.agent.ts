@@ -1,6 +1,7 @@
 import { Logger } from '@nestjs/common';
 import { ChatOpenAI } from '@langchain/openai';
 import { PHIProtectionService, PHIDetectionResult } from '../../../common/compliance/phi-protection.service';
+import { VietnameseNLPIntegrationService, VietnameseNLPAnalysis } from '../../infrastructure/services/vietnamese-nlp-integration.service';
 
 export interface HealthcareContext {
   patientId?: string;
@@ -25,6 +26,7 @@ export interface HealthcareContext {
   languagePreference?: 'vietnamese' | 'english' | 'mixed';
   riskFactors?: string[];
   chronicConditions?: string[];
+  vietnameseNLPAnalysis?: VietnameseNLPAnalysis; // Enhanced with Vietnamese NLP
 }
 
 export interface AgentResponse {
@@ -70,6 +72,7 @@ export abstract class BaseHealthcareAgent {
   constructor(
     agentType: string,
     protected readonly phiProtectionService: PHIProtectionService,
+    protected readonly vietnameseNLPService?: VietnameseNLPIntegrationService,
     modelConfig?: {
       modelName?: string;
       temperature?: number;
@@ -176,6 +179,50 @@ export abstract class BaseHealthcareAgent {
       agentType: this.agentType,
       timestamp: new Date().toISOString(),
     };
+  }
+
+  /**
+   * Enhance context with Vietnamese NLP analysis
+   */
+  protected async enhanceContextWithVietnameseNLP(
+    query: string,
+    context: HealthcareContext,
+  ): Promise<HealthcareContext> {
+    if (!this.vietnameseNLPService) {
+      return context;
+    }
+
+    try {
+      // Perform Vietnamese NLP analysis
+      const nlpAnalysis = await this.vietnameseNLPService.analyzeHealthcareText(query);
+
+      // Extract medical entities
+      const medicalEntities = await this.vietnameseNLPService.extractMedicalEntities(query);
+
+      // Detect emergency context
+      const emergencyContext = await this.vietnameseNLPService.detectEmergencyContext(query);
+
+      return {
+        ...context,
+        vietnameseNLPAnalysis: nlpAnalysis,
+        languagePreference: nlpAnalysis.languageMetrics.isVietnamese ? 'vietnamese' : context.languagePreference,
+        culturalContext: nlpAnalysis.culturalContext.isTraditionalMedicine ? 'traditional' :
+                        nlpAnalysis.culturalContext.modernMedicineTerms.length > 0 ? 'modern' :
+                        context.culturalContext,
+        // Enhance symptoms with extracted entities
+        symptoms: [
+          ...(context.symptoms || []),
+          ...medicalEntities.symptoms,
+        ].filter((symptom, index, self) => self.indexOf(symptom) === index), // Remove duplicates
+        // Add emergency indicators
+        emergencyIndicators: emergencyContext.emergencyKeywords,
+        urgencyLevel: emergencyContext.urgencyLevel,
+      };
+
+    } catch (error) {
+      this.logger.warn('Vietnamese NLP enhancement failed, continuing without it:', error);
+      return context;
+    }
   }
 
   /**
