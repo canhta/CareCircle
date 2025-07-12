@@ -19,6 +19,7 @@ import '../features/medication/presentation/screens/medication_list_screen.dart'
 import '../features/medication/presentation/screens/medication_detail_screen.dart';
 import '../features/medication/presentation/screens/medication_form_screen.dart';
 import '../features/medication/presentation/screens/prescription_scan_screen.dart';
+import '../features/medication/presentation/screens/simple_record_dose_screen.dart';
 import '../features/medication/presentation/screens/schedule_management_screen.dart';
 import '../features/medication/presentation/screens/adherence_dashboard_screen.dart';
 import '../features/notification/presentation/screens/notification_center_screen.dart';
@@ -238,6 +239,23 @@ class AppRouter {
                 'timestamp': DateTime.now().toIso8601String(),
               });
               return MedicationFormScreen(medicationId: medicationId);
+            },
+          ),
+          GoRoute(
+            path: '/record-dose/:id',
+            name: 'record-dose',
+            builder: (context, state) {
+              final medicationId = state.pathParameters['id']!;
+              final scheduleId = state.uri.queryParameters['scheduleId'];
+              _logger.logNavigationEvent('Record dose screen accessed', {
+                'medicationId': medicationId,
+                'hasScheduleId': scheduleId != null,
+                'timestamp': DateTime.now().toIso8601String(),
+              });
+              return SimpleRecordDoseScreen(
+                medicationId: medicationId,
+                scheduleId: scheduleId,
+              );
             },
           ),
           GoRoute(

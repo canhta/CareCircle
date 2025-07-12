@@ -391,7 +391,7 @@ export class ConversationService {
     }
   }
 
-  private async *createFallbackGenerator(startTime: number) {
+  private *createFallbackGenerator(startTime: number) {
     yield {
       content:
         "I apologize, but I'm experiencing technical difficulties right now. Please try again in a moment. If you have a medical emergency, please contact your healthcare provider or emergency services immediately.",

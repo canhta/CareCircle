@@ -15,10 +15,16 @@ class HealthDataApiService extends BaseApiService {
   @override
   String get serviceName => 'HealthDataApiService';
 
+  // Healthcare-compliant logger for health data context
+  static final _logger = BoundedContextLoggers.healthData;
+  late final Dio _dio;
+
   HealthDataApiService(Dio dio) : super(
     dio: dio,
     logger: BoundedContextLoggers.healthData,
-  );
+  ) {
+    _dio = dio;
+  }
 
   /// Get user's health profile with privacy-compliant logging
   Future<HealthProfile> getHealthProfile(String userId) async {
