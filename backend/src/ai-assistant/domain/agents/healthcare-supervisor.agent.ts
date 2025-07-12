@@ -101,17 +101,20 @@ export class HealthcareSupervisorAgent extends BaseHealthcareAgent {
         const classification = await this.analyzeQuery(initialState);
 
         // Step 2: Route to appropriate agent
-        const routedAgent = await this.routeToAgent({ ...initialState, classification });
+        const routedAgent = await this.routeToAgent({
+          ...initialState,
+          classification,
+        });
 
         // Step 3: Coordinate response
         const finalResult = await this.coordinateResponse({
           ...initialState,
           classification,
-          routedAgent
+          routedAgent,
         });
 
         return finalResult;
-      }
+      },
     };
   }
 
@@ -286,7 +289,8 @@ Provide detailed reasoning for the classification.`;
       urgencyLevel,
       culturalContext,
       requiredAgents: [primaryIntent],
-      medicalEntities: this.extractMedicalEntitiesForClassification(originalQuery),
+      medicalEntities:
+        this.extractMedicalEntitiesForClassification(originalQuery),
       languagePreference,
       confidence: 0.8,
       reasoning: content,
@@ -409,10 +413,10 @@ Provide detailed reasoning for the classification.`;
     text: string,
   ): Array<{ type: string; value: string; confidence: number }> {
     const baseEntities = this.extractMedicalEntities(text);
-    return baseEntities.map(entity => ({
+    return baseEntities.map((entity) => ({
       type: entity.type,
       value: entity.text,
-      confidence: entity.confidence
+      confidence: entity.confidence,
     }));
   }
 

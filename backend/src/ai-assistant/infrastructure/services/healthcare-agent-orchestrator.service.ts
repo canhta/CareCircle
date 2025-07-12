@@ -8,7 +8,10 @@ import { VietnameseMedicalAgent } from '../../domain/agents/vietnamese-medical.a
 import { MedicationManagementAgent } from '../../domain/agents/medication-management.agent';
 import { EmergencyTriageAgent } from '../../domain/agents/emergency-triage.agent';
 import { ClinicalDecisionSupportAgent } from '../../domain/agents/clinical-decision-support.agent';
-import { HealthcareContext, AgentResponse } from '../../domain/agents/base-healthcare.agent';
+import {
+  HealthcareContext,
+  AgentResponse,
+} from '../../domain/agents/base-healthcare.agent';
 
 // Types for healthcare agent system - using types from base agent
 
@@ -110,9 +113,14 @@ export class HealthcareAgentOrchestratorService {
         agentType: result.agentType || 'supervisor',
         response: lastMessage.content as string,
         confidence: 0.9, // TODO: Implement proper confidence scoring
+        urgencyLevel: result.urgencyLevel || 0.5,
         requiresEscalation: result.urgencyLevel > 0.7,
         metadata: {
           processingTime: Date.now(),
+          modelUsed: 'gpt-4',
+          tokensConsumed: 0,
+          costUsd: 0,
+          phiDetected: false,
           urgencyLevel: result.urgencyLevel,
           agentsInvolved: this.extractAgentsFromMessages(result.messages),
           complianceFlags: result.complianceFlags || [],
@@ -129,11 +137,15 @@ export class HealthcareAgentOrchestratorService {
   ): Promise<Command> {
     const lastMessage = state.messages[state.messages.length - 1];
     const query = lastMessage.content as string;
-    const healthcareContext = state.healthcareContext as HealthcareContext;
+    const healthcareContext = (state as any)
+      .healthcareContext as HealthcareContext;
 
     try {
       // Use the domain supervisor agent
-      const response = await this.supervisorAgent.processQuery(query, healthcareContext);
+      const response = await this.supervisorAgent.processQuery(
+        query,
+        healthcareContext,
+      );
 
       // Extract routing decision from supervisor response
       const routedAgent = this.extractRoutedAgent(response.metadata);
@@ -141,7 +153,9 @@ export class HealthcareAgentOrchestratorService {
       return new Command({
         goto: routedAgent || '__end__',
         update: {
-          messages: [new AIMessage({ content: response.response, name: 'supervisor' })],
+          messages: [
+            new AIMessage({ content: response.response, name: 'supervisor' }),
+          ],
           agentType: 'supervisor',
           urgencyLevel: response.metadata.urgencyLevel || 0,
           supervisorResponse: response,
@@ -152,10 +166,13 @@ export class HealthcareAgentOrchestratorService {
       return new Command({
         goto: '__end__',
         update: {
-          messages: [new AIMessage({
-            content: 'I apologize, but I encountered an issue processing your request. Please try again or contact support.',
-            name: 'supervisor'
-          })],
+          messages: [
+            new AIMessage({
+              content:
+                'I apologize, but I encountered an issue processing your request. Please try again or contact support.',
+              name: 'supervisor',
+            }),
+          ],
           agentType: 'supervisor',
           error: error.message,
         },
@@ -168,15 +185,24 @@ export class HealthcareAgentOrchestratorService {
   ): Promise<Command> {
     const lastMessage = state.messages[state.messages.length - 1];
     const query = lastMessage.content as string;
-    const healthcareContext = state.healthcareContext as HealthcareContext;
+    const healthcareContext = (state as any)
+      .healthcareContext as HealthcareContext;
 
     try {
-      const response = await this.medicationAgent.processQuery(query, healthcareContext);
+      const response = await this.medicationAgent.processQuery(
+        query,
+        healthcareContext,
+      );
 
       return new Command({
         goto: response.requiresEscalation ? 'supervisor' : '__end__',
         update: {
-          messages: [new AIMessage({ content: response.response, name: 'medication_agent' })],
+          messages: [
+            new AIMessage({
+              content: response.response,
+              name: 'medication_agent',
+            }),
+          ],
           agentType: 'medication_agent',
           finalResponse: response,
         },
@@ -186,10 +212,13 @@ export class HealthcareAgentOrchestratorService {
       return new Command({
         goto: '__end__',
         update: {
-          messages: [new AIMessage({
-            content: 'I encountered an issue with medication analysis. Please consult with a healthcare provider.',
-            name: 'medication_agent'
-          })],
+          messages: [
+            new AIMessage({
+              content:
+                'I encountered an issue with medication analysis. Please consult with a healthcare provider.',
+              name: 'medication_agent',
+            }),
+          ],
           agentType: 'medication_agent',
           error: error.message,
         },
@@ -202,15 +231,24 @@ export class HealthcareAgentOrchestratorService {
   ): Promise<Command> {
     const lastMessage = state.messages[state.messages.length - 1];
     const query = lastMessage.content as string;
-    const healthcareContext = state.healthcareContext as HealthcareContext;
+    const healthcareContext = (state as any)
+      .healthcareContext as HealthcareContext;
 
     try {
-      const response = await this.emergencyAgent.processQuery(query, healthcareContext);
+      const response = await this.emergencyAgent.processQuery(
+        query,
+        healthcareContext,
+      );
 
       return new Command({
         goto: '__end__', // Emergency agent always ends the flow
         update: {
-          messages: [new AIMessage({ content: response.response, name: 'emergency_agent' })],
+          messages: [
+            new AIMessage({
+              content: response.response,
+              name: 'emergency_agent',
+            }),
+          ],
           agentType: 'emergency_agent',
           urgencyLevel: response.metadata.severityScore || 1.0,
           finalResponse: response,
@@ -221,10 +259,13 @@ export class HealthcareAgentOrchestratorService {
       return new Command({
         goto: '__end__',
         update: {
-          messages: [new AIMessage({
-            content: '🚨 If this is a medical emergency, call 911 (US) or 115 (Vietnam) immediately. I encountered a technical issue.',
-            name: 'emergency_agent'
-          })],
+          messages: [
+            new AIMessage({
+              content:
+                '🚨 If this is a medical emergency, call 911 (US) or 115 (Vietnam) immediately. I encountered a technical issue.',
+              name: 'emergency_agent',
+            }),
+          ],
           agentType: 'emergency_agent',
           error: error.message,
         },
@@ -237,15 +278,24 @@ export class HealthcareAgentOrchestratorService {
   ): Promise<Command> {
     const lastMessage = state.messages[state.messages.length - 1];
     const query = lastMessage.content as string;
-    const healthcareContext = state.healthcareContext as HealthcareContext;
+    const healthcareContext = (state as any)
+      .healthcareContext as HealthcareContext;
 
     try {
-      const response = await this.clinicalAgent.processQuery(query, healthcareContext);
+      const response = await this.clinicalAgent.processQuery(
+        query,
+        healthcareContext,
+      );
 
       return new Command({
         goto: response.requiresEscalation ? 'supervisor' : '__end__',
         update: {
-          messages: [new AIMessage({ content: response.response, name: 'clinical_agent' })],
+          messages: [
+            new AIMessage({
+              content: response.response,
+              name: 'clinical_agent',
+            }),
+          ],
           agentType: 'clinical_agent',
           finalResponse: response,
         },
@@ -255,10 +305,13 @@ export class HealthcareAgentOrchestratorService {
       return new Command({
         goto: '__end__',
         update: {
-          messages: [new AIMessage({
-            content: 'I encountered an issue with clinical analysis. Please consult with a healthcare provider.',
-            name: 'clinical_agent'
-          })],
+          messages: [
+            new AIMessage({
+              content:
+                'I encountered an issue with clinical analysis. Please consult with a healthcare provider.',
+              name: 'clinical_agent',
+            }),
+          ],
           agentType: 'clinical_agent',
           error: error.message,
         },
@@ -271,15 +324,24 @@ export class HealthcareAgentOrchestratorService {
   ): Promise<Command> {
     const lastMessage = state.messages[state.messages.length - 1];
     const query = lastMessage.content as string;
-    const healthcareContext = state.healthcareContext as HealthcareContext;
+    const healthcareContext = (state as any)
+      .healthcareContext as HealthcareContext;
 
     try {
-      const response = await this.vietnameseMedicalAgent.processQuery(query, healthcareContext);
+      const response = await this.vietnameseMedicalAgent.processQuery(
+        query,
+        healthcareContext,
+      );
 
       return new Command({
         goto: response.requiresEscalation ? 'supervisor' : '__end__',
         update: {
-          messages: [new AIMessage({ content: response.response, name: 'vietnamese_medical_agent' })],
+          messages: [
+            new AIMessage({
+              content: response.response,
+              name: 'vietnamese_medical_agent',
+            }),
+          ],
           agentType: 'vietnamese_medical_agent',
           finalResponse: response,
         },
@@ -289,10 +351,13 @@ export class HealthcareAgentOrchestratorService {
       return new Command({
         goto: '__end__',
         update: {
-          messages: [new AIMessage({
-            content: 'Tôi gặp sự cố kỹ thuật. Vui lòng tham khảo ý kiến bác sĩ. / I encountered a technical issue. Please consult with a healthcare provider.',
-            name: 'vietnamese_medical_agent'
-          })],
+          messages: [
+            new AIMessage({
+              content:
+                'Tôi gặp sự cố kỹ thuật. Vui lòng tham khảo ý kiến bác sĩ. / I encountered a technical issue. Please consult with a healthcare provider.',
+              name: 'vietnamese_medical_agent',
+            }),
+          ],
           agentType: 'vietnamese_medical_agent',
           error: error.message,
         },
@@ -304,11 +369,11 @@ export class HealthcareAgentOrchestratorService {
     // Extract the routed agent from supervisor metadata
     if (metadata.routedToAgent) {
       const agentMap: Record<string, string> = {
-        'medication_agent': 'medication_agent',
-        'emergency_agent': 'emergency_agent',
-        'clinical_agent': 'clinical_agent',
-        'vietnamese_medical_agent': 'vietnamese_medical_agent',
-        'general': '__end__',
+        medication_agent: 'medication_agent',
+        emergency_agent: 'emergency_agent',
+        clinical_agent: 'clinical_agent',
+        vietnamese_medical_agent: 'vietnamese_medical_agent',
+        general: '__end__',
       };
       return agentMap[metadata.routedToAgent] || '__end__';
     }
@@ -319,122 +384,6 @@ export class HealthcareAgentOrchestratorService {
     }
 
     return '__end__';
-  }
-
-  private async emergencyAgent(
-    state: typeof MessagesAnnotation.State,
-  ): Promise<Command> {
-    const query = state.messages[0].content as string;
-
-    const emergencyPrompt = `You are an emergency triage AI assistant specializing in Vietnamese healthcare emergency protocols.
-    Assess the urgency of symptoms and provide immediate guidance.
-
-    Query: "${query}"
-
-    CRITICAL: If this appears to be a medical emergency, immediately advise:
-    "This may be a medical emergency. Please call emergency services (115 in Vietnam, 911 in US) or go to the nearest emergency room immediately."
-
-    Vietnamese Emergency Contacts:
-    - 115: Medical Emergency
-    - 113: Police
-    - 114: Fire Department
-    - 1900 4595: Poison Control Center
-
-    Assess severity and provide appropriate guidance while emphasizing the need for professional medical care.
-    Provide guidance in Vietnamese if the query is in Vietnamese.`;
-
-    const response = await this.model.invoke([
-      { role: 'system', content: emergencyPrompt },
-      { role: 'user', content: query },
-    ]);
-
-    return new Command({
-      goto: '__end__',
-      update: {
-        messages: [
-          new AIMessage({
-            content: response.content as string,
-            name: 'emergency_agent',
-          }),
-        ],
-        agentType: 'emergency',
-        urgencyLevel: 0.9, // High urgency for emergency agent
-      },
-    });
-  }
-
-  private async clinicalAgent(
-    state: typeof MessagesAnnotation.State,
-  ): Promise<Command> {
-    const query = state.messages[0].content as string;
-
-    const clinicalPrompt = `You are a clinical decision support AI assistant.
-    Provide evidence-based medical guidance and symptom analysis.
-    
-    Query: "${query}"
-    
-    Focus on:
-    - Symptom analysis and differential diagnosis considerations
-    - Evidence-based medical guidance
-    - When to seek professional medical care
-    - Health monitoring recommendations
-    
-    Always emphasize that this is educational information and not a substitute for professional medical advice.`;
-
-    const response = await this.model.invoke([
-      { role: 'system', content: clinicalPrompt },
-      { role: 'user', content: query },
-    ]);
-
-    return new Command({
-      goto: '__end__',
-      update: {
-        messages: [
-          new AIMessage({
-            content: response.content as string,
-            name: 'clinical_agent',
-          }),
-        ],
-        agentType: 'clinical',
-      },
-    });
-  }
-
-  private async vietnameseMedicalAgent(
-    state: typeof MessagesAnnotation.State,
-  ): Promise<Command> {
-    const query = state.messages[0].content as string;
-
-    const vietnamesePrompt = `You are a Vietnamese healthcare specialist AI assistant.
-    Provide culturally appropriate medical guidance integrating traditional and modern medicine.
-    
-    Query: "${query}"
-    
-    Focus on:
-    - Vietnamese medical terminology and cultural context
-    - Traditional medicine (thuốc nam) integration where appropriate
-    - Local healthcare practices and preferences
-    - Vietnamese healthcare system navigation
-    
-    Respond in Vietnamese if the query is in Vietnamese, otherwise use English with Vietnamese context.`;
-
-    const response = await this.model.invoke([
-      { role: 'system', content: vietnamesePrompt },
-      { role: 'user', content: query },
-    ]);
-
-    return new Command({
-      goto: '__end__',
-      update: {
-        messages: [
-          new AIMessage({
-            content: response.content as string,
-            name: 'vietnamese_medical_agent',
-          }),
-        ],
-        agentType: 'vietnamese_medical',
-      },
-    });
   }
 
   private async analyzeQuery(query: string): Promise<QueryClassification> {
@@ -645,17 +594,5 @@ Vietnamese indicators: Vietnamese text, traditional medicine terms, cultural ref
     }
 
     return agents;
-  }
-
-  private extractAgentsFromMessages(messages: BaseMessage[]): string[] {
-    const agents: string[] = [];
-
-    messages.forEach((message) => {
-      if (message instanceof AIMessage && message.name) {
-        agents.push(message.name);
-      }
-    });
-
-    return [...new Set(agents)]; // Remove duplicates
   }
 }

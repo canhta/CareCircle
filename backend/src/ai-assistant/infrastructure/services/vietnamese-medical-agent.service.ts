@@ -43,13 +43,14 @@ export interface VietnameseMedicalResponse {
 
 @Injectable()
 export class VietnameseMedicalAgentService extends BaseHealthcareAgent {
-  private readonly logger = new Logger(VietnameseMedicalAgentService.name);
+  protected readonly logger = new Logger(VietnameseMedicalAgentService.name);
 
   constructor(
     phiProtectionService: PHIProtectionService,
+    protected readonly vietnameseNLPService: any, // VietnameseNLPIntegrationService,
     private readonly vectorDatabaseService: VectorDatabaseService,
   ) {
-    super('VIETNAMESE_MEDICAL', phiProtectionService, {
+    super('VIETNAMESE_MEDICAL', phiProtectionService, vietnameseNLPService, {
       modelName: 'gpt-4',
       temperature: 0.1,
       maxTokens: 2000,
@@ -274,7 +275,10 @@ export class VietnameseMedicalAgentService extends BaseHealthcareAgent {
       // Convert to legacy format for backward compatibility
       return {
         response: agentResponse.response,
-        responseLanguage: healthcareContext.languagePreference || 'vietnamese',
+        responseLanguage:
+          (healthcareContext.languagePreference === 'mixed'
+            ? 'vietnamese'
+            : healthcareContext.languagePreference) || 'vietnamese',
         traditionalMedicineAdvice: this.extractTraditionalAdvice(
           agentResponse.response,
         ),
@@ -352,7 +356,11 @@ export class VietnameseMedicalAgentService extends BaseHealthcareAgent {
       traditionalMedicineTerms: this.extractTraditionalMedicineTerms(query),
       modernMedicineTerms: this.extractModernMedicineTerms(query),
       culturalContext: 'modern',
-      medicalEntities: this.extractMedicalEntities(query),
+      medicalEntities: this.extractMedicalEntities(query) as Array<{
+        text: string;
+        type: 'symptom' | 'disease' | 'medication' | 'treatment' | 'body_part';
+        confidence: number;
+      }>,
       urgencyIndicators: this.detectUrgencyIndicators(query),
     };
 
@@ -365,7 +373,7 @@ export class VietnameseMedicalAgentService extends BaseHealthcareAgent {
     return context;
   }
 
-  private detectLanguage(text: string): 'vietnamese' | 'english' | 'mixed' {
+  protected detectLanguage(text: string): 'vietnamese' | 'english' | 'mixed' {
     const vietnamesePattern =
       /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]/i;
     const englishPattern = /[a-zA-Z]/;
@@ -410,14 +418,14 @@ export class VietnameseMedicalAgentService extends BaseHealthcareAgent {
     return modernTerms.filter((term) => lowerText.includes(term));
   }
 
-  private extractMedicalEntities(text: string): Array<{
+  protected extractMedicalEntities(text: string): Array<{
     text: string;
-    type: 'symptom' | 'disease' | 'medication' | 'treatment' | 'body_part';
+    type: string;
     confidence: number;
   }> {
     const entities: Array<{
       text: string;
-      type: 'symptom' | 'disease' | 'medication' | 'treatment' | 'body_part';
+      type: string;
       confidence: number;
     }> = [];
 
@@ -479,7 +487,8 @@ export class VietnameseMedicalAgentService extends BaseHealthcareAgent {
           ? this.generateTraditionalMedicineAdvice(context)
           : undefined,
       modernMedicineAdvice: this.generateModernMedicineAdvice(context),
-      culturalConsiderations: this.generateCulturalConsiderations(context),
+      culturalConsiderations:
+        this.generateVietnameseCulturalConsiderations(context),
       recommendedActions: recommendations,
       urgencyLevel,
       confidence: 0.85,
@@ -493,7 +502,7 @@ export class VietnameseMedicalAgentService extends BaseHealthcareAgent {
     knowledgeResults: any[] = [],
     nlpResult: any = {},
   ): string {
-    const basePrompt = `Bạn là một chuyên gia y tế Việt Nam, có kiến thức sâu về cả y học hiện đại và y học cổ truyền Việt Nam.
+    let basePrompt = `Bạn là một chuyên gia y tế Việt Nam, có kiến thức sâu về cả y học hiện đại và y học cổ truyền Việt Nam.
 
 Ngữ cảnh văn hóa: ${context.culturalContext}
 Ngôn ngữ phát hiện: ${context.detectedLanguage}
@@ -612,7 +621,7 @@ Lưu ý quan trọng: Luôn nhấn mạnh rằng đây chỉ là thông tin tham
     return 'Khuyến khích thăm khám bác sĩ để được chẩn đoán chính xác và điều trị phù hợp theo y học hiện đại.';
   }
 
-  private generateCulturalConsiderations(
+  private generateVietnameseCulturalConsiderations(
     context: VietnameseMedicalContext,
   ): string[] {
     const considerations: string[] = [];

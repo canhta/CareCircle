@@ -205,7 +205,7 @@ export class HIPAAAuditService {
       return auditLogs.map((log) => ({
         eventType: log.eventType as HIPAAAuditEvent['eventType'],
         userId: log.userId,
-        agentType: log.agentType,
+        agentType: log.agentType || undefined,
         queryHash: log.queryHash,
         responseHash: log.responseHash,
         severity: log.severity as HIPAAAuditEvent['severity'],
@@ -213,14 +213,14 @@ export class HIPAAAuditService {
         emergencyFlag: log.emergencyFlag,
         complianceFlags: log.complianceFlags || [],
         metadata: {
-          sessionId: log.sessionId,
-          ipAddress: log.ipAddress,
-          userAgent: log.userAgent,
+          sessionId: log.sessionId || undefined,
+          ipAddress: log.ipAddress || undefined,
+          userAgent: log.userAgent || undefined,
           timestamp: log.timestamp,
           processingTimeMs: log.processingTimeMs,
-          confidence: log.confidence,
-          escalationReason: log.escalationReason,
-          vietnameseLanguage: log.vietnameseLanguage,
+          confidence: log.confidence || undefined,
+          escalationReason: log.escalationReason || undefined,
+          vietnameseLanguage: log.vietnameseLanguage || undefined,
         },
       }));
     } catch (error) {

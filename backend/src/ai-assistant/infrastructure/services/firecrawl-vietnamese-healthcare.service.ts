@@ -207,8 +207,8 @@ export class FirecrawlVietnameseHealthcareService implements OnModuleInit {
         scrapeOptions: {
           formats: ['markdown', 'html'],
           onlyMainContent: site.crawlConfig.onlyMainContent,
-          includePaths: site.crawlConfig.includePaths,
         },
+        includePaths: site.crawlConfig.includePaths,
       };
 
       // Perform the crawl

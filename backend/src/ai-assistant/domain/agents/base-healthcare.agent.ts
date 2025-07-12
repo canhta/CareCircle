@@ -84,6 +84,7 @@ export interface AgentResponse {
     redFlags?: any;
     recommendedTests?: any;
     emergencyServicesRecommended?: boolean;
+    requiresImmediateAttention?: boolean;
     medicalEntities?: Array<{
       text: string;
       type: string;
@@ -477,6 +478,4 @@ export abstract class BaseHealthcareAgent {
 
     return entities;
   }
-
-
 }

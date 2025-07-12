@@ -127,12 +127,14 @@ export class MedicationManagementAgent extends BaseHealthcareAgent {
         await this.extractMedicationsFromQuery(query);
 
       // Analyze drug interactions
-      const currentMeds = medicationContext.detailedMedications ||
-        (medicationContext.currentMedications?.map(med => ({
+      const currentMeds =
+        medicationContext.detailedMedications ||
+        medicationContext.currentMedications?.map((med) => ({
           name: med,
           dosage: 'unknown',
-          frequency: 'unknown'
-        })) || []);
+          frequency: 'unknown',
+        })) ||
+        [];
       const interactions = await this.analyzeDrugInteractions(
         extractedMedications,
         currentMeds,
@@ -163,7 +165,10 @@ export class MedicationManagementAgent extends BaseHealthcareAgent {
       return {
         agentType: 'medication_management',
         response: guidance,
-        confidence: this.calculateMedicationConfidence(interactions, contraindications),
+        confidence: this.calculateMedicationConfidence(
+          interactions,
+          contraindications,
+        ),
         urgencyLevel: interactions.length > 0 ? 0.7 : 0.3,
         requiresEscalation: requiresPhysicianReview,
         metadata: {

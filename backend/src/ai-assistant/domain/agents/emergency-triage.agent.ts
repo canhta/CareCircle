@@ -192,6 +192,7 @@ export class EmergencyTriageAgent extends BaseHealthcareAgent {
         agentType: 'emergency_triage',
         response,
         confidence: triageAssessment.confidence,
+        urgencyLevel: triageAssessment.severity,
         requiresEscalation: triageAssessment.severity >= 0.7,
         metadata: {
           processingTime: Date.now() - startTime,
@@ -205,7 +206,9 @@ export class EmergencyTriageAgent extends BaseHealthcareAgent {
           protocols,
           emergencyServicesRecommended: triageAssessment.emergencyServices,
           severityScore: triageAssessment.severity,
-          urgencyLevel: this.convertUrgencyLevelToNumber(triageAssessment.urgencyLevel),
+          urgencyLevel: this.convertUrgencyLevelToNumber(
+            triageAssessment.urgencyLevel,
+          ),
           requiresImmediateAttention:
             triageAssessment.requiresImmediateAttention,
         },
@@ -551,7 +554,9 @@ If symptoms are severe or life-threatening, do not wait - seek immediate medical
 This is a safety fallback response. Please consult with healthcare professionals for proper medical evaluation.`;
   }
 
-  private convertUrgencyLevelToNumber(urgencyLevel: 'routine' | 'urgent' | 'emergency' | 'critical'): number {
+  private convertUrgencyLevelToNumber(
+    urgencyLevel: 'routine' | 'urgent' | 'emergency' | 'critical',
+  ): number {
     switch (urgencyLevel) {
       case 'routine':
         return 0.2;

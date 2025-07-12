@@ -170,6 +170,7 @@ export class ClinicalDecisionSupportAgent extends BaseHealthcareAgent {
           symptomAnalysis,
           clinicalGuidance,
         ),
+        urgencyLevel: urgencyAssessment.urgencyLevel || 0.5,
         requiresEscalation: urgencyAssessment.requiresImmediateAttention,
         metadata: {
           processingTime: Date.now() - startTime,

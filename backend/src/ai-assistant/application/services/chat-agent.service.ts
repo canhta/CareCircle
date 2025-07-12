@@ -22,7 +22,7 @@ import { HealthProfileService } from '../../../health-data/application/services/
 export interface ChatAgentRequest {
   message: string;
   sessionId?: string;
-  patientContext?: HealthcareContext;
+  patientContext?: Partial<HealthcareContext>;
   urgencyOverride?: boolean;
   agentPreference?: string;
   streamResponse?: boolean;
@@ -86,12 +86,14 @@ export class ChatAgentService {
       const session = await this.getOrCreateSession(userId, request);
 
       // Enhance context with user health data
+      const baseContext: HealthcareContext = {
+        userId,
+        sessionId: session.id,
+        ...request.patientContext,
+      };
       const enhancedContext = await this.enhanceHealthcareContext(
         userId,
-        request.patientContext || {
-          userId,
-          sessionId: session.id,
-        },
+        baseContext,
       );
 
       // Process the query through the agent orchestrator
@@ -132,7 +134,11 @@ export class ChatAgentService {
       // Build response
       const response: ChatAgentResponse = {
         response: agentResponse.response,
-        urgencyLevel: this.mapUrgencyLevel(agentResponse.metadata.urgencyLevel || agentResponse.urgencyLevel || 0.3),
+        urgencyLevel: this.mapUrgencyLevel(
+          agentResponse.metadata.urgencyLevel ||
+            agentResponse.urgencyLevel ||
+            0.3,
+        ),
         agentType: agentResponse.agentType,
         recommendedActions: this.generateRecommendedActions(agentResponse),
         escalationTriggered,
@@ -176,12 +182,14 @@ export class ChatAgentService {
       const session = await this.getOrCreateSession(userId, request);
 
       // Enhance context
+      const baseContext: HealthcareContext = {
+        userId,
+        sessionId: session.id,
+        ...request.patientContext,
+      };
       const enhancedContext = await this.enhanceHealthcareContext(
         userId,
-        request.patientContext || {
-          userId,
-          sessionId: session.id,
-        },
+        baseContext,
       );
 
       yield {
@@ -383,7 +391,9 @@ export class ChatAgentService {
       userQuery,
       agentResponse: agentResponse.response,
       urgencyLevel: this.mapUrgencyLevelToEnum(
-        agentResponse.metadata.urgencyLevel || agentResponse.urgencyLevel || 0.3,
+        agentResponse.metadata.urgencyLevel ||
+          agentResponse.urgencyLevel ||
+          0.3,
       ),
       metadata: {
         processingTimeMs: processingTime,
@@ -437,7 +447,8 @@ export class ChatAgentService {
   ): Promise<boolean> {
     if (
       agentResponse.requiresEscalation ||
-      (agentResponse.metadata.urgencyLevel || agentResponse.urgencyLevel || 0) > 0.8
+      (agentResponse.metadata.urgencyLevel || agentResponse.urgencyLevel || 0) >
+        0.8
     ) {
       session.triggerEscalation();
       await this.agentSessionRepository.update(session.id, session);

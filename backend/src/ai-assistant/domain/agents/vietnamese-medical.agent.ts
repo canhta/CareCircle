@@ -186,7 +186,9 @@ export class VietnameseMedicalAgent extends BaseHealthcareAgent {
           traditionalAnalysis,
           enhancedContext,
         ),
-        urgencyLevel: (enhancedContext.vietnameseNLPAnalysis as any)?.urgencyAnalysis?.urgency_level || 0.3,
+        urgencyLevel:
+          (enhancedContext.vietnameseNLPAnalysis as any)?.urgencyAnalysis
+            ?.urgency_level || 0.3,
         requiresEscalation: integrationGuidance.physicianConsultationRequired,
         metadata: {
           processingTime: Date.now() - startTime,
