@@ -149,6 +149,59 @@ class AdherenceManagementNotifier extends StateNotifier<AsyncValue<void>> {
   AdherenceManagementNotifier(this._repository, this._ref)
     : super(const AsyncValue.data(null));
 
+  /// Record a medication dose as taken
+  Future<void> recordDose(CreateAdherenceRecordRequest request) async {
+    state = const AsyncValue.loading();
+
+    try {
+      _logger.logMedicationEvent('Recording medication dose', {
+        'medicationId': request.medicationId,
+        'dosage': request.dosage,
+        'unit': request.unit,
+        'status': request.status.name,
+        'timestamp': DateTime.now().toIso8601String(),
+      });
+
+      await _repository.createAdherenceRecord(request);
+
+      // Refresh adherence records to show updated data
+      _ref.invalidate(adherenceRecordsProvider);
+      _ref.invalidate(medicationAdherenceProvider);
+
+      state = const AsyncValue.data(null);
+
+      _logger.logMedicationEvent('Dose recorded successfully', {
+        'medicationId': request.medicationId,
+        'dosage': request.dosage,
+        'unit': request.unit,
+      });
+    } catch (error, stackTrace) {
+      _logger.error('Failed to record dose', {
+        'error': error.toString(),
+        'medicationId': request.medicationId,
+      });
+
+      state = AsyncValue.error(error, stackTrace);
+    }
+  }
+
+  /// Mark an existing dose as taken
+  Future<void> markDoseAsTaken(String recordId, {DateTime? takenAt, String? notes}) async {
+    state = const AsyncValue.loading();
+
+    try {
+      await _repository.markDoseAsTaken(recordId, takenAt: takenAt, notes: notes);
+
+      // Refresh adherence records
+      _ref.invalidate(adherenceRecordsProvider);
+      _ref.invalidate(medicationAdherenceProvider);
+
+      state = const AsyncValue.data(null);
+    } catch (error, stackTrace) {
+      state = AsyncValue.error(error, stackTrace);
+    }
+  }
+
   /// Record dose taken
   Future<void> recordDoseTaken(
     String medicationId,

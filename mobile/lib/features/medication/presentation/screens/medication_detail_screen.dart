@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/design/design_tokens.dart';
 import '../../../../core/logging/bounded_context_loggers.dart';
@@ -310,7 +311,7 @@ class _MedicationDetailScreenState extends ConsumerState<MedicationDetailScreen>
         const SizedBox(height: 8),
         FloatingActionButton(
           heroTag: 'record_dose',
-          onPressed: () => _showRecordDoseDialog(medication),
+          onPressed: () => _navigateToRecordDose(medication),
           backgroundColor: CareCircleDesignTokens.healthGreen,
           foregroundColor: Colors.white,
           child: const Icon(Icons.medication),
@@ -451,6 +452,19 @@ class _MedicationDetailScreenState extends ConsumerState<MedicationDetailScreen>
       'timestamp': DateTime.now().toIso8601String(),
     });
     // TODO: Implement navigation to add schedule
+  }
+
+  void _navigateToRecordDose(Medication medication) {
+    _logger.info('Navigation to record dose requested', {
+      'medicationId': medication.id,
+      'medicationName': medication.name,
+      'timestamp': DateTime.now().toIso8601String(),
+    });
+
+    context.pushNamed(
+      'record-dose',
+      pathParameters: {'id': medication.id},
+    );
   }
 
   void _showRecordDoseDialog(Medication medication) {

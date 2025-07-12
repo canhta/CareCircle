@@ -378,7 +378,53 @@ class AdherenceRepository {
     }
   }
 
-  /// Mark dose as taken
+  /// Mark dose as taken by record ID
+  Future<AdherenceRecord> markDoseAsTaken(String recordId, {DateTime? takenAt, String? notes}) async {
+    try {
+      _logger.info('Marking dose as taken by record ID', {
+        'operation': 'markDoseAsTaken',
+        'recordId': recordId,
+        'timestamp': DateTime.now().toIso8601String(),
+      });
+
+      final response = await _apiService.markDoseTaken({
+        'recordId': recordId,
+        'takenAt': (takenAt ?? DateTime.now()).toIso8601String(),
+        'notes': notes,
+      });
+
+      final record = response.data;
+      if (record == null) {
+        throw Exception('Failed to mark dose as taken: No data returned');
+      }
+
+      // Clear cache to force refresh
+      await _clearAdherenceCache();
+
+      _logger.logMedicationEvent('Dose marked as taken successfully', {
+        'recordId': recordId,
+        'takenAt': (takenAt ?? DateTime.now()).toIso8601String(),
+      });
+
+      return record;
+    } on DioException catch (e) {
+      _logger.error('API error marking dose as taken', {
+        'recordId': recordId,
+        'statusCode': e.response?.statusCode,
+        'error': e.message,
+      });
+      rethrow;
+    } catch (e, stackTrace) {
+      await ErrorTracker.recordMedicationError(
+        e,
+        stackTrace,
+        operation: 'markDoseAsTaken',
+      );
+      rethrow;
+    }
+  }
+
+  /// Mark dose as taken by medication and schedule
   Future<AdherenceRecord> markDoseTaken({
     required String medicationId,
     required String scheduleId,
