@@ -1,48 +1,58 @@
-# CareCircle Multi-Agent Healthcare System - Implementation TODO
+# CareCircle Vietnamese Healthcare Multi-Agent System - Implementation TODO
 
-## 🎯 Current Sprint: Phase 1 - Infrastructure & Agent Foundation
+## 🎯 Current Sprint: Phase 1 - Vietnamese Healthcare Infrastructure & Foundation
 
-**Sprint Goal**: Establish LangGraph.js multi-agent infrastructure with healthcare compliance  
-**Sprint Duration**: Weeks 1-2  
-**Priority**: CRITICAL - Multi-Agent Foundation  
-**Dependencies**: Existing CareCircle platform (98% complete)
+**Sprint Goal**: Establish LangGraph.js Vietnamese healthcare multi-agent infrastructure with Vietnamese NLP and Firecrawl integration
+**Sprint Duration**: Weeks 1-2
+**Priority**: CRITICAL - Vietnamese Healthcare Multi-Agent Foundation
+**Dependencies**: Existing CareCircle platform (98% complete), Vietnamese NLP libraries, Firecrawl API
 
 ---
 
 ## 📋 PHASE 1 TASKS (Weeks 1-2)
 
-### 🚨 CRITICAL - LangGraph.js Infrastructure Setup (Week 1)
+### 🚨 CRITICAL - Vietnamese Healthcare LangGraph.js Infrastructure Setup (Week 1)
 
-#### Backend Multi-Agent Dependencies
-- [ ] **Install LangGraph.js Healthcare Dependencies**
+#### Backend Vietnamese Healthcare Multi-Agent Dependencies
+- [ ] **Install Vietnamese Healthcare LangGraph.js Dependencies**
   - **Location**: `backend/package.json`
-  - **Action**: Add LangGraph.js, FHIR, medical NLP, and vector database packages
+  - **Action**: Add LangGraph.js, Vietnamese NLP libraries, Firecrawl API, and vector database packages
   - **Commands**:
     ```bash
     cd backend
+    # Core LangGraph.js dependencies
     npm install @langchain/core@^0.3.0 @langchain/openai@^0.3.0
     npm install @langchain/langgraph@^0.2.0 @langchain/community@^0.3.0
-    npm install fhir@^4.11.1 @types/fhir@^0.0.37
-    npm install @milvus-io/milvus2-sdk-node@^2.3.0
-    npm install crypto-js@^4.2.0 medical-nlp@^2.1.0
-    ```
-  - **Estimate**: 2 hours
-  - **Acceptance Criteria**: All packages install without conflicts, TypeScript compilation successful
 
-- [ ] **Set Up Vector Database for Medical Knowledge**
-  - **Location**: `docker-compose.healthcare.yml`
-  - **Action**: Add Milvus/Pinecone service configuration for medical knowledge base
+    # Vietnamese NLP libraries (via Python bridge)
+    npm install python-shell@^5.0.0
+    pip install underthesea==6.7.0 pyvi==0.1.1
+
+    # Firecrawl API integration
+    npm install firecrawl-py@^1.0.0
+
+    # Vietnamese healthcare data processing
+    npm install @milvus-io/milvus2-sdk-node@^2.3.0
+    npm install crypto-js@^4.2.0
+    ```
+  - **Estimate**: 4 hours
+  - **Acceptance Criteria**: All packages install without conflicts, Vietnamese NLP libraries accessible, TypeScript compilation successful
+
+- [ ] **Set Up Vietnamese Healthcare Vector Database with Firecrawl Integration**
+  - **Location**: `docker-compose.vietnamese-healthcare.yml`
+  - **Action**: Add Milvus service configuration for Vietnamese medical knowledge base with Firecrawl data ingestion
   - **Features**:
-    - Medical knowledge vector storage
-    - Semantic search capabilities
-    - Healthcare document embeddings
-    - HIPAA-compliant data handling
+    - Vietnamese medical knowledge vector storage
+    - Vietnamese semantic search capabilities
+    - Vietnamese healthcare document embeddings from Firecrawl
+    - Traditional medicine (thuốc nam) knowledge integration
+    - Vietnamese healthcare compliance data handling
   - **Commands**:
     ```bash
-    docker-compose -f docker-compose.healthcare.yml up -d milvus
+    docker-compose -f docker-compose.vietnamese-healthcare.yml up -d milvus
     ```
-  - **Estimate**: 6 hours
-  - **Acceptance Criteria**: Vector database running, medical knowledge indexing functional
+  - **Estimate**: 8 hours
+  - **Acceptance Criteria**: Vector database running, Vietnamese medical knowledge indexing functional, Firecrawl data pipeline active
 
 - [ ] **Implement Advanced PHI Protection Service**
   - **Location**: `backend/src/common/compliance/phi-protection.service.ts`

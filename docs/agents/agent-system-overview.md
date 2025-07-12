@@ -1,47 +1,61 @@
-# CareCircle AI Agent System Overview
+# CareCircle Vietnamese Healthcare Multi-Agent System Architecture
 
 ## Introduction
 
-The CareCircle AI Agent System is a sophisticated multi-agent healthcare platform built on LangGraph.js that provides intelligent healthcare assistance through specialized agents. The system follows lean MVP principles while delivering enterprise-grade healthcare capabilities with HIPAA compliance and advanced medical knowledge integration.
+The CareCircle Vietnamese Healthcare Multi-Agent System is a production-ready, LangChain-orchestrated platform specifically designed for Vietnamese healthcare market. This system transforms the existing lean MVP single-agent architecture into a sophisticated multi-agent ecosystem that understands Vietnamese medical terminology, cultural healthcare practices, and local disease patterns while seamlessly integrating with existing CareCircle infrastructure.
 
-## System Architecture - LangGraph.js Multi-Agent MVP
+## Vietnamese Healthcare Market Context
 
-### 🎯 Primary Implementation Target
-The CareCircle healthcare AI system is built around a coordinated multi-agent architecture using LangGraph.js for optimal healthcare assistance:
+### 🇻🇳 Vietnamese Healthcare Priorities
+The system addresses critical Vietnamese healthcare challenges:
 
-- **LangGraph.js orchestration** with StateGraph patterns for agent coordination
-- **Specialized healthcare agents** for medication management, emergency triage, and clinical decision support
-- **Vector database integration** for comprehensive medical knowledge base
-- **Advanced PHI detection** and masking for HIPAA compliance
-- **FHIR integration** for healthcare data interoperability
-- **Agent handoff mechanisms** for seamless care coordination
+- **Chronic Disease Management**: High prevalence of diabetes, hypertension, and cardiovascular disease due to urbanization
+- **Respiratory Conditions**: Air pollution-related health issues in major cities (Ho Chi Minh City, Hanoi)
+- **Tropical Disease Patterns**: Endemic dengue fever, malaria, and seasonal health concerns
+- **Traditional Medicine Integration**: Seamless blend of thuốc nam (traditional medicine) with modern healthcare
+- **Prescription Drug Analysis**: Complex pharmaceutical landscape with both traditional and modern medications
+
+### 🏥 Vietnamese Healthcare System Integration
+- **Public-Private Healthcare Mix**: Support for both public hospitals and private clinics
+- **Cultural Healthcare Practices**: Family-centered decision making and traditional remedy integration
+- **Language Localization**: Primary Vietnamese language support with medical terminology accuracy
+- **Regional Healthcare Disparities**: Urban vs rural healthcare access considerations
+- **Cost-Conscious Healthcare**: Vietnamese market pricing and insurance considerations
 
 ### 📊 Foundation Status
 - **Existing CareCircle Platform**: 98% complete with solid DDD architecture
-- **Basic AI Assistant**: Currently implemented with OpenAI integration (to be enhanced)
-- **Infrastructure**: Production-ready backend, mobile app, and database systems
-- **Authentication & Security**: Firebase auth and HIPAA-compliant logging in place
+- **Current AI Assistant**: OpenAI-integrated single agent (to be transformed)
+- **Infrastructure**: Production-ready NestJS backend, Firebase auth, PostgreSQL, Milvus vector database
+- **Vietnamese Market Ready**: Prepared for Vietnamese healthcare compliance and cultural adaptation
 
-## System Architecture
+## Vietnamese Healthcare Multi-Agent Architecture
 
-### LangGraph.js Multi-Agent Healthcare System (MVP Target)
+### LangGraph.js Vietnamese Healthcare System (Production Target)
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│           CareCircle Multi-Agent Healthcare System          │
+│     CareCircle Vietnamese Healthcare Multi-Agent System     │
 ├─────────────────────────────────────────────────────────────┤
-│  LangGraph.js Agent Orchestration                          │
-│  ├── Healthcare Supervisor Agent (Coordination & Routing)  │
-│  ├── Medication Management Agent (Drug interactions)       │
-│  ├── Emergency Triage Agent (Critical care assessment)     │
-│  ├── Clinical Decision Support Agent (Evidence-based)      │
-│  └── Health Analytics Agent (Data interpretation)          │
+│  LangGraph.js Vietnamese Agent Orchestration               │
+│  ├── Vietnamese Healthcare Supervisor Agent (Central)      │
+│  ├── Vietnamese Medical Terminology Agent (Language)       │
+│  ├── Vietnamese Prescription Analysis Agent (Drugs)        │
+│  ├── Vietnamese Chronic Disease Agent (Local Patterns)     │
+│  └── Vietnamese Healthcare Data Ingestion Agent (Crawl)    │
 ├─────────────────────────────────────────────────────────────┤
-│  Healthcare Intelligence Services                          │
-│  ├── Vector Database (Medical knowledge base)              │
-│  ├── PHI Protection Service (HIPAA compliance)             │
-│  ├── FHIR Integration Service (Healthcare interoperability)│
-│  ├── Emergency Escalation Service (Provider alerts)       │
-│  └── Cost Optimization Service (Model routing)            │
+│  Vietnamese Healthcare Intelligence Services               │
+│  ├── Vietnamese Medical Knowledge Base (Milvus Vector DB)  │
+│  ├── Vietnamese NLP Processing (underthesea, pyvi)         │
+│  ├── Firecrawl API Integration (Vietnamese Websites)       │
+│  ├── Traditional Medicine Database (thuốc nam)             │
+│  ├── Vietnamese Drug Database (Ministry of Health)         │
+│  └── Cultural Healthcare Context Engine                    │
+├─────────────────────────────────────────────────────────────┤
+│  Vietnamese Healthcare Data Sources                        │
+│  ├── Vinmec Hospital (https://www.vinmec.com/vie/bai-viet/)│
+│  ├── Bach Mai Hospital (Public Healthcare)                 │
+│  ├── Ministry of Health Vietnam (Official Guidelines)      │
+│  ├── Vietnamese Pharmaceutical Companies                   │
+│  └── Traditional Medicine Practitioners                    │
 ├─────────────────────────────────────────────────────────────┤
 │  CareCircle Platform Foundation (98% Complete)             │
 │  ├── NestJS Backend (DDD Architecture)                     │
@@ -51,97 +65,102 @@ The CareCircle healthcare AI system is built around a coordinated multi-agent ar
 └─────────────────────────────────────────────────────────────┘
 ```
 
-### Agent Coordination Flow
+### Vietnamese Healthcare Agent Coordination Flow
 ```
-User Query → Healthcare Supervisor Agent
+Vietnamese User Query → Vietnamese Healthcare Supervisor Agent
     ↓
-Query Analysis & Intent Classification
+Vietnamese Language Analysis & Cultural Context Detection
     ↓
-Route to Specialized Agent:
-├── Medication Query → Medication Management Agent
-├── Emergency Symptoms → Emergency Triage Agent
-├── Clinical Question → Clinical Decision Support Agent
-└── Health Data → Health Analytics Agent
+Route to Specialized Vietnamese Agent:
+├── Medical Terms → Vietnamese Medical Terminology Agent
+├── Medication Query → Vietnamese Prescription Analysis Agent
+├── Chronic Disease → Vietnamese Chronic Disease Agent
+├── Data Needed → Vietnamese Healthcare Data Ingestion Agent
+└── Emergency → Emergency Escalation (Vietnamese Context)
     ↓
-Agent Processing with Medical Knowledge
+Agent Processing with Vietnamese Medical Knowledge
     ↓
-Response Generation with PHI Protection
+Traditional Medicine Integration & Cultural Context
     ↓
-Return to User via Mobile/Web Interface
+Vietnamese Language Response Generation
+    ↓
+Return to User via Mobile/Web Interface (Vietnamese UI)
 ```
 
-## Core Design Principles
+## Vietnamese Healthcare Design Principles
 
-- **Multi-Agent Healthcare Intelligence**: Specialized agents for different healthcare domains
-- **Healthcare-First Design**: HIPAA compliance and patient safety prioritized throughout
-- **Lean MVP Implementation**: Essential multi-agent capabilities with minimal infrastructure overhead
-- **Agent Coordination**: Seamless handoffs between specialized healthcare agents
-- **Medical Knowledge Integration**: Vector database with comprehensive healthcare information
-- **Production-Ready Foundation**: Build on existing solid CareCircle platform (98% complete)
+- **Vietnamese Healthcare Specialization**: Agents designed for Vietnamese medical terminology, cultural practices, and local disease patterns
+- **Cultural Healthcare Integration**: Traditional medicine (thuốc nam) seamlessly integrated with modern healthcare
+- **Vietnamese Language First**: Primary Vietnamese language support with accurate medical terminology
+- **Local Healthcare Context**: Understanding of Vietnamese healthcare system, costs, and regional disparities
+- **Firecrawl-Powered Data Ingestion**: Real-time Vietnamese healthcare website crawling and data processing
+- **Production-Ready Vietnamese Platform**: Built on existing solid CareCircle infrastructure with Vietnamese market focus
 
-## Multi-Agent System Capabilities
+## Vietnamese Healthcare Multi-Agent System Capabilities
 
-### Healthcare Supervisor Agent (Primary Orchestrator)
-The central coordination agent that manages all healthcare interactions:
+### Vietnamese Healthcare Supervisor Agent (Central Orchestrator)
+The central coordination agent specialized for Vietnamese healthcare interactions:
 
-**Core Responsibilities:**
-- **Query Analysis & Routing**: Intelligent classification and routing to specialized agents
-- **Agent Coordination**: Manages handoffs and collaboration between healthcare agents
-- **Context Management**: Maintains conversation context across agent interactions
-- **Emergency Escalation**: Immediate routing of urgent medical situations
-- **Response Synthesis**: Combines insights from multiple agents into coherent responses
+**Core Vietnamese Healthcare Responsibilities:**
+- **Vietnamese Query Analysis**: Intelligent classification of Vietnamese medical queries with cultural context
+- **Vietnamese Agent Coordination**: Manages handoffs between Vietnamese healthcare specialists
+- **Cultural Context Management**: Maintains Vietnamese healthcare cultural context across interactions
+- **Vietnamese Emergency Escalation**: Immediate routing with Vietnamese emergency protocols
+- **Vietnamese Response Synthesis**: Combines insights into culturally appropriate Vietnamese responses
 
 **Technical Implementation:**
 ```typescript
-// LangGraph.js Healthcare Supervisor
-interface HealthcareSupervisorAgent {
-  analyzeQuery(query: string, context: HealthContext): Promise<QueryClassification>;
-  routeToAgent(classification: QueryClassification): Promise<AgentSelection>;
-  coordinateAgents(agents: HealthcareAgent[]): Promise<CoordinatedResponse>;
-  synthesizeResponse(agentResponses: AgentResponse[]): Promise<string>;
+// LangGraph.js Vietnamese Healthcare Supervisor
+interface VietnameseHealthcareSupervisorAgent {
+  analyzeVietnameseQuery(query: string, context: VietnameseHealthContext): Promise<VietnameseQueryClassification>;
+  routeToVietnameseAgent(classification: VietnameseQueryClassification): Promise<VietnameseAgentSelection>;
+  coordinateVietnameseAgents(agents: VietnameseHealthcareAgent[]): Promise<VietnameseCoordinatedResponse>;
+  synthesizeVietnameseResponse(agentResponses: VietnameseAgentResponse[]): Promise<string>;
 }
 
-interface QueryClassification {
-  primaryIntent: 'medication' | 'emergency' | 'clinical' | 'analytics' | 'general';
+interface VietnameseQueryClassification {
+  primaryIntent: 'vietnamese_medical_terms' | 'vietnamese_prescription' | 'chronic_disease' | 'traditional_medicine' | 'emergency';
+  culturalContext: 'traditional' | 'modern' | 'mixed';
   urgencyLevel: number; // 0.0-1.0 scale
-  requiredAgents: string[];
-  medicalEntities: MedicalEntity[];
+  requiredVietnameseAgents: string[];
+  vietnameseMedicalEntities: VietnameseMedicalEntity[];
+  languagePreference: 'vietnamese' | 'mixed';
 }
 ```
 
-### Specialized Healthcare Agents
+### Specialized Vietnamese Healthcare Agents
 
-#### 💊 Medication Management Agent
-**Specialized Capabilities:**
-- **Drug Interaction Analysis**: Real-time pharmaceutical compatibility checking
-- **Dosage Optimization**: Personalized medication scheduling and timing
-- **Adherence Monitoring**: Medication compliance tracking and intervention
-- **Side Effect Detection**: Proactive adverse reaction identification
-- **Prescription Management**: Integration with existing medication module
+#### 🇻🇳 Vietnamese Medical Terminology Agent
+**Vietnamese Language Medical Specialization:**
+- **Vietnamese Medical Language Processing**: Advanced NLP using underthesea and pyvi libraries
+- **Traditional Medicine Integration**: Seamless thuốc nam (traditional medicine) terminology processing
+- **Medical Term Translation**: Accurate Vietnamese-English medical terminology conversion
+- **Regional Dialect Understanding**: Support for Vietnamese regional medical expressions
+- **Cultural Medical Context**: Understanding of Vietnamese healthcare cultural nuances
 
-#### 🚨 Emergency Triage Agent
-**Critical Care Capabilities:**
-- **Severity Assessment**: Rapid triage using established emergency protocols
-- **Symptom Analysis**: Structured evaluation of emergency indicators
-- **Provider Notification**: Automated alerts to healthcare providers and emergency contacts
-- **Crisis Intervention**: Immediate response protocols for mental health emergencies
-- **Emergency Service Integration**: Direct connection to local emergency systems
+#### 💊 Vietnamese Prescription Analysis Agent
+**Vietnamese Pharmaceutical Intelligence:**
+- **Vietnamese Drug Database Integration**: Ministry of Health approved medications and pricing
+- **Traditional vs Modern Medicine**: Intelligent recommendations balancing both approaches
+- **Local Pharmacy Availability**: Real-time Vietnamese pharmacy stock and location data
+- **Vietnamese Market Cost Analysis**: Healthcare cost optimization for Vietnamese patients
+- **Cultural Prescription Practices**: Understanding of Vietnamese medication adherence patterns
 
-#### 🩺 Clinical Decision Support Agent
-**Evidence-Based Medicine:**
-- **Clinical Guidelines**: Integration with medical research and evidence-based protocols
-- **Differential Diagnosis Support**: AI-assisted diagnostic suggestions (not medical advice)
-- **Medical Reference Integration**: Real-time access to clinical information and research
-- **Quality Measures**: Healthcare outcome tracking and quality indicators
-- **Care Plan Recommendations**: Evidence-based treatment suggestions
+#### 🏥 Vietnamese Chronic Disease Management Agent
+**Vietnamese Disease Pattern Specialization:**
+- **Vietnamese Chronic Disease Focus**: Diabetes, hypertension, cardiovascular disease prevalence
+- **Vietnamese Lifestyle Integration**: Dietary recommendations using Vietnamese cuisine and habits
+- **Local Healthcare Provider Network**: Integration with Vietnamese hospitals and clinics
+- **Cultural Healthcare Practices**: Family-centered care and traditional remedy integration
+- **Vietnamese Health Insurance**: Understanding of Vietnamese healthcare coverage and costs
 
-#### 📊 Health Analytics Agent
-**Data Intelligence:**
-- **Health Trend Analysis**: Pattern recognition in patient health data
-- **Predictive Modeling**: Early warning systems for health deterioration
-- **Risk Stratification**: Identification of patients at risk for complications
-- **Care Gap Analysis**: Identification of missed preventive care opportunities
-- **Population Health Insights**: Aggregate health trend analysis
+#### 🌐 Vietnamese Healthcare Data Ingestion Agent
+**Firecrawl-Powered Vietnamese Healthcare Data:**
+- **Vietnamese Medical Website Crawling**: Real-time data from Vinmec, Bach Mai Hospital, Ministry of Health
+- **Traditional Medicine Website Integration**: Crawling Vietnamese traditional medicine resources
+- **Vietnamese Medical Forum Data**: Community healthcare discussions and experiences
+- **Vietnamese Pharmaceutical Company Data**: Latest drug information and availability
+- **Vietnamese Health News Integration**: Current health trends and outbreak information
 
 ## Agent Handoff & Coordination Mechanisms
 
@@ -195,53 +214,61 @@ class HealthcareAgentOrchestrator {
 - **Context Preservation**: Shared state management across all agent interactions
 - **Consensus Building**: Multiple agents collaborate on complex medical decisions
 
-## Technology Stack
+## Vietnamese Healthcare Technology Stack
 
-### Multi-Agent Healthcare System Stack (MVP Implementation)
+### Vietnamese Healthcare Multi-Agent System Stack (Production Implementation)
 
-**Core AI Technologies:**
-- **LangGraph.js v0.2.0+**: Agent orchestration with StateGraph patterns for healthcare coordination
-- **@langchain/core v0.3.0+**: Core LangChain functionality and agent abstractions
-- **@langchain/openai v0.3.0+**: OpenAI integration with streaming support
-- **OpenAI GPT-4/3.5-turbo**: Primary language models for healthcare responses
+**Core Vietnamese AI Technologies:**
+- **LangGraph.js v0.2.0+**: Agent orchestration with StateGraph patterns for Vietnamese healthcare coordination
+- **@langchain/core v0.3.0+**: Core LangChain functionality and Vietnamese agent abstractions
+- **@langchain/openai v0.3.0+**: OpenAI integration with Vietnamese language model support
+- **OpenAI GPT-4/3.5-turbo**: Primary language models with Vietnamese healthcare prompts
 
-**Healthcare Intelligence Services:**
-- **Vector Database**: Medical knowledge base with semantic search (Milvus/Pinecone)
-- **PHI Protection Service**: Advanced HIPAA-compliant data masking and detection
-- **FHIR Integration**: Healthcare data interoperability (R4 standard)
-- **Medical NLP**: Healthcare-specific natural language processing
+**Vietnamese Healthcare Intelligence Services:**
+- **Milvus Vector Database**: Vietnamese medical knowledge base with semantic search
+- **underthesea v6.7.0+**: Vietnamese NLP toolkit for medical text processing
+- **pyvi v0.1.1+**: Vietnamese text processing for medical terminology
+- **Firecrawl API**: Vietnamese healthcare website crawling and data extraction
+- **Vietnamese Medical Knowledge Engine**: Traditional medicine and modern healthcare integration
+
+**Vietnamese Healthcare Data Sources:**
+- **Firecrawl API Integration**: Real-time crawling of Vietnamese healthcare websites
+- **Vietnamese Drug Database**: Ministry of Health approved medications
+- **Traditional Medicine Database**: thuốc nam (traditional medicine) repository
+- **Vietnamese Hospital Networks**: Vinmec, Bach Mai, and regional healthcare providers
+- **Vietnamese Health Regulations**: Compliance with Vietnamese healthcare standards
 
 **Runtime & Infrastructure:**
-- **Node.js 22+**: Runtime with ES modules and latest async features
-- **TypeScript 5.0+**: Type safety for healthcare data structures and agent interfaces
+- **Node.js 22+**: Runtime with ES modules and Vietnamese language support
+- **TypeScript 5.0+**: Type safety for Vietnamese healthcare data structures
 - **NestJS**: Backend framework with DDD architecture (existing foundation)
-- **Docker**: Multi-stage builds with security hardening
+- **Docker**: Multi-stage builds with Vietnamese NLP library support
 
 **Database & Storage:**
-- **PostgreSQL 15+**: Primary healthcare data storage with JSONB support (existing)
-- **TimescaleDB**: Time-series health metrics and analytics (existing)
-- **Redis 7+**: Session state, agent context, and real-time pub/sub (existing)
-- **Vector Storage**: Medical knowledge embeddings and semantic search
+- **PostgreSQL 15+**: Primary Vietnamese healthcare data storage with JSONB support (existing)
+- **TimescaleDB**: Time-series Vietnamese health metrics and analytics (existing)
+- **Redis 7+**: Session state, Vietnamese agent context, and real-time pub/sub (existing)
+- **Milvus Vector Storage**: Vietnamese medical knowledge embeddings and semantic search
 
-**Security & Compliance (HIPAA-Ready):**
-- **Firebase Auth**: Multi-factor authentication with healthcare roles (existing)
-- **JWT Tokens**: Secure session management with healthcare claims (existing)
+**Security & Compliance (Vietnamese Healthcare-Ready):**
+- **Firebase Auth**: Multi-factor authentication with Vietnamese healthcare roles (existing)
+- **JWT Tokens**: Secure session management with Vietnamese healthcare claims (existing)
 - **AES-256 Encryption**: Data at rest and in transit protection (existing)
-- **Enhanced Audit Logging**: Agent interaction tracking with 7-year retention
-- **PHI Detection**: Real-time identification of 18 HIPAA identifiers
+- **Vietnamese Healthcare Audit Logging**: Agent interaction tracking with Vietnamese compliance
+- **Vietnamese PHI Detection**: Real-time identification of Vietnamese personal health information
 
-**Healthcare Data Integration:**
-- **FHIR R4**: Healthcare data interoperability standard
-- **HL7 Integration**: Healthcare messaging and data exchange
-- **Drug Databases**: Real-time pharmaceutical information (FDA, RxNorm)
-- **Medical References**: Clinical guidelines and research integration
-- **Emergency Services**: Direct integration with local emergency systems
+**Vietnamese Healthcare Data Integration:**
+- **Vietnamese FHIR Implementation**: Healthcare data interoperability for Vietnamese market
+- **Vietnamese HL7 Integration**: Healthcare messaging adapted for Vietnamese healthcare system
+- **Vietnamese Drug Databases**: Real-time pharmaceutical information from Vietnamese sources
+- **Vietnamese Medical References**: Clinical guidelines and research from Vietnamese institutions
+- **Vietnamese Emergency Services**: Integration with Vietnamese emergency healthcare systems
 
 **Mobile & Web Integration:**
-- **Flutter Mobile**: Enhanced chat interface with agent selection (existing foundation)
-- **Real-time Streaming**: Agent responses with typing indicators
-- **Offline Support**: Critical healthcare data caching
-- **GitHub Actions**: CI/CD pipeline for automated deployment (existing)
+- **Flutter Mobile**: Enhanced Vietnamese chat interface with agent selection (existing foundation)
+- **Vietnamese Real-time Streaming**: Agent responses with Vietnamese typing indicators
+- **Vietnamese Offline Support**: Critical Vietnamese healthcare data caching
+- **GitHub Actions**: CI/CD pipeline for Vietnamese healthcare deployment (existing)
 
 ## Authentication & Access
 
@@ -305,58 +332,69 @@ interface HealthcareDataIntegration {
 - **Care Coordination**: Multi-provider communication and care plan management
 - **Automated Follow-up**: Post-visit care instructions and monitoring
 
-## Getting Started
+## Vietnamese Healthcare Getting Started
 
-### Prerequisites (Multi-Agent System)
+### Prerequisites (Vietnamese Healthcare Multi-Agent System)
 - Node.js 22+ with npm/yarn
-- Docker Desktop
+- Docker Desktop with Vietnamese NLP library support
 - PostgreSQL 15+ database (existing CareCircle foundation)
-- Redis 7+ for session management (existing)
-- Vector Database (Milvus/Pinecone) for medical knowledge
-- OpenAI API access
+- Redis 7+ for Vietnamese session management (existing)
+- Milvus Vector Database for Vietnamese medical knowledge
+- OpenAI API access with Vietnamese language support
 - Firebase project (existing)
+- Firecrawl API key for Vietnamese healthcare website crawling
 
-### Multi-Agent System Setup
+### Vietnamese Healthcare Multi-Agent System Setup
 
-1. **Install LangGraph.js Dependencies**
+1. **Install Vietnamese Healthcare Dependencies**
    ```bash
    cd backend
+   # Core LangGraph.js dependencies
    npm install @langchain/core@^0.3.0 @langchain/openai@^0.3.0
    npm install @langchain/langgraph@^0.2.0 @langchain/community@^0.3.0
-   npm install fhir@^4.11.1 @types/fhir@^0.0.37
+
+   # Vietnamese NLP libraries (via Python bridge)
+   npm install python-shell@^5.0.0
+   pip install underthesea==6.7.0 pyvi==0.1.1
+
+   # Firecrawl API integration
+   npm install firecrawl-py@^1.0.0
+
+   # Vietnamese healthcare data processing
    npm install @milvus-io/milvus2-sdk-node@^2.3.0
-   npm install crypto-js@^4.2.0 medical-nlp@^2.1.0
+   npm install crypto-js@^4.2.0
    ```
 
-2. **Configure Healthcare Agent Environment**
+2. **Configure Vietnamese Healthcare Agent Environment**
    ```bash
-   cp .env.example .env.healthcare-agents
-   echo "OPENAI_API_KEY=your_openai_key_here" >> .env.healthcare-agents
-   echo "ENABLE_PHI_DETECTION=true" >> .env.healthcare-agents
-   echo "ENABLE_MULTI_AGENT_ORCHESTRATION=true" >> .env.healthcare-agents
-   echo "VECTOR_DATABASE_URL=your_vector_db_url" >> .env.healthcare-agents
-   echo "FHIR_SERVER_URL=your_fhir_server_url" >> .env.healthcare-agents
+   cp .env.example .env.vietnamese-healthcare-agents
+   echo "OPENAI_API_KEY=your_openai_key_here" >> .env.vietnamese-healthcare-agents
+   echo "FIRECRAWL_API_KEY=your_firecrawl_key_here" >> .env.vietnamese-healthcare-agents
+   echo "ENABLE_VIETNAMESE_NLP=true" >> .env.vietnamese-healthcare-agents
+   echo "ENABLE_VIETNAMESE_MULTI_AGENT_ORCHESTRATION=true" >> .env.vietnamese-healthcare-agents
+   echo "VIETNAMESE_VECTOR_DATABASE_URL=your_milvus_url" >> .env.vietnamese-healthcare-agents
+   echo "VIETNAMESE_HEALTHCARE_CRAWL_SOURCES=vinmec,bachmai,moh" >> .env.vietnamese-healthcare-agents
    ```
 
-3. **Start Healthcare Agent Services**
+3. **Start Vietnamese Healthcare Agent Services**
    ```bash
-   docker-compose -f docker-compose.healthcare.yml up -d
-   npm run start:healthcare-agents
+   docker-compose -f docker-compose.vietnamese-healthcare.yml up -d
+   npm run start:vietnamese-healthcare-agents
    ```
 
-4. **Verify Multi-Agent System**
+4. **Verify Vietnamese Healthcare Multi-Agent System**
    ```bash
-   # Test agent orchestration
-   curl -X POST http://localhost:3001/api/v1/healthcare/chat \
+   # Test Vietnamese medical terminology agent
+   curl -X POST http://localhost:3001/api/v1/vietnamese-healthcare/chat \
      -H "Content-Type: application/json" \
      -H "Authorization: Bearer your_firebase_token" \
-     -d '{"message": "I need help with my medication interactions", "agentType": "medication"}'
+     -d '{"message": "Tôi bị đau đầu và sốt", "agentType": "vietnamese_medical_terminology"}'
 
-   # Test emergency triage
-   curl -X POST http://localhost:3001/api/v1/healthcare/chat \
+   # Test Vietnamese prescription analysis agent
+   curl -X POST http://localhost:3001/api/v1/vietnamese-healthcare/chat \
      -H "Content-Type: application/json" \
      -H "Authorization: Bearer your_firebase_token" \
-     -d '{"message": "I am having severe chest pain", "agentType": "emergency"}'
+     -d '{"message": "Thuốc paracetamol có tương tác với thuốc nam không?", "agentType": "vietnamese_prescription"}'
    ```
 
 ### Integration Architecture
@@ -370,49 +408,62 @@ interface HealthcareDataIntegration {
 - **Agent Handoff System**: Seamless coordination between specialized agents
 - **Enhanced Mobile Interface**: Agent selection and specialized healthcare UI
 
-## Development Approach
+## Vietnamese Healthcare Development Approach
 
-### Multi-Agent Implementation Phases
+### Vietnamese Healthcare Multi-Agent Implementation Phases
 
-#### Phase 1: Infrastructure & Agent Foundation (Weeks 1-2)
-1. **LangGraph.js Setup**: Install and configure agent orchestration framework
-2. **Vector Database**: Set up medical knowledge base with semantic search
-3. **PHI Protection**: Implement advanced HIPAA-compliant data masking
-4. **Agent Base Classes**: Create healthcare agent interfaces and base implementations
+#### Phase 1: Vietnamese Healthcare Infrastructure & Foundation (Weeks 1-2)
+1. **LangGraph.js Vietnamese Setup**: Install and configure Vietnamese agent orchestration framework
+2. **Vietnamese NLP Integration**: Set up underthesea and pyvi libraries for Vietnamese medical text processing
+3. **Firecrawl API Integration**: Configure Vietnamese healthcare website crawling capabilities
+4. **Vietnamese Agent Base Classes**: Create Vietnamese healthcare agent interfaces and cultural context handling
 
-#### Phase 2: Specialized Agent Development (Weeks 3-4)
-1. **Healthcare Supervisor Agent**: Central coordination and routing logic
-2. **Medication Management Agent**: Drug interactions and pharmaceutical intelligence
-3. **Emergency Triage Agent**: Critical care assessment and escalation protocols
-4. **Clinical Decision Support Agent**: Evidence-based medical guidance
+#### Phase 2: Core Vietnamese Healthcare Agents (Weeks 3-4)
+1. **Vietnamese Healthcare Supervisor Agent**: Central coordination with Vietnamese language and cultural context
+2. **Vietnamese Medical Terminology Agent**: Vietnamese medical language processing and traditional medicine integration
+3. **Vietnamese Prescription Analysis Agent**: Vietnamese drug database and traditional medicine compatibility
+4. **Vietnamese Healthcare Data Ingestion Agent**: Firecrawl-powered Vietnamese healthcare website crawling
 
-#### Phase 3: Integration & Testing (Weeks 5-6)
-1. **Agent Handoff System**: Implement seamless coordination between agents
-2. **Mobile Interface Enhancement**: Add agent selection and specialized UI
-3. **FHIR Integration**: Healthcare data interoperability implementation
-4. **Comprehensive Testing**: End-to-end multi-agent workflow validation
+#### Phase 3: Specialized Vietnamese Healthcare Agents (Weeks 5-6)
+1. **Vietnamese Chronic Disease Management Agent**: Local disease patterns and Vietnamese lifestyle integration
+2. **Vietnamese Healthcare Cultural Context Engine**: Traditional medicine and family-centered care integration
+3. **Vietnamese Healthcare Cost Analysis**: Vietnamese market pricing and insurance integration
+4. **Vietnamese Emergency Protocols**: Vietnamese emergency services and cultural emergency response
 
-#### Phase 4: Production Deployment (Weeks 7-8)
-1. **Performance Optimization**: Agent response time and cost optimization
-2. **Security Audit**: HIPAA compliance validation and security testing
-3. **Production Deployment**: Staged rollout with monitoring and alerting
-4. **User Training**: Documentation and training for healthcare staff
+#### Phase 4: Vietnamese Healthcare Integration & Testing (Weeks 7-8)
+1. **Vietnamese Agent Handoff System**: Seamless coordination between Vietnamese healthcare agents
+2. **Vietnamese Mobile Interface**: Vietnamese language UI with cultural healthcare design
+3. **Vietnamese Healthcare Data Pipeline**: Real-time Vietnamese healthcare website data processing
+4. **Vietnamese Healthcare Compliance**: Vietnamese healthcare regulation compliance and testing
 
-## Security & Compliance
+#### Phase 5: Vietnamese Healthcare Production Deployment (Weeks 9-10)
+1. **Vietnamese Healthcare Performance Optimization**: Agent response time optimization for Vietnamese queries
+2. **Vietnamese Healthcare Security Audit**: Vietnamese healthcare compliance validation
+3. **Vietnamese Healthcare Production Deployment**: Staged rollout with Vietnamese healthcare monitoring
+4. **Vietnamese Healthcare User Training**: Documentation and training for Vietnamese healthcare staff
 
-### HIPAA Compliance (Multi-Agent System)
-- **Advanced PHI Detection**: Real-time identification of 18 HIPAA identifiers
-- **Agent-Level Audit Trails**: Comprehensive logging of all agent interactions
-- **Secure Agent Communication**: Encrypted data exchange between agents
-- **Role-Based Agent Access**: Healthcare-specific permissions for agent capabilities
-- **7-Year Data Retention**: Compliant audit trail storage and management
+## Vietnamese Healthcare Security & Compliance
 
-### Healthcare Data Security
-- **FHIR-Compliant Data Handling**: Healthcare interoperability standards
-- **Vector Database Security**: Encrypted medical knowledge storage
-- **Agent State Protection**: Secure conversation context management
-- **Emergency Data Protocols**: Secure handling of critical healthcare information
+### Vietnamese Healthcare Compliance (Multi-Agent System)
+- **Vietnamese PHI Detection**: Real-time identification of Vietnamese personal health information
+- **Vietnamese Agent-Level Audit Trails**: Comprehensive logging of all Vietnamese healthcare agent interactions
+- **Vietnamese Secure Agent Communication**: Encrypted data exchange between Vietnamese healthcare agents
+- **Vietnamese Healthcare Role-Based Access**: Vietnamese healthcare-specific permissions and cultural context
+- **Vietnamese Healthcare Data Retention**: Compliant audit trail storage per Vietnamese healthcare regulations
+
+### Vietnamese Healthcare Data Security
+- **Vietnamese Healthcare Data Handling**: Vietnamese healthcare interoperability standards
+- **Vietnamese Medical Knowledge Security**: Encrypted Vietnamese medical knowledge storage
+- **Vietnamese Agent State Protection**: Secure Vietnamese conversation context management
+- **Vietnamese Emergency Data Protocols**: Secure handling of Vietnamese critical healthcare information
+- **Traditional Medicine Data Security**: Secure handling of thuốc nam (traditional medicine) information
+
+### Firecrawl API Security for Vietnamese Healthcare
+- **Vietnamese Healthcare Website Security**: Secure crawling of Vietnamese healthcare websites
+- **Vietnamese Medical Data Encryption**: End-to-end encryption of crawled Vietnamese medical content
+- **Vietnamese Healthcare API Rate Limiting**: Responsible crawling of Vietnamese healthcare resources
+- **Vietnamese Medical Content Validation**: Verification of crawled Vietnamese healthcare information accuracy
 
 ---
 
-**Important**: This multi-agent system handles Protected Health Information (PHI) and is designed for full HIPAA compliance. All agents implement healthcare-grade security measures and access controls for production healthcare environments.
+**Important**: This Vietnamese healthcare multi-agent system handles Vietnamese Protected Health Information and is designed for Vietnamese healthcare compliance. All agents implement Vietnamese healthcare-grade security measures and cultural context awareness for production Vietnamese healthcare environments.

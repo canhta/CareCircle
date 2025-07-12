@@ -1,33 +1,36 @@
-# CareCircle Multi-Agent Healthcare System Implementation Guide
+# CareCircle Vietnamese Healthcare Multi-Agent System Implementation Guide
 
 ## Overview
 
-This guide provides a comprehensive implementation approach for the CareCircle Multi-Agent Healthcare System using LangGraph.js. The system delivers specialized healthcare intelligence through coordinated agents while maintaining lean MVP principles and healthcare compliance standards.
+This guide provides comprehensive step-by-step instructions for transforming CareCircle's existing lean MVP single-agent architecture into a production-ready, Vietnamese healthcare-focused multi-agent system using LangGraph.js orchestration, Firecrawl API integration, and Vietnamese NLP libraries (underthesea, pyvi). The system delivers specialized Vietnamese healthcare intelligence through culturally-aware agents while maintaining healthcare compliance standards.
 
-## Multi-Agent System Architecture
+## Vietnamese Healthcare Multi-Agent System Architecture
 
-### LangGraph.js Healthcare Agent Structure
+### LangGraph.js Vietnamese Healthcare Agent Structure
 
 ```
 backend/
 ├── src/
-│   ├── ai-assistant/                    # Multi-Agent Healthcare Module
+│   ├── ai-assistant/                    # Vietnamese Healthcare Multi-Agent Module
 │   │   ├── application/
 │   │   │   ├── services/
-│   │   │   │   ├── healthcare-supervisor.service.ts    # LangGraph.js orchestrator
-│   │   │   │   ├── agent-coordinator.service.ts        # Agent handoff management
-│   │   │   │   └── cost-optimizer.service.ts           # Model routing & budgets
+│   │   │   │   ├── vietnamese-healthcare-supervisor.service.ts    # Vietnamese LangGraph.js orchestrator
+│   │   │   │   ├── vietnamese-agent-coordinator.service.ts        # Vietnamese agent handoff management
+│   │   │   │   ├── vietnamese-nlp-processor.service.ts            # underthesea/pyvi integration
+│   │   │   │   ├── firecrawl-vietnamese-healthcare.service.ts     # Vietnamese healthcare website crawling
+│   │   │   │   └── vietnamese-healthcare-cost-optimizer.service.ts # Vietnamese market cost optimization
 │   │   │   └── dto/
-│   │   │       ├── agent-request.dto.ts                # Multi-agent request types
-│   │   │       ├── agent-response.dto.ts               # Coordinated responses
-│   │   │       └── handoff.dto.ts                      # Agent handoff data
+│   │   │       ├── vietnamese-agent-request.dto.ts               # Vietnamese multi-agent request types
+│   │   │       ├── vietnamese-agent-response.dto.ts              # Vietnamese coordinated responses
+│   │   │       ├── vietnamese-healthcare-handoff.dto.ts          # Vietnamese agent handoff data
+│   │   │       └── vietnamese-medical-entity.dto.ts              # Vietnamese medical terminology
 │   │   ├── domain/
-│   │   │   ├── agents/                                 # Specialized Healthcare Agents
-│   │   │   │   ├── healthcare-supervisor.agent.ts      # Primary coordinator
-│   │   │   │   ├── medication-management.agent.ts      # Drug interactions & adherence
-│   │   │   │   ├── emergency-triage.agent.ts           # Critical care assessment
-│   │   │   │   ├── clinical-decision-support.agent.ts  # Evidence-based guidance
-│   │   │   │   └── health-analytics.agent.ts           # Data interpretation
+│   │   │   ├── agents/                                 # Specialized Vietnamese Healthcare Agents
+│   │   │   │   ├── vietnamese-healthcare-supervisor.agent.ts      # Vietnamese primary coordinator
+│   │   │   │   ├── vietnamese-medical-terminology.agent.ts        # Vietnamese medical language processing
+│   │   │   │   ├── vietnamese-prescription-analysis.agent.ts      # Vietnamese drug interactions & traditional medicine
+│   │   │   │   ├── vietnamese-chronic-disease-management.agent.ts # Vietnamese disease patterns & lifestyle
+│   │   │   │   └── vietnamese-healthcare-data-ingestion.agent.ts  # Firecrawl Vietnamese healthcare websites
 │   │   │   ├── entities/
 │   │   │   │   ├── agent-session.entity.ts             # Multi-agent conversation state
 │   │   │   │   ├── healthcare-interaction.entity.ts    # Agent interaction tracking
