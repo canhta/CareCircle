@@ -43,6 +43,7 @@ model UserAccount {
   notificationPreferences NotificationPreference[]
   conversations     Conversation[]
   insights          Insight[]
+  agentSessions     AgentSession[]
 
   @@map("user_accounts")
 }
@@ -668,6 +669,58 @@ model Insight {
   @@map("insights")
 }
 
+model AgentSession {
+  id                String                @id @default(uuid())
+  userId            String
+  patientId         String?
+  sessionType       AgentSessionType
+  status            AgentSessionStatus    @default(ACTIVE)
+
+  // Session metadata (JSON)
+  metadata          Json                  @default("{}")
+
+  // Healthcare context (JSON)
+  healthcareContext Json                  @default("{}")
+
+  createdAt         DateTime              @default(now())
+  updatedAt         DateTime              @updatedAt
+  expiresAt         DateTime
+
+  // Relationships
+  user              UserAccount           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  interactions      AgentInteraction[]
+
+  @@map("agent_sessions")
+}
+
+model AgentInteraction {
+  id                String                @id @default(uuid())
+  sessionId         String
+  agentType         AgentType
+  interactionType   AgentInteractionType
+  userQuery         String
+  agentResponse     String
+  urgencyLevel      UrgencyLevel          @default(ROUTINE)
+
+  // Interaction metadata (JSON)
+  metadata          Json                  @default("{}")
+
+  // Query and response hashes for deduplication
+  queryHash         String
+  responseHash      String
+
+  createdAt         DateTime              @default(now())
+
+  // Relationships
+  session           AgentSession          @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@map("agent_interactions")
+  @@index([sessionId])
+  @@index([agentType])
+  @@index([urgencyLevel])
+  @@index([createdAt])
+}
+
 // =============================================================================
 // ENUMS
 // =============================================================================
@@ -944,6 +997,45 @@ enum InsightCategory {
   RECOMMENDATION
   ALERT
   EDUCATIONAL
+}
+
+// Agent System Enums
+enum AgentSessionType {
+  CONSULTATION
+  MEDICATION
+  EMERGENCY
+  WELLNESS
+  VIETNAMESE_HEALTHCARE
+}
+
+enum AgentSessionStatus {
+  ACTIVE
+  COMPLETED
+  ESCALATED
+  CANCELLED
+}
+
+enum AgentType {
+  SUPERVISOR
+  MEDICATION
+  EMERGENCY
+  CLINICAL
+  VIETNAMESE_MEDICAL
+  HEALTH_ANALYTICS
+}
+
+enum AgentInteractionType {
+  QUERY
+  HANDOFF
+  ESCALATION
+  ANALYSIS
+  RECOMMENDATION
+}
+
+enum UrgencyLevel {
+  ROUTINE
+  URGENT
+  EMERGENCY
 }
 
 // =============================================================================
