@@ -1,85 +1,125 @@
-# CareCircle Multi-Agent AI System Architecture
+# CareCircle Multi-Agent AI System Architecture (2025 Edition)
 
 ## Executive Summary
 
-This document outlines the comprehensive architecture for integrating a sophisticated multi-agent AI system into the CareCircle backend, creating an intelligent healthcare assistant that serves as a lightweight, self-hosted alternative to Dify.ai while maintaining full HIPAA compliance and seamless integration with existing infrastructure.
+This document outlines the state-of-the-art architecture for integrating a sophisticated multi-agent AI system into the CareCircle backend, leveraging the latest LangGraph.js patterns and healthcare AI best practices. The system serves as a production-ready, HIPAA-compliant healthcare assistant with advanced multi-agent orchestration, semantic memory, and containerized deployment.
 
 ## 1. System Overview
 
 ### 1.1 Core Objectives
-- **Multi-turn conversation management** with persistent session state
-- **Personal health data integration** for personalized recommendations
-- **Custom tone adaptation** based on user preferences and healthcare context
-- **Vector database integration** for enhanced medical knowledge retrieval
-- **Multi-model routing** for cost optimization (GPT-4 for complex queries, GPT-3.5 for simple responses)
-- **Healthcare compliance** (HIPAA) throughout implementation
-- **Dual authentication support** (Firebase users + guest demo sessions)
+- **Stateful Multi-Agent Orchestration** with LangGraph.js StateGraph and persistent memory
+- **Healthcare-Specialized Agents** with domain expertise and handoff capabilities
+- **Semantic Memory Integration** with vector database for contextual health insights
+- **Real-time Streaming Responses** with human-in-the-loop workflows
+- **Advanced Cost Optimization** through intelligent model routing and caching
+- **Production-Grade HIPAA Compliance** with comprehensive audit trails
+- **Containerized Deployment** with Docker and Kubernetes orchestration
+- **Dual Authentication Support** (Firebase users + guest demo sessions)
 
 ### 1.2 Architecture Principles
 - **Domain-Driven Design (DDD)** - Maintains existing bounded context patterns
 - **Clean Architecture** - Separation of concerns across layers
 - **Healthcare-First** - HIPAA compliance and patient safety prioritized
-- **Cost-Optimized** - Intelligent model selection and usage monitoring
-- **Scalable** - Horizontal scaling with Redis-based persistence
+- **Container-Native** - Docker-first approach with Kubernetes orchestration
+- **Observable** - Comprehensive monitoring and audit trails
+- **Scalable** - Horizontal scaling with distributed state management
 
-## 2. Multi-Agent Architecture
+## 2. State-of-the-Art Multi-Agent Architecture
 
-### 2.1 Agent Orchestrator (Core Coordinator)
-The central intelligence that manages the entire multi-agent ecosystem:
+### 2.1 LangGraph.js StateGraph Orchestration
+The system leverages LangGraph.js for stateful agent workflows with persistent memory:
 
 ```typescript
-interface AgentOrchestrator {
-  // Route queries to appropriate specialized agents
-  routeQuery(query: string, context: UserContext): Promise<AgentResponse>;
-  
-  // Manage conversation flow and context across agents
-  manageConversationFlow(session: AgentSession): Promise<void>;
-  
-  // Handle multi-model cost optimization
-  optimizeModelSelection(query: QueryAnalysis): ModelConfig;
-  
-  // Maintain session state across agents
-  persistSessionState(session: AgentSession): Promise<void>;
-}
+import { StateGraph, MessagesAnnotation, MemorySaver, START, END } from "@langchain/langgraph";
+import { Command } from "@langchain/langgraph/types";
+
+// Healthcare conversation state with medical context
+const HealthcareStateAnnotation = Annotation.Root({
+  ...MessagesAnnotation.spec,
+  userContext: Annotation<UserHealthContext>(),
+  activeAgent: Annotation<string>(),
+  agentContext: Annotation<Record<string, any>>(),
+  costTracking: Annotation<CostTrackingInfo>(),
+  complianceFlags: Annotation<ComplianceFlag[]>(),
+  emergencyStatus: Annotation<EmergencyStatus>(),
+});
+
+// Multi-agent orchestrator with LangGraph StateGraph
+const healthcareAgentGraph = new StateGraph(HealthcareStateAnnotation)
+  .addNode("supervisor", supervisorAgent)
+  .addNode("healthAdvisor", healthAdvisorAgent)
+  .addNode("medicationAssistant", medicationAssistantAgent)
+  .addNode("emergencyTriage", emergencyTriageAgent)
+  .addNode("dataInterpreter", dataInterpreterAgent)
+  .addNode("careCoordinator", careCoordinatorAgent)
+  .addConditionalEdges("supervisor", routingLogic)
+  .compile({
+    checkpointer: new MemorySaver(), // Production: Redis-based checkpointer
+    interruptBefore: ["emergencyTriage"] // Human-in-the-loop for emergencies
+  });
 ```
 
-### 2.2 Specialized Healthcare Agents
+### 2.2 Healthcare-Specialized Agents with Handoff Capabilities
 
-#### 2.2.1 Health Advisor Agent
-- **Purpose**: General health questions, wellness advice, preventive care
-- **Model Preference**: GPT-3.5-turbo for general queries, GPT-4 for complex health analysis
-- **Integration**: health-data module for personalized recommendations
-- **Capabilities**: Symptom assessment, wellness coaching, health education
+#### 2.2.1 Supervisor Agent (Central Orchestrator)
+```typescript
+import { createReactAgent } from "@langchain/langgraph/prebuilt";
 
-#### 2.2.2 Medication Assistant Agent
-- **Purpose**: Drug interactions, medication reminders, dosage information
-- **Model Preference**: GPT-4 for drug interaction analysis (critical accuracy)
-- **Integration**: medication module for prescription management
-- **Capabilities**: Medication scheduling, interaction checking, adherence support
+const supervisorAgent = createReactAgent({
+  llm: new ChatOpenAI({ model: "gpt-4", temperature: 0.1 }),
+  tools: [
+    transferToHealthAdvisor,
+    transferToMedicationAssistant,
+    transferToEmergencyTriage,
+    transferToDataInterpreter,
+    transferToCareCoordinator
+  ],
+  prompt: `You are a healthcare AI supervisor managing specialized medical agents.
+  Route queries to appropriate specialists based on medical context and urgency.
+  ALWAYS prioritize patient safety and emergency situations.`,
+  name: "supervisor"
+});
+```
 
-#### 2.2.3 Emergency Triage Agent
-- **Purpose**: Urgent health situations, emergency escalation protocols
-- **Model Preference**: GPT-4 (critical accuracy required)
-- **Integration**: notification module for emergency alerts
-- **Capabilities**: Symptom urgency assessment, emergency contact notification
+#### 2.2.2 Health Advisor Agent
+```typescript
+const healthAdvisorAgent = createReactAgent({
+  llm: new ChatOpenAI({ model: "gpt-3.5-turbo", temperature: 0.7 }),
+  tools: [
+    getHealthRecommendations,
+    analyzeSymptoms,
+    transferToEmergencyTriage,
+    transferToMedicationAssistant
+  ],
+  prompt: `You are a knowledgeable healthcare advisor specializing in:
+  - General health and wellness guidance
+  - Symptom assessment and health education
+  - Preventive care recommendations
+  - Lifestyle and wellness coaching
 
-#### 2.2.4 Data Interpreter Agent
-- **Purpose**: Health metrics analysis, trend interpretation, insights generation
-- **Model Preference**: GPT-4 for complex data analysis
-- **Integration**: health-data analytics service
-- **Capabilities**: Trend analysis, anomaly detection, personalized insights
+  IMPORTANT: Always include medical disclaimers and escalate emergencies.`,
+  name: "healthAdvisor"
+});
+```
 
-#### 2.2.5 Care Coordinator Agent
-- **Purpose**: Family/caregiver communication, care plan coordination
-- **Model Preference**: GPT-3.5-turbo for communication tasks
-- **Integration**: care-group module for family coordination
-- **Capabilities**: Care plan updates, family notifications, coordination tasks
-
-#### 2.2.6 Lifestyle Coach Agent
-- **Purpose**: Exercise recommendations, nutrition advice, lifestyle optimization
-- **Model Preference**: GPT-3.5-turbo (sufficient for lifestyle advice)
-- **Integration**: health-data module for activity tracking
-- **Capabilities**: Personalized fitness plans, nutrition guidance, habit formation
+#### 2.2.3 Emergency Triage Agent (Critical Priority)
+```typescript
+const emergencyTriageAgent = createReactAgent({
+  llm: new ChatOpenAI({ model: "gpt-4", temperature: 0.1 }), // Highest accuracy
+  tools: [
+    assessUrgency,
+    triggerEmergencyProtocols,
+    notifyEmergencyContacts,
+    escalateToHealthcareProvider
+  ],
+  prompt: `You are an emergency triage specialist with critical responsibilities:
+  - Immediate assessment of health emergencies
+  - Activation of emergency protocols
+  - Coordination with emergency services
+  - Patient safety is PARAMOUNT - err on the side of caution`,
+  name: "emergencyTriage"
+});
+```
 
 ### 2.3 Supporting Components
 
