@@ -44,6 +44,7 @@ model UserAccount {
   conversations     Conversation[]
   insights          Insight[]
   agentSessions     AgentSession[]
+  hipaaAuditLogs    HIPAAAuditLog[]
 
   @@map("user_accounts")
 }
@@ -1036,6 +1037,47 @@ enum UrgencyLevel {
   ROUTINE
   URGENT
   EMERGENCY
+}
+
+// =============================================================================
+// HIPAA COMPLIANCE & AUDIT LOGGING
+// =============================================================================
+
+model HIPAAAuditLog {
+  id                String   @id @default(uuid())
+  eventType         String   // healthcare_query, agent_interaction, phi_access, emergency_escalation, medication_analysis
+  userId            String
+  agentType         String?
+  queryHash         String   // Hashed version of query for privacy
+  responseHash      String   // Hashed version of response
+  severity          String   // low, medium, high, critical
+  containsPHI       Boolean  @default(false)
+  emergencyFlag     Boolean  @default(false)
+  complianceFlags   String[] // Array of compliance issues/flags
+
+  // Session and tracking metadata
+  sessionId         String?
+  ipAddress         String?
+  userAgent         String?
+  processingTimeMs  Int
+  confidence        Float?
+  escalationReason  String?
+  vietnameseLanguage Boolean? @default(false)
+
+  // Timestamps
+  timestamp         DateTime // When the healthcare interaction occurred
+  createdAt         DateTime @default(now()) // When audit record was created
+  updatedAt         DateTime @updatedAt
+
+  // Relationships
+  userAccount       UserAccount @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("hipaa_audit_logs")
+  @@index([userId, timestamp])
+  @@index([eventType, timestamp])
+  @@index([severity, emergencyFlag])
+  @@index([containsPHI, timestamp])
+  @@index([createdAt]) // For retention policy cleanup
 }
 
 // =============================================================================
