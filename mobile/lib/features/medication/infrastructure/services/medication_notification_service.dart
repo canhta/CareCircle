@@ -428,7 +428,6 @@ class MedicationNotificationService {
           medicationName: 'Medication', // Would need actual medication name
           dosage: '1 dose', // Would need actual dosage
           scheduledTime: snoozeTime,
-          isSnooze: true,
         );
 
         BoundedContextLoggers.medication.info(

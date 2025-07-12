@@ -8,6 +8,8 @@ import '../../../core/navigation/navigation_service.dart';
 import '../../ai-assistant/presentation/screens/ai_assistant_home_screen.dart';
 import '../../medication/presentation/screens/medication_list_screen.dart';
 import '../../health_data/presentation/screens/health_dashboard_screen.dart';
+import '../../notification/presentation/providers/notification_providers.dart';
+import '../../medication/presentation/providers/medication_providers.dart';
 import 'home_screen.dart';
 
 class MainAppShell extends ConsumerStatefulWidget {
@@ -102,27 +104,125 @@ class _MainAppShellState extends ConsumerState<MainAppShell> {
 
   // Healthcare-specific badge and urgency methods
   String? _getHealthDataBadge() {
-    // TODO: Implement health data badge logic
-    // Return number of unread health alerts or null
-    return null;
+    // Get health data related notifications
+    final notificationsAsync = ref.watch(unreadNotificationsProvider);
+
+    return notificationsAsync.when(
+      data: (notifications) {
+        final healthDataNotifications = notifications.where((notification) =>
+          notification.type.toString().contains('health') ||
+          notification.type.toString().contains('vital') ||
+          notification.type.toString().contains('metric')
+        ).length;
+
+        return healthDataNotifications > 0 ? healthDataNotifications.toString() : null;
+      },
+      loading: () => null,
+      error: (error, stackTrace) => null,
+    );
   }
 
   UrgencyLevel _getHealthDataUrgency() {
-    // TODO: Implement health data urgency logic
-    // Check for critical health metrics
-    return UrgencyLevel.none;
+    // Check for critical health data notifications
+    final notificationsAsync = ref.watch(unreadNotificationsProvider);
+
+    return notificationsAsync.when(
+      data: (notifications) {
+        final healthDataNotifications = notifications.where((notification) =>
+          notification.type.toString().contains('health') ||
+          notification.type.toString().contains('vital') ||
+          notification.type.toString().contains('metric')
+        );
+
+        // Check for high priority health notifications
+        final hasHighPriority = healthDataNotifications.any((notification) =>
+          notification.priority.toString().contains('high') ||
+          notification.priority.toString().contains('critical')
+        );
+
+        if (hasHighPriority) return UrgencyLevel.high;
+
+        final hasMediumPriority = healthDataNotifications.any((notification) =>
+          notification.priority.toString().contains('medium')
+        );
+
+        if (hasMediumPriority) return UrgencyLevel.medium;
+
+        return healthDataNotifications.isNotEmpty ? UrgencyLevel.low : UrgencyLevel.none;
+      },
+      loading: () => UrgencyLevel.none,
+      error: (error, stackTrace) => UrgencyLevel.none,
+    );
   }
 
   String? _getMedicationBadge() {
-    // TODO: Implement medication badge logic
-    // Return number of missed medications or null
-    return null;
+    // Get medication related notifications and pending notifications
+    final notificationsAsync = ref.watch(unreadNotificationsProvider);
+    final pendingNotificationsAsync = ref.watch(pendingNotificationsCountProvider);
+
+    return notificationsAsync.when(
+      data: (notifications) {
+        final medicationNotifications = notifications.where((notification) =>
+          notification.type.toString().contains('medication') ||
+          notification.type.toString().contains('dose') ||
+          notification.type.toString().contains('reminder')
+        ).length;
+
+        // Also include pending medication notifications
+        final pendingCount = pendingNotificationsAsync.when(
+          data: (count) => count,
+          loading: () => 0,
+          error: (error, stackTrace) => 0,
+        );
+
+        final totalCount = medicationNotifications + pendingCount;
+        return totalCount > 0 ? totalCount.toString() : null;
+      },
+      loading: () => null,
+      error: (error, stackTrace) => null,
+    );
   }
 
   UrgencyLevel _getMedicationUrgency() {
-    // TODO: Implement medication urgency logic
-    // Check for missed critical medications
-    return UrgencyLevel.none;
+    // Check for critical medication notifications
+    final notificationsAsync = ref.watch(unreadNotificationsProvider);
+
+    return notificationsAsync.when(
+      data: (notifications) {
+        final medicationNotifications = notifications.where((notification) =>
+          notification.type.toString().contains('medication') ||
+          notification.type.toString().contains('dose') ||
+          notification.type.toString().contains('reminder')
+        );
+
+        // Check for critical medication alerts (missed critical medications)
+        final hasCritical = medicationNotifications.any((notification) =>
+          notification.priority.toString().contains('critical') ||
+          notification.priority.toString().contains('emergency') ||
+          notification.title.toLowerCase().contains('missed') ||
+          notification.title.toLowerCase().contains('overdue')
+        );
+
+        if (hasCritical) return UrgencyLevel.critical;
+
+        // Check for high priority medication notifications
+        final hasHigh = medicationNotifications.any((notification) =>
+          notification.priority.toString().contains('high')
+        );
+
+        if (hasHigh) return UrgencyLevel.high;
+
+        final hasMedium = medicationNotifications.any((notification) =>
+          notification.priority.toString().contains('medium')
+        );
+
+        if (hasMedium) return UrgencyLevel.medium;
+
+        return medicationNotifications.isNotEmpty ? UrgencyLevel.low : UrgencyLevel.none;
+      },
+      loading: () => UrgencyLevel.none,
+      error: (error, stackTrace) => UrgencyLevel.none,
+    );
   }
 
   // Healthcare AI Assistant helper methods

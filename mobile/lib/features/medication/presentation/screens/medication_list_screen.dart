@@ -2,7 +2,9 @@ import 'dart:async';
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/design/design_tokens.dart';
+import '../../../../core/logging/bounded_context_loggers.dart';
 import '../../domain/models/models.dart';
 import '../providers/medication_providers.dart';
 import '../providers/performance_providers.dart';
@@ -23,6 +25,8 @@ class MedicationListScreen extends ConsumerStatefulWidget {
 
 class _MedicationListScreenState extends ConsumerState<MedicationListScreen>
     with SingleTickerProviderStateMixin {
+  static final _logger = BoundedContextLoggers.medication;
+
   late TabController _tabController;
   final TextEditingController _searchController = TextEditingController();
   Timer? _searchDebounceTimer;
@@ -360,12 +364,15 @@ class _MedicationListScreenState extends ConsumerState<MedicationListScreen>
   }
 
   void _navigateToMedicationDetail(Medication medication) {
-    // TODO: Navigate to medication detail screen
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Opening ${medication.name} details...'),
-        backgroundColor: CareCircleDesignTokens.primaryMedicalBlue,
-      ),
+    _logger.info('Navigating to medication detail', {
+      'medicationId': medication.id,
+      'medicationName': medication.name,
+      'timestamp': DateTime.now().toIso8601String(),
+    });
+
+    context.pushNamed(
+      'medication-detail',
+      pathParameters: {'id': medication.id},
     );
   }
 

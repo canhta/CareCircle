@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/design/design_tokens.dart';
 import '../../../../core/ai/ai_assistant_config.dart';
+import '../../../../core/logging/logging.dart';
 import '../providers/ai_assistant_providers.dart';
 import '../../domain/models/conversation_models.dart' as models;
 import '../widgets/voice_input_button.dart';
@@ -369,17 +371,7 @@ class _AIAssistantHomeScreenState extends ConsumerState<AIAssistantHomeScreen> {
           ElevatedButton(
             onPressed: () {
               Navigator.of(context).pop();
-              // TODO: Implement emergency calling functionality
-              if (mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text(
-                      'Emergency calling feature will be implemented',
-                    ),
-                    backgroundColor: Colors.red,
-                  ),
-                );
-              }
+              _makeEmergencyCall();
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             child: const Text(
@@ -390,5 +382,46 @@ class _AIAssistantHomeScreenState extends ConsumerState<AIAssistantHomeScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> _makeEmergencyCall() async {
+    try {
+      // Log emergency call attempt for healthcare compliance
+      AppLogger.info('Emergency call initiated from AI Assistant Home', {
+        'timestamp': DateTime.now().toIso8601String(),
+        'source': 'ai_assistant_home_screen',
+      });
+
+      // Determine emergency number based on locale/region
+      // Default to 911 for US, but could be enhanced with location detection
+      const emergencyNumber = '911';
+      final Uri phoneUri = Uri(scheme: 'tel', path: emergencyNumber);
+
+      if (await canLaunchUrl(phoneUri)) {
+        await launchUrl(phoneUri);
+
+        AppLogger.info('Emergency call launched successfully', {
+          'number': emergencyNumber,
+          'timestamp': DateTime.now().toIso8601String(),
+        });
+      } else {
+        throw Exception('Cannot launch phone dialer');
+      }
+    } catch (e) {
+      AppLogger.error('Failed to initiate emergency call', {
+        'error': e.toString(),
+        'timestamp': DateTime.now().toIso8601String(),
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Unable to make emergency call: ${e.toString()}'),
+            backgroundColor: CareCircleDesignTokens.criticalAlert,
+            duration: const Duration(seconds: 5),
+          ),
+        );
+      }
+    }
   }
 }

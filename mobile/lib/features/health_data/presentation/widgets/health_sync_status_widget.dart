@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/design/design_tokens.dart';
 import '../../../../core/logging/bounded_context_loggers.dart';
 import '../../application/providers/health_sync_provider.dart';
+import '../../infrastructure/services/device_health_service.dart';
 
 /// Widget displaying health data sync status and controls
 ///
@@ -16,6 +17,7 @@ class HealthSyncStatusWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final widgetRef = ref; // Capture ref for use in callbacks
     final syncStatus = ref.watch(healthSyncStatusProvider);
     final permissionsAsync = ref.watch(healthSyncPermissionsProvider);
 
@@ -119,13 +121,20 @@ class HealthSyncStatusWidget extends ConsumerWidget {
                   ).textTheme.bodySmall?.copyWith(color: Colors.orange[600]),
                 ),
               ),
-              TextButton(
-                onPressed: () => _requestPermissions(context),
-                style: TextButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  minimumSize: const Size(0, 32),
-                ),
-                child: const Text('Grant'),
+              Builder(
+                builder: (builderContext) {
+                  return TextButton(
+                    onPressed: () async {
+                      final scaffoldMessenger = ScaffoldMessenger.of(builderContext);
+                      await _requestPermissions(builderContext, widgetRef, scaffoldMessenger);
+                    },
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      minimumSize: const Size(0, 32),
+                    ),
+                    child: const Text('Grant'),
+                  );
+                },
               ),
             ],
           );
@@ -238,21 +247,42 @@ class HealthSyncStatusWidget extends ConsumerWidget {
     }
   }
 
-  void _requestPermissions(BuildContext context) async {
+  Future<void> _requestPermissions(
+    BuildContext context,
+    WidgetRef ref,
+    ScaffoldMessengerState scaffoldMessenger,
+  ) async {
     _logger.info('Requesting health permissions from sync status widget');
 
     try {
-      // TODO: Implement permission request through DeviceHealthService
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Permission request coming soon'),
-          backgroundColor: CareCircleDesignTokens.primaryMedicalBlue,
-        ),
-      );
+      final deviceHealthService = ref.read(deviceHealthServiceProvider);
+      final granted = await deviceHealthService.requestPermissions();
+
+      if (granted) {
+        // Refresh permissions state
+        ref.invalidate(healthSyncPermissionsProvider);
+
+        scaffoldMessenger.showSnackBar(
+          const SnackBar(
+            content: Text('Health permissions granted successfully'),
+            backgroundColor: CareCircleDesignTokens.healthGreen,
+          ),
+        );
+      } else {
+        scaffoldMessenger.showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Health permissions were denied. Please grant permissions in Settings.',
+            ),
+            backgroundColor: Colors.orange,
+            duration: Duration(seconds: 4),
+          ),
+        );
+      }
     } catch (e) {
       _logger.error('Failed to request health permissions: $e', e);
 
-      ScaffoldMessenger.of(context).showSnackBar(
+      scaffoldMessenger.showSnackBar(
         SnackBar(
           content: Text('Failed to request permissions: ${e.toString()}'),
           backgroundColor: CareCircleDesignTokens.criticalAlert,

@@ -112,7 +112,7 @@ class _VoiceInputButtonState extends ConsumerState<VoiceInputButton>
         onResult: _onSpeechResult,
         listenFor: const Duration(seconds: 30),
         pauseFor: const Duration(seconds: 3),
-        localeId: 'en_US', // TODO: Support Vietnamese
+        localeId: _getPreferredLocale(),
         listenOptions: stt.SpeechListenOptions(
           partialResults: true,
           cancelOnError: true,
@@ -249,5 +249,19 @@ class _VoiceInputButtonState extends ConsumerState<VoiceInputButton>
           ),
       ],
     );
+  }
+
+  /// Get preferred locale for speech recognition
+  /// Supports English and Vietnamese based on system locale
+  String _getPreferredLocale() {
+    final systemLocale = View.of(context).platformDispatcher.locale;
+
+    // Support Vietnamese if system locale is Vietnamese
+    if (systemLocale.languageCode == 'vi') {
+      return 'vi_VN';
+    }
+
+    // Default to English (US)
+    return 'en_US';
   }
 }

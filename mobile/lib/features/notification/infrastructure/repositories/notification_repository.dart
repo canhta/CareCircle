@@ -569,4 +569,146 @@ class NotificationRepository {
         return Exception('An unexpected error occurred');
     }
   }
+
+  /// Get emergency alerts
+  Future<List<notification_models.EmergencyAlert>> getEmergencyAlerts() async {
+    try {
+      _logger.info('Fetching emergency alerts', {
+        'operation': 'getEmergencyAlerts',
+        'timestamp': DateTime.now().toIso8601String(),
+      });
+
+      final response = await _apiService.getEmergencyAlerts();
+      final alerts = response.data;
+
+      _logger.logHealthDataAccess('Emergency alerts accessed', {
+        'dataType': 'emergency_alerts',
+        'count': alerts.length,
+        'timestamp': DateTime.now().toIso8601String(),
+      });
+
+      return alerts;
+    } on DioException catch (e) {
+      _logger.error('Failed to fetch emergency alerts', {
+        'errorType': e.type.name,
+        'statusCode': e.response?.statusCode,
+        'timestamp': DateTime.now().toIso8601String(),
+      });
+      throw _handleError(e);
+    }
+  }
+
+  /// Create emergency alert
+  Future<notification_models.EmergencyAlert> createEmergencyAlert(
+    notification_models.EmergencyAlert alert,
+  ) async {
+    try {
+      _logger.info('Creating emergency alert', {
+        'operation': 'createEmergencyAlert',
+        'alertType': alert.alertType.name,
+        'severity': alert.severity.name,
+        'timestamp': DateTime.now().toIso8601String(),
+      });
+
+      final request = notification_models.CreateEmergencyAlertRequest(
+        title: alert.title,
+        message: alert.message,
+        alertType: alert.alertType,
+        severity: alert.severity,
+        metadata: alert.metadata,
+      );
+
+      final response = await _apiService.createEmergencyAlert(request);
+      final createdAlert = response.data;
+
+      if (createdAlert == null) {
+        throw Exception('Failed to create emergency alert: No data received');
+      }
+
+      _logger.logHealthDataAccess('Emergency alert created', {
+        'dataType': 'emergency_alert',
+        'alertId': createdAlert.id,
+        'alertType': createdAlert.alertType.name,
+        'severity': createdAlert.severity.name,
+        'timestamp': DateTime.now().toIso8601String(),
+      });
+
+      return createdAlert;
+    } on DioException catch (e) {
+      _logger.error('Failed to create emergency alert', {
+        'errorType': e.type.name,
+        'statusCode': e.response?.statusCode,
+        'timestamp': DateTime.now().toIso8601String(),
+      });
+      throw _handleError(e);
+    }
+  }
+
+  /// Get emergency alert history
+  Future<List<notification_models.EmergencyAlert>> getEmergencyAlertHistory() async {
+    try {
+      _logger.info('Fetching emergency alert history', {
+        'operation': 'getEmergencyAlertHistory',
+        'timestamp': DateTime.now().toIso8601String(),
+      });
+
+      final response = await _apiService.getEmergencyAlertHistory();
+      final alerts = response.data;
+
+      _logger.logHealthDataAccess('Emergency alert history accessed', {
+        'dataType': 'emergency_alert_history',
+        'count': alerts.length,
+        'timestamp': DateTime.now().toIso8601String(),
+      });
+
+      return alerts;
+    } on DioException catch (e) {
+      _logger.error('Failed to fetch emergency alert history', {
+        'errorType': e.type.name,
+        'statusCode': e.response?.statusCode,
+        'timestamp': DateTime.now().toIso8601String(),
+      });
+      throw _handleError(e);
+    }
+  }
+
+  /// Reset notification preferences to defaults
+  Future<void> resetNotificationPreferencesToDefaults() async {
+    try {
+      _logger.info('Resetting notification preferences to defaults', {
+        'operation': 'resetNotificationPreferencesToDefaults',
+        'timestamp': DateTime.now().toIso8601String(),
+      });
+
+      await _apiService.resetNotificationPreferencesToDefaults();
+
+      // Clear preferences cache
+      await _clearPreferencesCache();
+
+      _logger.logHealthDataAccess('Notification preferences reset to defaults', {
+        'dataType': 'notification_preferences',
+        'action': 'reset_to_defaults',
+        'timestamp': DateTime.now().toIso8601String(),
+      });
+    } on DioException catch (e) {
+      _logger.error('Failed to reset notification preferences to defaults', {
+        'errorType': e.type.name,
+        'statusCode': e.response?.statusCode,
+        'timestamp': DateTime.now().toIso8601String(),
+      });
+      throw _handleError(e);
+    }
+  }
+
+  /// Clear preferences cache
+  Future<void> _clearPreferencesCache() async {
+    try {
+      final box = await Hive.openBox<String>('notification_cache');
+      await box.delete(_preferencesCacheKey);
+    } catch (e) {
+      _logger.warning('Failed to clear preferences cache', {
+        'error': e.toString(),
+      });
+    }
+  }
 }

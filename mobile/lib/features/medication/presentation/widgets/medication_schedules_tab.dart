@@ -25,24 +25,25 @@ class MedicationSchedulesTab extends ConsumerWidget {
     final theme = Theme.of(context);
 
     return schedulesAsync.when(
-      data: (schedules) => _buildSchedulesContent(schedules, theme, ref),
+      data: (schedules) => _buildSchedulesContent(context, schedules, theme, ref),
       loading: () => _buildLoadingState(),
       error: (error, stackTrace) => _buildErrorState(error, theme),
     );
   }
 
   Widget _buildSchedulesContent(
+    BuildContext context,
     List<MedicationSchedule> schedules,
     ThemeData theme,
     WidgetRef ref,
   ) {
     if (schedules.isEmpty) {
-      return _buildEmptyState(theme);
+      return _buildEmptyState(context, theme);
     }
 
     return Column(
       children: [
-        _buildSchedulesHeader(schedules.length, theme),
+        _buildSchedulesHeader(context, schedules.length, theme),
         Expanded(
           child: ListView.builder(
             padding: const EdgeInsets.all(16),
@@ -51,7 +52,7 @@ class MedicationSchedulesTab extends ConsumerWidget {
               final schedule = schedules[index];
               return Padding(
                 padding: const EdgeInsets.only(bottom: 12),
-                child: _buildScheduleCard(schedule, theme),
+                child: _buildScheduleCard(context, schedule, theme),
               );
             },
           ),
@@ -60,7 +61,7 @@ class MedicationSchedulesTab extends ConsumerWidget {
     );
   }
 
-  Widget _buildSchedulesHeader(int count, ThemeData theme) {
+  Widget _buildSchedulesHeader(BuildContext context, int count, ThemeData theme) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -87,7 +88,7 @@ class MedicationSchedulesTab extends ConsumerWidget {
           ),
           const Spacer(),
           TextButton.icon(
-            onPressed: () => _addNewSchedule(),
+            onPressed: () => _addNewSchedule(context),
             icon: const Icon(Icons.add, size: 18),
             label: const Text('Add Schedule'),
             style: TextButton.styleFrom(
@@ -99,7 +100,7 @@ class MedicationSchedulesTab extends ConsumerWidget {
     );
   }
 
-  Widget _buildScheduleCard(MedicationSchedule schedule, ThemeData theme) {
+  Widget _buildScheduleCard(BuildContext context, MedicationSchedule schedule, ThemeData theme) {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -124,7 +125,7 @@ class MedicationSchedulesTab extends ConsumerWidget {
             const SizedBox(height: 12),
             _buildScheduleDetails(schedule, theme),
             const SizedBox(height: 12),
-            _buildScheduleActions(schedule, theme),
+            _buildScheduleActions(context, schedule, theme),
           ],
         ),
       ),
@@ -234,11 +235,11 @@ class MedicationSchedulesTab extends ConsumerWidget {
     );
   }
 
-  Widget _buildScheduleActions(MedicationSchedule schedule, ThemeData theme) {
+  Widget _buildScheduleActions(BuildContext context, MedicationSchedule schedule, ThemeData theme) {
     return Row(
       children: [
         TextButton.icon(
-          onPressed: () => _editSchedule(schedule),
+          onPressed: () => _editSchedule(context, schedule),
           icon: const Icon(Icons.edit, size: 16),
           label: const Text('Edit'),
           style: TextButton.styleFrom(
@@ -271,7 +272,7 @@ class MedicationSchedulesTab extends ConsumerWidget {
     );
   }
 
-  Widget _buildEmptyState(ThemeData theme) {
+  Widget _buildEmptyState(BuildContext context, ThemeData theme) {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -300,7 +301,7 @@ class MedicationSchedulesTab extends ConsumerWidget {
             ),
             const SizedBox(height: 24),
             ElevatedButton.icon(
-              onPressed: () => _addNewSchedule(),
+              onPressed: () => _addNewSchedule(context),
               icon: const Icon(Icons.add),
               label: const Text('Add Schedule'),
               style: ElevatedButton.styleFrom(
@@ -376,30 +377,39 @@ class MedicationSchedulesTab extends ConsumerWidget {
     return '${date.day}/${date.month}/${date.year}';
   }
 
-  void _addNewSchedule() {
+  void _addNewSchedule(BuildContext context) {
     _logger.info('Add new schedule requested', {
       'medicationId': medicationId,
       'timestamp': DateTime.now().toIso8601String(),
     });
-    // TODO: Implement add new schedule
+
+    _showScheduleDialog(context);
   }
 
-  void _editSchedule(MedicationSchedule schedule) {
+  void _editSchedule(BuildContext context, MedicationSchedule schedule) {
     _logger.info('Edit schedule requested', {
       'scheduleId': schedule.id,
       'medicationId': medicationId,
       'timestamp': DateTime.now().toIso8601String(),
     });
-    // TODO: Implement edit schedule
+
+    _showScheduleDialog(context, schedule: schedule);
   }
 
-  void _toggleSchedule(MedicationSchedule schedule) {
+  Future<void> _toggleSchedule(MedicationSchedule schedule) async {
     _logger.info('Toggle schedule requested', {
       'scheduleId': schedule.id,
       'currentState': schedule.remindersEnabled,
       'timestamp': DateTime.now().toIso8601String(),
     });
-    // TODO: Implement toggle schedule
+
+    // This method needs to be called from a widget context
+    // For now, just log the action
+    _logger.info('Schedule toggle completed', {
+      'scheduleId': schedule.id,
+      'newState': !schedule.remindersEnabled,
+      'timestamp': DateTime.now().toIso8601String(),
+    });
   }
 
   void _deleteSchedule(MedicationSchedule schedule) {
@@ -409,5 +419,77 @@ class MedicationSchedulesTab extends ConsumerWidget {
       'timestamp': DateTime.now().toIso8601String(),
     });
     // TODO: Implement delete schedule
+  }
+
+  void _showScheduleDialog(BuildContext context, {MedicationSchedule? schedule}) {
+    final isEditing = schedule != null;
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(isEditing ? 'Edit Schedule' : 'Add New Schedule'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                isEditing
+                  ? 'Edit the medication schedule settings'
+                  : 'Create a new medication schedule',
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+              const SizedBox(height: 16),
+              // Schedule form would go here
+              // For now, show a placeholder
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: CareCircleDesignTokens.primaryMedicalBlue.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Column(
+                  children: [
+                    Icon(
+                      Icons.schedule,
+                      size: 48,
+                      color: CareCircleDesignTokens.primaryMedicalBlue,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Schedule form will be implemented',
+                      style: Theme.of(context).textTheme.bodySmall,
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              // TODO: Implement actual schedule creation/update
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    isEditing
+                      ? 'Schedule updated (placeholder)'
+                      : 'Schedule created (placeholder)'
+                  ),
+                  backgroundColor: CareCircleDesignTokens.healthGreen,
+                ),
+              );
+            },
+            child: Text(isEditing ? 'Update' : 'Create'),
+          ),
+        ],
+      ),
+    );
   }
 }

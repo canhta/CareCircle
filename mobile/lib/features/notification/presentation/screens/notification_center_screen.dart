@@ -513,7 +513,9 @@ class _NotificationCenterScreenState
           ),
           ElevatedButton(
             onPressed: () async {
-              Navigator.of(context).pop();
+              final navigator = Navigator.of(context);
+              final scaffoldMessenger = ScaffoldMessenger.of(context);
+              navigator.pop();
 
               try {
                 // Delete the notification using the provider
@@ -521,14 +523,12 @@ class _NotificationCenterScreenState
                     .deleteNotification(notification.id);
 
                 // Show success message
-                if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Notification deleted'),
-                      backgroundColor: CareCircleDesignTokens.healthGreen,
-                    ),
-                  );
-                }
+                scaffoldMessenger.showSnackBar(
+                  SnackBar(
+                    content: Text('Notification deleted'),
+                    backgroundColor: CareCircleDesignTokens.healthGreen,
+                  ),
+                );
               } catch (e) {
                 _logger.error('Failed to delete notification', {
                   'notificationId': notification.id,
@@ -536,14 +536,12 @@ class _NotificationCenterScreenState
                   'timestamp': DateTime.now().toIso8601String(),
                 });
 
-                if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Failed to delete notification'),
-                      backgroundColor: CareCircleDesignTokens.criticalAlert,
-                    ),
-                  );
-                }
+                scaffoldMessenger.showSnackBar(
+                  SnackBar(
+                    content: Text('Failed to delete notification'),
+                    backgroundColor: CareCircleDesignTokens.criticalAlert,
+                  ),
+                );
               }
             },
             style: ElevatedButton.styleFrom(
@@ -588,7 +586,9 @@ class _NotificationCenterScreenState
           ),
           ElevatedButton(
             onPressed: () async {
-              Navigator.of(context).pop();
+              final navigator = Navigator.of(context);
+              final scaffoldMessenger = ScaffoldMessenger.of(context);
+              navigator.pop();
 
               try {
                 // Mark all notifications as read using the provider
@@ -596,28 +596,24 @@ class _NotificationCenterScreenState
                     .markAllAsRead();
 
                 // Show success message
-                if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('All notifications marked as read'),
-                      backgroundColor: CareCircleDesignTokens.healthGreen,
-                    ),
-                  );
-                }
+                scaffoldMessenger.showSnackBar(
+                  SnackBar(
+                    content: Text('All notifications marked as read'),
+                    backgroundColor: CareCircleDesignTokens.healthGreen,
+                  ),
+                );
               } catch (e) {
                 _logger.error('Failed to mark all notifications as read', {
                   'error': e.toString(),
                   'timestamp': DateTime.now().toIso8601String(),
                 });
 
-                if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Failed to mark all notifications as read'),
-                      backgroundColor: CareCircleDesignTokens.criticalAlert,
-                    ),
-                  );
-                }
+                scaffoldMessenger.showSnackBar(
+                  SnackBar(
+                    content: Text('Failed to mark all notifications as read'),
+                    backgroundColor: CareCircleDesignTokens.criticalAlert,
+                  ),
+                );
               }
             },
             child: Text('Mark All Read'),
