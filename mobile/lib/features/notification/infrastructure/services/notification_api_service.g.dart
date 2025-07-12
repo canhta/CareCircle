@@ -301,13 +301,13 @@ class _NotificationApiService implements NotificationApiService {
   }
 
   @override
-  Future<NotificationListResponse> markAllAsRead() async {
+  Future<NotificationResponse> markAllAsRead() async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<NotificationListResponse>(
-      Options(method: 'POST', headers: _headers, extra: _extra)
+    final _options = _setStreamType<NotificationResponse>(
+      Options(method: 'PUT', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
             '/notifications/mark-all-read',
@@ -317,9 +317,9 @@ class _NotificationApiService implements NotificationApiService {
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late NotificationListResponse _value;
+    late NotificationResponse _value;
     try {
-      _value = NotificationListResponse.fromJson(_result.data!);
+      _value = NotificationResponse.fromJson(_result.data!);
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options);
       rethrow;

@@ -58,6 +58,26 @@ export class NotificationService {
     return this.notificationRepository.markAsRead(id);
   }
 
+  async markAllAsRead(userId: string): Promise<number> {
+    // Get all unread notifications for the user
+    const unreadNotifications = await this.notificationRepository.findUnread(userId);
+
+    let markedCount = 0;
+
+    // Mark each notification as read
+    for (const notification of unreadNotifications) {
+      try {
+        await this.notificationRepository.markAsRead(notification.id);
+        markedCount++;
+      } catch (error) {
+        // Log error but continue with other notifications
+        console.error(`Failed to mark notification ${notification.id} as read:`, error);
+      }
+    }
+
+    return markedCount;
+  }
+
   async markAsDelivered(id: string): Promise<Notification> {
     const _notification = await this.findById(id);
     return this.notificationRepository.markAsDelivered(id);

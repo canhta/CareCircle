@@ -218,7 +218,7 @@ abstract class MedicationApiService {
     @Body() InteractionCheckRequest request,
   );
 
-  @GET('/drug-interactions/user-medications')
+  @GET('/drug-interactions/check-user-medications')
   Future<InteractionAnalysisResponse> checkUserMedicationInteractions();
 
   @POST('/drug-interactions/rxnorm/search')

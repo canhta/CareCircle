@@ -226,6 +226,39 @@ class NotificationNotifier
     }
   }
 
+  /// Mark all notifications as read
+  Future<void> markAllAsRead() async {
+    try {
+      await _repository.markAllAsRead();
+
+      // Update local state to mark all as read
+      state = state.whenData((notifications) {
+        return notifications.map((notification) {
+          if (notification.readAt == null) {
+            return notification.copyWith(
+              readAt: DateTime.now(),
+            );
+          }
+          return notification;
+        }).toList();
+      });
+
+      // Invalidate related providers
+      _ref.invalidate(unreadNotificationsProvider);
+      _ref.invalidate(notificationSummaryProvider);
+
+      _logger.info('All notifications marked as read', {
+        'timestamp': DateTime.now().toIso8601String(),
+      });
+    } catch (error) {
+      _logger.error('Failed to mark all notifications as read', {
+        'error': error.toString(),
+        'timestamp': DateTime.now().toIso8601String(),
+      });
+      rethrow;
+    }
+  }
+
   /// Refresh notifications
   Future<void> refresh() async {
     await loadNotifications(forceRefresh: true);

@@ -60,8 +60,8 @@ abstract class NotificationApiService {
   @DELETE('/notifications/{id}')
   Future<NotificationResponse> deleteNotification(@Path('id') String id);
 
-  @POST('/notifications/mark-all-read')
-  Future<NotificationListResponse> markAllAsRead();
+  @PUT('/notifications/mark-all-read')
+  Future<NotificationResponse> markAllAsRead();
 
   @DELETE('/notifications/clear-all')
   Future<NotificationListResponse> clearAllNotifications();

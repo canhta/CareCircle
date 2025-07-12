@@ -495,11 +495,65 @@ class _NotificationCenterScreenState
   void _handleDeleteNotification(
     notification_models.Notification notification,
   ) {
-    // TODO: Implement delete notification
     _logger.info('Delete notification requested', {
       'notificationId': notification.id,
       'timestamp': DateTime.now().toIso8601String(),
     });
+
+    // Show confirmation dialog
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Delete Notification'),
+        content: Text('Are you sure you want to delete this notification?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.of(context).pop();
+
+              try {
+                // Delete the notification using the provider
+                await ref.read(notificationNotifierProvider.notifier)
+                    .deleteNotification(notification.id);
+
+                // Show success message
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Notification deleted'),
+                      backgroundColor: CareCircleDesignTokens.healthGreen,
+                    ),
+                  );
+                }
+              } catch (e) {
+                _logger.error('Failed to delete notification', {
+                  'notificationId': notification.id,
+                  'error': e.toString(),
+                  'timestamp': DateTime.now().toIso8601String(),
+                });
+
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Failed to delete notification'),
+                      backgroundColor: CareCircleDesignTokens.criticalAlert,
+                    ),
+                  );
+                }
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: CareCircleDesignTokens.criticalAlert,
+            ),
+            child: Text('Delete'),
+          ),
+        ],
+      ),
+    );
   }
 
   void _handleMenuAction(String action) {
@@ -517,10 +571,60 @@ class _NotificationCenterScreenState
   }
 
   void _handleMarkAllRead() {
-    // TODO: Implement mark all as read
     _logger.info('Mark all read requested', {
       'timestamp': DateTime.now().toIso8601String(),
     });
+
+    // Show confirmation dialog
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Mark All as Read'),
+        content: Text('Are you sure you want to mark all notifications as read?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.of(context).pop();
+
+              try {
+                // Mark all notifications as read using the provider
+                await ref.read(notificationNotifierProvider.notifier)
+                    .markAllAsRead();
+
+                // Show success message
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('All notifications marked as read'),
+                      backgroundColor: CareCircleDesignTokens.healthGreen,
+                    ),
+                  );
+                }
+              } catch (e) {
+                _logger.error('Failed to mark all notifications as read', {
+                  'error': e.toString(),
+                  'timestamp': DateTime.now().toIso8601String(),
+                });
+
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Failed to mark all notifications as read'),
+                      backgroundColor: CareCircleDesignTokens.criticalAlert,
+                    ),
+                  );
+                }
+              }
+            },
+            child: Text('Mark All Read'),
+          ),
+        ],
+      ),
+    );
   }
 
   void _handleClearAll() {

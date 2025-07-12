@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/design/design_tokens.dart';
 import '../../../../core/logging/bounded_context_loggers.dart';
 import '../../domain/models/models.dart';
+import '../../infrastructure/services/medication_api_service.dart';
 
 /// Overview tab for medication detail screen
 ///
@@ -111,7 +113,7 @@ class MedicationOverviewTab extends ConsumerWidget {
                   'Add Schedule',
                   Icons.schedule,
                   CareCircleDesignTokens.primaryMedicalBlue,
-                  () => _addSchedule(),
+                  () => _addSchedule(context),
                   theme,
                 ),
               ),
@@ -125,7 +127,7 @@ class MedicationOverviewTab extends ConsumerWidget {
                   'Check Interactions',
                   Icons.warning_amber,
                   Colors.orange,
-                  () => _checkInteractions(),
+                  () => _checkInteractions(context),
                   theme,
                 ),
               ),
@@ -135,7 +137,7 @@ class MedicationOverviewTab extends ConsumerWidget {
                   'View History',
                   Icons.history,
                   theme.colorScheme.primary,
-                  () => _viewHistory(),
+                  () => _viewHistory(context),
                   theme,
                 ),
               ),
@@ -374,31 +376,178 @@ class MedicationOverviewTab extends ConsumerWidget {
     );
   }
 
-  void _addSchedule() {
+  void _addSchedule(BuildContext context) {
     _logger.info('Add schedule action triggered', {
       'medicationId': medication.id,
       'medicationName': medication.name,
       'timestamp': DateTime.now().toIso8601String(),
     });
-    // TODO: Implement add schedule functionality
+
+    // Navigate to schedule management screen for this medication
+    context.push('/medication/schedule/add', extra: {
+      'medicationId': medication.id,
+      'medicationName': medication.name,
+    });
   }
 
-  void _checkInteractions() {
+  void _checkInteractions(BuildContext context) {
     _logger.info('Check interactions action triggered', {
       'medicationId': medication.id,
       'medicationName': medication.name,
       'timestamp': DateTime.now().toIso8601String(),
     });
-    // TODO: Implement check interactions functionality
+
+    // Show drug interactions dialog with real API data
+    _showInteractionsDialog(context);
   }
 
-  void _viewHistory() {
+  void _viewHistory(BuildContext context) {
     _logger.info('View history action triggered', {
       'medicationId': medication.id,
       'medicationName': medication.name,
       'timestamp': DateTime.now().toIso8601String(),
     });
-    // TODO: Implement view history functionality
+
+    // Navigate to adherence dashboard filtered for this medication
+    context.push('/medication/adherence', extra: {
+      'medicationId': medication.id,
+      'medicationName': medication.name,
+    });
+  }
+
+  /// Show drug interactions dialog with real API data
+  void _showInteractionsDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => Consumer(
+        builder: (context, ref, child) {
+          return AlertDialog(
+            title: Row(
+              children: [
+                Icon(
+                  Icons.warning_amber_rounded,
+                  color: Colors.orange,
+                  size: 24,
+                ),
+                SizedBox(width: CareCircleSpacingTokens.sm),
+                Text('Drug Interactions'),
+              ],
+            ),
+            content: FutureBuilder(
+              future: ref.read(medicationApiServiceProvider).checkUserMedicationInteractions(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      CircularProgressIndicator(),
+                      SizedBox(height: CareCircleSpacingTokens.md),
+                      Text(
+                        'Checking interactions for ${medication.name}...',
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                    ],
+                  );
+                }
+
+                if (snapshot.hasError) {
+                  return Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.error_outline,
+                        color: CareCircleDesignTokens.criticalAlert,
+                        size: 48,
+                      ),
+                      SizedBox(height: CareCircleSpacingTokens.md),
+                      Text(
+                        'Failed to check interactions. Please try again.',
+                        style: Theme.of(context).textTheme.bodyMedium,
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  );
+                }
+
+                final interactionResponse = snapshot.data;
+                final interactionData = interactionResponse?.data;
+                final hasInteractions = interactionData?.hasContraindications ?? false;
+
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      padding: EdgeInsets.all(CareCircleSpacingTokens.md),
+                      decoration: BoxDecoration(
+                        color: hasInteractions
+                            ? Colors.orange.withOpacity(0.1)
+                            : CareCircleDesignTokens.healthGreen.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(CareCircleSpacingTokens.sm),
+                        border: Border.all(
+                          color: hasInteractions
+                              ? Colors.orange.withOpacity(0.3)
+                              : CareCircleDesignTokens.healthGreen.withOpacity(0.3),
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            hasInteractions ? Icons.warning : Icons.check_circle,
+                            color: hasInteractions
+                                ? Colors.orange
+                                : CareCircleDesignTokens.healthGreen,
+                            size: 20,
+                          ),
+                          SizedBox(width: CareCircleSpacingTokens.sm),
+                          Expanded(
+                            child: Text(
+                              hasInteractions
+                                  ? '${interactionData?.totalInteractions ?? 0} potential interaction(s) found.'
+                                  : 'No known interactions found with your current medications.',
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: hasInteractions
+                                    ? Colors.orange
+                                    : CareCircleDesignTokens.healthGreen,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: CareCircleSpacingTokens.sm),
+                    Text(
+                      'Always consult your healthcare provider before making changes to your medication regimen.',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        fontStyle: FontStyle.italic,
+                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text('Close'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  // Navigate to detailed interactions screen
+                  context.push('/drug-interactions');
+                  _logger.info('Detailed interactions requested', {
+                    'medicationId': medication.id,
+                  });
+                },
+                child: Text('View Details'),
+              ),
+            ],
+          );
+        },
+      ),
+    );
   }
 }
 

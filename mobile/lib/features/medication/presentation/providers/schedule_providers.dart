@@ -64,18 +64,42 @@ final todayScheduledDosesProvider = FutureProvider<List<MedicationSchedule>>((
 ) async {
   final activeSchedules = await ref.read(activeSchedulesProvider.future);
   final today = DateTime.now();
+  final todayStart = DateTime(today.year, today.month, today.day);
+  final todayEnd = todayStart.add(const Duration(days: 1));
 
-  // For now, just return today's active schedules
-  // TODO: Implement proper dose generation when ScheduledDose model is available
+  // Filter schedules that are active today
+  final todaySchedules = activeSchedules.where((schedule) {
+    // Check if schedule is active today
+    final scheduleStart = DateTime(
+      schedule.startDate.year,
+      schedule.startDate.month,
+      schedule.startDate.day,
+    );
+
+    final scheduleEnd = schedule.endDate != null
+        ? DateTime(
+            schedule.endDate!.year,
+            schedule.endDate!.month,
+            schedule.endDate!.day,
+          ).add(const Duration(days: 1))
+        : null;
+
+    // Schedule should start before or on today and end after today (or no end date)
+    final isActiveToday = scheduleStart.isBefore(todayEnd) &&
+        (scheduleEnd == null || scheduleEnd.isAfter(todayStart));
+
+    return isActiveToday;
+  }).toList();
 
   _logger.info('Generated today\'s scheduled doses', {
     'operation': 'getTodayScheduledDoses',
     'date': today.toIso8601String().split('T')[0],
-    'scheduleCount': activeSchedules.length,
+    'totalSchedules': activeSchedules.length,
+    'todaySchedules': todaySchedules.length,
     'timestamp': DateTime.now().toIso8601String(),
   });
 
-  return activeSchedules;
+  return todaySchedules;
 });
 
 /// Provider for schedule management operations

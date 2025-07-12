@@ -210,6 +210,52 @@ class NavigationService {
     navigateTo(context, route);
   }
 
+  /// Navigate to medication details screen
+  static void navigateToMedicationDetails(
+    BuildContext context,
+    String medicationId,
+  ) {
+    final route = '/medication/detail/$medicationId';
+
+    _logger.logNavigationEvent('Medication details navigation initiated', {
+      'route': route,
+      'medicationId': medicationId,
+      'timestamp': DateTime.now().toIso8601String(),
+    });
+
+    navigateTo(context, route);
+  }
+
+  /// Navigate to notification center
+  static void navigateToNotificationCenter(BuildContext context) {
+    const route = '/notifications';
+
+    _logger.logNavigationEvent('Notification center navigation initiated', {
+      'route': route,
+      'timestamp': DateTime.now().toIso8601String(),
+    });
+
+    navigateTo(context, route);
+  }
+
+  /// Navigate to emergency alert screen
+  static void navigateToEmergencyAlert(
+    BuildContext context, {
+    String? alertId,
+  }) {
+    final route = alertId != null
+        ? '/notifications/emergency-alerts?alertId=$alertId'
+        : '/notifications/emergency-alerts';
+
+    _logger.logNavigationEvent('Emergency alert navigation initiated', {
+      'route': route,
+      'hasAlertId': alertId != null,
+      'timestamp': DateTime.now().toIso8601String(),
+    });
+
+    navigateTo(context, route);
+  }
+
   /// Log deep link navigation
   static void logDeepLinkNavigation(
     String deepLink, {

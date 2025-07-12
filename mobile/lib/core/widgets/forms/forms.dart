@@ -5,6 +5,4 @@
 export 'healthcare_form_field.dart';
 export 'medical_date_picker.dart';
 export 'dosage_input_field.dart';
-
-// TODO: Add exports for additional form components as they are implemented:
-// export 'symptom_severity_slider.dart';
+export 'symptom_severity_slider.dart';

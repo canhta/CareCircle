@@ -1,7 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/logging/bounded_context_loggers.dart';
 import '../../domain/models/models.dart';
-import '../../infrastructure/repositories/medication_repository.dart';
+import '../../infrastructure/repositories/medication_repository.dart' as repo;
+import '../../infrastructure/repositories/prescription_repository.dart';
+import '../../infrastructure/services/medication_api_service.dart';
 import '../../infrastructure/services/medication_notification_service.dart';
 
 // Healthcare-compliant logger for medication context
@@ -9,13 +11,13 @@ final _logger = BoundedContextLoggers.medication;
 
 /// Provider for user medications list
 final medicationsProvider = FutureProvider<List<Medication>>((ref) async {
-  final repository = ref.read(medicationRepositoryProvider);
+  final repository = ref.read(repo.medicationRepositoryProvider);
   return repository.getMedications();
 });
 
 /// Provider for active medications only
 final activeMedicationsProvider = FutureProvider<List<Medication>>((ref) async {
-  final repository = ref.read(medicationRepositoryProvider);
+  final repository = ref.read(repo.medicationRepositoryProvider);
   return repository.getMedications(
     params: const MedicationQueryParams(isActive: true),
   );
@@ -25,7 +27,7 @@ final activeMedicationsProvider = FutureProvider<List<Medication>>((ref) async {
 final inactiveMedicationsProvider = FutureProvider<List<Medication>>((
   ref,
 ) async {
-  final repository = ref.read(medicationRepositoryProvider);
+  final repository = ref.read(repo.medicationRepositoryProvider);
   return repository.getMedications(
     params: const MedicationQueryParams(isActive: false),
   );
@@ -36,24 +38,24 @@ final medicationProvider = FutureProvider.family<Medication?, String>((
   ref,
   id,
 ) async {
-  final repository = ref.read(medicationRepositoryProvider);
+  final repository = ref.read(repo.medicationRepositoryProvider);
   return repository.getMedicationById(id);
 });
 
-// TODO: Implement these providers when additional repository methods are added
-// /// Provider for medication search results
-// final medicationSearchProvider = FutureProvider.family<List<Medication>, String>((ref, searchTerm) async {
-//   if (searchTerm.isEmpty) return [];
-//
-//   final repository = ref.read(medicationRepositoryProvider);
-//   return repository.searchMedications(searchTerm, limit: 20);
-// });
+/// Provider for medication search results
+final medicationSearchProvider = FutureProvider.family<List<Medication>, String>((ref, searchTerm) async {
+  if (searchTerm.isEmpty) return [];
 
-// /// Provider for user prescriptions
-// final prescriptionsProvider = FutureProvider<List<Prescription>>((ref) async {
-//   final repository = ref.read(medicationRepositoryProvider);
-//   return repository.getUserPrescriptions();
-// });
+  final apiService = ref.read(medicationApiServiceProvider);
+  final response = await apiService.searchMedications(searchTerm, 20);
+  return response.data;
+});
+
+/// Provider for user prescriptions
+final prescriptionsProvider = FutureProvider<List<Prescription>>((ref) async {
+  final repository = ref.read(prescriptionRepositoryProvider);
+  return repository.getPrescriptions();
+});
 
 // /// Provider for adherence records
 // final adherenceRecordsProvider = FutureProvider<List<AdherenceRecord>>((ref) async {
@@ -88,7 +90,7 @@ final medicationActiveFilterProvider = StateProvider<bool?>((ref) => null);
 
 /// Notifier for medication CRUD operations
 class MedicationNotifier extends StateNotifier<AsyncValue<List<Medication>>> {
-  final MedicationRepository _repository;
+  final repo.MedicationRepository _repository;
   final Ref _ref;
 
   MedicationNotifier(this._repository, this._ref)
@@ -221,7 +223,7 @@ final medicationNotifierProvider =
     StateNotifierProvider<MedicationNotifier, AsyncValue<List<Medication>>>((
       ref,
     ) {
-      final repository = ref.read(medicationRepositoryProvider);
+      final repository = ref.read(repo.medicationRepositoryProvider);
       return MedicationNotifier(repository, ref);
     });
 

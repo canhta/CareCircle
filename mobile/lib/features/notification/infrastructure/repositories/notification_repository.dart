@@ -213,6 +213,36 @@ class NotificationRepository {
     }
   }
 
+
+
+  /// Mark all notifications as read
+  Future<void> markAllAsRead() async {
+    try {
+      _logger.info('Marking all notifications as read', {
+        'operation': 'markAllAsRead',
+        'timestamp': DateTime.now().toIso8601String(),
+      });
+
+      await _apiService.markAllAsRead();
+
+      // Clear cache to force refresh
+      await _clearNotificationCache();
+
+      _logger.logHealthDataAccess('All notifications marked as read', {
+        'dataType': 'notification_bulk_operation',
+        'action': 'mark_all_read',
+        'timestamp': DateTime.now().toIso8601String(),
+      });
+    } on DioException catch (e) {
+      _logger.error('Failed to mark all notifications as read', {
+        'errorType': e.type.name,
+        'statusCode': e.response?.statusCode,
+        'timestamp': DateTime.now().toIso8601String(),
+      });
+      throw _handleError(e);
+    }
+  }
+
   /// Create new notification with comprehensive validation and error handling
   Future<notification_models.Notification> createNotification(
     notification_models.CreateNotificationRequest request,

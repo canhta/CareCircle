@@ -1248,7 +1248,7 @@ class _MedicationApiService implements MedicationApiService {
       Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/drug-interactions/user-medications',
+            '/drug-interactions/check-user-medications',
             queryParameters: queryParameters,
             data: _data,
           )

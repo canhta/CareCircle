@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     as local_notifications;
+import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../../../core/logging/bounded_context_loggers.dart';
 import '../../../../core/design/design_tokens.dart';
@@ -230,13 +231,19 @@ class FCMService {
   /// Register FCM token with backend
   Future<void> _registerToken(String token) async {
     try {
+      // Get app version from package info
+      final packageInfo = await PackageInfo.fromPlatform();
+
       await _apiService.registerFcmToken({
         'token': token,
         'platform': Platform.isIOS ? 'ios' : 'android',
-        'appVersion': '1.0.0', // TODO: Get from package info
+        'appVersion': packageInfo.version,
+        'buildNumber': packageInfo.buildNumber,
       });
 
       _logger.info('FCM token registered with backend', {
+        'appVersion': packageInfo.version,
+        'buildNumber': packageInfo.buildNumber,
         'timestamp': DateTime.now().toIso8601String(),
       });
     } catch (e) {
@@ -453,30 +460,35 @@ class FCMService {
             // Navigate to medication details
             final medicationId = data['medicationId'] as String?;
             if (medicationId != null) {
-              // TODO: Navigate to medication details screen
-              _logger.info('Opening medication details', {
+              await _storePendingNavigation('/medication/detail/$medicationId');
+              _logger.info('Stored navigation to medication details', {
                 'medicationId': medicationId,
+                'route': '/medication/detail/$medicationId',
               });
             }
             break;
           case 'open_notifications':
             // Navigate to notification center
-            // TODO: Navigate to notification center
-            _logger.info('Opening notification center');
+            await _storePendingNavigation('/notifications');
+            _logger.info('Stored navigation to notification center');
             break;
           case 'emergency_action':
             // Handle emergency action
             final alertId = data['alertId'] as String?;
             if (alertId != null) {
-              // TODO: Handle emergency alert action
-              _logger.info('Handling emergency action', {'alertId': alertId});
+              final emergencyRoute = '/notifications/emergency-alerts?alertId=$alertId';
+              await _storePendingNavigation(emergencyRoute);
+              _logger.info('Stored navigation to emergency alert', {
+                'alertId': alertId,
+                'route': emergencyRoute,
+              });
             }
             break;
         }
       } else if (route != null) {
         // Navigate to specific route
-        // TODO: Use GoRouter to navigate
-        _logger.info('Navigating to route', {'route': route});
+        await _storePendingNavigation(route);
+        _logger.info('Stored navigation to route', {'route': route});
       }
     } catch (e) {
       _logger.error('Failed to handle notification data', {
@@ -484,6 +496,54 @@ class FCMService {
         'data': data,
         'timestamp': DateTime.now().toIso8601String(),
       });
+    }
+  }
+
+  /// Store pending navigation for when app comes to foreground
+  Future<void> _storePendingNavigation(String route) async {
+    try {
+      await _secureStorage.store('pending_navigation_route', route);
+      await _secureStorage.store(
+        'pending_navigation_timestamp',
+        DateTime.now().toIso8601String(),
+      );
+
+      _logger.info('Pending navigation stored', {
+        'route': route,
+        'timestamp': DateTime.now().toIso8601String(),
+      });
+    } catch (e) {
+      _logger.error('Failed to store pending navigation', {
+        'route': route,
+        'error': e.toString(),
+        'timestamp': DateTime.now().toIso8601String(),
+      });
+    }
+  }
+
+  /// Get and clear pending navigation
+  Future<String?> getPendingNavigation() async {
+    try {
+      final route = await _secureStorage.retrieve('pending_navigation_route');
+      if (route != null) {
+        // Clear the stored navigation
+        await _secureStorage.delete('pending_navigation_route');
+        await _secureStorage.delete('pending_navigation_timestamp');
+
+        _logger.info('Retrieved pending navigation', {
+          'route': route,
+          'timestamp': DateTime.now().toIso8601String(),
+        });
+
+        return route;
+      }
+      return null;
+    } catch (e) {
+      _logger.error('Failed to retrieve pending navigation', {
+        'error': e.toString(),
+        'timestamp': DateTime.now().toIso8601String(),
+      });
+      return null;
     }
   }
 
