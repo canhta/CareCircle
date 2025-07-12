@@ -255,6 +255,155 @@ export class ConversationService {
     }
   }
 
+  async sendMessageStream(data: {
+    conversationId: string;
+    content: string;
+    userId: string;
+  }): Promise<
+    AsyncGenerator<{
+      content: string;
+      isComplete: boolean;
+      metadata?: {
+        tokensUsed?: number;
+        processingTime?: number;
+        confidence?: number;
+      };
+    }>
+  > {
+    const startTime = Date.now();
+
+    // Add user message
+    const userMessage = Message.create({
+      id: this.generateId(),
+      conversationId: data.conversationId,
+      role: MessageRole.user,
+      content: data.content,
+    });
+
+    await this.conversationRepository.addMessage(
+      data.conversationId,
+      userMessage,
+    );
+
+    try {
+      // Build conversation history for OpenAI
+      const conversationHistory = await this.buildConversationHistory(
+        data.conversationId,
+      );
+
+      // Build health context for personalized responses
+      const healthContext = await this.buildHealthContext(data.userId);
+
+      // Generate AI response using OpenAI streaming
+      const messages: Array<{ role: MessageRole; content: string }> = [
+        {
+          role: MessageRole.system,
+          content: this.buildSystemPrompt(healthContext),
+        },
+        ...conversationHistory,
+        {
+          role: MessageRole.user,
+          content: data.content,
+        },
+      ];
+
+      const streamGenerator =
+        this.openAIService.generateStreamingResponse(messages);
+      const fullContent = '';
+
+      return this.createStreamGenerator(
+        streamGenerator,
+        data,
+        fullContent,
+        startTime,
+      );
+    } catch (error) {
+      console.error('Failed to initialize streaming response:', error);
+
+      // Return fallback generator
+      return this.createFallbackGenerator(startTime);
+    }
+  }
+
+  private async *createStreamGenerator(
+    streamGenerator: AsyncGenerator<{
+      content: string;
+      isComplete: boolean;
+      metadata?: {
+        tokensUsed?: number;
+        processingTime?: number;
+        confidence?: number;
+      };
+    }>,
+    data: { conversationId: string; userId: string; content: string },
+    fullContent: string,
+    startTime: number,
+  ) {
+    try {
+      for await (const chunk of streamGenerator) {
+        if (!chunk.isComplete) {
+          fullContent += chunk.content;
+        }
+
+        yield {
+          content: chunk.content,
+          isComplete: chunk.isComplete,
+          metadata: chunk.metadata,
+        };
+
+        // If streaming is complete, save the full assistant message
+        if (chunk.isComplete) {
+          const assistantMessage = Message.create({
+            id: this.generateId(),
+            conversationId: data.conversationId,
+            role: MessageRole.assistant,
+            content: fullContent,
+            metadata: {
+              processingTime: Date.now() - startTime,
+              confidence: chunk.metadata?.confidence || 0.9,
+              tokensUsed:
+                chunk.metadata?.tokensUsed || this.estimateTokens(fullContent),
+              modelVersion: 'gpt-4',
+              flagged: false,
+              streamingEnabled: true,
+            },
+          });
+
+          await this.conversationRepository.addMessage(
+            data.conversationId,
+            assistantMessage,
+          );
+        }
+      }
+    } catch (error) {
+      console.error('Streaming error:', error);
+      // Yield error completion
+      yield {
+        content:
+          "I apologize, but I'm experiencing technical difficulties. Please try again.",
+        isComplete: true,
+        metadata: {
+          processingTime: Date.now() - startTime,
+          confidence: 0.0,
+          tokensUsed: 0,
+        },
+      };
+    }
+  }
+
+  private async *createFallbackGenerator(startTime: number) {
+    yield {
+      content:
+        "I apologize, but I'm experiencing technical difficulties right now. Please try again in a moment. If you have a medical emergency, please contact your healthcare provider or emergency services immediately.",
+      isComplete: true,
+      metadata: {
+        processingTime: Date.now() - startTime,
+        confidence: 0.0,
+        tokensUsed: 0,
+      },
+    };
+  }
+
   async getMessages(
     conversationId: string,
     limit?: number,
