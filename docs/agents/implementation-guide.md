@@ -96,13 +96,16 @@ mobile/
 **Objective**: Establish LangGraph.js multi-agent infrastructure with healthcare compliance
 
 #### Week 1: Core Infrastructure
+
 **Key Tasks**:
+
 - Install LangGraph.js and healthcare dependencies
 - Set up vector database for medical knowledge
 - Configure PHI protection and HIPAA compliance services
 - Create agent base classes and interfaces
 
 **Dependencies Installation**:
+
 ```bash
 cd backend
 npm install @langchain/core@^0.3.0 @langchain/openai@^0.3.0
@@ -113,19 +116,23 @@ npm install crypto-js@^4.2.0 medical-nlp@^2.1.0
 ```
 
 **Deliverables**:
+
 - LangGraph.js StateGraph orchestration framework
 - Vector database with medical knowledge base
 - PHI detection and masking service
 - Healthcare agent base interfaces
 
 #### Week 2: Agent Foundation
+
 **Key Tasks**:
+
 - Implement Healthcare Supervisor Agent (primary orchestrator)
 - Create agent handoff and coordination mechanisms
 - Set up agent session management and state persistence
 - Configure healthcare-specific logging and auditing
 
 **Deliverables**:
+
 - Healthcare Supervisor Agent with query routing
 - Agent handoff system with context preservation
 - HIPAA-compliant audit logging
@@ -136,26 +143,32 @@ npm install crypto-js@^4.2.0 medical-nlp@^2.1.0
 **Objective**: Build specialized healthcare agents with domain expertise
 
 #### Week 3: Core Healthcare Agents
+
 **Key Tasks**:
+
 - Implement Medication Management Agent (drug interactions, adherence)
 - Implement Emergency Triage Agent (critical care assessment)
 - Create agent-specific knowledge bases and decision trees
 - Add specialized healthcare validation and safety checks
 
 **Deliverables**:
+
 - Medication Management Agent with drug interaction checking
 - Emergency Triage Agent with severity assessment
 - Agent-specific medical knowledge integration
 - Healthcare safety validation systems
 
 #### Week 4: Advanced Healthcare Intelligence
+
 **Key Tasks**:
+
 - Implement Clinical Decision Support Agent (evidence-based guidance)
 - Implement Health Analytics Agent (data interpretation)
 - Add FHIR integration for healthcare data interoperability
 - Create cost optimization and model routing systems
 
 **Deliverables**:
+
 - Clinical Decision Support Agent with medical guidelines
 - Health Analytics Agent with predictive capabilities
 - FHIR integration for healthcare data standards
@@ -166,26 +179,32 @@ npm install crypto-js@^4.2.0 medical-nlp@^2.1.0
 **Objective**: Integrate multi-agent system with existing platform and enhance mobile interface
 
 #### Week 5: Platform Integration
+
 **Key Tasks**:
+
 - Integrate agent system with existing CareCircle health data modules
 - Connect agents with medication management and care group systems
 - Implement agent coordination with existing Firebase authentication
 - Add comprehensive agent interaction testing
 
 **Deliverables**:
+
 - Full integration with existing CareCircle bounded contexts
 - Agent access to health metrics, medication data, and care groups
 - Seamless authentication and authorization for agent interactions
 - End-to-end multi-agent workflow testing
 
 #### Week 6: Mobile Interface Enhancement
+
 **Key Tasks**:
+
 - Enhance Flutter mobile app with agent selection interface
 - Implement real-time streaming for multi-agent responses
 - Add agent-specific UI components and healthcare widgets
 - Create emergency escalation and medication interaction alerts
 
 **Deliverables**:
+
 - Enhanced mobile interface with agent selection
 - Real-time streaming responses from multiple agents
 - Specialized healthcare UI components
@@ -196,26 +215,32 @@ npm install crypto-js@^4.2.0 medical-nlp@^2.1.0
 **Objective**: Deploy multi-agent system to production with monitoring and optimization
 
 #### Week 7: Performance & Security Optimization
+
 **Key Tasks**:
+
 - Optimize agent response times and coordination efficiency
 - Implement comprehensive security audit and HIPAA compliance validation
 - Add monitoring, alerting, and cost tracking for agent interactions
 - Performance testing under healthcare workloads
 
 **Deliverables**:
+
 - Optimized agent performance with sub-3-second response times
 - Complete HIPAA compliance validation and security audit
 - Production monitoring and alerting systems
 - Cost optimization with budget controls
 
 #### Week 8: Production Deployment
+
 **Key Tasks**:
+
 - Staged production deployment with gradual rollout
 - User training and documentation for healthcare staff
 - Production monitoring and incident response procedures
 - Post-deployment validation and user feedback collection
 
 **Deliverables**:
+
 - Production multi-agent healthcare system deployment
 - User training materials and operational documentation
 - Monitoring dashboards and incident response procedures
@@ -228,9 +253,13 @@ npm install crypto-js@^4.2.0 medical-nlp@^2.1.0
 **File**: `backend/src/ai-assistant/domain/agents/healthcare-supervisor.agent.ts`
 
 ```typescript
-import { StateGraph, MessagesState, START, END } from '@langchain/langgraph';
-import { ChatOpenAI } from '@langchain/openai';
-import { HealthcareContext, QueryClassification, AgentResponse } from '../interfaces';
+import { StateGraph, MessagesState, START, END } from "@langchain/langgraph";
+import { ChatOpenAI } from "@langchain/openai";
+import {
+  HealthcareContext,
+  QueryClassification,
+  AgentResponse,
+} from "../interfaces";
 
 export class HealthcareSupervisorAgent {
   private model: ChatOpenAI;
@@ -238,21 +267,21 @@ export class HealthcareSupervisorAgent {
 
   constructor() {
     this.model = new ChatOpenAI({
-      modelName: 'gpt-4',
-      temperature: 0.1 // Low temperature for consistent medical routing
+      modelName: "gpt-4",
+      temperature: 0.1, // Low temperature for consistent medical routing
     });
     this.initializeStateGraph();
   }
 
   private initializeStateGraph() {
     this.stateGraph = new StateGraph(MessagesState)
-      .addNode('analyze_query', this.analyzeQuery.bind(this))
-      .addNode('route_to_agent', this.routeToAgent.bind(this))
-      .addNode('coordinate_response', this.coordinateResponse.bind(this))
-      .addEdge(START, 'analyze_query')
-      .addEdge('analyze_query', 'route_to_agent')
-      .addEdge('route_to_agent', 'coordinate_response')
-      .addEdge('coordinate_response', END);
+      .addNode("analyze_query", this.analyzeQuery.bind(this))
+      .addNode("route_to_agent", this.routeToAgent.bind(this))
+      .addNode("coordinate_response", this.coordinateResponse.bind(this))
+      .addEdge(START, "analyze_query")
+      .addEdge("analyze_query", "route_to_agent")
+      .addEdge("route_to_agent", "coordinate_response")
+      .addEdge("coordinate_response", END);
   }
 
   async analyzeQuery(state: MessagesState): Promise<QueryClassification> {
@@ -274,8 +303,8 @@ export class HealthcareSupervisorAgent {
     `;
 
     const response = await this.model.invoke([
-      { role: 'system', content: analysisPrompt },
-      { role: 'user', content: query }
+      { role: "system", content: analysisPrompt },
+      { role: "user", content: query },
     ]);
 
     return this.parseClassification(response.content);
@@ -284,16 +313,16 @@ export class HealthcareSupervisorAgent {
   async routeToAgent(classification: QueryClassification): Promise<string> {
     // Route to appropriate specialized agent based on classification
     switch (classification.primaryIntent) {
-      case 'medication':
-        return 'medication_agent';
-      case 'emergency':
-        return 'emergency_agent';
-      case 'clinical':
-        return 'clinical_agent';
-      case 'analytics':
-        return 'analytics_agent';
+      case "medication":
+        return "medication_agent";
+      case "emergency":
+        return "emergency_agent";
+      case "clinical":
+        return "clinical_agent";
+      case "analytics":
+        return "analytics_agent";
       default:
-        return 'general_health_agent';
+        return "general_health_agent";
     }
   }
 }
@@ -304,43 +333,52 @@ export class HealthcareSupervisorAgent {
 **File**: `backend/src/ai-assistant/domain/agents/medication-management.agent.ts`
 
 ```typescript
-import { BaseHealthcareAgent } from './base-healthcare.agent';
-import { DrugInteractionService } from '../../infrastructure/services/drug-interaction.service';
-import { MedicationContext, DrugInteraction } from '../interfaces';
+import { BaseHealthcareAgent } from "./base-healthcare.agent";
+import { DrugInteractionService } from "../../infrastructure/services/drug-interaction.service";
+import { MedicationContext, DrugInteraction } from "../interfaces";
 
 export class MedicationManagementAgent extends BaseHealthcareAgent {
-  constructor(
-    private drugInteractionService: DrugInteractionService
-  ) {
-    super('medication_management');
+  constructor(private drugInteractionService: DrugInteractionService) {
+    super("medication_management");
   }
 
-  async processQuery(query: string, context: MedicationContext): Promise<AgentResponse> {
+  async processQuery(
+    query: string,
+    context: MedicationContext,
+  ): Promise<AgentResponse> {
     // Extract medication information from query
     const medications = await this.extractMedications(query);
 
     // Check for drug interactions
-    const interactions = await this.drugInteractionService.checkInteractions(
-      [...medications, ...context.currentMedications]
-    );
+    const interactions = await this.drugInteractionService.checkInteractions([
+      ...medications,
+      ...context.currentMedications,
+    ]);
 
     // Generate medication guidance
-    const guidance = await this.generateMedicationGuidance(query, medications, interactions);
+    const guidance = await this.generateMedicationGuidance(
+      query,
+      medications,
+      interactions,
+    );
 
     return {
-      agentType: 'medication_management',
+      agentType: "medication_management",
       response: guidance,
       confidence: this.calculateConfidence(interactions),
       requiresEscalation: this.assessEscalationNeed(interactions),
       metadata: {
         medicationsIdentified: medications,
         interactionsFound: interactions,
-        adherenceRecommendations: await this.generateAdherenceRecommendations(context)
-      }
+        adherenceRecommendations:
+          await this.generateAdherenceRecommendations(context),
+      },
     };
   }
 
-  private async checkDrugInteractions(medications: string[]): Promise<DrugInteraction[]> {
+  private async checkDrugInteractions(
+    medications: string[],
+  ): Promise<DrugInteraction[]> {
     // Implementation for drug interaction checking
     return this.drugInteractionService.checkInteractions(medications);
   }
@@ -352,23 +390,30 @@ export class MedicationManagementAgent extends BaseHealthcareAgent {
 **File**: `backend/src/ai-assistant/domain/agents/emergency-triage.agent.ts`
 
 ```typescript
-import { BaseHealthcareAgent } from './base-healthcare.agent';
-import { EmergencyEscalationService } from '../../infrastructure/services/emergency-escalation.service';
-import { EmergencyContext, TriageAssessment } from '../interfaces';
+import { BaseHealthcareAgent } from "./base-healthcare.agent";
+import { EmergencyEscalationService } from "../../infrastructure/services/emergency-escalation.service";
+import { EmergencyContext, TriageAssessment } from "../interfaces";
 
 export class EmergencyTriageAgent extends BaseHealthcareAgent {
   private emergencyKeywords = [
-    'chest pain', 'difficulty breathing', 'severe bleeding', 'unconscious',
-    'stroke symptoms', 'heart attack', 'severe allergic reaction', 'overdose'
+    "chest pain",
+    "difficulty breathing",
+    "severe bleeding",
+    "unconscious",
+    "stroke symptoms",
+    "heart attack",
+    "severe allergic reaction",
+    "overdose",
   ];
 
-  constructor(
-    private emergencyEscalationService: EmergencyEscalationService
-  ) {
-    super('emergency_triage');
+  constructor(private emergencyEscalationService: EmergencyEscalationService) {
+    super("emergency_triage");
   }
 
-  async processQuery(query: string, context: EmergencyContext): Promise<AgentResponse> {
+  async processQuery(
+    query: string,
+    context: EmergencyContext,
+  ): Promise<AgentResponse> {
     // Assess emergency severity
     const triageAssessment = await this.assessEmergencySeverity(query, context);
 
@@ -378,12 +423,12 @@ export class EmergencyTriageAgent extends BaseHealthcareAgent {
         patientId: context.patientId,
         symptoms: query,
         severity: triageAssessment.severity,
-        recommendedAction: 'IMMEDIATE_MEDICAL_ATTENTION'
+        recommendedAction: "IMMEDIATE_MEDICAL_ATTENTION",
       });
     }
 
     return {
-      agentType: 'emergency_triage',
+      agentType: "emergency_triage",
       response: await this.generateEmergencyGuidance(triageAssessment),
       confidence: triageAssessment.confidence,
       requiresEscalation: triageAssessment.severity >= 0.7,
@@ -391,12 +436,15 @@ export class EmergencyTriageAgent extends BaseHealthcareAgent {
         severityScore: triageAssessment.severity,
         emergencyIndicators: triageAssessment.indicators,
         recommendedAction: triageAssessment.recommendedAction,
-        escalationTriggered: triageAssessment.severity >= 0.8
-      }
+        escalationTriggered: triageAssessment.severity >= 0.8,
+      },
     };
   }
 
-  private async assessEmergencySeverity(query: string, context: EmergencyContext): Promise<TriageAssessment> {
+  private async assessEmergencySeverity(
+    query: string,
+    context: EmergencyContext,
+  ): Promise<TriageAssessment> {
     const emergencyPrompt = `
     Assess the emergency severity of these symptoms using established triage protocols:
 
@@ -411,8 +459,8 @@ export class EmergencyTriageAgent extends BaseHealthcareAgent {
     `;
 
     const response = await this.model.invoke([
-      { role: 'system', content: emergencyPrompt },
-      { role: 'user', content: query }
+      { role: "system", content: emergencyPrompt },
+      { role: "user", content: query },
     ]);
 
     return this.parseTriageAssessment(response.content);
@@ -517,7 +565,7 @@ SENTRY_DSN=https://your-sentry-dsn@sentry.io/project-id
 
 ```yaml
 # docker-compose.yml (healthcare-compliant services)
-version: '3.8'
+version: "3.8"
 
 networks:
   carecircle-health-network:
@@ -895,10 +943,10 @@ model AgentSession {
   sessionData Json     @map("session_data")
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
-  
+
   user         User? @relation(fields: [userId], references: [id])
   interactions AgentInteraction[]
-  
+
   @@map("agent_sessions")
 }
 ```
@@ -1383,10 +1431,10 @@ model HealthcareAgentInteraction {
 
 ```typescript
 // backend/src/ai-assistant/infrastructure/services/healthcare-agent-orchestrator.service.ts
-import { Injectable } from '@nestjs/common';
-import { StateGraph } from '@langchain/langgraph';
-import { OpenAIService } from './openai.service';
-import { PHIProtectionService } from './phi-protection.service';
+import { Injectable } from "@nestjs/common";
+import { StateGraph } from "@langchain/langgraph";
+import { OpenAIService } from "./openai.service";
+import { PHIProtectionService } from "./phi-protection.service";
 
 @Injectable()
 export class HealthcareAgentOrchestratorService {
@@ -1404,44 +1452,47 @@ export class HealthcareAgentOrchestratorService {
       channels: {
         messages: [],
         patientContext: {},
-        urgencyLevel: 'routine',
-        agentType: 'coordinator',
-        complianceFlags: []
-      }
+        urgencyLevel: "routine",
+        agentType: "coordinator",
+        complianceFlags: [],
+      },
     });
 
     // Define agent nodes
-    this.stateGraph.addNode('coordinator', this.coordinatorAgent.bind(this));
-    this.stateGraph.addNode('medication', this.medicationAgent.bind(this));
-    this.stateGraph.addNode('emergency', this.emergencyAgent.bind(this));
-    this.stateGraph.addNode('clinical', this.clinicalAgent.bind(this));
+    this.stateGraph.addNode("coordinator", this.coordinatorAgent.bind(this));
+    this.stateGraph.addNode("medication", this.medicationAgent.bind(this));
+    this.stateGraph.addNode("emergency", this.emergencyAgent.bind(this));
+    this.stateGraph.addNode("clinical", this.clinicalAgent.bind(this));
 
     // Define routing logic
     this.stateGraph.addConditionalEdges(
-      'coordinator',
+      "coordinator",
       this.routeToSpecialist.bind(this),
       {
-        medication: 'medication',
-        emergency: 'emergency',
-        clinical: 'clinical',
-        end: '__end__'
-      }
+        medication: "medication",
+        emergency: "emergency",
+        clinical: "clinical",
+        end: "__end__",
+      },
     );
 
-    this.stateGraph.setEntryPoint('coordinator');
+    this.stateGraph.setEntryPoint("coordinator");
   }
 
-  async processHealthcareQuery(query: string, patientContext: any): Promise<any> {
+  async processHealthcareQuery(
+    query: string,
+    patientContext: any,
+  ): Promise<any> {
     // Step 1: PHI Detection and Masking
     const phiResult = await this.phiProtectionService.detectAndMaskPHI(query);
 
     // Step 2: Initialize agent state
     const initialState = {
-      messages: [{ role: 'user', content: phiResult.maskedText }],
+      messages: [{ role: "user", content: phiResult.maskedText }],
       patientContext,
       urgencyLevel: await this.assessUrgency(query),
-      agentType: 'coordinator',
-      complianceFlags: phiResult.detectedPHI
+      agentType: "coordinator",
+      complianceFlags: phiResult.detectedPHI,
     };
 
     // Step 3: Execute agent workflow
@@ -1452,7 +1503,7 @@ export class HealthcareAgentOrchestratorService {
       urgencyLevel: result.urgencyLevel,
       agentType: result.agentType,
       complianceFlags: result.complianceFlags,
-      phiDetected: phiResult.detectedPHI.length > 0
+      phiDetected: phiResult.detectedPHI.length > 0,
     };
   }
 
@@ -1460,13 +1511,13 @@ export class HealthcareAgentOrchestratorService {
     const prompt = `You are a healthcare coordinator AI. Analyze this query and determine the appropriate specialist: ${state.messages[0].content}`;
 
     const response = await this.openaiService.generateResponse(prompt, {
-      model: 'gpt-3.5-turbo',
-      temperature: 0.1
+      model: "gpt-3.5-turbo",
+      temperature: 0.1,
     });
 
     return {
       ...state,
-      messages: [...state.messages, { role: 'assistant', content: response }]
+      messages: [...state.messages, { role: "assistant", content: response }],
     };
   }
 
@@ -1474,15 +1525,18 @@ export class HealthcareAgentOrchestratorService {
     // Implement medication-specific logic
     const medicationPrompt = `As a medication specialist, provide guidance on: ${state.messages[0].content}`;
 
-    const response = await this.openaiService.generateResponse(medicationPrompt, {
-      model: 'gpt-4',
-      temperature: 0.1
-    });
+    const response = await this.openaiService.generateResponse(
+      medicationPrompt,
+      {
+        model: "gpt-4",
+        temperature: 0.1,
+      },
+    );
 
     return {
       ...state,
-      agentType: 'medication',
-      messages: [...state.messages, { role: 'assistant', content: response }]
+      agentType: "medication",
+      messages: [...state.messages, { role: "assistant", content: response }],
     };
   }
 
@@ -1490,21 +1544,24 @@ export class HealthcareAgentOrchestratorService {
     // Implement emergency-specific logic with escalation
     const emergencyPrompt = `EMERGENCY ASSESSMENT: ${state.messages[0].content}`;
 
-    const response = await this.openaiService.generateResponse(emergencyPrompt, {
-      model: 'gpt-4',
-      temperature: 0.0
-    });
+    const response = await this.openaiService.generateResponse(
+      emergencyPrompt,
+      {
+        model: "gpt-4",
+        temperature: 0.0,
+      },
+    );
 
     // Trigger emergency escalation if needed
-    if (state.urgencyLevel === 'emergency') {
+    if (state.urgencyLevel === "emergency") {
       // Implement emergency escalation logic
     }
 
     return {
       ...state,
-      agentType: 'emergency',
-      urgencyLevel: 'emergency',
-      messages: [...state.messages, { role: 'assistant', content: response }]
+      agentType: "emergency",
+      urgencyLevel: "emergency",
+      messages: [...state.messages, { role: "assistant", content: response }],
     };
   }
 
@@ -1513,39 +1570,47 @@ export class HealthcareAgentOrchestratorService {
     const clinicalPrompt = `Provide evidence-based clinical guidance for: ${state.messages[0].content}`;
 
     const response = await this.openaiService.generateResponse(clinicalPrompt, {
-      model: 'gpt-4',
-      temperature: 0.1
+      model: "gpt-4",
+      temperature: 0.1,
     });
 
     return {
       ...state,
-      agentType: 'clinical',
-      messages: [...state.messages, { role: 'assistant', content: response }]
+      agentType: "clinical",
+      messages: [...state.messages, { role: "assistant", content: response }],
     };
   }
 
   private routeToSpecialist(state: any): string {
     const query = state.messages[0].content.toLowerCase();
 
-    if (state.urgencyLevel === 'emergency') return 'emergency';
-    if (query.includes('medication') || query.includes('drug')) return 'medication';
-    if (query.includes('diagnosis') || query.includes('symptom')) return 'clinical';
+    if (state.urgencyLevel === "emergency") return "emergency";
+    if (query.includes("medication") || query.includes("drug"))
+      return "medication";
+    if (query.includes("diagnosis") || query.includes("symptom"))
+      return "clinical";
 
-    return 'end';
+    return "end";
   }
 
   private async assessUrgency(query: string): Promise<string> {
     const emergencyKeywords = [
-      'chest pain', 'difficulty breathing', 'severe bleeding', 'unconscious',
-      'stroke', 'heart attack', 'allergic reaction', 'overdose'
+      "chest pain",
+      "difficulty breathing",
+      "severe bleeding",
+      "unconscious",
+      "stroke",
+      "heart attack",
+      "allergic reaction",
+      "overdose",
     ];
 
     const queryLower = query.toLowerCase();
-    const hasEmergencyKeywords = emergencyKeywords.some(keyword =>
-      queryLower.includes(keyword)
+    const hasEmergencyKeywords = emergencyKeywords.some((keyword) =>
+      queryLower.includes(keyword),
     );
 
-    return hasEmergencyKeywords ? 'emergency' : 'routine';
+    return hasEmergencyKeywords ? "emergency" : "routine";
   }
 }
 ```
@@ -1567,7 +1632,11 @@ export interface HealthcareAgentConfig {
 }
 
 interface HealthcareCapability {
-  type: 'symptom_assessment' | 'medication_management' | 'emergency_triage' | 'wellness_coaching';
+  type:
+    | "symptom_assessment"
+    | "medication_management"
+    | "emergency_triage"
+    | "wellness_coaching";
   confidence: number;
   requiresPhysicianReview: boolean;
   maxSeverityLevel: number;
@@ -1587,97 +1656,97 @@ interface CostLimits {
 // Real-world agent configurations
 const healthcareAgentConfigs: HealthcareAgentConfig[] = [
   {
-    name: 'primary-care-assistant',
+    name: "primary-care-assistant",
     capabilities: [
       {
-        type: 'symptom_assessment',
+        type: "symptom_assessment",
         confidence: 0.85,
         requiresPhysicianReview: true,
-        maxSeverityLevel: 3
+        maxSeverityLevel: 3,
       },
       {
-        type: 'wellness_coaching',
-        confidence: 0.90,
+        type: "wellness_coaching",
+        confidence: 0.9,
         requiresPhysicianReview: false,
-        maxSeverityLevel: 1
-      }
+        maxSeverityLevel: 1,
+      },
     ],
-    modelPreference: 'gpt-3.5-turbo',
-    complianceLevel: 'standard',
+    modelPreference: "gpt-3.5-turbo",
+    complianceLevel: "standard",
     costLimits: {
-      dailyLimit: 10.00,
-      monthlyLimit: 200.00,
+      dailyLimit: 10.0,
+      monthlyLimit: 200.0,
       emergencyOverride: false,
       costPerQuery: {
         routine: 0.05,
         urgent: 0.15,
-        emergency: 0.50
-      }
+        emergency: 0.5,
+      },
     },
-    emergencyProtocols: ['escalate_to_physician', 'notify_emergency_contacts'],
-    medicalSpecialties: ['family_medicine', 'internal_medicine']
+    emergencyProtocols: ["escalate_to_physician", "notify_emergency_contacts"],
+    medicalSpecialties: ["family_medicine", "internal_medicine"],
   },
   {
-    name: 'emergency-triage-specialist',
+    name: "emergency-triage-specialist",
     capabilities: [
       {
-        type: 'emergency_triage',
+        type: "emergency_triage",
         confidence: 0.95,
         requiresPhysicianReview: true,
-        maxSeverityLevel: 5
+        maxSeverityLevel: 5,
       },
       {
-        type: 'symptom_assessment',
-        confidence: 0.90,
+        type: "symptom_assessment",
+        confidence: 0.9,
         requiresPhysicianReview: true,
-        maxSeverityLevel: 5
-      }
+        maxSeverityLevel: 5,
+      },
     ],
-    modelPreference: 'gpt-4',
-    complianceLevel: 'strict',
+    modelPreference: "gpt-4",
+    complianceLevel: "strict",
     costLimits: {
-      dailyLimit: 50.00,
-      monthlyLimit: 1000.00,
+      dailyLimit: 50.0,
+      monthlyLimit: 1000.0,
       emergencyOverride: true,
       costPerQuery: {
-        routine: 0.20,
-        urgent: 0.50,
-        emergency: 2.00
-      }
+        routine: 0.2,
+        urgent: 0.5,
+        emergency: 2.0,
+      },
     },
     emergencyProtocols: [
-      'immediate_911_notification',
-      'physician_alert',
-      'emergency_contact_notification',
-      'hospital_notification'
+      "immediate_911_notification",
+      "physician_alert",
+      "emergency_contact_notification",
+      "hospital_notification",
     ],
-    medicalSpecialties: ['emergency_medicine', 'critical_care']
+    medicalSpecialties: ["emergency_medicine", "critical_care"],
   },
   {
-    name: 'medication-management-specialist',
+    name: "medication-management-specialist",
     capabilities: [
       {
-        type: 'medication_management',
+        type: "medication_management",
         confidence: 0.92,
         requiresPhysicianReview: true,
-        maxSeverityLevel: 4
-      }
+        maxSeverityLevel: 4,
+      },
     ],
-    modelPreference: 'gpt-4',
-    complianceLevel: 'strict',
+    modelPreference: "gpt-4",
+    complianceLevel: "strict",
     costLimits: {
-      dailyLimit: 25.00,
-      monthlyLimit: 500.00,
+      dailyLimit: 25.0,
+      monthlyLimit: 500.0,
       emergencyOverride: true,
       costPerQuery: {
-        routine: 0.10,
+        routine: 0.1,
         urgent: 0.25,
-        emergency: 1.00
-      }
+        emergency: 1.0,
+      },
     },
-    emergencyProtocols: ['pharmacist_consultation', 'physician_alert'],
-    medicalSpecialties: ['clinical_pharmacy', 'pharmacology']
-  }
+    emergencyProtocols: ["pharmacist_consultation", "physician_alert"],
+    medicalSpecialties: ["clinical_pharmacy", "pharmacology"],
+  },
 ];
 
 // Agent initialization with healthcare context
@@ -1695,7 +1764,11 @@ class HealthcareAgentOrchestrator {
   async routeHealthcareQuery(query: HealthcareQuery): Promise<AgentResponse> {
     const urgency = await this.assessUrgency(query);
     const complexity = await this.assessComplexity(query);
-    const selectedAgent = this.selectOptimalAgent(urgency, complexity, query.type);
+    const selectedAgent = this.selectOptimalAgent(
+      urgency,
+      complexity,
+      query.type,
+    );
 
     return await selectedAgent.processQuery(query);
   }
@@ -1744,10 +1817,10 @@ npm run test:e2e:healthcare
 
 ```typescript
 // backend/test/healthcare-agents/healthcare-agent-orchestrator.spec.ts
-import { Test, TestingModule } from '@nestjs/testing';
-import { HealthcareAgentOrchestratorService } from '../../src/ai-assistant/infrastructure/services/healthcare-agent-orchestrator.service';
+import { Test, TestingModule } from "@nestjs/testing";
+import { HealthcareAgentOrchestratorService } from "../../src/ai-assistant/infrastructure/services/healthcare-agent-orchestrator.service";
 
-describe('HealthcareAgentOrchestratorService', () => {
+describe("HealthcareAgentOrchestratorService", () => {
   let service: HealthcareAgentOrchestratorService;
 
   beforeEach(async () => {
@@ -1755,33 +1828,35 @@ describe('HealthcareAgentOrchestratorService', () => {
       providers: [HealthcareAgentOrchestratorService],
     }).compile();
 
-    service = module.get<HealthcareAgentOrchestratorService>(HealthcareAgentOrchestratorService);
+    service = module.get<HealthcareAgentOrchestratorService>(
+      HealthcareAgentOrchestratorService,
+    );
   });
 
-  describe('processHealthcareQuery', () => {
-    it('should detect emergency situations', async () => {
+  describe("processHealthcareQuery", () => {
+    it("should detect emergency situations", async () => {
       const result = await service.processHealthcareQuery(
-        'I am having severe chest pain and difficulty breathing',
-        { age: 45, gender: 'male' }
+        "I am having severe chest pain and difficulty breathing",
+        { age: 45, gender: "male" },
       );
 
-      expect(result.urgencyLevel).toBe('emergency');
-      expect(result.agentType).toBe('emergency');
+      expect(result.urgencyLevel).toBe("emergency");
+      expect(result.agentType).toBe("emergency");
     });
 
-    it('should route medication queries correctly', async () => {
+    it("should route medication queries correctly", async () => {
       const result = await service.processHealthcareQuery(
-        'Can I take aspirin with my blood pressure medication?',
-        { age: 60, medications: ['lisinopril'] }
+        "Can I take aspirin with my blood pressure medication?",
+        { age: 60, medications: ["lisinopril"] },
       );
 
-      expect(result.agentType).toBe('medication');
+      expect(result.agentType).toBe("medication");
     });
 
-    it('should detect and mask PHI', async () => {
+    it("should detect and mask PHI", async () => {
       const result = await service.processHealthcareQuery(
-        'My SSN is 123-45-6789 and I have a headache',
-        { age: 30 }
+        "My SSN is 123-45-6789 and I have a headache",
+        { age: 30 },
       );
 
       expect(result.phiDetected).toBe(true);
@@ -1795,37 +1870,37 @@ describe('HealthcareAgentOrchestratorService', () => {
 
 ```typescript
 // backend/test/compliance/phi-detection.spec.ts
-import { PHIProtectionService } from '../../src/ai-assistant/infrastructure/services/phi-protection.service';
+import { PHIProtectionService } from "../../src/ai-assistant/infrastructure/services/phi-protection.service";
 
-describe('PHI Detection', () => {
+describe("PHI Detection", () => {
   let service: PHIProtectionService;
 
   beforeEach(() => {
     service = new PHIProtectionService();
   });
 
-  it('should detect SSN patterns', async () => {
-    const result = await service.detectAndMaskPHI('My SSN is 123-45-6789');
+  it("should detect SSN patterns", async () => {
+    const result = await service.detectAndMaskPHI("My SSN is 123-45-6789");
 
     expect(result.detectedPHI).toHaveLength(1);
-    expect(result.detectedPHI[0].type).toBe('SSN');
-    expect(result.maskedText).toContain('XXX-XX-6789');
+    expect(result.detectedPHI[0].type).toBe("SSN");
+    expect(result.maskedText).toContain("XXX-XX-6789");
   });
 
-  it('should detect medical record numbers', async () => {
-    const result = await service.detectAndMaskPHI('Patient MRN: 123456789');
+  it("should detect medical record numbers", async () => {
+    const result = await service.detectAndMaskPHI("Patient MRN: 123456789");
 
     expect(result.detectedPHI).toHaveLength(1);
-    expect(result.detectedPHI[0].type).toBe('MRN');
+    expect(result.detectedPHI[0].type).toBe("MRN");
   });
 
-  it('should achieve >95% detection accuracy', async () => {
+  it("should achieve >95% detection accuracy", async () => {
     const testCases = [
-      'SSN: 123-45-6789',
-      'Phone: (555) 123-4567',
-      'Email: john.doe@example.com',
-      'DOB: 01/15/1980',
-      'MRN: 987654321'
+      "SSN: 123-45-6789",
+      "Phone: (555) 123-4567",
+      "Email: john.doe@example.com",
+      "DOB: 01/15/1980",
+      "MRN: 987654321",
     ];
 
     let detectedCount = 0;
@@ -1906,11 +1981,13 @@ curl http://localhost:3001/fhir/Patient/123
 ## Migration Considerations
 
 ### From Existing System
+
 - Preserve existing user data and sessions
 - Maintain API compatibility for mobile app
 - Gradual rollout with feature flags
 
 ### Data Migration
+
 - No breaking changes to existing database schema
 - Agent tables added as extensions
 - Backward compatibility maintained
@@ -1920,7 +1997,9 @@ curl http://localhost:3001/fhir/Patient/123
 ### Common Healthcare-Specific Issues
 
 #### 1. PHI Detection False Positives/Negatives
+
 **Problem**: PHI detection incorrectly flagging or missing sensitive data
+
 ```bash
 # Debug PHI detection
 curl -X POST http://localhost:3001/debug/phi-detection \
@@ -1935,17 +2014,20 @@ npm run test:phi-detection -- --verbose
 ```
 
 **Solution**: Adjust PHI detection patterns and confidence thresholds
+
 ```typescript
 // Fine-tune PHI detection in config
 const phiConfig = {
   confidenceThreshold: 0.85, // Increase for fewer false positives
-  contextAnalysis: true,      // Enable context-aware detection
-  medicalTermsWhitelist: ['common_medical_terms.json']
+  contextAnalysis: true, // Enable context-aware detection
+  medicalTermsWhitelist: ["common_medical_terms.json"],
 };
 ```
 
 #### 2. FHIR Integration Failures
+
 **Problem**: Cannot connect to FHIR server or invalid FHIR resources
+
 ```bash
 # Test FHIR connectivity
 curl -H "Authorization: Bearer $FHIR_ACCESS_TOKEN" \
@@ -1959,6 +2041,7 @@ docker logs agent-orchestrator | grep "FHIR_ERROR"
 ```
 
 **Solution**: Verify FHIR server configuration and credentials
+
 ```typescript
 // FHIR client configuration
 const fhirConfig = {
@@ -1966,15 +2049,17 @@ const fhirConfig = {
   auth: {
     tokenUrl: process.env.FHIR_TOKEN_URL,
     clientId: process.env.FHIR_CLIENT_ID,
-    clientSecret: process.env.FHIR_CLIENT_SECRET
+    clientSecret: process.env.FHIR_CLIENT_SECRET,
   },
   timeout: 30000,
-  retries: 3
+  retries: 3,
 };
 ```
 
 #### 3. Emergency Escalation Not Triggering
+
 **Problem**: Emergency situations not properly detected or escalated
+
 ```bash
 # Test emergency detection
 curl -X POST http://localhost:3001/debug/emergency-detection \
@@ -1989,19 +2074,22 @@ npm run test:emergency-contacts
 ```
 
 **Solution**: Review emergency detection patterns and notification setup
+
 ```typescript
 // Emergency detection configuration
 const emergencyConfig = {
-  keywords: ['chest pain', 'difficulty breathing', 'severe bleeding'],
+  keywords: ["chest pain", "difficulty breathing", "severe bleeding"],
   urgencyThreshold: 0.8,
   autoEscalate: true,
-  notificationChannels: ['email', 'sms', 'webhook'],
-  emergencyContacts: process.env.EMERGENCY_CONTACTS?.split(',') || []
+  notificationChannels: ["email", "sms", "webhook"],
+  emergencyContacts: process.env.EMERGENCY_CONTACTS?.split(",") || [],
 };
 ```
 
 #### 4. High AI Model Costs
+
 **Problem**: Unexpected high costs from AI model usage
+
 ```bash
 # Check cost breakdown
 curl http://localhost:3001/admin/cost-analysis
@@ -2014,6 +2102,7 @@ npm run analyze:cost-optimization
 ```
 
 **Solution**: Implement cost controls and caching
+
 ```typescript
 // Cost optimization configuration
 const costOptimization = {
@@ -2021,14 +2110,16 @@ const costOptimization = {
   cacheExpiry: 3600, // 1 hour
   budgetAlerts: [0.5, 0.8, 0.9],
   emergencyBudgetOverride: true,
-  modelDowngradeThreshold: 0.8
+  modelDowngradeThreshold: 0.8,
 };
 ```
 
 ### Healthcare Compliance Issues
 
 #### 5. Audit Log Failures
+
 **Problem**: HIPAA audit logs not being generated or stored properly
+
 ```bash
 # Check audit log status
 curl http://localhost:3001/admin/audit-status
@@ -2043,7 +2134,9 @@ npm run verify:audit-integrity
 ```
 
 #### 6. Session Management Issues
+
 **Problem**: User sessions not persisting or expiring unexpectedly
+
 ```bash
 # Check Redis session storage
 docker exec redis-health redis-cli KEYS "session:*"
@@ -2059,7 +2152,9 @@ npm run test:session-management
 ### Performance and Scaling Issues
 
 #### 7. Slow Response Times
+
 **Problem**: Agent responses taking too long for healthcare scenarios
+
 ```bash
 # Monitor response times
 curl http://localhost:3001/metrics/response-times
@@ -2073,6 +2168,7 @@ npm run analyze:performance-bottlenecks
 ```
 
 **Solution**: Optimize database queries and implement caching
+
 ```sql
 -- Add missing indexes
 CREATE INDEX CONCURRENTLY idx_interactions_performance
@@ -2084,7 +2180,9 @@ ANALYZE healthcare_agent_sessions;
 ```
 
 #### 8. Memory Issues in Production
+
 **Problem**: Containers running out of memory or crashing
+
 ```bash
 # Monitor memory usage
 docker stats agent-orchestrator
@@ -2097,6 +2195,7 @@ docker logs agent-orchestrator | grep "GC"
 ```
 
 **Solution**: Adjust container resources and optimize memory usage
+
 ```yaml
 # docker-compose.yml memory optimization
 services:
@@ -2150,6 +2249,7 @@ npm run check:phi-protection
 ### Emergency Recovery Procedures
 
 #### System-Wide Failure Recovery
+
 ```bash
 # 1. Stop all services
 docker-compose down
@@ -2171,6 +2271,7 @@ docker-compose up -d --force-recreate
 ```
 
 #### Data Recovery Procedures
+
 ```bash
 # Database backup restoration
 docker exec postgres-health pg_restore -U carecircle_user -d carecircle_health /backup/latest.dump
@@ -2232,7 +2333,6 @@ export class ConversationService {
     conversationId?: string,
     useHealthcareAgents = false, // Feature flag for gradual rollout
   ): Promise<any> {
-
     if (useHealthcareAgents) {
       // Use new healthcare agent system
       return this.processWithHealthcareAgents(userId, message, conversationId);
@@ -2251,13 +2351,19 @@ export class ConversationService {
     const patientContext = await this.buildPatientContext(userId);
 
     // Process with healthcare agent orchestrator
-    const result = await this.healthcareAgentOrchestrator.processHealthcareQuery(
-      message,
-      patientContext
-    );
+    const result =
+      await this.healthcareAgentOrchestrator.processHealthcareQuery(
+        message,
+        patientContext,
+      );
 
     // Save to both old and new tables for transition period
-    await this.saveToExistingTables(userId, message, result.response, conversationId);
+    await this.saveToExistingTables(
+      userId,
+      message,
+      result.response,
+      conversationId,
+    );
     await this.saveToHealthcareAgentTables(userId, message, result);
 
     return result;
@@ -2281,10 +2387,11 @@ export class ConversationService {
 ```typescript
 // backend/src/common/config/feature-flags.config.ts
 export const FeatureFlags = {
-  HEALTHCARE_AGENTS_ENABLED: process.env.ENABLE_HEALTHCARE_AGENTS === 'true',
-  PHI_DETECTION_ENABLED: process.env.ENABLE_PHI_DETECTION === 'true',
-  EMERGENCY_ESCALATION_ENABLED: process.env.ENABLE_EMERGENCY_ESCALATION === 'true',
-  FHIR_INTEGRATION_ENABLED: process.env.ENABLE_FHIR_INTEGRATION === 'true',
+  HEALTHCARE_AGENTS_ENABLED: process.env.ENABLE_HEALTHCARE_AGENTS === "true",
+  PHI_DETECTION_ENABLED: process.env.ENABLE_PHI_DETECTION === "true",
+  EMERGENCY_ESCALATION_ENABLED:
+    process.env.ENABLE_EMERGENCY_ESCALATION === "true",
+  FHIR_INTEGRATION_ENABLED: process.env.ENABLE_FHIR_INTEGRATION === "true",
 };
 ```
 

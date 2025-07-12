@@ -10,95 +10,43 @@ class CareCircleModernEffectsTokens {
 
   /// Subtle shadow - For minimal elevation
   static const List<BoxShadow> subtleShadow = [
-    BoxShadow(
-      color: Color(0x0A000000),
-      blurRadius: 4,
-      offset: Offset(0, 2),
-    ),
+    BoxShadow(color: Color(0x0A000000), blurRadius: 4, offset: Offset(0, 2)),
   ];
 
   /// Soft shadow - For standard cards
   static const List<BoxShadow> softShadow = [
-    BoxShadow(
-      color: Color(0x14000000),
-      blurRadius: 8,
-      offset: Offset(0, 4),
-    ),
-    BoxShadow(
-      color: Color(0x0A000000),
-      blurRadius: 2,
-      offset: Offset(0, 1),
-    ),
+    BoxShadow(color: Color(0x14000000), blurRadius: 8, offset: Offset(0, 4)),
+    BoxShadow(color: Color(0x0A000000), blurRadius: 2, offset: Offset(0, 1)),
   ];
 
   /// Medium shadow - For elevated components
   static const List<BoxShadow> mediumShadow = [
-    BoxShadow(
-      color: Color(0x1F000000),
-      blurRadius: 16,
-      offset: Offset(0, 8),
-    ),
-    BoxShadow(
-      color: Color(0x14000000),
-      blurRadius: 4,
-      offset: Offset(0, 2),
-    ),
+    BoxShadow(color: Color(0x1F000000), blurRadius: 16, offset: Offset(0, 8)),
+    BoxShadow(color: Color(0x14000000), blurRadius: 4, offset: Offset(0, 2)),
   ];
 
   /// Strong shadow - For floating elements
   static const List<BoxShadow> strongShadow = [
-    BoxShadow(
-      color: Color(0x29000000),
-      blurRadius: 24,
-      offset: Offset(0, 12),
-    ),
-    BoxShadow(
-      color: Color(0x1F000000),
-      blurRadius: 8,
-      offset: Offset(0, 4),
-    ),
+    BoxShadow(color: Color(0x29000000), blurRadius: 24, offset: Offset(0, 12)),
+    BoxShadow(color: Color(0x1F000000), blurRadius: 8, offset: Offset(0, 4)),
   ];
 
   /// Medical shadow - Healthcare themed shadows
   static const List<BoxShadow> medicalShadow = [
-    BoxShadow(
-      color: Color(0x141565C0),
-      blurRadius: 12,
-      offset: Offset(0, 6),
-    ),
-    BoxShadow(
-      color: Color(0x0A1565C0),
-      blurRadius: 4,
-      offset: Offset(0, 2),
-    ),
+    BoxShadow(color: Color(0x141565C0), blurRadius: 12, offset: Offset(0, 6)),
+    BoxShadow(color: Color(0x0A1565C0), blurRadius: 4, offset: Offset(0, 2)),
   ];
 
   /// AI shadow - For AI-related components
   static const List<BoxShadow> aiShadow = [
-    BoxShadow(
-      color: Color(0x1F7C4DFF),
-      blurRadius: 16,
-      offset: Offset(0, 8),
-    ),
-    BoxShadow(
-      color: Color(0x147C4DFF),
-      blurRadius: 4,
-      offset: Offset(0, 2),
-    ),
+    BoxShadow(color: Color(0x1F7C4DFF), blurRadius: 16, offset: Offset(0, 8)),
+    BoxShadow(color: Color(0x147C4DFF), blurRadius: 4, offset: Offset(0, 2)),
   ];
 
   /// Emergency shadow - For critical actions
   static const List<BoxShadow> emergencyShadow = [
-    BoxShadow(
-      color: Color(0x29D32F2F),
-      blurRadius: 20,
-      offset: Offset(0, 10),
-    ),
-    BoxShadow(
-      color: Color(0x1FD32F2F),
-      blurRadius: 6,
-      offset: Offset(0, 3),
-    ),
+    BoxShadow(color: Color(0x29D32F2F), blurRadius: 20, offset: Offset(0, 10)),
+    BoxShadow(color: Color(0x1FD32F2F), blurRadius: 6, offset: Offset(0, 3)),
   ];
 
   // Modern Border System
@@ -193,15 +141,9 @@ class CareCircleModernEffectsTokens {
   }) {
     return BoxDecoration(
       borderRadius: borderRadius ?? radiusLG,
-      border: Border.all(
-        color: const Color(0xFF7C4DFF),
-        width: borderWidth,
-      ),
+      border: Border.all(color: const Color(0xFF7C4DFF), width: borderWidth),
       gradient: const LinearGradient(
-        colors: [
-          Color(0x1A7C4DFF),
-          Color(0x0A536DFE),
-        ],
+        colors: [Color(0x1A7C4DFF), Color(0x0A536DFE)],
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
       ),

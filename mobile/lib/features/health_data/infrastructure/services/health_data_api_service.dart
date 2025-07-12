@@ -19,10 +19,8 @@ class HealthDataApiService extends BaseApiService {
   static final _logger = BoundedContextLoggers.healthData;
   late final Dio _dio;
 
-  HealthDataApiService(Dio dio) : super(
-    dio: dio,
-    logger: BoundedContextLoggers.healthData,
-  ) {
+  HealthDataApiService(Dio dio)
+    : super(dio: dio, logger: BoundedContextLoggers.healthData) {
     _dio = dio;
   }
 

@@ -81,13 +81,9 @@ class _CareCircleButtonState extends State<CareCircleButton>
       duration: const Duration(milliseconds: 150),
       vsync: this,
     );
-    _scaleAnimation = Tween<double>(
-      begin: 1.0,
-      end: 0.95,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOut,
-    ));
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.95).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    );
   }
 
   @override
@@ -192,11 +188,7 @@ class _CareCircleButtonState extends State<CareCircleButton>
           SizedBox(width: CareCircleSpacingTokens.sm),
         ],
         if (widget.isUrgent) ...[
-          Icon(
-            Icons.priority_high,
-            size: 16,
-            color: textStyle.color,
-          ),
+          Icon(Icons.priority_high, size: 16, color: textStyle.color),
           SizedBox(width: CareCircleSpacingTokens.xs),
         ],
         Text(widget.text, style: textStyle),
@@ -239,7 +231,9 @@ class _CareCircleButtonState extends State<CareCircleButton>
         return BoxDecoration(
           color: buttonConfig['backgroundColor'],
           borderRadius: CareCircleModernEffectsTokens.radiusSM,
-          boxShadow: CareCircleModernEffectsTokens.getShadowForElevation(_getElevation().round()),
+          boxShadow: CareCircleModernEffectsTokens.getShadowForElevation(
+            _getElevation().round(),
+          ),
           border: buttonConfig['borderColor'] != null
               ? Border.all(color: buttonConfig['borderColor'], width: 1.5)
               : null,
@@ -320,24 +314,29 @@ class _CareCircleButtonState extends State<CareCircleButton>
         break;
       // Modern gradient variants
       case CareCircleButtonVariant.primaryGradient:
-        backgroundColor = Colors.transparent; // Gradient will be applied in decoration
+        backgroundColor =
+            Colors.transparent; // Gradient will be applied in decoration
         foregroundColor = Colors.white;
         break;
       case CareCircleButtonVariant.aiAssistant:
       case CareCircleButtonVariant.aiGradient:
-        backgroundColor = Colors.transparent; // Gradient will be applied in decoration
+        backgroundColor =
+            Colors.transparent; // Gradient will be applied in decoration
         foregroundColor = Colors.white;
         break;
       case CareCircleButtonVariant.emergencyGradient:
-        backgroundColor = Colors.transparent; // Gradient will be applied in decoration
+        backgroundColor =
+            Colors.transparent; // Gradient will be applied in decoration
         foregroundColor = Colors.white;
         break;
       case CareCircleButtonVariant.healthGradient:
-        backgroundColor = Colors.transparent; // Gradient will be applied in decoration
+        backgroundColor =
+            Colors.transparent; // Gradient will be applied in decoration
         foregroundColor = Colors.white;
         break;
       case CareCircleButtonVariant.glassmorphism:
-        backgroundColor = Colors.transparent; // Glassmorphism will be applied in decoration
+        backgroundColor =
+            Colors.transparent; // Glassmorphism will be applied in decoration
         foregroundColor = CareCircleColorTokens.primaryMedicalBlue;
         break;
     }

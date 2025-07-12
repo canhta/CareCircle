@@ -246,14 +246,14 @@ Get statistics about the Vietnamese medical knowledge base.
     "supportedLanguages": ["vietnamese", "english", "mixed"],
     "supportedSources": [
       "vinmec",
-      "bachmai", 
+      "bachmai",
       "moh",
       "traditional_medicine",
       "pharmaceutical"
     ],
     "documentTypes": [
       "article",
-      "guideline", 
+      "guideline",
       "research",
       "traditional_recipe",
       "drug_info"
@@ -355,26 +355,31 @@ curl -X POST http://localhost:3001/api/v1/ai-assistant/vietnamese-healthcare/sea
 ## Features
 
 ### Vietnamese Language Support
+
 - Native Vietnamese medical terminology processing
 - Automatic language detection and response matching
 - Support for mixed Vietnamese-English queries
 
 ### Traditional Medicine Integration
+
 - Vietnamese traditional medicine (thuốc nam) knowledge base
 - Cultural context awareness for healthcare decisions
 - Integration of traditional and modern medical approaches
 
 ### PHI Protection
+
 - HIPAA-compliant detection of 18 standard identifiers
 - Vietnamese-specific PHI patterns (ID cards, insurance cards)
 - Real-time masking and risk assessment
 
 ### Emergency Detection
+
 - Vietnamese emergency keyword recognition
 - Urgency level assessment and escalation
 - Cultural considerations for emergency care
 
 ### Knowledge Base
+
 - Comprehensive Vietnamese healthcare website crawling
 - Vector-based semantic search
 - Multi-source medical information integration

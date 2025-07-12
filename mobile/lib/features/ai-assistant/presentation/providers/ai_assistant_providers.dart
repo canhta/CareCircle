@@ -219,13 +219,18 @@ final chatInputProvider = StateProvider<String>((ref) => '');
 final typingIndicatorProvider = StateProvider<bool>((ref) => false);
 
 // Streaming state provider
-final streamingStateProvider = StateProvider<StreamingState>((ref) => const StreamingState());
+final streamingStateProvider = StateProvider<StreamingState>(
+  (ref) => const StreamingState(),
+);
 
 // Session management providers
-final streamingSessionProvider = StateProvider<StreamingSession?>((ref) => null);
+final streamingSessionProvider = StateProvider<StreamingSession?>(
+  (ref) => null,
+);
 
 // Active streaming sessions provider
-final activeStreamingSessionsProvider = StateProvider<Map<String, StreamingSession>>((ref) => {});
+final activeStreamingSessionsProvider =
+    StateProvider<Map<String, StreamingSession>>((ref) => {});
 
 // Session persistence provider
 final sessionPersistenceProvider = Provider<SessionPersistenceService>((ref) {
@@ -316,7 +321,8 @@ class AiAssistantNotifier
 
     try {
       // Create or update streaming session
-      final sessionId = 'session_${conversationId}_${DateTime.now().millisecondsSinceEpoch}';
+      final sessionId =
+          'session_${conversationId}_${DateTime.now().millisecondsSinceEpoch}';
       final session = StreamingSession(
         sessionId: sessionId,
         conversationId: conversationId,
@@ -339,7 +345,10 @@ class AiAssistantNotifier
       );
 
       // Get streaming response from repository
-      final streamResponse = _repository.sendMessageStream(conversationId, content);
+      final streamResponse = _repository.sendMessageStream(
+        conversationId,
+        content,
+      );
 
       String accumulatedContent = '';
       int charactersStreamed = 0;
@@ -367,9 +376,7 @@ class AiAssistantNotifier
           );
 
           // Update session activity
-          final updatedSession = session.copyWith(
-            lastActivity: DateTime.now(),
-          );
+          final updatedSession = session.copyWith(lastActivity: DateTime.now());
           _ref.read(streamingSessionProvider.notifier).state = updatedSession;
 
           yield chunk;
@@ -387,7 +394,9 @@ class AiAssistantNotifier
         startTime: startTime,
         endTime: endTime,
         charactersStreamed: charactersStreamed,
-        streamingSpeed: charactersStreamed / (endTime.difference(startTime).inMilliseconds / 1000.0),
+        streamingSpeed:
+            charactersStreamed /
+            (endTime.difference(startTime).inMilliseconds / 1000.0),
       );
 
       // Mark session as complete
@@ -409,7 +418,6 @@ class AiAssistantNotifier
         final updatedConv = await _repository.getConversation(conversationId);
         _ref.read(currentConversationProvider.notifier).state = updatedConv;
       }
-
     } catch (error) {
       final endTime = DateTime.now();
 

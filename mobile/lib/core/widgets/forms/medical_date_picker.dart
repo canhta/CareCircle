@@ -5,7 +5,7 @@ import 'package:intl/intl.dart';
 import '../../design/design_tokens.dart';
 
 /// Medical date picker with healthcare-specific validation
-/// 
+///
 /// Features:
 /// - Healthcare-compliant date validation
 /// - Accessibility support with 44px minimum touch targets
@@ -54,7 +54,7 @@ class _MedicalDatePickerState extends State<MedicalDatePicker> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

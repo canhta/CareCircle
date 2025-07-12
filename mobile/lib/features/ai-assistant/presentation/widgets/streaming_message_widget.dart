@@ -23,7 +23,8 @@ class StreamingMessageWidget extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<StreamingMessageWidget> createState() => _StreamingMessageWidgetState();
+  ConsumerState<StreamingMessageWidget> createState() =>
+      _StreamingMessageWidgetState();
 }
 
 class _StreamingMessageWidgetState extends ConsumerState<StreamingMessageWidget>
@@ -32,7 +33,7 @@ class _StreamingMessageWidgetState extends ConsumerState<StreamingMessageWidget>
   bool _isStreaming = true;
   bool _hasError = false;
   StreamSubscription<String>? _streamSubscription;
-  
+
   // Animation controllers for healthcare-appropriate effects
   late AnimationController _typingController;
   late AnimationController _fadeController;
@@ -52,27 +53,20 @@ class _StreamingMessageWidgetState extends ConsumerState<StreamingMessageWidget>
       duration: const Duration(milliseconds: 1200),
       vsync: this,
     );
-    
+
     _fadeController = AnimationController(
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
 
-    _typingAnimation = Tween<double>(
-      begin: 0.3,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _typingController,
-      curve: Curves.easeInOut,
-    ));
+    _typingAnimation = Tween<double>(begin: 0.3, end: 1.0).animate(
+      CurvedAnimation(parent: _typingController, curve: Curves.easeInOut),
+    );
 
     _fadeAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _fadeController,
-      curve: Curves.easeIn,
-    ));
+    ).animate(CurvedAnimation(parent: _fadeController, curve: Curves.easeIn));
 
     // Start subtle animations
     _typingController.repeat(reverse: true);
@@ -86,7 +80,7 @@ class _StreamingMessageWidgetState extends ConsumerState<StreamingMessageWidget>
           setState(() {
             _displayedText += chunk;
           });
-          
+
           // Update streaming state in provider
           ref.read(streamingStateProvider.notifier).state = StreamingState(
             isStreaming: true,
@@ -100,16 +94,16 @@ class _StreamingMessageWidgetState extends ConsumerState<StreamingMessageWidget>
           setState(() {
             _isStreaming = false;
           });
-          
+
           _typingController.stop();
-          
+
           // Update streaming state to complete
           ref.read(streamingStateProvider.notifier).state = StreamingState(
             isStreaming: false,
             currentContent: _displayedText,
             isComplete: true,
           );
-          
+
           widget.onStreamComplete?.call();
         }
       },
@@ -119,9 +113,9 @@ class _StreamingMessageWidgetState extends ConsumerState<StreamingMessageWidget>
             _isStreaming = false;
             _hasError = true;
           });
-          
+
           _typingController.stop();
-          
+
           // Update streaming state with error
           ref.read(streamingStateProvider.notifier).state = StreamingState(
             isStreaming: false,
@@ -146,7 +140,9 @@ class _StreamingMessageWidgetState extends ConsumerState<StreamingMessageWidget>
     return FadeTransition(
       opacity: _fadeAnimation,
       child: Container(
-        constraints: const BoxConstraints(minHeight: CareCircleSpacingTokens.touchTargetMin), // Healthcare 44px minimum
+        constraints: const BoxConstraints(
+          minHeight: CareCircleSpacingTokens.touchTargetMin,
+        ), // Healthcare 44px minimum
         padding: const EdgeInsets.symmetric(
           horizontal: CareCircleSpacingTokens.md,
           vertical: CareCircleSpacingTokens.sm,
@@ -161,7 +157,9 @@ class _StreamingMessageWidgetState extends ConsumerState<StreamingMessageWidget>
           border: Border.all(
             color: _hasError
                 ? CareCircleColorTokens.criticalAlert.withValues(alpha: 0.3)
-                : CareCircleDesignTokens.primaryMedicalBlue.withValues(alpha: 0.1),
+                : CareCircleDesignTokens.primaryMedicalBlue.withValues(
+                    alpha: 0.1,
+                  ),
             width: 1,
           ),
           boxShadow: [
@@ -177,7 +175,9 @@ class _StreamingMessageWidgetState extends ConsumerState<StreamingMessageWidget>
           children: [
             // Message content with progressive display
             SelectableText(
-              _displayedText.isEmpty ? ' ' : _displayedText, // Prevent empty collapse
+              _displayedText.isEmpty
+                  ? ' '
+                  : _displayedText, // Prevent empty collapse
               style: TextStyle(
                 fontSize: 16,
                 height: 1.5,
@@ -186,7 +186,7 @@ class _StreamingMessageWidgetState extends ConsumerState<StreamingMessageWidget>
                     : CareCircleDesignTokens.textPrimary,
               ),
             ),
-            
+
             // Streaming indicator
             if (_isStreaming) ...[
               const SizedBox(height: CareCircleSpacingTokens.sm),

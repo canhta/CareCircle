@@ -192,15 +192,16 @@ class AiAssistantRepository {
 
     try {
       // Create a Dio instance for SSE streaming
-      final dio = Dio(BaseOptions(
-        baseUrl: AppConfig.apiBaseUrl,
-        connectTimeout: const Duration(seconds: 30),
-        receiveTimeout: const Duration(minutes: 5), // Longer timeout for streaming
-        headers: {
-          'Accept': 'text/event-stream',
-          'Cache-Control': 'no-cache',
-        },
-      ));
+      final dio = Dio(
+        BaseOptions(
+          baseUrl: AppConfig.apiBaseUrl,
+          connectTimeout: const Duration(seconds: 30),
+          receiveTimeout: const Duration(
+            minutes: 5,
+          ), // Longer timeout for streaming
+          headers: {'Accept': 'text/event-stream', 'Cache-Control': 'no-cache'},
+        ),
+      );
 
       // Add auth interceptor
       dio.interceptors.add(
@@ -223,10 +224,7 @@ class AiAssistantRepository {
         queryParameters: {'message': content},
         options: Options(
           responseType: ResponseType.stream,
-          headers: {
-            'Accept': 'text/event-stream',
-            'Cache-Control': 'no-cache',
-          },
+          headers: {'Accept': 'text/event-stream', 'Cache-Control': 'no-cache'},
         ),
       );
 
@@ -251,7 +249,9 @@ class AiAssistantRepository {
                   final type = eventData['type'] as String?;
                   final content = eventData['content'] as String?;
 
-                  if (type == 'stream_chunk' && content != null && content.isNotEmpty) {
+                  if (type == 'stream_chunk' &&
+                      content != null &&
+                      content.isNotEmpty) {
                     yield content;
                   } else if (type == 'stream_complete') {
                     _logger.logAiInteraction('Streaming message completed', {

@@ -186,11 +186,19 @@ class AdherenceManagementNotifier extends StateNotifier<AsyncValue<void>> {
   }
 
   /// Mark an existing dose as taken
-  Future<void> markDoseAsTaken(String recordId, {DateTime? takenAt, String? notes}) async {
+  Future<void> markDoseAsTaken(
+    String recordId, {
+    DateTime? takenAt,
+    String? notes,
+  }) async {
     state = const AsyncValue.loading();
 
     try {
-      await _repository.markDoseAsTaken(recordId, takenAt: takenAt, notes: notes);
+      await _repository.markDoseAsTaken(
+        recordId,
+        takenAt: takenAt,
+        notes: notes,
+      );
 
       // Refresh adherence records
       _ref.invalidate(adherenceRecordsProvider);

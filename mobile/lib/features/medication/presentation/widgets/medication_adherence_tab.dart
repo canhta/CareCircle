@@ -569,10 +569,7 @@ class MedicationAdherenceTab extends ConsumerWidget {
               const SizedBox(height: 16),
               Text(
                 'Select the dose status:',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey[600],
-                ),
+                style: TextStyle(fontSize: 14, color: Colors.grey[600]),
               ),
             ],
           ),

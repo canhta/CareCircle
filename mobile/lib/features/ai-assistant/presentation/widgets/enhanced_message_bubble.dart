@@ -26,7 +26,8 @@ class EnhancedMessageBubble extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<EnhancedMessageBubble> createState() => _EnhancedMessageBubbleState();
+  ConsumerState<EnhancedMessageBubble> createState() =>
+      _EnhancedMessageBubbleState();
 }
 
 class _EnhancedMessageBubbleState extends ConsumerState<EnhancedMessageBubble>
@@ -34,7 +35,7 @@ class _EnhancedMessageBubbleState extends ConsumerState<EnhancedMessageBubble>
   late AnimationController _slideController;
   late AnimationController _fadeController;
   late AnimationController _pulseController;
-  
+
   late Animation<Offset> _slideAnimation;
   late Animation<double> _fadeAnimation;
   late Animation<double> _pulseAnimation;
@@ -65,35 +66,36 @@ class _EnhancedMessageBubbleState extends ConsumerState<EnhancedMessageBubble>
       vsync: this,
     );
 
-    _slideAnimation = Tween<Offset>(
-      begin: widget.isUser ? const Offset(0.3, 0) : const Offset(-0.3, 0),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _slideController,
-      curve: CareCircleAnimationTokens.gentleEase,
-    ));
+    _slideAnimation =
+        Tween<Offset>(
+          begin: widget.isUser ? const Offset(0.3, 0) : const Offset(-0.3, 0),
+          end: Offset.zero,
+        ).animate(
+          CurvedAnimation(
+            parent: _slideController,
+            curve: CareCircleAnimationTokens.gentleEase,
+          ),
+        );
 
-    _fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _fadeController,
-      curve: CareCircleAnimationTokens.standardEase,
-    ));
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _fadeController,
+        curve: CareCircleAnimationTokens.standardEase,
+      ),
+    );
 
-    _pulseAnimation = Tween<double>(
-      begin: 1.0,
-      end: 1.05,
-    ).animate(CurvedAnimation(
-      parent: _pulseController,
-      curve: CareCircleAnimationTokens.gentleEase,
-    ));
+    _pulseAnimation = Tween<double>(begin: 1.0, end: 1.05).animate(
+      CurvedAnimation(
+        parent: _pulseController,
+        curve: CareCircleAnimationTokens.gentleEase,
+      ),
+    );
   }
 
   void _startEntryAnimation() {
     _fadeController.forward();
     _slideController.forward();
-    
+
     if (widget.isStreaming) {
       _pulseController.repeat(reverse: true);
     }
@@ -102,7 +104,7 @@ class _EnhancedMessageBubbleState extends ConsumerState<EnhancedMessageBubble>
   @override
   void didUpdateWidget(EnhancedMessageBubble oldWidget) {
     super.didUpdateWidget(oldWidget);
-    
+
     // Handle streaming state changes
     if (oldWidget.isStreaming && !widget.isStreaming) {
       _pulseController.stop();
@@ -132,13 +134,10 @@ class _EnhancedMessageBubbleState extends ConsumerState<EnhancedMessageBubble>
             return Transform.scale(
               scale: widget.isStreaming ? _pulseAnimation.value : 1.0,
               child: Container(
-                margin: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
-                ),
+                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: Row(
-                  mainAxisAlignment: widget.isUser 
-                      ? MainAxisAlignment.end 
+                  mainAxisAlignment: widget.isUser
+                      ? MainAxisAlignment.end
                       : MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
@@ -148,8 +147,8 @@ class _EnhancedMessageBubbleState extends ConsumerState<EnhancedMessageBubble>
                     ],
                     Flexible(
                       child: Column(
-                        crossAxisAlignment: widget.isUser 
-                            ? CrossAxisAlignment.end 
+                        crossAxisAlignment: widget.isUser
+                            ? CrossAxisAlignment.end
                             : CrossAxisAlignment.start,
                         children: [
                           _buildMessageBubble(),
@@ -157,7 +156,8 @@ class _EnhancedMessageBubbleState extends ConsumerState<EnhancedMessageBubble>
                             const SizedBox(height: 4),
                             _buildTimestamp(),
                           ],
-                          if (widget.showMedicalDisclaimer && !widget.isUser) ...[
+                          if (widget.showMedicalDisclaimer &&
+                              !widget.isUser) ...[
                             const SizedBox(height: 8),
                             _buildMedicalDisclaimer(),
                           ],
@@ -186,10 +186,7 @@ class _EnhancedMessageBubbleState extends ConsumerState<EnhancedMessageBubble>
           maxWidth: MediaQuery.of(context).size.width * 0.75,
           minHeight: 44,
         ),
-        padding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 8,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: _buildBubbleDecoration(),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -224,7 +221,9 @@ class _EnhancedMessageBubbleState extends ConsumerState<EnhancedMessageBubble>
         ),
         boxShadow: [
           BoxShadow(
-            color: CareCircleDesignTokens.primaryMedicalBlue.withValues(alpha: 0.3),
+            color: CareCircleDesignTokens.primaryMedicalBlue.withValues(
+              alpha: 0.3,
+            ),
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),
@@ -232,9 +231,7 @@ class _EnhancedMessageBubbleState extends ConsumerState<EnhancedMessageBubble>
       );
     } else {
       return BoxDecoration(
-        color: widget.isStreaming
-            ? Colors.grey[50]!
-            : Colors.grey[100]!,
+        color: widget.isStreaming ? Colors.grey[50]! : Colors.grey[100]!,
         borderRadius: BorderRadius.only(
           topLeft: const Radius.circular(4),
           topRight: const Radius.circular(18),
@@ -242,7 +239,7 @@ class _EnhancedMessageBubbleState extends ConsumerState<EnhancedMessageBubble>
           bottomRight: const Radius.circular(18),
         ),
         border: Border.all(
-          color: widget.isStreaming 
+          color: widget.isStreaming
               ? CareCircleDesignTokens.primaryMedicalBlue.withValues(alpha: 0.3)
               : Colors.grey[300]!.withValues(alpha: 0.2),
           width: 1,
@@ -264,8 +261,8 @@ class _EnhancedMessageBubbleState extends ConsumerState<EnhancedMessageBubble>
       style: TextStyle(
         fontSize: 16,
         height: 1.4,
-        color: widget.isUser 
-            ? Colors.white 
+        color: widget.isUser
+            ? Colors.white
             : CareCircleDesignTokens.textPrimary,
         fontWeight: widget.isUser ? FontWeight.w500 : FontWeight.w400,
       ),
@@ -315,17 +312,15 @@ class _EnhancedMessageBubbleState extends ConsumerState<EnhancedMessageBubble>
         shape: BoxShape.circle,
         boxShadow: [
           BoxShadow(
-            color: CareCircleDesignTokens.primaryMedicalBlue.withValues(alpha: 0.3),
+            color: CareCircleDesignTokens.primaryMedicalBlue.withValues(
+              alpha: 0.3,
+            ),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
         ],
       ),
-      child: const Icon(
-        Icons.psychology,
-        color: Colors.white,
-        size: 18,
-      ),
+      child: const Icon(Icons.psychology, color: Colors.white, size: 18),
     );
   }
 
@@ -338,17 +333,15 @@ class _EnhancedMessageBubbleState extends ConsumerState<EnhancedMessageBubble>
         shape: BoxShape.circle,
         boxShadow: [
           BoxShadow(
-            color: CareCircleDesignTokens.primaryMedicalBlue.withValues(alpha: 0.3),
+            color: CareCircleDesignTokens.primaryMedicalBlue.withValues(
+              alpha: 0.3,
+            ),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
         ],
       ),
-      child: const Icon(
-        Icons.person,
-        color: Colors.white,
-        size: 18,
-      ),
+      child: const Icon(Icons.person, color: Colors.white, size: 18),
     );
   }
 
@@ -383,11 +376,7 @@ class _EnhancedMessageBubbleState extends ConsumerState<EnhancedMessageBubble>
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            Icons.info_outline,
-            size: 14,
-            color: Colors.orange,
-          ),
+          Icon(Icons.info_outline, size: 14, color: Colors.orange),
           const SizedBox(width: 4),
           Flexible(
             child: Text(
@@ -407,7 +396,7 @@ class _EnhancedMessageBubbleState extends ConsumerState<EnhancedMessageBubble>
   String _formatTimestamp(DateTime timestamp) {
     final now = DateTime.now();
     final difference = now.difference(timestamp);
-    
+
     if (difference.inMinutes < 1) {
       return 'Just now';
     } else if (difference.inHours < 1) {

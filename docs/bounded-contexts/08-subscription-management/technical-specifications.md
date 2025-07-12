@@ -12,6 +12,7 @@ The subscription management system follows a microservices architecture with cle
 ## Database Schema
 
 ### Subscriptions Table
+
 ```sql
 CREATE TABLE subscriptions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -34,6 +35,7 @@ CREATE INDEX idx_subscriptions_external_id ON subscriptions(external_subscriptio
 ```
 
 ### Features Table
+
 ```sql
 CREATE TABLE features (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -53,6 +55,7 @@ CREATE INDEX idx_features_tier ON features(minimum_tier);
 ```
 
 ### User Feature Usage Table
+
 ```sql
 CREATE TABLE user_feature_usage (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -71,6 +74,7 @@ CREATE INDEX idx_user_feature_usage_feature_id ON user_feature_usage(feature_id)
 ```
 
 ### Referrals Table
+
 ```sql
 CREATE TABLE referrals (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -93,6 +97,7 @@ CREATE INDEX idx_referrals_code ON referrals(referral_code);
 ```
 
 ### Payment Transactions Table
+
 ```sql
 CREATE TABLE payment_transactions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -116,6 +121,7 @@ CREATE INDEX idx_payment_transactions_transaction_id ON payment_transactions(tra
 ### Subscription Management
 
 #### Get User Subscription Status
+
 ```typescript
 GET /api/v1/subscription/status
 Authorization: Bearer <token>
@@ -143,6 +149,7 @@ Response:
 ```
 
 #### Upgrade Subscription
+
 ```typescript
 POST /api/v1/subscription/upgrade
 Authorization: Bearer <token>
@@ -168,6 +175,7 @@ Response:
 ### Feature Management
 
 #### Check Feature Access
+
 ```typescript
 GET /api/v1/features/{featureName}/access
 Authorization: Bearer <token>
@@ -182,6 +190,7 @@ Response:
 ```
 
 #### Consume Feature
+
 ```typescript
 POST /api/v1/features/{featureName}/consume
 Authorization: Bearer <token>
@@ -205,6 +214,7 @@ Response:
 ### Referral System
 
 #### Create Referral Code
+
 ```typescript
 POST /api/v1/referrals/create
 Authorization: Bearer <token>
@@ -218,6 +228,7 @@ Response:
 ```
 
 #### Claim Referral Reward
+
 ```typescript
 POST /api/v1/referrals/claim
 Authorization: Bearer <token>
@@ -241,11 +252,19 @@ Response:
 ## Service Interfaces
 
 ### SubscriptionService
+
 ```typescript
 interface SubscriptionService {
   getUserSubscription(userId: string): Promise<Subscription>;
-  createSubscription(userId: string, tier: SubscriptionTier, paymentData: PaymentData): Promise<Subscription>;
-  upgradeSubscription(subscriptionId: string, targetTier: SubscriptionTier): Promise<Subscription>;
+  createSubscription(
+    userId: string,
+    tier: SubscriptionTier,
+    paymentData: PaymentData,
+  ): Promise<Subscription>;
+  upgradeSubscription(
+    subscriptionId: string,
+    targetTier: SubscriptionTier,
+  ): Promise<Subscription>;
   cancelSubscription(subscriptionId: string): Promise<void>;
   renewSubscription(subscriptionId: string): Promise<Subscription>;
   handlePaymentWebhook(provider: PaymentProvider, payload: any): Promise<void>;
@@ -253,22 +272,34 @@ interface SubscriptionService {
 ```
 
 ### FeatureGateService
+
 ```typescript
 interface FeatureGateService {
-  checkFeatureAccess(userId: string, featureName: string): Promise<FeatureAccess>;
-  consumeFeature(userId: string, featureName: string, amount: number): Promise<FeatureUsage>;
+  checkFeatureAccess(
+    userId: string,
+    featureName: string,
+  ): Promise<FeatureAccess>;
+  consumeFeature(
+    userId: string,
+    featureName: string,
+    amount: number,
+  ): Promise<FeatureUsage>;
   getFeatureUsage(userId: string, featureName: string): Promise<FeatureUsage>;
   resetQuotas(period: QuotaPeriod): Promise<void>;
 }
 ```
 
 ### ReferralService
+
 ```typescript
 interface ReferralService {
   createReferralCode(userId: string): Promise<Referral>;
   processReferralSignup(referralCode: string, newUserId: string): Promise<void>;
   completeReferral(referralId: string): Promise<void>;
-  claimReferralReward(userId: string, referralId: string): Promise<ReferralReward>;
+  claimReferralReward(
+    userId: string,
+    referralId: string,
+  ): Promise<ReferralReward>;
   getReferralStats(userId: string): Promise<ReferralStats>;
 }
 ```
@@ -276,20 +307,22 @@ interface ReferralService {
 ## Event System
 
 ### Event Types
+
 ```typescript
 enum SubscriptionEventType {
-  SUBSCRIPTION_CREATED = 'subscription.created',
-  SUBSCRIPTION_UPGRADED = 'subscription.upgraded',
-  SUBSCRIPTION_CANCELLED = 'subscription.cancelled',
-  SUBSCRIPTION_EXPIRED = 'subscription.expired',
-  PAYMENT_SUCCEEDED = 'payment.succeeded',
-  PAYMENT_FAILED = 'payment.failed',
-  FEATURE_QUOTA_EXCEEDED = 'feature.quota_exceeded',
-  REFERRAL_COMPLETED = 'referral.completed'
+  SUBSCRIPTION_CREATED = "subscription.created",
+  SUBSCRIPTION_UPGRADED = "subscription.upgraded",
+  SUBSCRIPTION_CANCELLED = "subscription.cancelled",
+  SUBSCRIPTION_EXPIRED = "subscription.expired",
+  PAYMENT_SUCCEEDED = "payment.succeeded",
+  PAYMENT_FAILED = "payment.failed",
+  FEATURE_QUOTA_EXCEEDED = "feature.quota_exceeded",
+  REFERRAL_COMPLETED = "referral.completed",
 }
 ```
 
 ### Event Handlers
+
 ```typescript
 @EventHandler(SubscriptionEventType.SUBSCRIPTION_CREATED)
 async handleSubscriptionCreated(event: SubscriptionCreatedEvent) {
@@ -308,9 +341,12 @@ async handleQuotaExceeded(event: QuotaExceededEvent) {
 ## Integration Patterns
 
 ### Payment Provider Integration
+
 ```typescript
 interface PaymentProvider {
-  createSubscription(subscriptionData: SubscriptionData): Promise<PaymentResult>;
+  createSubscription(
+    subscriptionData: SubscriptionData,
+  ): Promise<PaymentResult>;
   cancelSubscription(externalSubscriptionId: string): Promise<void>;
   handleWebhook(payload: any, signature: string): Promise<WebhookEvent>;
   validateReceipt(receipt: string): Promise<ReceiptValidation>;
@@ -318,16 +354,21 @@ interface PaymentProvider {
 ```
 
 ### Webhook Security
+
 ```typescript
 class WebhookValidator {
-  validateSignature(payload: string, signature: string, secret: string): boolean {
+  validateSignature(
+    payload: string,
+    signature: string,
+    secret: string,
+  ): boolean {
     const expectedSignature = crypto
-      .createHmac('sha256', secret)
+      .createHmac("sha256", secret)
       .update(payload)
-      .digest('hex');
+      .digest("hex");
     return crypto.timingSafeEqual(
       Buffer.from(signature),
-      Buffer.from(expectedSignature)
+      Buffer.from(expectedSignature),
     );
   }
 }
@@ -336,22 +377,32 @@ class WebhookValidator {
 ## Error Handling
 
 ### Custom Exceptions
+
 ```typescript
 class SubscriptionError extends Error {
-  constructor(message: string, public code: string) {
+  constructor(
+    message: string,
+    public code: string,
+  ) {
     super(message);
   }
 }
 
 class InsufficientQuotaError extends SubscriptionError {
   constructor(featureName: string, currentUsage: number, limit: number) {
-    super(`Quota exceeded for ${featureName}: ${currentUsage}/${limit}`, 'QUOTA_EXCEEDED');
+    super(
+      `Quota exceeded for ${featureName}: ${currentUsage}/${limit}`,
+      "QUOTA_EXCEEDED",
+    );
   }
 }
 
 class InvalidSubscriptionTierError extends SubscriptionError {
   constructor(requiredTier: string, currentTier: string) {
-    super(`Feature requires ${requiredTier} tier, current: ${currentTier}`, 'INSUFFICIENT_TIER');
+    super(
+      `Feature requires ${requiredTier} tier, current: ${currentTier}`,
+      "INSUFFICIENT_TIER",
+    );
   }
 }
 ```
@@ -359,11 +410,13 @@ class InvalidSubscriptionTierError extends SubscriptionError {
 ## Performance Considerations
 
 ### Caching Strategy
+
 - User subscription status: Redis cache with 5-minute TTL
 - Feature access permissions: In-memory cache with event-based invalidation
 - Usage quotas: Redis with atomic increment operations
 
 ### Database Optimization
+
 - Partitioning payment_transactions by month
 - Indexing on frequently queried fields
 - Read replicas for analytics queries
@@ -371,6 +424,7 @@ class InvalidSubscriptionTierError extends SubscriptionError {
 ## Monitoring and Observability
 
 ### Key Metrics
+
 - Subscription conversion rates by tier
 - Feature usage patterns
 - Payment failure rates
@@ -378,6 +432,7 @@ class InvalidSubscriptionTierError extends SubscriptionError {
 - API response times
 
 ### Alerting
+
 - Payment webhook failures
 - High quota usage patterns
 - Subscription cancellation spikes
@@ -386,12 +441,14 @@ class InvalidSubscriptionTierError extends SubscriptionError {
 ## Security Measures
 
 ### API Security
+
 - JWT token validation
 - Rate limiting per subscription tier
 - Input validation and sanitization
 - SQL injection prevention
 
 ### Data Protection
+
 - Encryption at rest for sensitive data
 - PCI DSS compliance for payment data
 - Regular security audits

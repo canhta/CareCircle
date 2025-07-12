@@ -7,6 +7,7 @@ This document outlines the complete user experience flows for subscription manag
 ## Onboarding and Trial Flow
 
 ### Initial App Launch
+
 ```mermaid
 graph TD
     A[App Launch] --> B[Welcome Screen]
@@ -20,6 +21,7 @@ graph TD
 ```
 
 ### Welcome and Trial Activation
+
 ```dart
 class OnboardingFlow extends StatefulWidget {
   @override
@@ -54,6 +56,7 @@ class OnboardingFlow extends StatefulWidget {
 ```
 
 ### Trial Experience Design
+
 - **Day 1-2**: Basic feature introduction
 - **Day 3-4**: Advanced feature showcase
 - **Day 5-6**: Personalized health insights
@@ -62,13 +65,14 @@ class OnboardingFlow extends StatefulWidget {
 ## Feature Gating and Upgrade Prompts
 
 ### Contextual Upgrade Prompts
+
 ```dart
 class FeatureGateWidget extends StatelessWidget {
   final String featureName;
   final SubscriptionTier requiredTier;
   final int currentUsage;
   final int quotaLimit;
-  
+
   @override
   Widget build(BuildContext context) {
     if (currentUsage >= quotaLimit) {
@@ -80,7 +84,7 @@ class FeatureGateWidget extends StatelessWidget {
         onUpgrade: () => _showUpgradeFlow(context)
       );
     }
-    
+
     return FeatureAccessWidget(
       remainingUsage: quotaLimit - currentUsage,
       totalQuota: quotaLimit
@@ -90,6 +94,7 @@ class FeatureGateWidget extends StatelessWidget {
 ```
 
 ### Smart Upgrade Timing
+
 ```dart
 class UpgradePromptStrategy {
   static bool shouldShowUpgradePrompt(UserContext context) {
@@ -97,17 +102,17 @@ class UpgradePromptStrategy {
     if (context.lastAIRating >= 4 && context.sessionCount >= 3) {
       return true;
     }
-    
+
     // Show when approaching quota limit
     if (context.quotaUsagePercentage >= 80) {
       return true;
     }
-    
+
     // Show during high-value feature usage
     if (context.isUsingPremiumFeature) {
       return true;
     }
-    
+
     return false;
   }
 }
@@ -116,6 +121,7 @@ class UpgradePromptStrategy {
 ## Subscription Selection and Purchase
 
 ### Subscription Plans Screen
+
 ```dart
 class SubscriptionPlansScreen extends StatelessWidget {
   @override
@@ -171,10 +177,11 @@ class SubscriptionPlansScreen extends StatelessWidget {
 ```
 
 ### Payment Method Selection
+
 ```dart
 class PaymentMethodScreen extends StatefulWidget {
   final SubscriptionPlan selectedPlan;
-  
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -216,6 +223,7 @@ class PaymentMethodScreen extends StatefulWidget {
 ```
 
 ### Purchase Confirmation Flow
+
 ```dart
 class PurchaseConfirmationFlow {
   static Future<void> processPurchase(
@@ -229,14 +237,14 @@ class PurchaseConfirmationFlow {
       barrierDismissible: false,
       builder: (_) => PurchaseLoadingDialog()
     );
-    
+
     try {
       // Process payment based on method
       final result = await _processPaymentByMethod(plan, method);
-      
+
       // Update local subscription state
       await SubscriptionService.updateLocalState(result);
-      
+
       // Show success screen
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
@@ -246,7 +254,7 @@ class PurchaseConfirmationFlow {
           )
         )
       );
-      
+
     } catch (error) {
       // Show error handling
       Navigator.of(context).pop();
@@ -259,6 +267,7 @@ class PurchaseConfirmationFlow {
 ## Subscription Management
 
 ### Account Settings Integration
+
 ```dart
 class AccountSettingsScreen extends StatelessWidget {
   @override
@@ -302,6 +311,7 @@ class AccountSettingsScreen extends StatelessWidget {
 ```
 
 ### Subscription Status Dashboard
+
 ```dart
 class SubscriptionStatusCard extends StatelessWidget {
   @override
@@ -310,9 +320,9 @@ class SubscriptionStatusCard extends StatelessWidget {
       future: SubscriptionService.getStatus(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) return LoadingCard();
-        
+
         final status = snapshot.data!;
-        
+
         return Card(
           child: Padding(
             padding: EdgeInsets.all(16),
@@ -369,6 +379,7 @@ class SubscriptionStatusCard extends StatelessWidget {
 ## Referral System User Flow
 
 ### Referral Dashboard
+
 ```dart
 class ReferralDashboard extends StatelessWidget {
   @override
@@ -421,6 +432,7 @@ class ReferralStatsCard extends StatelessWidget {
 ```
 
 ### Share Flow
+
 ```dart
 class ReferralShareFlow {
   static Future<void> shareReferralCode(
@@ -449,13 +461,13 @@ class ReferralShareFlow {
         onTap: () => _copyToClipboard(referralCode)
       )
     ];
-    
+
     showModalBottomSheet(
       context: context,
       builder: (_) => ShareOptionsSheet(options: shareOptions)
     );
   }
-  
+
   static String _generateShareMessage(String referralCode) {
     return '''
 🏥 Join me on CareCircle - Your AI Health Assistant!
@@ -474,6 +486,7 @@ You'll get 30 days free premium access!
 ## Error Handling and Recovery
 
 ### Payment Failure Recovery
+
 ```dart
 class PaymentErrorHandler {
   static void handlePaymentError(
@@ -497,7 +510,7 @@ class PaymentErrorHandler {
         _showGenericErrorDialog(context, error);
     }
   }
-  
+
   static void _showCardDeclinedDialog(
     BuildContext context,
     PaymentError error
@@ -535,6 +548,7 @@ class PaymentErrorHandler {
 ```
 
 ### Subscription Recovery Flow
+
 ```dart
 class SubscriptionRecoveryFlow {
   static Future<void> handleExpiredSubscription(
@@ -548,12 +562,12 @@ class SubscriptionRecoveryFlow {
         lastBillingDate: status.lastBillingDate
       )
     );
-    
+
     if (shouldReactivate == true) {
       await _showReactivationFlow(context, status);
     }
   }
-  
+
   static Widget ReactivationDialog({
     required SubscriptionTier expiredPlan,
     required DateTime lastBillingDate
@@ -566,7 +580,7 @@ class SubscriptionRecoveryFlow {
           Text("Your ${_getTierName(expiredPlan)} subscription expired."),
           SizedBox(height: 16),
           Text("Reactivate to restore:"),
-          ...expiredPlan.features.map((feature) => 
+          ...expiredPlan.features.map((feature) =>
             ListTile(
               leading: Icon(Icons.check, color: Colors.green),
               title: Text(feature),
@@ -593,6 +607,7 @@ class SubscriptionRecoveryFlow {
 ## Accessibility and Inclusive Design
 
 ### Accessibility Features
+
 ```dart
 class AccessibleSubscriptionUI {
   static Widget buildAccessiblePlanCard(SubscriptionPlan plan) {
@@ -619,7 +634,7 @@ class AccessibleSubscriptionUI {
                   style: TextStyle(fontSize: 24),
                   semanticsLabel: "Price: ${plan.price} dollars per month"
                 ),
-                ...plan.features.map((feature) => 
+                ...plan.features.map((feature) =>
                   Semantics(
                     label: "Feature: $feature",
                     child: ListTile(
@@ -639,6 +654,7 @@ class AccessibleSubscriptionUI {
 ```
 
 ### Voice Navigation Support
+
 ```dart
 class VoiceNavigationSupport {
   static void setupVoiceCommands() {
@@ -663,15 +679,16 @@ class VoiceNavigationSupport {
 ## Performance Optimization
 
 ### Lazy Loading and Caching
+
 ```dart
 class SubscriptionDataManager {
   static final _cache = <String, dynamic>{};
-  
+
   static Future<SubscriptionStatus> getSubscriptionStatus({
     bool forceRefresh = false
   }) async {
     const cacheKey = 'subscription_status';
-    
+
     if (!forceRefresh && _cache.containsKey(cacheKey)) {
       final cached = _cache[cacheKey];
       if (cached.timestamp.isAfter(
@@ -680,32 +697,33 @@ class SubscriptionDataManager {
         return cached.data;
       }
     }
-    
+
     final status = await SubscriptionAPI.getStatus();
     _cache[cacheKey] = CachedData(
       data: status,
       timestamp: DateTime.now()
     );
-    
+
     return status;
   }
 }
 ```
 
 ### Offline Support
+
 ```dart
 class OfflineSubscriptionSupport {
   static Future<SubscriptionStatus> getOfflineStatus() async {
     final localStorage = await SharedPreferences.getInstance();
     final cachedStatus = localStorage.getString('last_subscription_status');
-    
+
     if (cachedStatus != null) {
       return SubscriptionStatus.fromJson(jsonDecode(cachedStatus));
     }
-    
+
     return SubscriptionStatus.offline();
   }
-  
+
   static Future<void> syncWhenOnline() async {
     if (await ConnectivityService.isOnline()) {
       final status = await SubscriptionAPI.getStatus();
@@ -714,3 +732,4 @@ class OfflineSubscriptionSupport {
     }
   }
 }
+```

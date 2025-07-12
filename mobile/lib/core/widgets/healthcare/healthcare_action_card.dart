@@ -210,11 +210,6 @@ class HealthcareActionCard extends StatelessWidget {
 
   // Helper methods
 
-
-
-
-
-
   Color _getTextColor(BuildContext context) {
     if (!isEnabled) {
       return CareCircleColorTokens.lightColorScheme.onSurfaceVariant.withValues(
@@ -268,7 +263,8 @@ class HealthcareActionCard extends StatelessWidget {
   /// Get modern icon container decoration
   BoxDecoration _getIconContainerDecoration() {
     // AI-related icons get special gradient treatment
-    if (title.toLowerCase().contains('ai') || title.toLowerCase().contains('assistant')) {
+    if (title.toLowerCase().contains('ai') ||
+        title.toLowerCase().contains('assistant')) {
       return BoxDecoration(
         gradient: CareCircleGradientTokens.createHealthcareGradient(
           primaryColor: const Color(0xFF7C4DFF),
@@ -287,7 +283,8 @@ class HealthcareActionCard extends StatelessWidget {
     }
 
     // High urgency items get glassmorphism
-    if (urgencyLevel == UrgencyLevel.critical || urgencyLevel == UrgencyLevel.high) {
+    if (urgencyLevel == UrgencyLevel.critical ||
+        urgencyLevel == UrgencyLevel.high) {
       return CareCircleGlassmorphismTokens.getUrgencyGlass(
         urgencyLevel.name,
         borderRadius: CareCircleModernEffectsTokens.radiusSM,
@@ -309,12 +306,14 @@ class HealthcareActionCard extends StatelessWidget {
   /// Get icon color based on container decoration
   Color _getIconColor() {
     // AI icons use white for better contrast on gradient
-    if (title.toLowerCase().contains('ai') || title.toLowerCase().contains('assistant')) {
+    if (title.toLowerCase().contains('ai') ||
+        title.toLowerCase().contains('assistant')) {
       return Colors.white;
     }
 
     // High urgency items use the original color
-    if (urgencyLevel == UrgencyLevel.critical || urgencyLevel == UrgencyLevel.high) {
+    if (urgencyLevel == UrgencyLevel.critical ||
+        urgencyLevel == UrgencyLevel.high) {
       return color;
     }
 
@@ -325,7 +324,8 @@ class HealthcareActionCard extends StatelessWidget {
   /// Get modern card decoration with glassmorphism and gradients
   BoxDecoration _getModernCardDecoration(BuildContext context) {
     // Use glassmorphism for high urgency items
-    if (urgencyLevel == UrgencyLevel.critical || urgencyLevel == UrgencyLevel.high) {
+    if (urgencyLevel == UrgencyLevel.critical ||
+        urgencyLevel == UrgencyLevel.high) {
       return CareCircleGlassmorphismTokens.getUrgencyGlass(
         urgencyLevel.name,
         borderRadius: CareCircleModernEffectsTokens.radiusMD,
@@ -333,28 +333,24 @@ class HealthcareActionCard extends StatelessWidget {
     }
 
     // Use gradient background for AI-related cards
-    if (title.toLowerCase().contains('ai') || title.toLowerCase().contains('assistant')) {
+    if (title.toLowerCase().contains('ai') ||
+        title.toLowerCase().contains('assistant')) {
       return BoxDecoration(
         gradient: CareCircleGradientTokens.aiChat,
         borderRadius: CareCircleModernEffectsTokens.radiusMD,
         boxShadow: CareCircleModernEffectsTokens.aiShadow,
-        border: Border.all(
-          color: const Color(0x337C4DFF),
-          width: 1.5,
-        ),
+        border: Border.all(color: const Color(0x337C4DFF), width: 1.5),
       );
     }
 
     // Use subtle gradient for health-related cards
-    if (title.toLowerCase().contains('health') || title.toLowerCase().contains('vital')) {
+    if (title.toLowerCase().contains('health') ||
+        title.toLowerCase().contains('vital')) {
       return BoxDecoration(
         gradient: CareCircleGradientTokens.healthMetrics,
         borderRadius: CareCircleModernEffectsTokens.radiusMD,
         boxShadow: CareCircleModernEffectsTokens.softShadow,
-        border: Border.all(
-          color: color.withValues(alpha: 0.3),
-          width: 1.0,
-        ),
+        border: Border.all(color: color.withValues(alpha: 0.3), width: 1.0),
       );
     }
 
@@ -363,10 +359,7 @@ class HealthcareActionCard extends StatelessWidget {
       gradient: CareCircleGradientTokens.cardBackground,
       borderRadius: CareCircleModernEffectsTokens.radiusMD,
       boxShadow: CareCircleModernEffectsTokens.softShadow,
-      border: Border.all(
-        color: color.withValues(alpha: 0.2),
-        width: 1.0,
-      ),
+      border: Border.all(color: color.withValues(alpha: 0.2), width: 1.0),
     );
   }
 }

@@ -109,13 +109,18 @@ class _MainAppShellState extends ConsumerState<MainAppShell> {
 
     return notificationsAsync.when(
       data: (notifications) {
-        final healthDataNotifications = notifications.where((notification) =>
-          notification.type.toString().contains('health') ||
-          notification.type.toString().contains('vital') ||
-          notification.type.toString().contains('metric')
-        ).length;
+        final healthDataNotifications = notifications
+            .where(
+              (notification) =>
+                  notification.type.toString().contains('health') ||
+                  notification.type.toString().contains('vital') ||
+                  notification.type.toString().contains('metric'),
+            )
+            .length;
 
-        return healthDataNotifications > 0 ? healthDataNotifications.toString() : null;
+        return healthDataNotifications > 0
+            ? healthDataNotifications.toString()
+            : null;
       },
       loading: () => null,
       error: (error, stackTrace) => null,
@@ -128,27 +133,31 @@ class _MainAppShellState extends ConsumerState<MainAppShell> {
 
     return notificationsAsync.when(
       data: (notifications) {
-        final healthDataNotifications = notifications.where((notification) =>
-          notification.type.toString().contains('health') ||
-          notification.type.toString().contains('vital') ||
-          notification.type.toString().contains('metric')
+        final healthDataNotifications = notifications.where(
+          (notification) =>
+              notification.type.toString().contains('health') ||
+              notification.type.toString().contains('vital') ||
+              notification.type.toString().contains('metric'),
         );
 
         // Check for high priority health notifications
-        final hasHighPriority = healthDataNotifications.any((notification) =>
-          notification.priority.toString().contains('high') ||
-          notification.priority.toString().contains('critical')
+        final hasHighPriority = healthDataNotifications.any(
+          (notification) =>
+              notification.priority.toString().contains('high') ||
+              notification.priority.toString().contains('critical'),
         );
 
         if (hasHighPriority) return UrgencyLevel.high;
 
-        final hasMediumPriority = healthDataNotifications.any((notification) =>
-          notification.priority.toString().contains('medium')
+        final hasMediumPriority = healthDataNotifications.any(
+          (notification) => notification.priority.toString().contains('medium'),
         );
 
         if (hasMediumPriority) return UrgencyLevel.medium;
 
-        return healthDataNotifications.isNotEmpty ? UrgencyLevel.low : UrgencyLevel.none;
+        return healthDataNotifications.isNotEmpty
+            ? UrgencyLevel.low
+            : UrgencyLevel.none;
       },
       loading: () => UrgencyLevel.none,
       error: (error, stackTrace) => UrgencyLevel.none,
@@ -158,15 +167,20 @@ class _MainAppShellState extends ConsumerState<MainAppShell> {
   String? _getMedicationBadge() {
     // Get medication related notifications and pending notifications
     final notificationsAsync = ref.watch(unreadNotificationsProvider);
-    final pendingNotificationsAsync = ref.watch(pendingNotificationsCountProvider);
+    final pendingNotificationsAsync = ref.watch(
+      pendingNotificationsCountProvider,
+    );
 
     return notificationsAsync.when(
       data: (notifications) {
-        final medicationNotifications = notifications.where((notification) =>
-          notification.type.toString().contains('medication') ||
-          notification.type.toString().contains('dose') ||
-          notification.type.toString().contains('reminder')
-        ).length;
+        final medicationNotifications = notifications
+            .where(
+              (notification) =>
+                  notification.type.toString().contains('medication') ||
+                  notification.type.toString().contains('dose') ||
+                  notification.type.toString().contains('reminder'),
+            )
+            .length;
 
         // Also include pending medication notifications
         final pendingCount = pendingNotificationsAsync.when(
@@ -189,36 +203,40 @@ class _MainAppShellState extends ConsumerState<MainAppShell> {
 
     return notificationsAsync.when(
       data: (notifications) {
-        final medicationNotifications = notifications.where((notification) =>
-          notification.type.toString().contains('medication') ||
-          notification.type.toString().contains('dose') ||
-          notification.type.toString().contains('reminder')
+        final medicationNotifications = notifications.where(
+          (notification) =>
+              notification.type.toString().contains('medication') ||
+              notification.type.toString().contains('dose') ||
+              notification.type.toString().contains('reminder'),
         );
 
         // Check for critical medication alerts (missed critical medications)
-        final hasCritical = medicationNotifications.any((notification) =>
-          notification.priority.toString().contains('critical') ||
-          notification.priority.toString().contains('emergency') ||
-          notification.title.toLowerCase().contains('missed') ||
-          notification.title.toLowerCase().contains('overdue')
+        final hasCritical = medicationNotifications.any(
+          (notification) =>
+              notification.priority.toString().contains('critical') ||
+              notification.priority.toString().contains('emergency') ||
+              notification.title.toLowerCase().contains('missed') ||
+              notification.title.toLowerCase().contains('overdue'),
         );
 
         if (hasCritical) return UrgencyLevel.critical;
 
         // Check for high priority medication notifications
-        final hasHigh = medicationNotifications.any((notification) =>
-          notification.priority.toString().contains('high')
+        final hasHigh = medicationNotifications.any(
+          (notification) => notification.priority.toString().contains('high'),
         );
 
         if (hasHigh) return UrgencyLevel.high;
 
-        final hasMedium = medicationNotifications.any((notification) =>
-          notification.priority.toString().contains('medium')
+        final hasMedium = medicationNotifications.any(
+          (notification) => notification.priority.toString().contains('medium'),
         );
 
         if (hasMedium) return UrgencyLevel.medium;
 
-        return medicationNotifications.isNotEmpty ? UrgencyLevel.low : UrgencyLevel.none;
+        return medicationNotifications.isNotEmpty
+            ? UrgencyLevel.low
+            : UrgencyLevel.none;
       },
       loading: () => UrgencyLevel.none,
       error: (error, stackTrace) => UrgencyLevel.none,

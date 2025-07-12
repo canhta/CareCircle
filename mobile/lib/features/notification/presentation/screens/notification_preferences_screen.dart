@@ -437,7 +437,9 @@ class _NotificationPreferencesScreenState
     bool enabled,
   ) async {
     try {
-      final notifier = ref.read(notificationPreferencesNotifierProvider.notifier);
+      final notifier = ref.read(
+        notificationPreferencesNotifierProvider.notifier,
+      );
       await notifier.updateContextPreference(contextType, enabled);
 
       _logger.info('Context preference updated successfully', {
@@ -451,12 +453,12 @@ class _NotificationPreferencesScreenState
           SnackBar(
             content: Text(
               enabled
-                ? '${contextType.displayName} notifications enabled'
-                : '${contextType.displayName} notifications disabled',
+                  ? '${contextType.displayName} notifications enabled'
+                  : '${contextType.displayName} notifications disabled',
             ),
             backgroundColor: enabled
-              ? CareCircleDesignTokens.healthGreen
-              : CareCircleDesignTokens.criticalAlert,
+                ? CareCircleDesignTokens.healthGreen
+                : CareCircleDesignTokens.criticalAlert,
             duration: const Duration(seconds: 2),
           ),
         );
@@ -472,7 +474,9 @@ class _NotificationPreferencesScreenState
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to update ${contextType.displayName} preferences'),
+            content: Text(
+              'Failed to update ${contextType.displayName} preferences',
+            ),
             backgroundColor: CareCircleDesignTokens.criticalAlert,
             duration: const Duration(seconds: 3),
           ),
@@ -495,14 +499,15 @@ class _NotificationPreferencesScreenState
       setState(() => _isLoading = true);
 
       // Update channel preference through the provider
-      await ref.read(notificationPreferencesNotifierProvider.notifier)
+      await ref
+          .read(notificationPreferencesNotifierProvider.notifier)
           .updateChannelPreference(channel, enabled);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              '${channel.displayName} notifications ${enabled ? 'enabled' : 'disabled'}'
+              '${_getChannelDisplayName(channel)} notifications ${enabled ? 'enabled' : 'disabled'}',
             ),
             backgroundColor: CareCircleDesignTokens.healthGreen,
           ),
@@ -519,7 +524,9 @@ class _NotificationPreferencesScreenState
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to update ${channel.displayName} preferences'),
+            content: Text(
+              'Failed to update ${_getChannelDisplayName(channel)} preferences',
+            ),
             backgroundColor: CareCircleDesignTokens.criticalAlert,
           ),
         );
@@ -600,7 +607,8 @@ class _NotificationPreferencesScreenState
       final fcmService = ref.read(fcmServiceProvider);
       await fcmService.showLocalNotification(
         title: 'CareCircle Test',
-        body: 'This is a test notification to verify your settings are working correctly.',
+        body:
+            'This is a test notification to verify your settings are working correctly.',
         payload: 'test_notification',
       );
 
@@ -675,7 +683,8 @@ class _NotificationPreferencesScreenState
       setState(() => _isLoading = true);
 
       // Reset preferences to defaults through the provider
-      await ref.read(notificationPreferencesNotifierProvider.notifier)
+      await ref
+          .read(notificationPreferencesNotifierProvider.notifier)
           .resetToDefaults();
 
       if (mounted) {

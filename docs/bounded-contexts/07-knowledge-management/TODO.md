@@ -9,6 +9,7 @@
 ## Architecture Overview
 
 **New Local Crawler Architecture:**
+
 - **Local Execution**: Standalone crawler scripts in `./crawlers/` directory
 - **Data Ingestion**: Backend APIs for receiving crawled content
 - **Vector Processing**: Backend handles embedding generation and storage
@@ -114,7 +115,7 @@
   - [ ] Create `./crawlers/` directory in project root
   - [ ] Set up Python virtual environment (.venv)
   - [ ] Create requirements.txt with Python dependencies (requests, beautifulsoup4, underthesea, etc.)
-  - [ ] Configure Python project structure with proper __init__.py files
+  - [ ] Configure Python project structure with proper **init**.py files
 
 - [ ] **Core Python Components**
   - [ ] Implement BaseCrawler class with rate limiting and error handling
@@ -127,6 +128,7 @@
   - [ ] Build hospital_sites.py for Vietnamese hospital websites
   - [ ] Develop pharma_db.py for pharmaceutical databases
   - [ ] Create health_news.py for Vietnamese health news portals
+
 ### 2.2 Vietnamese Language Processing with Python
 
 - [ ] **Vietnamese NLP Integration**

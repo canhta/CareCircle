@@ -21,10 +21,12 @@ class SimpleRecordDoseScreen extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<SimpleRecordDoseScreen> createState() => _SimpleRecordDoseScreenState();
+  ConsumerState<SimpleRecordDoseScreen> createState() =>
+      _SimpleRecordDoseScreenState();
 }
 
-class _SimpleRecordDoseScreenState extends ConsumerState<SimpleRecordDoseScreen> {
+class _SimpleRecordDoseScreenState
+    extends ConsumerState<SimpleRecordDoseScreen> {
   final _formKey = GlobalKey<FormState>();
   final _notesController = TextEditingController();
   final _amountController = TextEditingController(text: '1');
@@ -62,7 +64,9 @@ class _SimpleRecordDoseScreenState extends ConsumerState<SimpleRecordDoseScreen>
         foregroundColor: Colors.white,
       ),
       body: medicationAsync.when(
-        data: (medication) => medication != null ? _buildForm(medication) : const Center(child: Text('Medication not found')),
+        data: (medication) => medication != null
+            ? _buildForm(medication)
+            : const Center(child: Text('Medication not found')),
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, stackTrace) => Center(
           child: Column(
@@ -73,7 +77,8 @@ class _SimpleRecordDoseScreenState extends ConsumerState<SimpleRecordDoseScreen>
               const Text('Failed to load medication details'),
               const SizedBox(height: 8),
               ElevatedButton(
-                onPressed: () => ref.refresh(medicationProvider(widget.medicationId)),
+                onPressed: () =>
+                    ref.refresh(medicationProvider(widget.medicationId)),
                 child: const Text('Retry'),
               ),
             ],
@@ -114,20 +119,22 @@ class _SimpleRecordDoseScreenState extends ConsumerState<SimpleRecordDoseScreen>
                       ),
                     ],
                     const SizedBox(height: 8),
-                    Text('${medication.strength} • ${medication.form.name.toUpperCase()}'),
+                    Text(
+                      '${medication.strength} • ${medication.form.name.toUpperCase()}',
+                    ),
                   ],
                 ),
               ),
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Amount input
             Text(
               'Dose Amount',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 8),
             Row(
@@ -136,7 +143,9 @@ class _SimpleRecordDoseScreenState extends ConsumerState<SimpleRecordDoseScreen>
                   flex: 2,
                   child: TextFormField(
                     controller: _amountController,
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
                     decoration: const InputDecoration(
                       labelText: 'Amount',
                       border: OutlineInputBorder(),
@@ -162,10 +171,10 @@ class _SimpleRecordDoseScreenState extends ConsumerState<SimpleRecordDoseScreen>
                       border: OutlineInputBorder(),
                     ),
                     items: _getUnitsForForm(medication.form)
-                        .map((unit) => DropdownMenuItem(
-                              value: unit,
-                              child: Text(unit),
-                            ))
+                        .map(
+                          (unit) =>
+                              DropdownMenuItem(value: unit, child: Text(unit)),
+                        )
                         .toList(),
                     onChanged: (value) {
                       if (value != null) {
@@ -176,34 +185,36 @@ class _SimpleRecordDoseScreenState extends ConsumerState<SimpleRecordDoseScreen>
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Time taken
             Text(
               'Time Taken',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 8),
             Card(
               child: ListTile(
                 leading: const Icon(Icons.access_time),
-                title: Text(DateFormat('MMM d, yyyy • h:mm a').format(_selectedTime)),
+                title: Text(
+                  DateFormat('MMM d, yyyy • h:mm a').format(_selectedTime),
+                ),
                 subtitle: const Text('Tap to change'),
                 onTap: _selectDateTime,
               ),
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Notes
             Text(
               'Notes (Optional)',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 8),
             TextFormField(
@@ -214,9 +225,9 @@ class _SimpleRecordDoseScreenState extends ConsumerState<SimpleRecordDoseScreen>
                 border: OutlineInputBorder(),
               ),
             ),
-            
+
             const Spacer(),
-            
+
             // Action buttons
             Row(
               children: [
@@ -235,7 +246,8 @@ class _SimpleRecordDoseScreenState extends ConsumerState<SimpleRecordDoseScreen>
                   child: ElevatedButton(
                     onPressed: _isSubmitting ? null : _recordDose,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: CareCircleDesignTokens.primaryMedicalBlue,
+                      backgroundColor:
+                          CareCircleDesignTokens.primaryMedicalBlue,
                       foregroundColor: Colors.white,
                       minimumSize: const Size(0, 48),
                     ),
@@ -245,7 +257,9 @@ class _SimpleRecordDoseScreenState extends ConsumerState<SimpleRecordDoseScreen>
                             width: 20,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Colors.white,
+                              ),
                             ),
                           )
                         : const Text('Record Dose'),
@@ -253,7 +267,7 @@ class _SimpleRecordDoseScreenState extends ConsumerState<SimpleRecordDoseScreen>
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 16),
           ],
         ),
@@ -289,10 +303,14 @@ class _SimpleRecordDoseScreenState extends ConsumerState<SimpleRecordDoseScreen>
 
   Future<void> _selectDateTime() async {
     final now = DateTime.now();
-    
+
     // Show date picker if not today
-    DateTime selectedDate = DateTime(_selectedTime.year, _selectedTime.month, _selectedTime.day);
-    
+    DateTime selectedDate = DateTime(
+      _selectedTime.year,
+      _selectedTime.month,
+      _selectedTime.day,
+    );
+
     if (!_isToday(_selectedTime)) {
       final pickedDate = await showDatePicker(
         context: context,
@@ -300,21 +318,21 @@ class _SimpleRecordDoseScreenState extends ConsumerState<SimpleRecordDoseScreen>
         firstDate: now.subtract(const Duration(days: 7)),
         lastDate: now,
       );
-      
+
       if (pickedDate != null) {
         selectedDate = pickedDate;
       } else {
         return;
       }
     }
-    
+
     // Show time picker
     if (!mounted) return;
     final pickedTime = await showTimePicker(
       context: context,
       initialTime: TimeOfDay.fromDateTime(_selectedTime),
     );
-    
+
     if (pickedTime != null) {
       final newDateTime = DateTime(
         selectedDate.year,
@@ -323,7 +341,7 @@ class _SimpleRecordDoseScreenState extends ConsumerState<SimpleRecordDoseScreen>
         pickedTime.hour,
         pickedTime.minute,
       );
-      
+
       // Ensure not in future
       final finalTime = newDateTime.isAfter(now) ? now : newDateTime;
       setState(() => _selectedTime = finalTime);
@@ -332,7 +350,9 @@ class _SimpleRecordDoseScreenState extends ConsumerState<SimpleRecordDoseScreen>
 
   bool _isToday(DateTime date) {
     final now = DateTime.now();
-    return date.year == now.year && date.month == now.month && date.day == now.day;
+    return date.year == now.year &&
+        date.month == now.month &&
+        date.day == now.day;
   }
 
   Future<void> _recordDose() async {
@@ -342,16 +362,20 @@ class _SimpleRecordDoseScreenState extends ConsumerState<SimpleRecordDoseScreen>
 
     try {
       final amount = double.parse(_amountController.text);
-      
+
       final request = CreateAdherenceRecordRequest(
         medicationId: widget.medicationId,
-        scheduleId: widget.scheduleId ?? 'manual-${DateTime.now().millisecondsSinceEpoch}',
+        scheduleId:
+            widget.scheduleId ??
+            'manual-${DateTime.now().millisecondsSinceEpoch}',
         scheduledTime: _selectedTime,
         dosage: amount,
         unit: _selectedUnit,
         status: DoseStatus.taken,
         takenAt: _selectedTime,
-        notes: _notesController.text.trim().isEmpty ? null : _notesController.text.trim(),
+        notes: _notesController.text.trim().isEmpty
+            ? null
+            : _notesController.text.trim(),
       );
 
       await ref.read(adherenceManagementProvider.notifier).recordDose(request);

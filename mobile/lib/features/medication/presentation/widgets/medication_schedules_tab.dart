@@ -25,7 +25,8 @@ class MedicationSchedulesTab extends ConsumerWidget {
     final theme = Theme.of(context);
 
     return schedulesAsync.when(
-      data: (schedules) => _buildSchedulesContent(context, schedules, theme, ref),
+      data: (schedules) =>
+          _buildSchedulesContent(context, schedules, theme, ref),
       loading: () => _buildLoadingState(),
       error: (error, stackTrace) => _buildErrorState(error, theme),
     );
@@ -61,7 +62,11 @@ class MedicationSchedulesTab extends ConsumerWidget {
     );
   }
 
-  Widget _buildSchedulesHeader(BuildContext context, int count, ThemeData theme) {
+  Widget _buildSchedulesHeader(
+    BuildContext context,
+    int count,
+    ThemeData theme,
+  ) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -100,7 +105,11 @@ class MedicationSchedulesTab extends ConsumerWidget {
     );
   }
 
-  Widget _buildScheduleCard(BuildContext context, MedicationSchedule schedule, ThemeData theme) {
+  Widget _buildScheduleCard(
+    BuildContext context,
+    MedicationSchedule schedule,
+    ThemeData theme,
+  ) {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -235,7 +244,11 @@ class MedicationSchedulesTab extends ConsumerWidget {
     );
   }
 
-  Widget _buildScheduleActions(BuildContext context, MedicationSchedule schedule, ThemeData theme) {
+  Widget _buildScheduleActions(
+    BuildContext context,
+    MedicationSchedule schedule,
+    ThemeData theme,
+  ) {
     return Row(
       children: [
         TextButton.icon(
@@ -421,7 +434,10 @@ class MedicationSchedulesTab extends ConsumerWidget {
     // TODO: Implement delete schedule
   }
 
-  void _showScheduleDialog(BuildContext context, {MedicationSchedule? schedule}) {
+  void _showScheduleDialog(
+    BuildContext context, {
+    MedicationSchedule? schedule,
+  }) {
     final isEditing = schedule != null;
 
     showDialog(
@@ -434,8 +450,8 @@ class MedicationSchedulesTab extends ConsumerWidget {
             children: [
               Text(
                 isEditing
-                  ? 'Edit the medication schedule settings'
-                  : 'Create a new medication schedule',
+                    ? 'Edit the medication schedule settings'
+                    : 'Create a new medication schedule',
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
               const SizedBox(height: 16),
@@ -444,7 +460,9 @@ class MedicationSchedulesTab extends ConsumerWidget {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: CareCircleDesignTokens.primaryMedicalBlue.withValues(alpha: 0.1),
+                  color: CareCircleDesignTokens.primaryMedicalBlue.withValues(
+                    alpha: 0.1,
+                  ),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Column(
@@ -479,8 +497,8 @@ class MedicationSchedulesTab extends ConsumerWidget {
                 SnackBar(
                   content: Text(
                     isEditing
-                      ? 'Schedule updated (placeholder)'
-                      : 'Schedule created (placeholder)'
+                        ? 'Schedule updated (placeholder)'
+                        : 'Schedule created (placeholder)',
                   ),
                   backgroundColor: CareCircleDesignTokens.healthGreen,
                 ),

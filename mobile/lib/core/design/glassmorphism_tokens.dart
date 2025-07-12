@@ -45,26 +45,17 @@ class CareCircleGlassmorphismTokens {
 
   /// Light glass border - Subtle border for glassmorphism
   static const Border lightGlassBorder = Border.fromBorderSide(
-    BorderSide(
-      color: Color(0x33FFFFFF),
-      width: 1.0,
-    ),
+    BorderSide(color: Color(0x33FFFFFF), width: 1.0),
   );
 
   /// Medical glass border - Healthcare themed border
   static const Border medicalGlassBorder = Border.fromBorderSide(
-    BorderSide(
-      color: Color(0x331565C0),
-      width: 1.5,
-    ),
+    BorderSide(color: Color(0x331565C0), width: 1.5),
   );
 
   /// Gradient glass border - For enhanced visual appeal
   static const Border gradientGlassBorder = Border.fromBorderSide(
-    BorderSide(
-      color: Color(0x44FFFFFF),
-      width: 1.0,
-    ),
+    BorderSide(color: Color(0x44FFFFFF), width: 1.0),
   );
 
   // Glassmorphism Decorations
@@ -78,13 +69,15 @@ class CareCircleGlassmorphismTokens {
       color: lightGlassBackground,
       borderRadius: borderRadius ?? BorderRadius.circular(16),
       border: lightGlassBorder,
-      boxShadow: shadows ?? [
-        BoxShadow(
-          color: Colors.black.withValues(alpha: 0.1),
-          blurRadius: 8,
-          offset: const Offset(0, 4),
-        ),
-      ],
+      boxShadow:
+          shadows ??
+          [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.1),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
     );
   }
 
@@ -97,13 +90,17 @@ class CareCircleGlassmorphismTokens {
       color: medicalGlassBackground,
       borderRadius: borderRadius ?? BorderRadius.circular(16),
       border: medicalGlassBorder,
-      boxShadow: shadows ?? [
-        BoxShadow(
-          color: CareCircleColorTokens.primaryMedicalBlue.withValues(alpha: 0.1),
-          blurRadius: 12,
-          offset: const Offset(0, 6),
-        ),
-      ],
+      boxShadow:
+          shadows ??
+          [
+            BoxShadow(
+              color: CareCircleColorTokens.primaryMedicalBlue.withValues(
+                alpha: 0.1,
+              ),
+              blurRadius: 12,
+              offset: const Offset(0, 6),
+            ),
+          ],
     );
   }
 
@@ -116,18 +113,17 @@ class CareCircleGlassmorphismTokens {
       color: const Color(0x1A7C4DFF),
       borderRadius: borderRadius ?? BorderRadius.circular(20),
       border: const Border.fromBorderSide(
-        BorderSide(
-          color: Color(0x337C4DFF),
-          width: 1.5,
-        ),
+        BorderSide(color: Color(0x337C4DFF), width: 1.5),
       ),
-      boxShadow: shadows ?? [
-        BoxShadow(
-          color: const Color(0xFF7C4DFF).withValues(alpha: 0.15),
-          blurRadius: 16,
-          offset: const Offset(0, 8),
-        ),
-      ],
+      boxShadow:
+          shadows ??
+          [
+            BoxShadow(
+              color: const Color(0xFF7C4DFF).withValues(alpha: 0.15),
+              blurRadius: 16,
+              offset: const Offset(0, 8),
+            ),
+          ],
     );
   }
 
@@ -140,18 +136,17 @@ class CareCircleGlassmorphismTokens {
       color: criticalGlassBackground,
       borderRadius: borderRadius ?? BorderRadius.circular(12),
       border: const Border.fromBorderSide(
-        BorderSide(
-          color: Color(0x33D32F2F),
-          width: 2.0,
-        ),
+        BorderSide(color: Color(0x33D32F2F), width: 2.0),
       ),
-      boxShadow: shadows ?? [
-        BoxShadow(
-          color: CareCircleColorTokens.criticalAlert.withValues(alpha: 0.2),
-          blurRadius: 20,
-          offset: const Offset(0, 10),
-        ),
-      ],
+      boxShadow:
+          shadows ??
+          [
+            BoxShadow(
+              color: CareCircleColorTokens.criticalAlert.withValues(alpha: 0.2),
+              blurRadius: 20,
+              offset: const Offset(0, 10),
+            ),
+          ],
     );
   }
 
@@ -195,23 +190,23 @@ class CareCircleGlassmorphismTokens {
       color: backgroundColor,
       borderRadius: borderRadius ?? BorderRadius.circular(16),
       border: Border.fromBorderSide(
-        BorderSide(
-          color: borderColor,
-          width: borderWidth,
-        ),
+        BorderSide(color: borderColor, width: borderWidth),
       ),
-      boxShadow: shadows ?? [
-        BoxShadow(
-          color: Colors.black.withValues(alpha: 0.1),
-          blurRadius: 8,
-          offset: const Offset(0, 4),
-        ),
-      ],
+      boxShadow:
+          shadows ??
+          [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.1),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
     );
   }
 
   /// Get glassmorphism for urgency level
-  static BoxDecoration getUrgencyGlass(String urgencyLevel, {
+  static BoxDecoration getUrgencyGlass(
+    String urgencyLevel, {
     BorderRadius? borderRadius,
   }) {
     switch (urgencyLevel.toLowerCase()) {
@@ -243,10 +238,7 @@ class CareCircleGlassmorphismTokens {
     double blurIntensity = mediumBlur,
   }) {
     return BackdropFilter(
-      filter: ImageFilter.blur(
-        sigmaX: blurIntensity,
-        sigmaY: blurIntensity,
-      ),
+      filter: ImageFilter.blur(sigmaX: blurIntensity, sigmaY: blurIntensity),
       child: child,
     );
   }
@@ -267,10 +259,7 @@ class CareCircleGlassmorphismTokens {
       margin: margin,
       decoration: decoration ?? lightCardGlass(),
       child: BackdropFilter(
-        filter: ImageFilter.blur(
-          sigmaX: blurIntensity,
-          sigmaY: blurIntensity,
-        ),
+        filter: ImageFilter.blur(sigmaX: blurIntensity, sigmaY: blurIntensity),
         child: Container(
           padding: padding ?? const EdgeInsets.all(16),
           child: child,

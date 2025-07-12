@@ -85,7 +85,8 @@ final todayScheduledDosesProvider = FutureProvider<List<MedicationSchedule>>((
         : null;
 
     // Schedule should start before or on today and end after today (or no end date)
-    final isActiveToday = scheduleStart.isBefore(todayEnd) &&
+    final isActiveToday =
+        scheduleStart.isBefore(todayEnd) &&
         (scheduleEnd == null || scheduleEnd.isAfter(todayStart));
 
     return isActiveToday;

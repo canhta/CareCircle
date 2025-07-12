@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../design/design_tokens.dart';
 
 /// Healthcare-compliant symptom severity slider
-/// 
+///
 /// Provides a standardized way to capture symptom severity ratings
 /// with accessibility support and healthcare-appropriate styling.
 class SymptomSeveritySlider extends StatefulWidget {
@@ -31,7 +31,7 @@ class SymptomSeveritySlider extends StatefulWidget {
   /// Minimum value
   final double min;
 
-  /// Maximum value  
+  /// Maximum value
   final double max;
 
   /// Number of discrete divisions
@@ -62,7 +62,7 @@ class _SymptomSeveritySliderState extends State<SymptomSeveritySlider> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -77,7 +77,7 @@ class _SymptomSeveritySliderState extends State<SymptomSeveritySlider> {
             ),
           ),
         ),
-        
+
         // Slider
         Semantics(
           label: widget.label,
@@ -86,7 +86,9 @@ class _SymptomSeveritySliderState extends State<SymptomSeveritySlider> {
           child: SliderTheme(
             data: SliderTheme.of(context).copyWith(
               activeTrackColor: _getTrackColor(),
-              inactiveTrackColor: theme.colorScheme.outline.withValues(alpha: 0.3),
+              inactiveTrackColor: theme.colorScheme.outline.withValues(
+                alpha: 0.3,
+              ),
               thumbColor: _getThumbColor(),
               overlayColor: _getThumbColor().withValues(alpha: 0.2),
               valueIndicatorColor: _getThumbColor(),
@@ -107,18 +109,19 @@ class _SymptomSeveritySliderState extends State<SymptomSeveritySlider> {
               divisions: widget.divisions ?? (widget.max - widget.min).round(),
               label: _currentValue.round().toString(),
               onChanged: widget.enabled ? _handleValueChanged : null,
-              semanticFormatterCallback: widget.semanticFormatterCallback ?? 
+              semanticFormatterCallback:
+                  widget.semanticFormatterCallback ??
                   (value) => '${value.round()} out of ${widget.max.round()}',
             ),
           ),
         ),
-        
+
         // Severity labels
         if (widget.showLabels) ...[
           SizedBox(height: CareCircleSpacingTokens.xs),
           _buildSeverityLabels(theme),
         ],
-        
+
         // Current value display
         SizedBox(height: CareCircleSpacingTokens.sm),
         _buildValueDisplay(theme),
@@ -142,7 +145,7 @@ class _SymptomSeveritySliderState extends State<SymptomSeveritySlider> {
 
   Color _getTrackColor() {
     final severity = _currentValue / widget.max;
-    
+
     if (severity <= 0.3) {
       return CareCircleDesignTokens.healthGreen;
     } else if (severity <= 0.6) {
@@ -180,7 +183,7 @@ class _SymptomSeveritySliderState extends State<SymptomSeveritySlider> {
   Widget _buildValueDisplay(ThemeData theme) {
     final severity = _getSeverityText();
     final severityColor = _getTrackColor();
-    
+
     return Container(
       padding: EdgeInsets.symmetric(
         horizontal: CareCircleSpacingTokens.md,
@@ -197,11 +200,7 @@ class _SymptomSeveritySliderState extends State<SymptomSeveritySlider> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            _getSeverityIcon(),
-            color: severityColor,
-            size: 16,
-          ),
+          Icon(_getSeverityIcon(), color: severityColor, size: 16),
           SizedBox(width: CareCircleSpacingTokens.xs),
           Text(
             'Level ${_currentValue.round()}: $severity',
@@ -217,7 +216,7 @@ class _SymptomSeveritySliderState extends State<SymptomSeveritySlider> {
 
   String _getSeverityText() {
     final severity = _currentValue / widget.max;
-    
+
     if (severity == 0) {
       return 'No symptoms';
     } else if (severity <= 0.3) {
@@ -233,7 +232,7 @@ class _SymptomSeveritySliderState extends State<SymptomSeveritySlider> {
 
   IconData _getSeverityIcon() {
     final severity = _currentValue / widget.max;
-    
+
     if (severity == 0) {
       return Icons.sentiment_very_satisfied;
     } else if (severity <= 0.3) {

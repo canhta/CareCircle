@@ -328,10 +328,7 @@ class MedicationOverviewTab extends ConsumerWidget {
               const SizedBox(height: 16),
               Text(
                 'How would you like to record this dose?',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey[600],
-                ),
+                style: TextStyle(fontSize: 14, color: Colors.grey[600]),
               ),
             ],
           ),
@@ -384,10 +381,10 @@ class MedicationOverviewTab extends ConsumerWidget {
     });
 
     // Navigate to schedule management screen for this medication
-    context.push('/medication/schedule/add', extra: {
-      'medicationId': medication.id,
-      'medicationName': medication.name,
-    });
+    context.push(
+      '/medication/schedule/add',
+      extra: {'medicationId': medication.id, 'medicationName': medication.name},
+    );
   }
 
   void _checkInteractions(BuildContext context) {
@@ -409,10 +406,10 @@ class MedicationOverviewTab extends ConsumerWidget {
     });
 
     // Navigate to adherence dashboard filtered for this medication
-    context.push('/medication/adherence', extra: {
-      'medicationId': medication.id,
-      'medicationName': medication.name,
-    });
+    context.push(
+      '/medication/adherence',
+      extra: {'medicationId': medication.id, 'medicationName': medication.name},
+    );
   }
 
   /// Show drug interactions dialog with real API data
@@ -434,7 +431,9 @@ class MedicationOverviewTab extends ConsumerWidget {
               ],
             ),
             content: FutureBuilder(
-              future: ref.read(medicationApiServiceProvider).checkUserMedicationInteractions(),
+              future: ref
+                  .read(medicationApiServiceProvider)
+                  .checkUserMedicationInteractions(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return Column(
@@ -471,7 +470,8 @@ class MedicationOverviewTab extends ConsumerWidget {
 
                 final interactionResponse = snapshot.data;
                 final interactionData = interactionResponse?.data;
-                final hasInteractions = interactionData?.hasContraindications ?? false;
+                final hasInteractions =
+                    interactionData?.hasContraindications ?? false;
 
                 return Column(
                   mainAxisSize: MainAxisSize.min,
@@ -482,18 +482,26 @@ class MedicationOverviewTab extends ConsumerWidget {
                       decoration: BoxDecoration(
                         color: hasInteractions
                             ? Colors.orange.withValues(alpha: 0.1)
-                            : CareCircleDesignTokens.healthGreen.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(CareCircleSpacingTokens.sm),
+                            : CareCircleDesignTokens.healthGreen.withValues(
+                                alpha: 0.1,
+                              ),
+                        borderRadius: BorderRadius.circular(
+                          CareCircleSpacingTokens.sm,
+                        ),
                         border: Border.all(
                           color: hasInteractions
                               ? Colors.orange.withValues(alpha: 0.3)
-                              : CareCircleDesignTokens.healthGreen.withValues(alpha: 0.3),
+                              : CareCircleDesignTokens.healthGreen.withValues(
+                                  alpha: 0.3,
+                                ),
                         ),
                       ),
                       child: Row(
                         children: [
                           Icon(
-                            hasInteractions ? Icons.warning : Icons.check_circle,
+                            hasInteractions
+                                ? Icons.warning
+                                : Icons.check_circle,
                             color: hasInteractions
                                 ? Colors.orange
                                 : CareCircleDesignTokens.healthGreen,
@@ -505,11 +513,12 @@ class MedicationOverviewTab extends ConsumerWidget {
                               hasInteractions
                                   ? '${interactionData?.totalInteractions ?? 0} potential interaction(s) found.'
                                   : 'No known interactions found with your current medications.',
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: hasInteractions
-                                    ? Colors.orange
-                                    : CareCircleDesignTokens.healthGreen,
-                              ),
+                              style: Theme.of(context).textTheme.bodySmall
+                                  ?.copyWith(
+                                    color: hasInteractions
+                                        ? Colors.orange
+                                        : CareCircleDesignTokens.healthGreen,
+                                  ),
                             ),
                           ),
                         ],
@@ -520,7 +529,9 @@ class MedicationOverviewTab extends ConsumerWidget {
                       'Always consult your healthcare provider before making changes to your medication regimen.',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         fontStyle: FontStyle.italic,
-                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.7),
                       ),
                     ),
                   ],

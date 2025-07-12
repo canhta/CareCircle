@@ -476,7 +476,8 @@ class FCMService {
             // Handle emergency action
             final alertId = data['alertId'] as String?;
             if (alertId != null) {
-              final emergencyRoute = '/notifications/emergency-alerts?alertId=$alertId';
+              final emergencyRoute =
+                  '/notifications/emergency-alerts?alertId=$alertId';
               await _storePendingNavigation(emergencyRoute);
               _logger.info('Stored navigation to emergency alert', {
                 'alertId': alertId,

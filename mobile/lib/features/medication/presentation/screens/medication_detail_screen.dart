@@ -463,14 +463,8 @@ class _MedicationDetailScreenState extends ConsumerState<MedicationDetailScreen>
       'timestamp': DateTime.now().toIso8601String(),
     });
 
-    context.pushNamed(
-      'record-dose',
-      pathParameters: {'id': medication.id},
-    );
+    context.pushNamed('record-dose', pathParameters: {'id': medication.id});
   }
-
-
-
 
   void _handleMenuAction(String action, Medication medication) {
     _logger.info('Medication menu action selected', {
@@ -541,7 +535,8 @@ class _MedicationDetailScreenState extends ConsumerState<MedicationDetailScreen>
       );
 
       // Use the medication provider to create the duplicate
-      await ref.read(medicationNotifierProvider.notifier)
+      await ref
+          .read(medicationNotifierProvider.notifier)
           .createMedication(duplicateRequest);
 
       if (mounted) {
@@ -590,11 +585,12 @@ class _MedicationDetailScreenState extends ConsumerState<MedicationDetailScreen>
         startDate: medication.startDate,
         endDate: DateTime.now(), // Set end date to now
         notes: medication.notes != null
-          ? '${medication.notes}\nArchived on ${DateTime.now().toLocal()}'
-          : 'Archived on ${DateTime.now().toLocal()}',
+            ? '${medication.notes}\nArchived on ${DateTime.now().toLocal()}'
+            : 'Archived on ${DateTime.now().toLocal()}',
       );
 
-      await ref.read(medicationNotifierProvider.notifier)
+      await ref
+          .read(medicationNotifierProvider.notifier)
           .updateMedication(medication.id, updateRequest);
 
       if (mounted) {

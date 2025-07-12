@@ -371,13 +371,11 @@ class MedicationNotificationService {
     // This will be called asynchronously to avoid blocking the notification handler
     Future.microtask(() async {
       try {
-        BoundedContextLoggers.medication.info(
-          'Updating adherence record as taken',
-          {
-            'medicationId': medicationId,
-            'timestamp': DateTime.now().toIso8601String(),
-          },
-        );
+        BoundedContextLoggers.medication
+            .info('Updating adherence record as taken', {
+              'medicationId': medicationId,
+              'timestamp': DateTime.now().toIso8601String(),
+            });
 
         // Create adherence record for the current time
         // Note: In a real implementation, this would need access to the schedule
@@ -386,23 +384,19 @@ class MedicationNotificationService {
 
         // This would need to be injected or accessed through a provider
         // For now, we'll just log the action
-        BoundedContextLoggers.medication.info(
-          'Adherence record created from notification',
-          {
-            'medicationId': medicationId,
-            'status': 'taken',
-            'takenAt': now.toIso8601String(),
-          },
-        );
+        BoundedContextLoggers.medication
+            .info('Adherence record created from notification', {
+              'medicationId': medicationId,
+              'status': 'taken',
+              'takenAt': now.toIso8601String(),
+            });
       } catch (e) {
-        BoundedContextLoggers.medication.error(
-          'Failed to update adherence record from notification',
-          {
-            'medicationId': medicationId,
-            'error': e.toString(),
-            'timestamp': DateTime.now().toIso8601String(),
-          },
-        );
+        BoundedContextLoggers.medication
+            .error('Failed to update adherence record from notification', {
+              'medicationId': medicationId,
+              'error': e.toString(),
+              'timestamp': DateTime.now().toIso8601String(),
+            });
       }
     });
   }
@@ -411,13 +405,10 @@ class MedicationNotificationService {
   static void _scheduleSnoozeReminder(String medicationId) {
     Future.microtask(() async {
       try {
-        BoundedContextLoggers.medication.info(
-          'Scheduling snooze reminder',
-          {
-            'medicationId': medicationId,
-            'timestamp': DateTime.now().toIso8601String(),
-          },
-        );
+        BoundedContextLoggers.medication.info('Scheduling snooze reminder', {
+          'medicationId': medicationId,
+          'timestamp': DateTime.now().toIso8601String(),
+        });
 
         // Schedule a reminder for 15 minutes from now
         final snoozeTime = DateTime.now().add(const Duration(minutes: 15));
@@ -430,23 +421,18 @@ class MedicationNotificationService {
           scheduledTime: snoozeTime,
         );
 
-        BoundedContextLoggers.medication.info(
-          'Snooze reminder scheduled',
-          {
-            'medicationId': medicationId,
-            'snoozeTime': snoozeTime.toIso8601String(),
-            'timestamp': DateTime.now().toIso8601String(),
-          },
-        );
+        BoundedContextLoggers.medication.info('Snooze reminder scheduled', {
+          'medicationId': medicationId,
+          'snoozeTime': snoozeTime.toIso8601String(),
+          'timestamp': DateTime.now().toIso8601String(),
+        });
       } catch (e) {
-        BoundedContextLoggers.medication.error(
-          'Failed to schedule snooze reminder',
-          {
-            'medicationId': medicationId,
-            'error': e.toString(),
-            'timestamp': DateTime.now().toIso8601String(),
-          },
-        );
+        BoundedContextLoggers.medication
+            .error('Failed to schedule snooze reminder', {
+              'medicationId': medicationId,
+              'error': e.toString(),
+              'timestamp': DateTime.now().toIso8601String(),
+            });
       }
     });
   }

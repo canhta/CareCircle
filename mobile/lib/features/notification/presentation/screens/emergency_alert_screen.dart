@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/design/design_tokens.dart';
 import '../../../../core/logging/bounded_context_loggers.dart';
 import '../../domain/models/models.dart';
+import '../providers/notification_providers.dart';
 import '../widgets/emergency_alert_card.dart';
 
 /// Emergency Alert Screen
@@ -160,7 +161,7 @@ class _EmergencyAlertScreenState extends ConsumerState<EmergencyAlertScreen>
     return emergencyAlertsAsync.when(
       data: (alerts) {
         if (alerts.isEmpty) {
-          return _buildEmptyHistoryState();
+          return _buildEmptyHistory();
         }
 
         return ListView.builder(
@@ -170,7 +171,7 @@ class _EmergencyAlertScreenState extends ConsumerState<EmergencyAlertScreen>
             return EmergencyAlertCard(
               alert: alert,
               onTap: () => _showAlertDetails(alert),
-              showActions: false, // History items don't need actions
+              isHistoryItem: true, // History items don't need actions
             );
           },
         );
@@ -684,8 +685,9 @@ class _EmergencyAlertScreenState extends ConsumerState<EmergencyAlertScreen>
         id: 'test_${DateTime.now().millisecondsSinceEpoch}',
         userId: 'current-user', // TODO: Get from auth service
         title: 'Test Emergency Alert',
-        message: 'This is a test emergency alert to verify the system is working correctly.',
-        alertType: EmergencyAlertType.systemTest,
+        message:
+            'This is a test emergency alert to verify the system is working correctly.',
+        alertType: EmergencyAlertType.systemAlert,
         severity: EmergencyAlertSeverity.low,
         status: EmergencyAlertStatus.active,
         createdAt: DateTime.now(),
@@ -697,7 +699,8 @@ class _EmergencyAlertScreenState extends ConsumerState<EmergencyAlertScreen>
       );
 
       // Use the notification provider to create the alert
-      await ref.read(emergencyAlertNotifierProvider.notifier)
+      await ref
+          .read(emergencyAlertNotifierProvider.notifier)
           .createEmergencyAlert(testAlert);
 
       if (mounted) {

@@ -213,8 +213,6 @@ class NotificationRepository {
     }
   }
 
-
-
   /// Mark all notifications as read
   Future<void> markAllAsRead() async {
     try {
@@ -578,7 +576,12 @@ class NotificationRepository {
         'timestamp': DateTime.now().toIso8601String(),
       });
 
-      final response = await _apiService.getEmergencyAlerts();
+      final response = await _apiService.getEmergencyAlerts(
+        null,
+        null,
+        null,
+        null,
+      );
       final alerts = response.data;
 
       _logger.logHealthDataAccess('Emergency alerts accessed', {
@@ -645,14 +648,20 @@ class NotificationRepository {
   }
 
   /// Get emergency alert history
-  Future<List<notification_models.EmergencyAlert>> getEmergencyAlertHistory() async {
+  Future<List<notification_models.EmergencyAlert>>
+  getEmergencyAlertHistory() async {
     try {
       _logger.info('Fetching emergency alert history', {
         'operation': 'getEmergencyAlertHistory',
         'timestamp': DateTime.now().toIso8601String(),
       });
 
-      final response = await _apiService.getEmergencyAlertHistory();
+      final response = await _apiService.getEmergencyAlerts(
+        null,
+        null,
+        null,
+        null,
+      );
       final alerts = response.data;
 
       _logger.logHealthDataAccess('Emergency alert history accessed', {
@@ -680,16 +689,17 @@ class NotificationRepository {
         'timestamp': DateTime.now().toIso8601String(),
       });
 
-      await _apiService.resetNotificationPreferencesToDefaults();
+      await _apiService.resetPreferencesToDefault();
 
       // Clear preferences cache
       await _clearPreferencesCache();
 
-      _logger.logHealthDataAccess('Notification preferences reset to defaults', {
-        'dataType': 'notification_preferences',
-        'action': 'reset_to_defaults',
-        'timestamp': DateTime.now().toIso8601String(),
-      });
+      _logger
+          .logHealthDataAccess('Notification preferences reset to defaults', {
+            'dataType': 'notification_preferences',
+            'action': 'reset_to_defaults',
+            'timestamp': DateTime.now().toIso8601String(),
+          });
     } on DioException catch (e) {
       _logger.error('Failed to reset notification preferences to defaults', {
         'errorType': e.type.name,

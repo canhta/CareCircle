@@ -675,13 +675,17 @@ class _NotificationDetailScreenState
     }
   }
 
-  void _deleteNotification(notification_models.Notification notification) async {
+  void _deleteNotification(
+    notification_models.Notification notification,
+  ) async {
     // Show confirmation dialog
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Delete Notification'),
-        content: const Text('Are you sure you want to delete this notification? This action cannot be undone.'),
+        content: const Text(
+          'Are you sure you want to delete this notification? This action cannot be undone.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
@@ -706,7 +710,9 @@ class _NotificationDetailScreenState
           'timestamp': DateTime.now().toIso8601String(),
         });
 
-        final notificationNotifier = ref.read(notificationNotifierProvider.notifier);
+        final notificationNotifier = ref.read(
+          notificationNotifierProvider.notifier,
+        );
         await notificationNotifier.deleteNotification(notification.id);
 
         if (mounted) {
@@ -747,7 +753,8 @@ class _NotificationDetailScreenState
       });
 
       // Create shareable content (healthcare-compliant)
-      final shareContent = '''
+      final shareContent =
+          '''
 CareCircle Notification
 
 Title: ${notification.title}

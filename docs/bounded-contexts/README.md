@@ -6,15 +6,15 @@ This directory contains technical implementation documentation for each Domain-D
 
 The CareCircle system is organized into 8 bounded contexts, each with clear responsibilities and boundaries:
 
-| Order | Context              | Code | Description                                    | Documentation                                        |
-| ----- | -------------------- | ---- | ---------------------------------------------- | ---------------------------------------------------- |
-| 1     | Identity & Access    | IAC  | Authentication, authorization, user management | [01-identity-access/](./01-identity-access/)         |
-| 2     | Care Group           | CGC  | Family care coordination, group management     | [02-care-group/](./02-care-group/)                   |
-| 3     | Health Data          | HDC  | Health metrics, device integration, analytics  | [03-health-data/](./03-health-data/)                 |
-| 4     | Medication           | MDC  | Prescription management, medication scheduling | [04-medication/](./04-medication/)                   |
-| 5     | Notification         | NOC  | Multi-channel communication system             | [05-notification/](./05-notification/)               |
-| 6     | AI Assistant         | AAC  | Conversational AI, health insights             | [06-ai-assistant/](./06-ai-assistant/)               |
-| 7     | Knowledge Management | KMC  | Medical knowledge base and content management  | [07-knowledge-management/](./07-knowledge-management/) |
+| Order | Context              | Code | Description                                      | Documentation                                                |
+| ----- | -------------------- | ---- | ------------------------------------------------ | ------------------------------------------------------------ |
+| 1     | Identity & Access    | IAC  | Authentication, authorization, user management   | [01-identity-access/](./01-identity-access/)                 |
+| 2     | Care Group           | CGC  | Family care coordination, group management       | [02-care-group/](./02-care-group/)                           |
+| 3     | Health Data          | HDC  | Health metrics, device integration, analytics    | [03-health-data/](./03-health-data/)                         |
+| 4     | Medication           | MDC  | Prescription management, medication scheduling   | [04-medication/](./04-medication/)                           |
+| 5     | Notification         | NOC  | Multi-channel communication system               | [05-notification/](./05-notification/)                       |
+| 6     | AI Assistant         | AAC  | Conversational AI, health insights               | [06-ai-assistant/](./06-ai-assistant/)                       |
+| 7     | Knowledge Management | KMC  | Medical knowledge base and content management    | [07-knowledge-management/](./07-knowledge-management/)       |
 | 8     | Subscription Mgmt    | SMC  | Subscriptions, payments, referrals, monetization | [08-subscription-management/](./08-subscription-management/) |
 
 ## Implementation Order
@@ -49,8 +49,8 @@ The contexts are numbered in their recommended implementation order based on dep
 | **MDC (Medication)**       | ✅ Complete | ✅ Complete | 🚀 **Production Ready** | ✅ **Lint Clean** |
 | NOC (Notification)         | ✅ Complete | 🔄 Partial  | 🔧 In Progress          | ✅ Lint Clean     |
 | AAC (AI Assistant)         | ✅ Complete | ✅ Complete | 🚀 Production Ready     | ✅ Lint Clean     |
-| KMC (Knowledge Management) | 📋 Planned  | 📋 Planned  | 📋 Not Started         | 📋 Planned        |
-| SMC (Subscription Mgmt)    | 📋 Planned  | 📋 Planned  | 📋 Documentation Ready | 📋 Planned        |
+| KMC (Knowledge Management) | 📋 Planned  | 📋 Planned  | 📋 Not Started          | 📋 Planned        |
+| SMC (Subscription Mgmt)    | 📋 Planned  | 📋 Planned  | 📋 Documentation Ready  | 📋 Planned        |
 
 ### Recent Completion: Medication Management (MDC)
 

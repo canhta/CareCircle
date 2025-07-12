@@ -5,7 +5,7 @@ import 'package:flutter/services.dart';
 import '../../design/design_tokens.dart';
 
 /// Dosage input field with healthcare-specific validation
-/// 
+///
 /// Features:
 /// - Numeric input with decimal support
 /// - Healthcare-compliant dosage units
@@ -149,7 +149,11 @@ class _DosageInputFieldState extends State<DosageInputField> {
                   ),
                   inputFormatters: [
                     FilteringTextInputFormatter.allow(
-                      RegExp(r'^\d*\.?\d{0,' + widget.decimalPlaces.toString() + r'}'),
+                      RegExp(
+                        r'^\d*\.?\d{0,' +
+                            widget.decimalPlaces.toString() +
+                            r'}',
+                      ),
                     ),
                   ],
                   decoration: InputDecoration(
@@ -161,9 +165,7 @@ class _DosageInputFieldState extends State<DosageInputField> {
                     ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(
-                        color: Colors.grey[300]!,
-                      ),
+                      borderSide: BorderSide(color: Colors.grey[300]!),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -242,13 +244,14 @@ class _DosageInputFieldState extends State<DosageInputField> {
               const SizedBox(width: 12),
               Container(
                 height: 56,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.grey[100]!,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: Colors.grey[300]!,
-                  ),
+                  border: Border.all(color: Colors.grey[300]!),
                 ),
                 child: Center(
                   child: Text(

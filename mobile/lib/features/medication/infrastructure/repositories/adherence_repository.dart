@@ -379,7 +379,11 @@ class AdherenceRepository {
   }
 
   /// Mark dose as taken by record ID
-  Future<AdherenceRecord> markDoseAsTaken(String recordId, {DateTime? takenAt, String? notes}) async {
+  Future<AdherenceRecord> markDoseAsTaken(
+    String recordId, {
+    DateTime? takenAt,
+    String? notes,
+  }) async {
     try {
       _logger.info('Marking dose as taken by record ID', {
         'operation': 'markDoseAsTaken',

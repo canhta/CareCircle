@@ -40,17 +40,17 @@ class ModernUIShowcaseScreen extends StatelessWidget {
               SizedBox(height: CareCircleSpacingTokens.sm),
               _buildModernButtons(),
               SizedBox(height: CareCircleSpacingTokens.lg),
-              
+
               _buildSectionHeader('AI Assistant Features'),
               SizedBox(height: CareCircleSpacingTokens.sm),
               _buildAIFeatures(),
               SizedBox(height: CareCircleSpacingTokens.lg),
-              
+
               _buildSectionHeader('Healthcare Action Cards'),
               SizedBox(height: CareCircleSpacingTokens.sm),
               _buildHealthcareCards(),
               SizedBox(height: CareCircleSpacingTokens.lg),
-              
+
               _buildSectionHeader('Glassmorphism Effects'),
               SizedBox(height: CareCircleSpacingTokens.sm),
               _buildGlassmorphismDemo(),
@@ -91,7 +91,7 @@ class ModernUIShowcaseScreen extends StatelessWidget {
           icon: Icons.medical_services,
         ),
         SizedBox(height: CareCircleSpacingTokens.sm),
-        
+
         // AI Assistant button
         CareCircleButton(
           onPressed: () {},
@@ -100,7 +100,7 @@ class ModernUIShowcaseScreen extends StatelessWidget {
           icon: Icons.psychology,
         ),
         SizedBox(height: CareCircleSpacingTokens.sm),
-        
+
         // Emergency gradient button
         CareCircleButton(
           onPressed: () {},
@@ -110,7 +110,7 @@ class ModernUIShowcaseScreen extends StatelessWidget {
           isUrgent: true,
         ),
         SizedBox(height: CareCircleSpacingTokens.sm),
-        
+
         // Health gradient button
         CareCircleButton(
           onPressed: () {},
@@ -119,7 +119,7 @@ class ModernUIShowcaseScreen extends StatelessWidget {
           icon: Icons.favorite,
         ),
         SizedBox(height: CareCircleSpacingTokens.sm),
-        
+
         // Glassmorphism button
         CareCircleButton(
           onPressed: () {},
@@ -141,10 +141,7 @@ class ModernUIShowcaseScreen extends StatelessWidget {
             gradient: CareCircleGradientTokens.aiChat,
             borderRadius: CareCircleModernEffectsTokens.radiusLG,
             boxShadow: CareCircleModernEffectsTokens.aiShadow,
-            border: Border.all(
-              color: const Color(0x337C4DFF),
-              width: 1.5,
-            ),
+            border: Border.all(color: const Color(0x337C4DFF), width: 1.5),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -166,10 +163,11 @@ class ModernUIShowcaseScreen extends StatelessWidget {
                   SizedBox(width: CareCircleSpacingTokens.sm),
                   Text(
                     'AI Health Assistant',
-                    style: CareCircleTypographyTokens.healthMetricTitle.copyWith(
-                      fontWeight: FontWeight.w600,
-                      color: CareCircleColorTokens.primaryMedicalBlue,
-                    ),
+                    style: CareCircleTypographyTokens.healthMetricTitle
+                        .copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: CareCircleColorTokens.primaryMedicalBlue,
+                        ),
                   ),
                 ],
               ),
@@ -177,14 +175,16 @@ class ModernUIShowcaseScreen extends StatelessWidget {
               Text(
                 'Experience personalized healthcare guidance with our AI-powered assistant. Get instant answers to your health questions.',
                 style: CareCircleTypographyTokens.medicalNote.copyWith(
-                  color: CareCircleColorTokens.primaryMedicalBlue.withValues(alpha: 0.8),
+                  color: CareCircleColorTokens.primaryMedicalBlue.withValues(
+                    alpha: 0.8,
+                  ),
                 ),
               ),
             ],
           ),
         ),
         SizedBox(height: CareCircleSpacingTokens.md),
-        
+
         // AI Processing Indicator
         Container(
           padding: EdgeInsets.all(CareCircleSpacingTokens.md),
@@ -287,14 +287,16 @@ class ModernUIShowcaseScreen extends StatelessWidget {
               Text(
                 'Glassmorphism provides a modern, professional appearance while maintaining excellent readability for medical data.',
                 style: CareCircleTypographyTokens.medicalNote.copyWith(
-                  color: CareCircleColorTokens.primaryMedicalBlue.withValues(alpha: 0.8),
+                  color: CareCircleColorTokens.primaryMedicalBlue.withValues(
+                    alpha: 0.8,
+                  ),
                 ),
               ),
             ],
           ),
         ),
         SizedBox(height: CareCircleSpacingTokens.md),
-        
+
         // Emergency glassmorphism card
         CareCircleGlassmorphismTokens.createGlassContainer(
           decoration: CareCircleGlassmorphismTokens.emergencyGlass(),
@@ -312,14 +314,15 @@ class ModernUIShowcaseScreen extends StatelessWidget {
                   children: [
                     Text(
                       'Critical Alert',
-                      style: CareCircleTypographyTokens.emergencyButton.copyWith(
-                        color: CareCircleColorTokens.criticalAlert,
-                      ),
+                      style: CareCircleTypographyTokens.emergencyButton
+                          .copyWith(color: CareCircleColorTokens.criticalAlert),
                     ),
                     Text(
                       'Emergency glassmorphism for urgent notifications',
                       style: CareCircleTypographyTokens.medicalNote.copyWith(
-                        color: CareCircleColorTokens.criticalAlert.withValues(alpha: 0.8),
+                        color: CareCircleColorTokens.criticalAlert.withValues(
+                          alpha: 0.8,
+                        ),
                       ),
                     ),
                   ],

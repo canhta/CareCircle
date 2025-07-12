@@ -3,7 +3,6 @@ import '../../../../core/design/design_tokens.dart';
 
 /// Healthcare-compliant loading states for AI assistant interactions
 class HealthcareLoadingStates {
-  
   /// Subtle loading indicator for healthcare applications
   static Widget subtleLoader({
     String? message,
@@ -19,10 +18,7 @@ class HealthcareLoadingStates {
   }
 
   /// Streaming response loader with healthcare theming
-  static Widget streamingLoader({
-    String? message,
-    bool showPulse = true,
-  }) {
+  static Widget streamingLoader({String? message, bool showPulse = true}) {
     return _HealthcareLoader(
       message: message ?? 'AI is responding...',
       showPulse: showPulse,
@@ -36,7 +32,8 @@ class HealthcareLoadingStates {
     bool isReconnecting = false,
   }) {
     return _HealthcareLoader(
-      message: message ?? (isReconnecting ? 'Reconnecting...' : 'Connecting...'),
+      message:
+          message ?? (isReconnecting ? 'Reconnecting...' : 'Connecting...'),
       type: _LoaderType.connection,
     );
   }
@@ -56,9 +53,7 @@ class HealthcareLoadingStates {
   }
 
   /// Emergency-style loader for urgent operations
-  static Widget emergencyLoader({
-    String? message,
-  }) {
+  static Widget emergencyLoader({String? message}) {
     return _HealthcareLoader(
       message: message ?? 'Processing urgent request...',
       type: _LoaderType.emergency,
@@ -66,13 +61,7 @@ class HealthcareLoadingStates {
   }
 }
 
-enum _LoaderType {
-  subtle,
-  streaming,
-  connection,
-  processing,
-  emergency,
-}
+enum _LoaderType { subtle, streaming, connection, processing, emergency }
 
 class _HealthcareLoader extends StatefulWidget {
   final String? message;
@@ -102,7 +91,7 @@ class _HealthcareLoaderState extends State<_HealthcareLoader>
   late AnimationController _rotationController;
   late AnimationController _pulseController;
   late AnimationController _fadeController;
-  
+
   late Animation<double> _rotationAnimation;
   late Animation<double> _pulseAnimation;
   late Animation<double> _fadeAnimation;
@@ -130,34 +119,23 @@ class _HealthcareLoaderState extends State<_HealthcareLoader>
       vsync: this,
     );
 
-    _rotationAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _rotationController,
-      curve: Curves.linear,
-    ));
+    _rotationAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _rotationController, curve: Curves.linear),
+    );
 
-    _pulseAnimation = Tween<double>(
-      begin: 0.8,
-      end: 1.2,
-    ).animate(CurvedAnimation(
-      parent: _pulseController,
-      curve: Curves.easeInOut,
-    ));
+    _pulseAnimation = Tween<double>(begin: 0.8, end: 1.2).animate(
+      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+    );
 
     _fadeAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _fadeController,
-      curve: Curves.easeIn,
-    ));
+    ).animate(CurvedAnimation(parent: _fadeController, curve: Curves.easeIn));
   }
 
   void _startAnimations() {
     _fadeController.forward();
-    
+
     switch (widget.type) {
       case _LoaderType.subtle:
       case _LoaderType.connection:
@@ -208,7 +186,7 @@ class _HealthcareLoaderState extends State<_HealthcareLoader>
 
   Widget _buildLoader() {
     Widget loader;
-    
+
     switch (widget.type) {
       case _LoaderType.subtle:
         loader = _buildSubtleLoader();
@@ -227,11 +205,7 @@ class _HealthcareLoaderState extends State<_HealthcareLoader>
         break;
     }
 
-    return SizedBox(
-      width: widget.size,
-      height: widget.size,
-      child: loader,
-    );
+    return SizedBox(width: widget.size, height: widget.size, child: loader);
   }
 
   Widget _buildSubtleLoader() {
@@ -270,17 +244,15 @@ class _HealthcareLoaderState extends State<_HealthcareLoader>
               ),
               boxShadow: [
                 BoxShadow(
-                  color: CareCircleDesignTokens.primaryMedicalBlue.withValues(alpha: 0.3),
+                  color: CareCircleDesignTokens.primaryMedicalBlue.withValues(
+                    alpha: 0.3,
+                  ),
                   blurRadius: 8,
                   spreadRadius: 2,
                 ),
               ],
             ),
-            child: const Icon(
-              Icons.psychology,
-              color: Colors.white,
-              size: 16,
-            ),
+            child: const Icon(Icons.psychology, color: Colors.white, size: 16),
           ),
         );
       },
@@ -357,7 +329,7 @@ class _HealthcareLoaderState extends State<_HealthcareLoader>
   Widget _buildMessage() {
     Color textColor;
     FontWeight fontWeight;
-    
+
     switch (widget.type) {
       case _LoaderType.emergency:
         textColor = Colors.red;

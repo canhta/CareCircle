@@ -7,7 +7,8 @@ import '../compliance/healthcare_compliance_service.dart';
 ///
 /// Now uses the consolidated HealthcareComplianceService for consistency.
 class HealthcareLogSanitizer {
-  static final HealthcareComplianceService _complianceService = HealthcareComplianceService();
+  static final HealthcareComplianceService _complianceService =
+      HealthcareComplianceService();
 
   /// Sanitize a log message by removing sensitive patterns
   static String sanitizeMessage(String message) {
@@ -32,8 +33,6 @@ class HealthcareLogSanitizer {
     // Use the consolidated compliance service for consistency
     return _complianceService.isSensitiveField(fieldName);
   }
-
-
 
   /// Create a sanitized summary of an object for logging
   static Map<String, dynamic> createSanitizedSummary(

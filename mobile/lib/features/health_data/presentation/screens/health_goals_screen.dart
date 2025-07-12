@@ -195,9 +195,11 @@ class _HealthGoalsScreenState extends ConsumerState<HealthGoalsScreen> {
 
     return healthProfileAsync.when(
       data: (healthProfile) {
-        final activeGoals = healthProfile?.healthGoals
-            .where((goal) => goal.status == 'active')
-            .toList() ?? [];
+        final activeGoals =
+            healthProfile?.healthGoals
+                .where((goal) => goal.status == 'active')
+                .toList() ??
+            [];
 
         if (activeGoals.isEmpty) {
           return _buildEmptyGoalsState();
@@ -631,7 +633,9 @@ class _HealthGoalsScreenState extends ConsumerState<HealthGoalsScreen> {
             const SizedBox(height: 8),
             Text('Status: ${goal.status}'),
             const SizedBox(height: 8),
-            Text('Target Date: ${goal.targetDate.day}/${goal.targetDate.month}/${goal.targetDate.year}'),
+            Text(
+              'Target Date: ${goal.targetDate.day}/${goal.targetDate.month}/${goal.targetDate.year}',
+            ),
           ],
         ),
         actions: [
@@ -762,8 +766,8 @@ class HealthGoalCard extends StatelessWidget {
                 backgroundColor: Colors.grey[300],
                 valueColor: AlwaysStoppedAnimation<Color>(
                   goal.progress >= 100
-                    ? CareCircleDesignTokens.healthGreen
-                    : CareCircleDesignTokens.primaryMedicalBlue,
+                      ? CareCircleDesignTokens.healthGreen
+                      : CareCircleDesignTokens.primaryMedicalBlue,
                 ),
               ),
               const SizedBox(height: 4),

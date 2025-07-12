@@ -7,6 +7,7 @@ CareCircle is a comprehensive health management platform designed to facilitate 
 🚀 **NEW**: CareCircle now features a production-ready streaming AI chatbot with healthcare compliance and professional medical-grade UI/UX.
 
 ### 🎯 **Key Features**
+
 - **Real-Time Streaming**: Character-by-character AI responses with <100ms latency
 - **Healthcare Compliance**: HIPAA-compliant with medical disclaimers and emergency escalation
 - **Session Persistence**: Conversations survive app restarts with automatic restoration
@@ -15,6 +16,7 @@ CareCircle is a comprehensive health management platform designed to facilitate 
 - **Privacy Protection**: End-to-end encryption with comprehensive data protection
 
 ### 🏥 **Healthcare-Specific Features**
+
 - Medical disclaimer integration throughout streaming interface
 - Emergency keyword detection and appropriate escalation
 - PII/PHI protection in all streaming conversations

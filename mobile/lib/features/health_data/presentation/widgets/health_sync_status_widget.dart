@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/design/design_tokens.dart';
 import '../../../../core/logging/bounded_context_loggers.dart';
 import '../../application/providers/health_sync_provider.dart';
-import '../../infrastructure/services/device_health_service.dart';
 
 /// Widget displaying health data sync status and controls
 ///
@@ -17,7 +16,7 @@ class HealthSyncStatusWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final widgetRef = ref; // Capture ref for use in callbacks
+    final widgetRef = ref; // Capture ref for use in nested callbacks
     final syncStatus = ref.watch(healthSyncStatusProvider);
     final permissionsAsync = ref.watch(healthSyncPermissionsProvider);
 
@@ -49,7 +48,7 @@ class HealthSyncStatusWidget extends ConsumerWidget {
               ],
             ),
             const SizedBox(height: 12),
-            _buildPermissionsStatus(context, permissionsAsync),
+            _buildPermissionsStatus(context, permissionsAsync, widgetRef),
             const SizedBox(height: 8),
             _buildLastSyncInfo(context, syncStatus),
             if (syncStatus.isSyncing) ...[
@@ -88,6 +87,7 @@ class HealthSyncStatusWidget extends ConsumerWidget {
   Widget _buildPermissionsStatus(
     BuildContext context,
     AsyncValue<bool> permissionsAsync,
+    WidgetRef ref,
   ) {
     return permissionsAsync.when(
       data: (hasPermissions) {
@@ -125,8 +125,14 @@ class HealthSyncStatusWidget extends ConsumerWidget {
                 builder: (builderContext) {
                   return TextButton(
                     onPressed: () async {
-                      final scaffoldMessenger = ScaffoldMessenger.of(builderContext);
-                      await _requestPermissions(builderContext, widgetRef, scaffoldMessenger);
+                      final scaffoldMessenger = ScaffoldMessenger.of(
+                        builderContext,
+                      );
+                      await _requestPermissions(
+                        builderContext,
+                        ref,
+                        scaffoldMessenger,
+                      );
                     },
                     style: TextButton.styleFrom(
                       padding: const EdgeInsets.symmetric(horizontal: 8),

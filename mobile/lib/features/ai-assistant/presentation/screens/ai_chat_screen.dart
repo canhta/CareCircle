@@ -144,7 +144,9 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
         });
 
         // Restore conversation state
-        final conversationState = await sessionService.restoreConversationState(_currentConversationId!);
+        final conversationState = await sessionService.restoreConversationState(
+          _currentConversationId!,
+        );
         if (conversationState != null) {
           // Apply restored state if needed
           _applyRestoredState(conversationState);
@@ -182,7 +184,10 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
           'messageCount': _chatController.messages.length,
           // Add other state as needed
         };
-        await sessionService.saveConversationState(_currentConversationId!, conversationState);
+        await sessionService.saveConversationState(
+          _currentConversationId!,
+          conversationState,
+        );
       }
     } catch (e) {
       // Log error but don't block disposal
@@ -243,7 +248,8 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
           id: 'error_${DateTime.now().millisecondsSinceEpoch}',
           authorId: _assistantId,
           createdAt: DateTime.now().toUtc(),
-          text: "I apologize, but I'm experiencing technical difficulties. Please try again.",
+          text:
+              "I apologize, but I'm experiencing technical difficulties. Please try again.",
         );
 
         _chatController.insertMessage(errorMessage);

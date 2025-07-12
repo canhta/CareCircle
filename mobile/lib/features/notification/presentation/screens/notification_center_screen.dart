@@ -519,7 +519,8 @@ class _NotificationCenterScreenState
 
               try {
                 // Delete the notification using the provider
-                await ref.read(notificationNotifierProvider.notifier)
+                await ref
+                    .read(notificationNotifierProvider.notifier)
                     .deleteNotification(notification.id);
 
                 // Show success message
@@ -578,7 +579,9 @@ class _NotificationCenterScreenState
       context: context,
       builder: (context) => AlertDialog(
         title: Text('Mark All as Read'),
-        content: Text('Are you sure you want to mark all notifications as read?'),
+        content: Text(
+          'Are you sure you want to mark all notifications as read?',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
@@ -592,7 +595,8 @@ class _NotificationCenterScreenState
 
               try {
                 // Mark all notifications as read using the provider
-                await ref.read(notificationNotifierProvider.notifier)
+                await ref
+                    .read(notificationNotifierProvider.notifier)
                     .markAllAsRead();
 
                 // Show success message

@@ -43,13 +43,14 @@ final medicationProvider = FutureProvider.family<Medication?, String>((
 });
 
 /// Provider for medication search results
-final medicationSearchProvider = FutureProvider.family<List<Medication>, String>((ref, searchTerm) async {
-  if (searchTerm.isEmpty) return [];
+final medicationSearchProvider =
+    FutureProvider.family<List<Medication>, String>((ref, searchTerm) async {
+      if (searchTerm.isEmpty) return [];
 
-  final apiService = ref.read(medicationApiServiceProvider);
-  final response = await apiService.searchMedications(searchTerm, 20);
-  return response.data;
-});
+      final apiService = ref.read(medicationApiServiceProvider);
+      final response = await apiService.searchMedications(searchTerm, 20);
+      return response.data;
+    });
 
 /// Provider for user prescriptions
 final prescriptionsProvider = FutureProvider<List<Prescription>>((ref) async {

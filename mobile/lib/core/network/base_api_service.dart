@@ -7,7 +7,7 @@ import '../logging/bounded_context_loggers.dart';
 import '../compliance/healthcare_compliance_service.dart';
 
 /// Base API service providing standardized patterns for all API services
-/// 
+///
 /// Features:
 /// - Consistent error handling
 /// - Healthcare-compliant logging
@@ -25,10 +25,7 @@ abstract class BaseApiService {
   /// Base URL for the service (defaults to main API)
   String get baseUrl => AppConfig.apiBaseUrl;
 
-  BaseApiService({
-    Dio? dio,
-    Talker? logger,
-  }) {
+  BaseApiService({Dio? dio, Talker? logger}) {
     _dio = dio ?? _createDefaultDio();
     _logger = logger ?? BoundedContextLoggers.network;
     _complianceService = HealthcareComplianceService();
@@ -75,7 +72,12 @@ abstract class BaseApiService {
     String? operationName,
   }) async {
     return _makeRequest<T>(
-      () => _dio.post(path, data: data, queryParameters: queryParameters, options: options),
+      () => _dio.post(
+        path,
+        data: data,
+        queryParameters: queryParameters,
+        options: options,
+      ),
       fromJson: fromJson,
       operationName: operationName ?? 'POST $path',
     );
@@ -91,7 +93,12 @@ abstract class BaseApiService {
     String? operationName,
   }) async {
     return _makeRequest<T>(
-      () => _dio.put(path, data: data, queryParameters: queryParameters, options: options),
+      () => _dio.put(
+        path,
+        data: data,
+        queryParameters: queryParameters,
+        options: options,
+      ),
       fromJson: fromJson,
       operationName: operationName ?? 'PUT $path',
     );
@@ -107,7 +114,12 @@ abstract class BaseApiService {
     String? operationName,
   }) async {
     return _makeRequest<T>(
-      () => _dio.delete(path, data: data, queryParameters: queryParameters, options: options),
+      () => _dio.delete(
+        path,
+        data: data,
+        queryParameters: queryParameters,
+        options: options,
+      ),
       fromJson: fromJson,
       operationName: operationName ?? 'DELETE $path',
     );
@@ -133,7 +145,7 @@ abstract class BaseApiService {
     int maxRetries = 3,
   }) async {
     final startTime = DateTime.now();
-    
+
     for (int attempt = 1; attempt <= maxRetries; attempt++) {
       try {
         _logger.info('API request started', {
@@ -162,27 +174,24 @@ abstract class BaseApiService {
         } else {
           return fromJson(response.data);
         }
-
       } on DioException catch (e) {
         final duration = DateTime.now().difference(startTime);
         final isLastAttempt = attempt == maxRetries;
 
         // Log error with healthcare-compliant sanitization
-        final sanitizedError = _complianceService.createCompliantLogMessage(
-          'API request failed',
-          {
-            'service': serviceName,
-            'operation': operationName,
-            'attempt': attempt,
-            'maxRetries': maxRetries,
-            'errorType': e.type.name,
-            'statusCode': e.response?.statusCode,
-            'durationMs': duration.inMilliseconds,
-            'isLastAttempt': isLastAttempt,
-            'timestamp': DateTime.now().toIso8601String(),
-          },
-        );
-        
+        final sanitizedError = _complianceService
+            .createCompliantLogMessage('API request failed', {
+              'service': serviceName,
+              'operation': operationName,
+              'attempt': attempt,
+              'maxRetries': maxRetries,
+              'errorType': e.type.name,
+              'statusCode': e.response?.statusCode,
+              'durationMs': duration.inMilliseconds,
+              'isLastAttempt': isLastAttempt,
+              'timestamp': DateTime.now().toIso8601String(),
+            });
+
         if (isLastAttempt) {
           _logger.error(sanitizedError);
         } else {
@@ -199,7 +208,7 @@ abstract class BaseApiService {
             'retryDelayMs': retryDelay.inMilliseconds,
             'timestamp': DateTime.now().toIso8601String(),
           });
-          
+
           await Future.delayed(retryDelay);
           continue;
         }
@@ -208,7 +217,7 @@ abstract class BaseApiService {
         throw _transformDioException(e, operationName);
       } catch (e) {
         final duration = DateTime.now().difference(startTime);
-        
+
         _logger.error('Unexpected API error', {
           'service': serviceName,
           'operation': operationName,
@@ -217,7 +226,7 @@ abstract class BaseApiService {
           'durationMs': duration.inMilliseconds,
           'timestamp': DateTime.now().toIso8601String(),
         });
-        
+
         throw ApiException(
           message: 'Unexpected error occurred',
           statusCode: 0,

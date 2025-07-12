@@ -235,9 +235,7 @@ class NotificationNotifier
       state = state.whenData((notifications) {
         return notifications.map((notification) {
           if (notification.readAt == null) {
-            return notification.copyWith(
-              readAt: DateTime.now(),
-            );
+            return notification.copyWith(readAt: DateTime.now());
           }
           return notification;
         }).toList();
@@ -354,9 +352,7 @@ class NotificationPreferencesNotifier
   ) async {
     try {
       // Create a context preference update
-      final contextPreferences = <String, bool>{
-        contextType.name: enabled,
-      };
+      final contextPreferences = <String, bool>{contextType.name: enabled};
 
       final request = notification_models.UpdateNotificationPreferencesRequest(
         contextPreferences: contextPreferences,
@@ -407,7 +403,7 @@ class NotificationPreferencesNotifier
   ) async {
     try {
       final request = notification_models.UpdateNotificationPreferencesRequest(
-        channelSettings: {channel.name: enabled},
+        channelPreferences: {channel.name: enabled},
       );
 
       await _repository.updateNotificationPreferences(request);
@@ -587,7 +583,9 @@ final notificationServiceProvider = FutureProvider<void>((ref) async {
 });
 
 /// Emergency Alert Notifier for managing emergency alerts
-class EmergencyAlertNotifier extends StateNotifier<AsyncValue<List<notification_models.EmergencyAlert>>> {
+class EmergencyAlertNotifier
+    extends
+        StateNotifier<AsyncValue<List<notification_models.EmergencyAlert>>> {
   final NotificationRepository _repository;
 
   EmergencyAlertNotifier(this._repository) : super(const AsyncValue.loading()) {
@@ -608,7 +606,9 @@ class EmergencyAlertNotifier extends StateNotifier<AsyncValue<List<notification_
     }
   }
 
-  Future<void> createEmergencyAlert(notification_models.EmergencyAlert alert) async {
+  Future<void> createEmergencyAlert(
+    notification_models.EmergencyAlert alert,
+  ) async {
     try {
       await _repository.createEmergencyAlert(alert);
       await loadEmergencyAlerts(); // Refresh the list
@@ -623,16 +623,18 @@ class EmergencyAlertNotifier extends StateNotifier<AsyncValue<List<notification_
 }
 
 /// Provider for emergency alert notifier
-final emergencyAlertNotifierProvider = StateNotifierProvider<
-    EmergencyAlertNotifier,
-    AsyncValue<List<notification_models.EmergencyAlert>>
->((ref) {
-  final repository = ref.read(notificationRepositoryProvider);
-  return EmergencyAlertNotifier(repository);
-});
+final emergencyAlertNotifierProvider =
+    StateNotifierProvider<
+      EmergencyAlertNotifier,
+      AsyncValue<List<notification_models.EmergencyAlert>>
+    >((ref) {
+      final repository = ref.read(notificationRepositoryProvider);
+      return EmergencyAlertNotifier(repository);
+    });
 
 /// Provider for emergency alert history
-final emergencyAlertHistoryProvider = FutureProvider<List<notification_models.EmergencyAlert>>((ref) async {
-  final repository = ref.read(notificationRepositoryProvider);
-  return await repository.getEmergencyAlertHistory();
-});
+final emergencyAlertHistoryProvider =
+    FutureProvider<List<notification_models.EmergencyAlert>>((ref) async {
+      final repository = ref.read(notificationRepositoryProvider);
+      return await repository.getEmergencyAlertHistory();
+    });

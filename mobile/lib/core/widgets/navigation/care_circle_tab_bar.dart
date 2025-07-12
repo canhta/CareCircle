@@ -59,7 +59,8 @@ class CareCircleTabBar extends StatelessWidget {
         decoration: enableModernEffects
             ? _getModernTabBarDecoration()
             : BoxDecoration(
-                color: backgroundColor ??
+                color:
+                    backgroundColor ??
                     CareCircleColorTokens.lightColorScheme.surface,
                 boxShadow: [
                   BoxShadow(
@@ -98,7 +99,9 @@ class CareCircleTabBar extends StatelessWidget {
       boxShadow: CareCircleModernEffectsTokens.softShadow,
       border: Border(
         top: BorderSide(
-          color: CareCircleColorTokens.primaryMedicalBlue.withValues(alpha: 0.1),
+          color: CareCircleColorTokens.primaryMedicalBlue.withValues(
+            alpha: 0.1,
+          ),
           width: 1.0,
         ),
       ),
@@ -297,7 +300,9 @@ class HealthcareAIAssistantFAB extends StatelessWidget {
   Widget build(BuildContext context) {
     return Semantics(
       label: semanticLabel ?? 'AI Health Assistant',
-      hint: semanticHint ?? 'Open AI health assistant for personalized healthcare guidance',
+      hint:
+          semanticHint ??
+          'Open AI health assistant for personalized healthcare guidance',
       button: true,
       child: GestureDetector(
         onTap: onPressed,

@@ -4,7 +4,6 @@ import '../../../../core/design/design_tokens.dart';
 
 /// Healthcare-specific UX patterns for AI assistant interactions
 class HealthcareUXPatterns {
-  
   /// Medical disclaimer banner with healthcare-appropriate styling
   static Widget medicalDisclaimer({
     String? customText,
@@ -122,10 +121,10 @@ class _MedicalDisclaimerBanner extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  customText ?? 
-                  'This AI assistant provides general health information only. '
-                  'Always consult with qualified healthcare professionals for medical advice, '
-                  'diagnosis, or treatment. In case of emergency, contact emergency services immediately.',
+                  customText ??
+                      'This AI assistant provides general health information only. '
+                          'Always consult with qualified healthcare professionals for medical advice, '
+                          'diagnosis, or treatment. In case of emergency, contact emergency services immediately.',
                   style: TextStyle(
                     fontSize: 12,
                     height: 1.4,
@@ -159,18 +158,12 @@ class _EmergencyEscalationButton extends StatelessWidget {
   final VoidCallback onPressed;
   final String? customText;
 
-  const _EmergencyEscalationButton({
-    required this.onPressed,
-    this.customText,
-  });
+  const _EmergencyEscalationButton({required this.onPressed, this.customText});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(
-        horizontal: 16,
-        vertical: 8,
-      ),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: ElevatedButton.icon(
         onPressed: onPressed,
         icon: const Icon(Icons.emergency, color: Colors.white),
@@ -185,9 +178,7 @@ class _EmergencyEscalationButton extends StatelessWidget {
           backgroundColor: Colors.red,
           foregroundColor: Colors.white,
           minimumSize: const Size(double.infinity, 44),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           elevation: 4,
         ),
       ),
@@ -225,19 +216,21 @@ class _HealthcareInputFieldState extends State<_HealthcareInputField> {
         color: Colors.grey[50]!,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: widget.isEmergency 
+          color: widget.isEmergency
               ? Colors.red
-              : _isFocused 
-                  ? CareCircleDesignTokens.primaryMedicalBlue
-                  : Colors.grey[300]!.withValues(alpha: 0.3),
+              : _isFocused
+              ? CareCircleDesignTokens.primaryMedicalBlue
+              : Colors.grey[300]!.withValues(alpha: 0.3),
           width: widget.isEmergency ? 2 : 1,
         ),
         boxShadow: [
           if (_isFocused)
             BoxShadow(
-              color: (widget.isEmergency 
-                  ? Colors.red 
-                  : CareCircleDesignTokens.primaryMedicalBlue).withValues(alpha: 0.2),
+              color:
+                  (widget.isEmergency
+                          ? Colors.red
+                          : CareCircleDesignTokens.primaryMedicalBlue)
+                      .withValues(alpha: 0.2),
               blurRadius: 8,
               spreadRadius: 1,
             ),
@@ -272,7 +265,7 @@ class _HealthcareInputFieldState extends State<_HealthcareInputField> {
               onPressed: widget.onSubmit,
               icon: Icon(
                 Icons.send,
-                color: widget.isEmergency 
+                color: widget.isEmergency
                     ? Colors.red
                     : CareCircleDesignTokens.primaryMedicalBlue,
               ),
@@ -301,10 +294,7 @@ class _MessageActionsWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 8,
-        vertical: 4,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -380,17 +370,14 @@ class _ActionButton extends StatelessWidget {
     return GestureDetector(
       onTap: onPressed,
       child: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 8,
-          vertical: 4,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         decoration: BoxDecoration(
-          color: isDestructive 
+          color: isDestructive
               ? Colors.red.withValues(alpha: 0.1)
               : Colors.grey[50]!,
           borderRadius: BorderRadius.circular(4),
           border: Border.all(
-            color: isDestructive 
+            color: isDestructive
                 ? Colors.red.withValues(alpha: 0.3)
                 : Colors.grey[300]!.withValues(alpha: 0.2),
           ),
@@ -401,7 +388,7 @@ class _ActionButton extends StatelessWidget {
             Icon(
               icon,
               size: 16,
-              color: isDestructive 
+              color: isDestructive
                   ? Colors.red
                   : CareCircleDesignTokens.textSecondary,
             ),
@@ -410,7 +397,7 @@ class _ActionButton extends StatelessWidget {
               label,
               style: TextStyle(
                 fontSize: 12,
-                color: isDestructive 
+                color: isDestructive
                     ? Colors.red
                     : CareCircleDesignTokens.textSecondary,
               ),
@@ -426,10 +413,7 @@ class _PrivacyNoticeWidget extends StatefulWidget {
   final VoidCallback? onLearnMore;
   final bool isCollapsed;
 
-  const _PrivacyNoticeWidget({
-    this.onLearnMore,
-    this.isCollapsed = true,
-  });
+  const _PrivacyNoticeWidget({this.onLearnMore, this.isCollapsed = true});
 
   @override
   State<_PrivacyNoticeWidget> createState() => _PrivacyNoticeWidgetState();
@@ -452,9 +436,7 @@ class _PrivacyNoticeWidgetState extends State<_PrivacyNoticeWidget> {
       decoration: BoxDecoration(
         color: Colors.grey[100]!,
         borderRadius: BorderRadius.circular(4),
-        border: Border.all(
-          color: Colors.grey[300]!.withValues(alpha: 0.2),
-        ),
+        border: Border.all(color: Colors.grey[300]!.withValues(alpha: 0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

@@ -55,26 +55,17 @@ class _TypingIndicatorWidgetState extends State<TypingIndicatorWidget>
     );
 
     _dotsAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _dotsController,
-        curve: Curves.easeInOut,
-      ),
+      CurvedAnimation(parent: _dotsController, curve: Curves.easeInOut),
     );
 
     _pulseAnimation = Tween<double>(begin: 1.0, end: 1.02).animate(
-      CurvedAnimation(
-        parent: _pulseController,
-        curve: Curves.easeInOut,
-      ),
+      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
     );
 
     _slideAnimation = Tween<Offset>(
       begin: const Offset(-0.2, 0),
       end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _slideController,
-      curve: Curves.easeOut,
-    ));
+    ).animate(CurvedAnimation(parent: _slideController, curve: Curves.easeOut));
   }
 
   void _startAnimations() {
@@ -116,10 +107,7 @@ class _TypingIndicatorWidgetState extends State<TypingIndicatorWidget>
           return Transform.scale(
             scale: widget.isStreaming ? _pulseAnimation.value : 1.0,
             child: Container(
-              margin: EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 4,
-              ),
+              margin: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.end,
@@ -154,29 +142,22 @@ class _TypingIndicatorWidgetState extends State<TypingIndicatorWidget>
         shape: BoxShape.circle,
         boxShadow: [
           BoxShadow(
-            color: CareCircleDesignTokens.primaryMedicalBlue.withValues(alpha: 0.3),
+            color: CareCircleDesignTokens.primaryMedicalBlue.withValues(
+              alpha: 0.3,
+            ),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
         ],
       ),
-      child: const Icon(
-        Icons.psychology,
-        color: Colors.white,
-        size: 18,
-      ),
+      child: const Icon(Icons.psychology, color: Colors.white, size: 18),
     );
   }
 
   Widget _buildTypingBubble() {
     return Container(
-      constraints: BoxConstraints(
-        minHeight: 44,
-      ),
-      padding: const EdgeInsets.symmetric(
-        horizontal: 16,
-        vertical: 8,
-      ),
+      constraints: BoxConstraints(minHeight: 44),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
         color: Colors.grey[50]!,
         borderRadius: BorderRadius.only(
@@ -186,7 +167,9 @@ class _TypingIndicatorWidgetState extends State<TypingIndicatorWidget>
           bottomRight: const Radius.circular(18),
         ),
         border: Border.all(
-          color: CareCircleDesignTokens.primaryMedicalBlue.withValues(alpha: 0.2),
+          color: CareCircleDesignTokens.primaryMedicalBlue.withValues(
+            alpha: 0.2,
+          ),
           width: 1,
         ),
         boxShadow: [
@@ -216,7 +199,10 @@ class _TypingIndicatorWidgetState extends State<TypingIndicatorWidget>
           mainAxisSize: MainAxisSize.min,
           children: List.generate(3, (index) {
             final delay = index * 0.3;
-            final animationValue = (_dotsAnimation.value - delay).clamp(0.0, 1.0);
+            final animationValue = (_dotsAnimation.value - delay).clamp(
+              0.0,
+              1.0,
+            );
             final scale = 0.5 + (animationValue * 0.5);
             final opacity = 0.3 + (animationValue * 0.7);
 
@@ -244,7 +230,8 @@ class _TypingIndicatorWidgetState extends State<TypingIndicatorWidget>
   }
 
   Widget _buildTypingText() {
-    final message = widget.customMessage ??
+    final message =
+        widget.customMessage ??
         (widget.isStreaming ? 'AI is responding...' : 'AI is thinking...');
 
     return Text(

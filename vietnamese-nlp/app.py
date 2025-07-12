@@ -15,6 +15,17 @@ import underthesea
 from pyvi import ViTokenizer
 import structlog
 
+# Production configuration
+class Config:
+    """Production configuration settings"""
+    PORT = int(os.getenv('PORT', 8080))
+    REDIS_URL = os.getenv('REDIS_URL', 'redis://localhost:6379/6')
+    FLASK_DEBUG = os.getenv('FLASK_DEBUG', '').lower() in ('true', '1', 'yes')
+    LOG_LEVEL = os.getenv('LOG_LEVEL', 'INFO').upper()
+    CACHE_TTL_TOKENIZE = int(os.getenv('CACHE_TTL_TOKENIZE', 3600))  # 1 hour
+    CACHE_TTL_ENTITIES = int(os.getenv('CACHE_TTL_ENTITIES', 1800))  # 30 minutes
+    CACHE_TTL_ANALYSIS = int(os.getenv('CACHE_TTL_ANALYSIS', 1800))  # 30 minutes
+
 # Configure structured logging
 structlog.configure(
     processors=[
@@ -43,11 +54,12 @@ CORS(app)
 # Initialize Redis connection
 redis_client = None
 try:
-    redis_url = os.getenv('REDIS_URL', 'redis://localhost:6379/6')
-    redis_client = redis.from_url(redis_url, decode_responses=True)
-    redis_client.ping()
-    logger.info("Redis connection established", redis_url=redis_url)
+    client = redis.from_url(Config.REDIS_URL, decode_responses=True)
+    client.ping()
+    redis_client = client
+    logger.info("Redis connection established", redis_url=Config.REDIS_URL)
 except Exception as e:
+    redis_client = None
     logger.warning("Redis connection failed, caching disabled", error=str(e))
 
 class VietnameseNLPProcessor:
@@ -262,13 +274,16 @@ def tokenize():
         
         # Cache result
         if redis_client:
-            redis_client.setex(cache_key, 3600, json.dumps(result))
+            redis_client.setex(cache_key, Config.CACHE_TTL_TOKENIZE, json.dumps(result))
         
         return jsonify(result)
     
     except Exception as e:
         logger.error("Tokenization endpoint error", error=str(e))
-        return jsonify({'error': 'Tokenization failed'}), 500
+        if Config.FLASK_DEBUG:
+            return jsonify({'error': f'Tokenization failed: {str(e)}'}), 500
+        else:
+            return jsonify({'error': 'Tokenization service temporarily unavailable'}), 500
 
 @app.route('/extract-entities', methods=['POST'])
 def extract_entities():
@@ -299,13 +314,16 @@ def extract_entities():
         
         # Cache result
         if redis_client:
-            redis_client.setex(cache_key, 1800, json.dumps(result))
+            redis_client.setex(cache_key, Config.CACHE_TTL_ENTITIES, json.dumps(result))
         
         return jsonify(result)
     
     except Exception as e:
         logger.error("Entity extraction endpoint error", error=str(e))
-        return jsonify({'error': 'Entity extraction failed'}), 500
+        if Config.FLASK_DEBUG:
+            return jsonify({'error': f'Entity extraction failed: {str(e)}'}), 500
+        else:
+            return jsonify({'error': 'Entity extraction service temporarily unavailable'}), 500
 
 @app.route('/analyze', methods=['POST'])
 def analyze_text():
@@ -347,7 +365,7 @@ def analyze_text():
         
         # Cache result
         if redis_client:
-            redis_client.setex(cache_key, 1800, json.dumps(result))
+            redis_client.setex(cache_key, Config.CACHE_TTL_ANALYSIS, json.dumps(result))
         
         return jsonify(result)
     
@@ -356,8 +374,8 @@ def analyze_text():
         return jsonify({'error': 'Text analysis failed'}), 500
 
 if __name__ == '__main__':
-    port = int(os.getenv('PORT', 8080))
-    debug = os.getenv('FLASK_ENV') == 'development'
-    
-    logger.info("Starting Vietnamese NLP service", port=port, debug=debug)
-    app.run(host='0.0.0.0', port=port, debug=debug)
+    logger.info("Starting Vietnamese NLP service",
+                port=Config.PORT,
+                debug=Config.FLASK_DEBUG,
+                redis_url=Config.REDIS_URL)
+    app.run(host='0.0.0.0', port=Config.PORT, debug=Config.FLASK_DEBUG)

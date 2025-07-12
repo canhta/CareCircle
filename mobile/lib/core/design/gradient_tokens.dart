@@ -74,11 +74,7 @@ class CareCircleGradientTokens {
   static const LinearGradient aiProcessing = LinearGradient(
     begin: Alignment.centerLeft,
     end: Alignment.centerRight,
-    colors: [
-      Color(0xFF7C4DFF),
-      Color(0xFF536DFE),
-      Color(0xFF7C4DFF),
-    ],
+    colors: [Color(0xFF7C4DFF), Color(0xFF536DFE), Color(0xFF7C4DFF)],
     stops: [0.0, 0.5, 1.0],
   );
 
@@ -99,10 +95,7 @@ class CareCircleGradientTokens {
   static const LinearGradient softBackground = LinearGradient(
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
-    colors: [
-      Color(0xFFFAFAFA),
-      Color(0xFFF5F5F5),
-    ],
+    colors: [Color(0xFFFAFAFA), Color(0xFFF5F5F5)],
     stops: [0.0, 1.0],
   );
 
@@ -110,10 +103,7 @@ class CareCircleGradientTokens {
   static const LinearGradient cardBackground = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [
-      Colors.white,
-      Color(0xFFFCFCFC),
-    ],
+    colors: [Colors.white, Color(0xFFFCFCFC)],
     stops: [0.0, 1.0],
   );
 
@@ -134,10 +124,7 @@ class CareCircleGradientTokens {
   static const LinearGradient prescription = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [
-      Color(0xFF1E88E5),
-      Color(0xFF1565C0),
-    ],
+    colors: [Color(0xFF1E88E5), Color(0xFF1565C0)],
     stops: [0.0, 1.0],
   );
 
@@ -145,10 +132,7 @@ class CareCircleGradientTokens {
   static const LinearGradient otc = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [
-      Color(0xFF43A047),
-      Color(0xFF2E7D32),
-    ],
+    colors: [Color(0xFF43A047), Color(0xFF2E7D32)],
     stops: [0.0, 1.0],
   );
 
@@ -156,10 +140,7 @@ class CareCircleGradientTokens {
   static const LinearGradient supplement = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [
-      Color(0xFFFF9800),
-      Color(0xFFED6C02),
-    ],
+    colors: [Color(0xFFFF9800), Color(0xFFED6C02)],
     stops: [0.0, 1.0],
   );
 
@@ -169,10 +150,7 @@ class CareCircleGradientTokens {
   static const RadialGradient fabGradient = RadialGradient(
     center: Alignment.topLeft,
     radius: 1.5,
-    colors: [
-      Color(0xFF1976D2),
-      CareCircleColorTokens.primaryMedicalBlue,
-    ],
+    colors: [Color(0xFF1976D2), CareCircleColorTokens.primaryMedicalBlue],
     stops: [0.0, 1.0],
   );
 
@@ -180,10 +158,7 @@ class CareCircleGradientTokens {
   static const RadialGradient emergencyGradient = RadialGradient(
     center: Alignment.center,
     radius: 1.2,
-    colors: [
-      Color(0xFFE53935),
-      CareCircleColorTokens.criticalAlert,
-    ],
+    colors: [Color(0xFFE53935), CareCircleColorTokens.criticalAlert],
     stops: [0.0, 1.0],
   );
 
@@ -232,12 +207,12 @@ class CareCircleGradientTokens {
     double darkenFactor = 0.1,
   }) {
     final HSLColor hsl = HSLColor.fromColor(primaryColor);
-    final Color lighterColor = hsl.withLightness(
-      (hsl.lightness + lightenFactor).clamp(0.0, 1.0),
-    ).toColor();
-    final Color darkerColor = hsl.withLightness(
-      (hsl.lightness - darkenFactor).clamp(0.0, 1.0),
-    ).toColor();
+    final Color lighterColor = hsl
+        .withLightness((hsl.lightness + lightenFactor).clamp(0.0, 1.0))
+        .toColor();
+    final Color darkerColor = hsl
+        .withLightness((hsl.lightness - darkenFactor).clamp(0.0, 1.0))
+        .toColor();
 
     return LinearGradient(
       begin: begin,

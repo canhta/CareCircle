@@ -3,45 +3,89 @@
 import 'dart:convert';
 
 /// Healthcare compliance service for mobile app
-/// 
+///
 /// Provides centralized healthcare compliance functionality including:
 /// - PII/PHI detection and sanitization
 /// - Healthcare-compliant logging
 /// - Data validation for healthcare standards
 /// - HIPAA compliance utilities
 class HealthcareComplianceService {
-  static const HealthcareComplianceService _instance = HealthcareComplianceService._internal();
-  
+  static const HealthcareComplianceService _instance =
+      HealthcareComplianceService._internal();
+
   factory HealthcareComplianceService() => _instance;
-  
+
   const HealthcareComplianceService._internal();
 
   /// PHI detection patterns aligned with backend service
   static const Map<String, String> _phiPatterns = {
     'ssn': r'\b\d{3}-?\d{2}-?\d{4}\b',
-    'phone': r'\b(?:\+?1[-.\s]?)?\(?([0-9]{3})\)?[-.\s]?([0-9]{3})[-.\s]?([0-9]{4})\b',
+    'phone':
+        r'\b(?:\+?1[-.\s]?)?\(?([0-9]{3})\)?[-.\s]?([0-9]{3})[-.\s]?([0-9]{4})\b',
     'email': r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b',
     'creditCard': r'\b\d{4}[\s-]?\d{4}[\s-]?\d{4}[\s-]?\d{4}\b',
-    'medicalRecord': r'\b(?:MRN|MR|Medical Record|Patient ID)[\s:]*([A-Z0-9]{6,})\b',
+    'medicalRecord':
+        r'\b(?:MRN|MR|Medical Record|Patient ID)[\s:]*([A-Z0-9]{6,})\b',
     'insurance': r'\b(?:Insurance|Policy|Member)[\s#:]*([A-Z0-9]{8,})\b',
-    'dob': r'\b(?:DOB|Date of Birth|Born)[\s:]*(\d{1,2}[/-]\d{1,2}[/-]\d{2,4})\b',
+    'dob':
+        r'\b(?:DOB|Date of Birth|Born)[\s:]*(\d{1,2}[/-]\d{1,2}[/-]\d{2,4})\b',
   };
 
   /// Sensitive field names that should be redacted
   static const List<String> _sensitiveFields = [
-    'ssn', 'socialSecurityNumber', 'social_security_number',
-    'email', 'emailAddress', 'email_address',
-    'phone', 'phoneNumber', 'phone_number', 'mobile',
-    'address', 'streetAddress', 'street_address',
-    'firstName', 'first_name', 'lastName', 'last_name', 'fullName', 'full_name',
-    'dateOfBirth', 'date_of_birth', 'dob', 'birthDate', 'birth_date',
-    'medicalRecordNumber', 'medical_record_number', 'mrn',
-    'insuranceNumber', 'insurance_number', 'policyNumber', 'policy_number',
-    'creditCard', 'credit_card', 'cardNumber', 'card_number',
-    'password', 'token', 'apiKey', 'api_key', 'secret',
-    'bloodPressure', 'blood_pressure', 'heartRate', 'heart_rate',
-    'weight', 'height', 'bmi', 'glucose', 'cholesterol',
-    'medication', 'prescription', 'diagnosis', 'symptoms',
+    'ssn',
+    'socialSecurityNumber',
+    'social_security_number',
+    'email',
+    'emailAddress',
+    'email_address',
+    'phone',
+    'phoneNumber',
+    'phone_number',
+    'mobile',
+    'address',
+    'streetAddress',
+    'street_address',
+    'firstName',
+    'first_name',
+    'lastName',
+    'last_name',
+    'fullName',
+    'full_name',
+    'dateOfBirth',
+    'date_of_birth',
+    'dob',
+    'birthDate',
+    'birth_date',
+    'medicalRecordNumber',
+    'medical_record_number',
+    'mrn',
+    'insuranceNumber',
+    'insurance_number',
+    'policyNumber',
+    'policy_number',
+    'creditCard',
+    'credit_card',
+    'cardNumber',
+    'card_number',
+    'password',
+    'token',
+    'apiKey',
+    'api_key',
+    'secret',
+    'bloodPressure',
+    'blood_pressure',
+    'heartRate',
+    'heart_rate',
+    'weight',
+    'height',
+    'bmi',
+    'glucose',
+    'cholesterol',
+    'medication',
+    'prescription',
+    'diagnosis',
+    'symptoms',
   ];
 
   /// Healthcare-specific medication patterns
@@ -55,22 +99,24 @@ class HealthcareComplianceService {
   /// Detect PHI in text content
   List<PHIDetection> detectPHI(String text) {
     final detections = <PHIDetection>[];
-    
+
     for (final entry in _phiPatterns.entries) {
       final pattern = RegExp(entry.value, caseSensitive: false);
       final matches = pattern.allMatches(text);
-      
+
       for (final match in matches) {
-        detections.add(PHIDetection(
-          type: entry.key,
-          value: match.group(0) ?? '',
-          startIndex: match.start,
-          endIndex: match.end,
-          context: 'Detected in content',
-        ));
+        detections.add(
+          PHIDetection(
+            type: entry.key,
+            value: match.group(0) ?? '',
+            startIndex: match.start,
+            endIndex: match.end,
+            context: 'Detected in content',
+          ),
+        );
       }
     }
-    
+
     return detections;
   }
 
@@ -85,7 +131,7 @@ class HealthcareComplianceService {
     for (final entry in _phiPatterns.entries) {
       final pattern = RegExp(entry.value, caseSensitive: false);
       final matches = pattern.allMatches(text);
-      
+
       for (final match in matches) {
         final detection = PHIDetection(
           type: entry.key,
@@ -95,9 +141,12 @@ class HealthcareComplianceService {
           context: 'Found in text content',
         );
         phiDetected.add(detection);
-        
+
         // Replace with sanitized value
-        final sanitizedValue = _sanitizePHIValue(detection.value, detection.type);
+        final sanitizedValue = _sanitizePHIValue(
+          detection.value,
+          detection.type,
+        );
         sanitized = sanitized.replaceAll(detection.value, sanitizedValue);
         sanitizationApplied = true;
       }
@@ -107,7 +156,9 @@ class HealthcareComplianceService {
     for (final pattern in _medicationPatterns) {
       final regex = RegExp(pattern, caseSensitive: false);
       if (regex.hasMatch(text)) {
-        warnings.add('Specific medication information detected - consider using generic terms');
+        warnings.add(
+          'Specific medication information detected - consider using generic terms',
+        );
       }
     }
 
@@ -116,8 +167,11 @@ class HealthcareComplianceService {
       sanitizedContent: sanitized,
       phiDetected: phiDetected,
       sanitizationApplied: sanitizationApplied,
-      complianceLevel: phiDetected.isEmpty ? ComplianceLevel.full : 
-                      sanitizationApplied ? ComplianceLevel.partial : ComplianceLevel.none,
+      complianceLevel: phiDetected.isEmpty
+          ? ComplianceLevel.full
+          : sanitizationApplied
+          ? ComplianceLevel.partial
+          : ComplianceLevel.none,
       warnings: warnings,
     );
   }
@@ -160,22 +214,26 @@ class HealthcareComplianceService {
   }
 
   /// Create healthcare-compliant log message
-  String createCompliantLogMessage(String message, [Map<String, dynamic>? data]) {
+  String createCompliantLogMessage(
+    String message, [
+    Map<String, dynamic>? data,
+  ]) {
     final result = sanitizeText(message);
-    
+
     if (data != null) {
       final sanitizedData = sanitizeData(data);
       return '${result.sanitizedContent} | Data: ${jsonEncode(sanitizedData)}';
     }
-    
+
     return result.sanitizedContent;
   }
 
   /// Check if field name is sensitive
   bool isSensitiveField(String fieldName) {
     final lowerField = fieldName.toLowerCase();
-    return _sensitiveFields.any((sensitive) =>
-      lowerField.contains(sensitive.toLowerCase()));
+    return _sensitiveFields.any(
+      (sensitive) => lowerField.contains(sensitive.toLowerCase()),
+    );
   }
 
   /// Private method for internal use
@@ -255,8 +313,4 @@ class SanitizationResult {
 }
 
 /// Compliance level enum
-enum ComplianceLevel {
-  full,
-  partial,
-  none,
-}
+enum ComplianceLevel { full, partial, none }

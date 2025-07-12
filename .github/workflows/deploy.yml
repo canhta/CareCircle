@@ -17,46 +17,46 @@ jobs:
       id-token: write
 
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - uses: actions/setup-node@v4
-      with:
-        node-version: '22'
-        cache: 'npm'
-        cache-dependency-path: backend/package-lock.json
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: backend/package-lock.json
 
-    - name: Install and build
-      working-directory: ./backend
-      run: |
-        npm ci
-        npm run lint
-        npm run build
+      - name: Install and build
+        working-directory: ./backend
+        run: |
+          npm ci
+          npm run lint
+          npm run build
 
-    - uses: google-github-actions/auth@v2
-      with:
-        credentials_json: ${{ secrets.GCP_SA_KEY }}
+      - uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
 
-    - id: deploy
-      uses: google-github-actions/deploy-cloudrun@v2
-      with:
-        service: ${{ env.SERVICE_NAME }}
-        source: ./backend
-        region: ${{ env.REGION }}
-        env_vars: |
-          NODE_ENV=production
-          API_PREFIX=api/v1
-          PORT=8080
-        secrets: |
-          DATABASE_URL=database-url:latest
-          VECTOR_DB_URL=vector-db-url:latest
-          OPENAI_API_KEY=openai-api-key:latest
-          FIREBASE_CREDENTIALS=firebase-credentials:latest
-        flags: |
-          --memory=1Gi
-          --cpu=1
-          --max-instances=10
-          --min-instances=0
-          --allow-unauthenticated
+      - id: deploy
+        uses: google-github-actions/deploy-cloudrun@v2
+        with:
+          service: ${{ env.SERVICE_NAME }}
+          source: ./backend
+          region: ${{ env.REGION }}
+          env_vars: |
+            NODE_ENV=production
+            API_PREFIX=api/v1
+            PORT=8080
+          secrets: |
+            DATABASE_URL=database-url:latest
+            VECTOR_DB_URL=vector-db-url:latest
+            OPENAI_API_KEY=openai-api-key:latest
+            FIREBASE_CREDENTIALS=firebase-credentials:latest
+          flags: |
+            --memory=1Gi
+            --cpu=1
+            --max-instances=10
+            --min-instances=0
+            --allow-unauthenticated
 
-    - name: Test deployment
-      run: curl -f "${{ steps.deploy.outputs.url }}/api/v1/health" || echo "Health check failed"
+      - name: Test deployment
+        run: curl -f "${{ steps.deploy.outputs.url }}/api/v1/health" || echo "Health check failed"
