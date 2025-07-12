@@ -33,7 +33,7 @@ export class OpenAIService {
         messages,
         temperature: options?.temperature || 0.7,
         max_tokens: options?.maxTokens || 1000,
-        stream: false, // TODO: Always use non-streaming for now
+        stream: false, // Non-streaming for backward compatibility
       });
 
       // Type assertion to ensure we have a non-streaming response
@@ -42,6 +42,71 @@ export class OpenAIService {
     } catch (error) {
       console.error('OpenAI API error:', error);
       throw new Error('Failed to generate AI response');
+    }
+  }
+
+  async *generateStreamingResponse(
+    messages: Array<{ role: MessageRole; content: string }>,
+    options?: {
+      model?: string;
+      temperature?: number;
+      maxTokens?: number;
+    },
+  ): AsyncGenerator<{
+    content: string;
+    isComplete: boolean;
+    metadata?: {
+      tokensUsed?: number;
+      processingTime?: number;
+      confidence?: number;
+    };
+  }> {
+    try {
+      const startTime = Date.now();
+      let tokensUsed = 0;
+
+      const stream = await this.openai.chat.completions.create({
+        model: options?.model || 'gpt-4',
+        messages,
+        temperature: options?.temperature || 0.7,
+        max_tokens: options?.maxTokens || 1000,
+        stream: true, // Enable streaming
+      });
+
+      for await (const chunk of stream) {
+        const delta = chunk.choices[0]?.delta;
+
+        if (delta?.content) {
+          tokensUsed++;
+
+          yield {
+            content: delta.content,
+            isComplete: false,
+            metadata: {
+              tokensUsed,
+              processingTime: Date.now() - startTime,
+              confidence: 0.9, // TODO: Implement dynamic confidence scoring
+            },
+          };
+        }
+
+        // Check if the stream is complete
+        if (chunk.choices[0]?.finish_reason) {
+          yield {
+            content: '',
+            isComplete: true,
+            metadata: {
+              tokensUsed,
+              processingTime: Date.now() - startTime,
+              confidence: 0.9,
+            },
+          };
+          break;
+        }
+      }
+    } catch (error) {
+      console.error('OpenAI streaming API error:', error);
+      throw new Error('Failed to generate streaming AI response');
     }
   }
 

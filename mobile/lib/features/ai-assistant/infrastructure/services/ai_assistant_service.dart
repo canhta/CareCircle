@@ -1,8 +1,11 @@
+import 'dart:async';
+import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
 import '../../../../core/config/app_config.dart';
 import '../../../../core/logging/logging.dart';
 import '../../domain/models/conversation_models.dart';
+import '../../../auth/infrastructure/services/firebase_auth_service.dart';
 
 part 'ai_assistant_service.g.dart';
 
@@ -167,6 +170,125 @@ class AiAssistantRepository {
         'timestamp': DateTime.now().toIso8601String(),
       });
       throw _handleError(e);
+    }
+  }
+
+  Stream<String> sendMessageStream(
+    String conversationId,
+    String content,
+  ) async* {
+    // Sanitize message content before logging
+    final sanitizedContent = HealthcareLogSanitizer.sanitizeMessage(content);
+
+    _logger.logAiInteraction('Streaming message send initiated', {
+      'conversationId': conversationId,
+      'messageLength': content.length,
+      'sanitizedPreview': sanitizedContent.substring(
+        0,
+        sanitizedContent.length > 50 ? 50 : sanitizedContent.length,
+      ),
+      'timestamp': DateTime.now().toIso8601String(),
+    });
+
+    try {
+      // Create a Dio instance for SSE streaming
+      final dio = Dio(BaseOptions(
+        baseUrl: AppConfig.apiBaseUrl,
+        connectTimeout: const Duration(seconds: 30),
+        receiveTimeout: const Duration(minutes: 5), // Longer timeout for streaming
+        headers: {
+          'Accept': 'text/event-stream',
+          'Cache-Control': 'no-cache',
+        },
+      ));
+
+      // Add auth interceptor
+      dio.interceptors.add(
+        InterceptorsWrapper(
+          onRequest: (options, handler) async {
+            // Add Firebase auth token
+            final firebaseAuthService = FirebaseAuthService();
+            final idToken = await firebaseAuthService.getIdToken();
+            if (idToken != null) {
+              options.headers['Authorization'] = 'Bearer $idToken';
+            }
+            handler.next(options);
+          },
+        ),
+      );
+
+      // Make SSE request to streaming endpoint
+      final response = await dio.get<ResponseBody>(
+        '/ai-assistant/conversations/$conversationId/stream',
+        queryParameters: {'message': content},
+        options: Options(
+          responseType: ResponseType.stream,
+          headers: {
+            'Accept': 'text/event-stream',
+            'Cache-Control': 'no-cache',
+          },
+        ),
+      );
+
+      if (response.data != null) {
+        final stream = response.data!.stream;
+        String buffer = '';
+
+        await for (final chunk in stream) {
+          final chunkString = utf8.decode(chunk);
+          buffer += chunkString;
+
+          // Process complete SSE events
+          final lines = buffer.split('\n');
+          buffer = lines.removeLast(); // Keep incomplete line in buffer
+
+          for (final line in lines) {
+            if (line.startsWith('data: ')) {
+              final data = line.substring(6);
+              if (data.trim().isNotEmpty && data != '[DONE]') {
+                try {
+                  final eventData = jsonDecode(data) as Map<String, dynamic>;
+                  final type = eventData['type'] as String?;
+                  final content = eventData['content'] as String?;
+
+                  if (type == 'stream_chunk' && content != null && content.isNotEmpty) {
+                    yield content;
+                  } else if (type == 'stream_complete') {
+                    _logger.logAiInteraction('Streaming message completed', {
+                      'conversationId': conversationId,
+                      'timestamp': DateTime.now().toIso8601String(),
+                    });
+                    break;
+                  } else if (type == 'error') {
+                    throw Exception('Streaming error: ${eventData['error']}');
+                  }
+                } catch (e) {
+                  _logger.error('Failed to parse SSE event', {
+                    'conversationId': conversationId,
+                    'eventData': data,
+                    'error': e.toString(),
+                  });
+                }
+              }
+            }
+          }
+        }
+      }
+    } on DioException catch (e) {
+      _logger.error('AI streaming message failed', {
+        'conversationId': conversationId,
+        'errorType': e.type.name,
+        'statusCode': e.response?.statusCode,
+        'timestamp': DateTime.now().toIso8601String(),
+      });
+      throw _handleError(e);
+    } catch (e) {
+      _logger.error('Streaming error', {
+        'conversationId': conversationId,
+        'error': e.toString(),
+        'timestamp': DateTime.now().toIso8601String(),
+      });
+      rethrow;
     }
   }
 
