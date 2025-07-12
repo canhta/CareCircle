@@ -481,10 +481,10 @@ class _MedicationDetailScreenState extends ConsumerState<MedicationDetailScreen>
 
     switch (action) {
       case 'duplicate':
-        // TODO: Implement duplicate medication
+        _duplicateMedication(medication);
         break;
       case 'archive':
-        // TODO: Implement archive medication
+        _archiveMedication(medication);
         break;
       case 'delete':
         _showDeleteConfirmation(medication);
@@ -516,5 +516,113 @@ class _MedicationDetailScreenState extends ConsumerState<MedicationDetailScreen>
         ],
       ),
     );
+  }
+
+  Future<void> _duplicateMedication(Medication medication) async {
+    try {
+      _logger.info('Duplicating medication', {
+        'medicationId': medication.id,
+        'medicationName': medication.name,
+        'timestamp': DateTime.now().toIso8601String(),
+      });
+
+      // Create a duplicate medication request
+      final duplicateRequest = CreateMedicationRequest(
+        name: '${medication.name} (Copy)',
+        genericName: medication.genericName,
+        strength: medication.strength,
+        form: medication.form,
+        manufacturer: medication.manufacturer,
+        classification: medication.classification,
+        isActive: medication.isActive,
+        startDate: DateTime.now(),
+        endDate: medication.endDate,
+        notes: medication.notes,
+      );
+
+      // Use the medication provider to create the duplicate
+      await ref.read(medicationNotifierProvider.notifier)
+          .createMedication(duplicateRequest);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('${medication.name} duplicated successfully'),
+            backgroundColor: CareCircleDesignTokens.healthGreen,
+          ),
+        );
+      }
+    } catch (e) {
+      _logger.error('Failed to duplicate medication', {
+        'medicationId': medication.id,
+        'error': e.toString(),
+        'timestamp': DateTime.now().toIso8601String(),
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to duplicate medication: ${e.toString()}'),
+            backgroundColor: CareCircleDesignTokens.criticalAlert,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _archiveMedication(Medication medication) async {
+    try {
+      _logger.info('Archiving medication', {
+        'medicationId': medication.id,
+        'medicationName': medication.name,
+        'timestamp': DateTime.now().toIso8601String(),
+      });
+
+      // Update medication to inactive (archived)
+      final updateRequest = UpdateMedicationRequest(
+        name: medication.name,
+        genericName: medication.genericName,
+        strength: medication.strength,
+        form: medication.form,
+        manufacturer: medication.manufacturer,
+        classification: medication.classification,
+        isActive: false, // Archive by setting to inactive
+        startDate: medication.startDate,
+        endDate: DateTime.now(), // Set end date to now
+        notes: medication.notes != null
+          ? '${medication.notes}\nArchived on ${DateTime.now().toLocal()}'
+          : 'Archived on ${DateTime.now().toLocal()}',
+      );
+
+      await ref.read(medicationNotifierProvider.notifier)
+          .updateMedication(medication.id, updateRequest);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('${medication.name} archived successfully'),
+            backgroundColor: CareCircleDesignTokens.healthGreen,
+          ),
+        );
+
+        // Navigate back to medication list
+        Navigator.of(context).pop();
+      }
+    } catch (e) {
+      _logger.error('Failed to archive medication', {
+        'medicationId': medication.id,
+        'error': e.toString(),
+        'timestamp': DateTime.now().toIso8601String(),
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to archive medication: ${e.toString()}'),
+            backgroundColor: CareCircleDesignTokens.criticalAlert,
+          ),
+        );
+      }
+    }
   }
 }

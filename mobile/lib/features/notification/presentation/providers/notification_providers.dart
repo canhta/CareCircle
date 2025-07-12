@@ -399,6 +399,53 @@ class NotificationPreferencesNotifier
   Future<void> refresh() async {
     await loadPreferences(forceRefresh: true);
   }
+
+  /// Update channel preference
+  Future<void> updateChannelPreference(
+    notification_models.NotificationChannel channel,
+    bool enabled,
+  ) async {
+    try {
+      final request = notification_models.UpdateNotificationPreferencesRequest(
+        channelSettings: {channel.name: enabled},
+      );
+
+      await _repository.updateNotificationPreferences(request);
+      await loadPreferences(forceRefresh: true);
+
+      _logger.info('Channel preference updated', {
+        'channel': channel.name,
+        'enabled': enabled,
+        'timestamp': DateTime.now().toIso8601String(),
+      });
+    } catch (e) {
+      _logger.error('Failed to update channel preference', {
+        'channel': channel.name,
+        'enabled': enabled,
+        'error': e.toString(),
+        'timestamp': DateTime.now().toIso8601String(),
+      });
+      rethrow;
+    }
+  }
+
+  /// Reset preferences to defaults
+  Future<void> resetToDefaults() async {
+    try {
+      await _repository.resetNotificationPreferencesToDefaults();
+      await loadPreferences(forceRefresh: true);
+
+      _logger.info('Notification preferences reset to defaults', {
+        'timestamp': DateTime.now().toIso8601String(),
+      });
+    } catch (e) {
+      _logger.error('Failed to reset preferences to defaults', {
+        'error': e.toString(),
+        'timestamp': DateTime.now().toIso8601String(),
+      });
+      rethrow;
+    }
+  }
 }
 
 /// Provider for notification preferences notifier
@@ -537,4 +584,55 @@ final notificationServiceProvider = FutureProvider<void>((ref) async {
   _logger.info('Notification service initialized', {
     'timestamp': DateTime.now().toIso8601String(),
   });
+});
+
+/// Emergency Alert Notifier for managing emergency alerts
+class EmergencyAlertNotifier extends StateNotifier<AsyncValue<List<notification_models.EmergencyAlert>>> {
+  final NotificationRepository _repository;
+
+  EmergencyAlertNotifier(this._repository) : super(const AsyncValue.loading()) {
+    loadEmergencyAlerts();
+  }
+
+  Future<void> loadEmergencyAlerts() async {
+    try {
+      state = const AsyncValue.loading();
+      final alerts = await _repository.getEmergencyAlerts();
+      state = AsyncValue.data(alerts);
+    } catch (e, stackTrace) {
+      _logger.error('Failed to load emergency alerts', {
+        'error': e.toString(),
+        'timestamp': DateTime.now().toIso8601String(),
+      });
+      state = AsyncValue.error(e, stackTrace);
+    }
+  }
+
+  Future<void> createEmergencyAlert(notification_models.EmergencyAlert alert) async {
+    try {
+      await _repository.createEmergencyAlert(alert);
+      await loadEmergencyAlerts(); // Refresh the list
+    } catch (e) {
+      _logger.error('Failed to create emergency alert', {
+        'error': e.toString(),
+        'timestamp': DateTime.now().toIso8601String(),
+      });
+      rethrow;
+    }
+  }
+}
+
+/// Provider for emergency alert notifier
+final emergencyAlertNotifierProvider = StateNotifierProvider<
+    EmergencyAlertNotifier,
+    AsyncValue<List<notification_models.EmergencyAlert>>
+>((ref) {
+  final repository = ref.read(notificationRepositoryProvider);
+  return EmergencyAlertNotifier(repository);
+});
+
+/// Provider for emergency alert history
+final emergencyAlertHistoryProvider = FutureProvider<List<notification_models.EmergencyAlert>>((ref) async {
+  final repository = ref.read(notificationRepositoryProvider);
+  return await repository.getEmergencyAlertHistory();
 });

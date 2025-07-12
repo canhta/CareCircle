@@ -86,9 +86,9 @@ class _SymptomSeveritySliderState extends State<SymptomSeveritySlider> {
           child: SliderTheme(
             data: SliderTheme.of(context).copyWith(
               activeTrackColor: _getTrackColor(),
-              inactiveTrackColor: theme.colorScheme.outline.withOpacity(0.3),
+              inactiveTrackColor: theme.colorScheme.outline.withValues(alpha: 0.3),
               thumbColor: _getThumbColor(),
-              overlayColor: _getThumbColor().withOpacity(0.2),
+              overlayColor: _getThumbColor().withValues(alpha: 0.2),
               valueIndicatorColor: _getThumbColor(),
               valueIndicatorTextStyle: theme.textTheme.bodyMedium?.copyWith(
                 color: Colors.white,
@@ -187,10 +187,10 @@ class _SymptomSeveritySliderState extends State<SymptomSeveritySlider> {
         vertical: CareCircleSpacingTokens.sm,
       ),
       decoration: BoxDecoration(
-        color: severityColor.withOpacity(0.1),
+        color: severityColor.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(CareCircleSpacingTokens.sm),
         border: Border.all(
-          color: severityColor.withOpacity(0.3),
+          color: severityColor.withValues(alpha: 0.3),
           width: 1,
         ),
       ),

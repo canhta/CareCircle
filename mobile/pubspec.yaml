@@ -44,6 +44,9 @@ dependencies:
   # Notifications
   flutter_local_notifications: ^19.3.0
 
+  # External Services
+  url_launcher: ^6.2.2
+
   # UI Components (Design System)
   flutter_hooks: ^0.21.2
   cached_network_image: ^3.3.0

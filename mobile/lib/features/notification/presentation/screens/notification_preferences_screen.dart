@@ -485,12 +485,50 @@ class _NotificationPreferencesScreenState
     NotificationChannel channel,
     bool enabled,
   ) async {
-    // TODO: Implement channel-specific preference updates
     _logger.info('Channel preference update requested', {
       'channel': channel.name,
       'enabled': enabled,
       'timestamp': DateTime.now().toIso8601String(),
     });
+
+    try {
+      setState(() => _isLoading = true);
+
+      // Update channel preference through the provider
+      await ref.read(notificationPreferencesNotifierProvider.notifier)
+          .updateChannelPreference(channel, enabled);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              '${channel.displayName} notifications ${enabled ? 'enabled' : 'disabled'}'
+            ),
+            backgroundColor: CareCircleDesignTokens.healthGreen,
+          ),
+        );
+      }
+    } catch (e) {
+      _logger.error('Failed to update channel preference', {
+        'channel': channel.name,
+        'enabled': enabled,
+        'error': e.toString(),
+        'timestamp': DateTime.now().toIso8601String(),
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to update ${channel.displayName} preferences'),
+            backgroundColor: CareCircleDesignTokens.criticalAlert,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
   }
 
   Future<void> _updateQuietHours(QuietHoursSettings quietHours) async {
@@ -629,17 +667,46 @@ class _NotificationPreferencesScreenState
   }
 
   Future<void> _performReset() async {
-    // TODO: Implement reset to defaults
     _logger.info('Reset to defaults requested', {
       'timestamp': DateTime.now().toIso8601String(),
     });
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Preferences reset to defaults'),
-        duration: Duration(seconds: 2),
-      ),
-    );
+    try {
+      setState(() => _isLoading = true);
+
+      // Reset preferences to defaults through the provider
+      await ref.read(notificationPreferencesNotifierProvider.notifier)
+          .resetToDefaults();
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Preferences reset to defaults successfully'),
+            backgroundColor: CareCircleDesignTokens.healthGreen,
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      _logger.error('Failed to reset preferences to defaults', {
+        'error': e.toString(),
+        'timestamp': DateTime.now().toIso8601String(),
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to reset preferences: ${e.toString()}'),
+            backgroundColor: CareCircleDesignTokens.criticalAlert,
+            duration: const Duration(seconds: 4),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
   }
 
   void _showErrorSnackBar(String message) {

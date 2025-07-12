@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/design/design_tokens.dart';
 import '../../../../core/logging/bounded_context_loggers.dart';
 import '../../domain/models/health_metric_type.dart';
+import '../../domain/models/health_profile.dart';
+import '../../application/providers/health_data_providers.dart';
 import '../widgets/goal_card.dart';
 import '../widgets/achievement_badge.dart';
 
@@ -188,26 +190,62 @@ class _HealthGoalsScreenState extends ConsumerState<HealthGoalsScreen> {
   }
 
   Widget _buildActiveGoalsList() {
-    // TODO: Replace with actual data from provider
-    final placeholderGoals = _getPlaceholderGoals();
+    // Use actual health goals from provider when available
+    final healthProfileAsync = ref.watch(healthProfileProvider);
 
-    if (placeholderGoals.isEmpty) {
-      return _buildEmptyGoalsState();
-    }
+    return healthProfileAsync.when(
+      data: (healthProfile) {
+        final activeGoals = healthProfile?.healthGoals
+            .where((goal) => goal.status == 'active')
+            .toList() ?? [];
 
-    return Column(
-      children: placeholderGoals
-          .map(
-            (goal) => Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: GoalCard(
-                goal: goal,
-                onTap: () => _showGoalDetails(goal),
-                onEdit: () => _editGoal(goal),
-              ),
-            ),
-          )
-          .toList(),
+        if (activeGoals.isEmpty) {
+          return _buildEmptyGoalsState();
+        }
+
+        return Column(
+          children: activeGoals
+              .map(
+                (goal) => Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: HealthGoalCard(
+                    goal: goal,
+                    onTap: () => _showHealthGoalDetails(goal),
+                    onEdit: () => _editHealthGoal(goal),
+                  ),
+                ),
+              )
+              .toList(),
+        );
+      },
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (error, stackTrace) {
+        _logger.error('Failed to load health goals', {
+          'error': error.toString(),
+          'timestamp': DateTime.now().toIso8601String(),
+        });
+
+        // Fallback to placeholder data
+        final placeholderGoals = _getPlaceholderGoals();
+        if (placeholderGoals.isEmpty) {
+          return _buildEmptyGoalsState();
+        }
+
+        return Column(
+          children: placeholderGoals
+              .map(
+                (goal) => Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: GoalCard(
+                    goal: goal,
+                    onTap: () => _showGoalDetails(goal),
+                    onEdit: () => _editGoal(goal),
+                  ),
+                ),
+              )
+              .toList(),
+        );
+      },
     );
   }
 
@@ -569,6 +607,58 @@ class _HealthGoalsScreenState extends ConsumerState<HealthGoalsScreen> {
       SnackBar(content: Text('Creating ${suggestion['title']} goal...')),
     );
   }
+
+  void _showHealthGoalDetails(HealthGoal goal) {
+    _logger.info('Showing health goal details', {
+      'goalId': goal.id,
+      'metricType': goal.metricType,
+      'timestamp': DateTime.now().toIso8601String(),
+    });
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(goal.metricType),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Target: ${goal.targetValue} ${goal.unit}'),
+            const SizedBox(height: 8),
+            Text('Current: ${goal.currentValue} ${goal.unit}'),
+            const SizedBox(height: 8),
+            Text('Progress: ${goal.progress.toStringAsFixed(1)}%'),
+            const SizedBox(height: 8),
+            Text('Status: ${goal.status}'),
+            const SizedBox(height: 8),
+            Text('Target Date: ${goal.targetDate.day}/${goal.targetDate.month}/${goal.targetDate.year}'),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _editHealthGoal(HealthGoal goal) {
+    _logger.info('Editing health goal', {
+      'goalId': goal.id,
+      'metricType': goal.metricType,
+      'timestamp': DateTime.now().toIso8601String(),
+    });
+
+    // TODO: Implement health goal editing
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Editing ${goal.metricType} goal...'),
+        backgroundColor: CareCircleDesignTokens.primaryMedicalBlue,
+      ),
+    );
+  }
 }
 
 /// Placeholder data models for goals and achievements
@@ -614,4 +704,77 @@ class PlaceholderAchievement {
     required this.color,
     required this.earnedDate,
   });
+}
+
+/// Health goal card widget for real HealthGoal objects
+class HealthGoalCard extends StatelessWidget {
+  final HealthGoal goal;
+  final VoidCallback? onTap;
+  final VoidCallback? onEdit;
+
+  const HealthGoalCard({
+    super.key,
+    required this.goal,
+    this.onTap,
+    this.onEdit,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      goal.metricType,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                  if (onEdit != null)
+                    IconButton(
+                      onPressed: onEdit,
+                      icon: const Icon(Icons.edit, size: 20),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Target: ${goal.targetValue} ${goal.unit}',
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+              const SizedBox(height: 8),
+              LinearProgressIndicator(
+                value: goal.progress / 100,
+                backgroundColor: Colors.grey[300],
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  goal.progress >= 100
+                    ? CareCircleDesignTokens.healthGreen
+                    : CareCircleDesignTokens.primaryMedicalBlue,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                '${goal.progress.toStringAsFixed(1)}% complete',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }

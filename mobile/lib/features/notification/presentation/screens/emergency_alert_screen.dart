@@ -155,8 +155,37 @@ class _EmergencyAlertScreenState extends ConsumerState<EmergencyAlertScreen>
   }
 
   Widget _buildHistoryTab() {
-    // TODO: Replace with actual provider for emergency alert history
-    return _buildMockHistory();
+    final emergencyAlertsAsync = ref.watch(emergencyAlertHistoryProvider);
+
+    return emergencyAlertsAsync.when(
+      data: (alerts) {
+        if (alerts.isEmpty) {
+          return _buildEmptyHistoryState();
+        }
+
+        return ListView.builder(
+          itemCount: alerts.length,
+          itemBuilder: (context, index) {
+            final alert = alerts[index];
+            return EmergencyAlertCard(
+              alert: alert,
+              onTap: () => _showAlertDetails(alert),
+              showActions: false, // History items don't need actions
+            );
+          },
+        );
+      },
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (error, stackTrace) {
+        _logger.error('Failed to load emergency alert history', {
+          'error': error.toString(),
+          'timestamp': DateTime.now().toIso8601String(),
+        });
+
+        // Fallback to mock data
+        return _buildMockHistory();
+      },
+    );
   }
 
   Widget _buildMockActiveAlerts() {
@@ -644,18 +673,56 @@ class _EmergencyAlertScreenState extends ConsumerState<EmergencyAlertScreen>
     );
   }
 
-  void _createTestAlert() {
-    // TODO: Create test emergency alert
+  Future<void> _createTestAlert() async {
     _logger.info('Test emergency alert creation requested', {
       'timestamp': DateTime.now().toIso8601String(),
     });
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Test emergency alert created'),
-        backgroundColor: Colors.orange,
-      ),
-    );
+    try {
+      // Create a test emergency alert
+      final testAlert = EmergencyAlert(
+        id: 'test_${DateTime.now().millisecondsSinceEpoch}',
+        userId: 'current-user', // TODO: Get from auth service
+        title: 'Test Emergency Alert',
+        message: 'This is a test emergency alert to verify the system is working correctly.',
+        alertType: EmergencyAlertType.systemTest,
+        severity: EmergencyAlertSeverity.low,
+        status: EmergencyAlertStatus.active,
+        createdAt: DateTime.now(),
+        metadata: {
+          'isTest': true,
+          'createdBy': 'user',
+          'source': 'emergency_alert_screen',
+        },
+      );
+
+      // Use the notification provider to create the alert
+      await ref.read(emergencyAlertNotifierProvider.notifier)
+          .createEmergencyAlert(testAlert);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Test emergency alert created successfully'),
+            backgroundColor: CareCircleDesignTokens.healthGreen,
+          ),
+        );
+      }
+    } catch (e) {
+      _logger.error('Failed to create test emergency alert', {
+        'error': e.toString(),
+        'timestamp': DateTime.now().toIso8601String(),
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to create test alert: ${e.toString()}'),
+            backgroundColor: CareCircleDesignTokens.criticalAlert,
+          ),
+        );
+      }
+    }
   }
 
   void _handleMenuAction(String action) {

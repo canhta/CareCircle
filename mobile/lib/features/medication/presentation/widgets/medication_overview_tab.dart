@@ -481,13 +481,13 @@ class MedicationOverviewTab extends ConsumerWidget {
                       padding: EdgeInsets.all(CareCircleSpacingTokens.md),
                       decoration: BoxDecoration(
                         color: hasInteractions
-                            ? Colors.orange.withOpacity(0.1)
-                            : CareCircleDesignTokens.healthGreen.withOpacity(0.1),
+                            ? Colors.orange.withValues(alpha: 0.1)
+                            : CareCircleDesignTokens.healthGreen.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(CareCircleSpacingTokens.sm),
                         border: Border.all(
                           color: hasInteractions
-                              ? Colors.orange.withOpacity(0.3)
-                              : CareCircleDesignTokens.healthGreen.withOpacity(0.3),
+                              ? Colors.orange.withValues(alpha: 0.3)
+                              : CareCircleDesignTokens.healthGreen.withValues(alpha: 0.3),
                         ),
                       ),
                       child: Row(
@@ -520,7 +520,7 @@ class MedicationOverviewTab extends ConsumerWidget {
                       'Always consult your healthcare provider before making changes to your medication regimen.',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         fontStyle: FontStyle.italic,
-                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                       ),
                     ),
                   ],
