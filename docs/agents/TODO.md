@@ -28,7 +28,7 @@
     - ✅ Added agent session and interaction domain entities
     - ✅ Created Prisma schema for agent sessions and interactions
     - ✅ Implemented ChatAgentService and ChatAgentController
-    - ✅ Implemented basic VietnameseMedicalAgentService with language detection
+    - ✅ Implemented basic MedicalAgentService with language detection
     - ✅ Added Vietnamese medical terminology and traditional medicine support
     - ✅ Created agent repositories with Prisma integration
     - ✅ Implemented streaming chat API with Firebase authentication
@@ -184,11 +184,11 @@
   - **Action**: Integrate PHI protection, vector database, and Vietnamese NLP with all agents
   - **Status**: COMPLETED - Full infrastructure integration with enhanced Vietnamese Medical Agent
   - **Completed Features**:
-    - ✅ Updated VietnameseMedicalAgentService to extend BaseHealthcareAgent
+    - ✅ Updated MedicalAgentService to extend BaseHealthcareAgent
     - ✅ Integrated VectorDatabaseService for medical knowledge retrieval
     - ✅ Added PHI protection to all agent interactions with Vietnamese-specific patterns
     - ✅ Enhanced Vietnamese Medical Agent with full NLP capabilities via microservice
-    - ✅ Created VietnameseHealthcareAgentController with comprehensive API endpoints
+    - ✅ Created HealthcareAgentController with comprehensive API endpoints
     - ✅ Integrated traditional medicine knowledge base search
     - ✅ Added cultural context awareness and emergency detection
   - **Acceptance Criteria**: ✅ All agents use new infrastructure, PHI protection active, Vietnamese NLP integrated

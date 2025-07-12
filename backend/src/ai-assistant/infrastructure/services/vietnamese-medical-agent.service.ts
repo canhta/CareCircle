@@ -14,6 +14,7 @@ import {
   VietnameseMedicalQuery,
 } from './vector-database.service';
 import { PHIProtectionService } from '../../../common/compliance/phi-protection.service';
+import { VietnameseNLPIntegrationService } from './vietnamese-nlp-integration.service';
 
 export interface VietnameseMedicalContext {
   query: string;
@@ -42,12 +43,12 @@ export interface VietnameseMedicalResponse {
 }
 
 @Injectable()
-export class VietnameseMedicalAgentService extends BaseHealthcareAgent {
-  protected readonly logger = new Logger(VietnameseMedicalAgentService.name);
+export class MedicalAgentService extends BaseHealthcareAgent {
+  protected readonly logger = new Logger(MedicalAgentService.name);
 
   constructor(
     phiProtectionService: PHIProtectionService,
-    protected readonly vietnameseNLPService: any, // VietnameseNLPIntegrationService,
+    protected readonly vietnameseNLPService: VietnameseNLPIntegrationService,
     private readonly vectorDatabaseService: VectorDatabaseService,
   ) {
     super('VIETNAMESE_MEDICAL', phiProtectionService, vietnameseNLPService, {

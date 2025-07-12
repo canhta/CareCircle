@@ -2,17 +2,13 @@ import {
   Controller,
   Post,
   Body,
-  UseGuards,
   Request,
   Get,
-  Param,
   Logger,
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
-// import { FirebaseAuthGuard } from '../../../auth/guards/firebase-auth.guard';
-// import { FirebaseUserPayload } from '../../../auth/interfaces/firebase-user.interface';
-import { VietnameseMedicalAgentService } from '../../infrastructure/services/vietnamese-medical-agent.service';
+import { MedicalAgentService } from '../../infrastructure/services/vietnamese-medical-agent.service';
 import { FirecrawlVietnameseHealthcareService } from '../../infrastructure/services/firecrawl-vietnamese-healthcare.service';
 import { VectorDatabaseService } from '../../infrastructure/services/vector-database.service';
 
@@ -41,13 +37,11 @@ export class KnowledgeSearchDto {
 
 @Controller('api/v1/ai-assistant/vietnamese-healthcare')
 // @UseGuards(FirebaseAuthGuard)
-export class VietnameseHealthcareAgentController {
-  private readonly logger = new Logger(
-    VietnameseHealthcareAgentController.name,
-  );
+export class HealthcareAgentController {
+  private readonly logger = new Logger(HealthcareAgentController.name);
 
   constructor(
-    private readonly vietnameseMedicalAgentService: VietnameseMedicalAgentService,
+    private readonly vietnameseMedicalAgentService: MedicalAgentService,
     private readonly firecrawlService: FirecrawlVietnameseHealthcareService,
     private readonly vectorDatabaseService: VectorDatabaseService,
   ) {}

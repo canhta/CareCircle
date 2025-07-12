@@ -103,7 +103,6 @@ services:
       MINIO_SECRET_KEY: minioadmin
     volumes:
       - milvus_data:/var/lib/milvus
-      - ./milvus.yaml:/milvus/configs/milvus.yaml
     ports:
       - "19530:19530"
       - "9091:9091"

@@ -10,7 +10,7 @@ import { AgentsModule } from './domain/agents/agents.module';
 // Controllers
 import { ConversationController } from './presentation/controllers/conversation.controller';
 import { ChatAgentController } from './presentation/controllers/chat-agent.controller';
-import { VietnameseHealthcareAgentController } from './presentation/controllers/vietnamese-healthcare-agent.controller';
+import { HealthcareAgentController } from './presentation/controllers/vietnamese-healthcare-agent.controller';
 
 // Application services
 import { ConversationService } from './application/services/conversation.service';
@@ -22,6 +22,7 @@ import { HealthcareAgentOrchestratorService } from './infrastructure/services/he
 import { VectorDatabaseService } from './infrastructure/services/vector-database.service';
 import { PHIProtectionService } from '../common/compliance/phi-protection.service';
 import { FirecrawlVietnameseHealthcareService } from './infrastructure/services/firecrawl-vietnamese-healthcare.service';
+import { MedicalAgentService } from './infrastructure/services/vietnamese-medical-agent.service';
 
 // Repositories
 import { PrismaConversationRepository } from './infrastructure/repositories/prisma-conversation.repository';
@@ -38,7 +39,7 @@ import { PrismaAgentSessionRepository } from './infrastructure/repositories/pris
   controllers: [
     ConversationController,
     ChatAgentController,
-    VietnameseHealthcareAgentController,
+    HealthcareAgentController,
   ],
   providers: [
     // Application services
@@ -51,6 +52,7 @@ import { PrismaAgentSessionRepository } from './infrastructure/repositories/pris
     VectorDatabaseService,
     PHIProtectionService,
     FirecrawlVietnameseHealthcareService,
+    MedicalAgentService,
 
     // Repository providers
     {
