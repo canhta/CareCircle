@@ -44,33 +44,30 @@ Map<String, dynamic> _$HealthMetricToJson(_HealthMetric instance) =>
     };
 
 const _$HealthMetricTypeEnumMap = {
-  HealthMetricType.heartRate: 'heart_rate',
-  HealthMetricType.bloodPressure: 'blood_pressure',
-  HealthMetricType.bloodGlucose: 'blood_glucose',
-  HealthMetricType.bodyTemperature: 'body_temperature',
-  HealthMetricType.bloodOxygen: 'blood_oxygen',
-  HealthMetricType.weight: 'weight',
-  HealthMetricType.height: 'height',
-  HealthMetricType.steps: 'steps',
-  HealthMetricType.sleep: 'sleep',
-  HealthMetricType.respiratoryRate: 'respiratory_rate',
-  HealthMetricType.activity: 'activity',
-  HealthMetricType.mood: 'mood',
-  HealthMetricType.exercise: 'exercise',
+  HealthMetricType.bloodPressure: 'BLOOD_PRESSURE',
+  HealthMetricType.heartRate: 'HEART_RATE',
+  HealthMetricType.weight: 'WEIGHT',
+  HealthMetricType.bloodGlucose: 'BLOOD_GLUCOSE',
+  HealthMetricType.temperature: 'TEMPERATURE',
+  HealthMetricType.oxygenSaturation: 'OXYGEN_SATURATION',
+  HealthMetricType.steps: 'STEPS',
+  HealthMetricType.sleepDuration: 'SLEEP_DURATION',
+  HealthMetricType.exerciseMinutes: 'EXERCISE_MINUTES',
+  HealthMetricType.mood: 'MOOD',
+  HealthMetricType.painLevel: 'PAIN_LEVEL',
 };
 
 const _$DataSourceEnumMap = {
-  DataSource.manual: 'manual',
-  DataSource.appleHealth: 'apple_health',
-  DataSource.googleFit: 'google_fit',
-  DataSource.bluetoothDevice: 'bluetooth_device',
-  DataSource.connectedApi: 'connected_api',
-  DataSource.imported: 'imported',
+  DataSource.manualEntry: 'MANUAL_ENTRY',
+  DataSource.healthKit: 'HEALTH_KIT',
+  DataSource.googleFit: 'GOOGLE_FIT',
+  DataSource.deviceSync: 'DEVICE_SYNC',
+  DataSource.imported: 'IMPORTED',
 };
 
 const _$ValidationStatusEnumMap = {
-  ValidationStatus.valid: 'valid',
-  ValidationStatus.suspicious: 'suspicious',
-  ValidationStatus.invalid: 'invalid',
-  ValidationStatus.pending: 'pending',
+  ValidationStatus.pending: 'PENDING',
+  ValidationStatus.validated: 'VALIDATED',
+  ValidationStatus.flagged: 'FLAGGED',
+  ValidationStatus.rejected: 'REJECTED',
 };

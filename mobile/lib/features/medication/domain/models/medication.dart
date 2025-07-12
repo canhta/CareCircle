@@ -20,6 +20,8 @@ enum MedicationForm {
   inhaler,
   @JsonValue('CREAM')
   cream,
+  @JsonValue('OINTMENT')
+  ointment,
   @JsonValue('DROPS')
   drops,
   @JsonValue('SUPPOSITORY')
@@ -68,6 +70,8 @@ extension MedicationFormExtension on MedicationForm {
         return 'Inhaler';
       case MedicationForm.cream:
         return 'Cream';
+      case MedicationForm.ointment:
+        return 'Ointment';
       case MedicationForm.drops:
         return 'Drops';
       case MedicationForm.suppository:
@@ -92,6 +96,8 @@ extension MedicationFormExtension on MedicationForm {
       case MedicationForm.inhaler:
         return '🫁';
       case MedicationForm.cream:
+        return '🧴';
+      case MedicationForm.ointment:
         return '🧴';
       case MedicationForm.drops:
         return '💧';

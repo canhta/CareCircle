@@ -61,6 +61,7 @@ const _$MedicationFormEnumMap = {
   MedicationForm.patch: 'PATCH',
   MedicationForm.inhaler: 'INHALER',
   MedicationForm.cream: 'CREAM',
+  MedicationForm.ointment: 'OINTMENT',
   MedicationForm.drops: 'DROPS',
   MedicationForm.suppository: 'SUPPOSITORY',
   MedicationForm.other: 'OTHER',

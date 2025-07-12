@@ -431,7 +431,7 @@ class _HealthGoalsScreenState extends ConsumerState<HealthGoalsScreen> {
         'description': 'Exercise for 150 minutes per week',
         'icon': Icons.fitness_center,
         'color': Colors.orange[600],
-        'metricType': HealthMetricType.exercise,
+        'metricType': HealthMetricType.exerciseMinutes,
         'targetValue': 150,
         'unit': 'minutes',
       },
@@ -440,7 +440,7 @@ class _HealthGoalsScreenState extends ConsumerState<HealthGoalsScreen> {
         'description': 'Get 8 hours of sleep nightly',
         'icon': Icons.bedtime,
         'color': Colors.indigo[600],
-        'metricType': HealthMetricType.sleep,
+        'metricType': HealthMetricType.sleepDuration,
         'targetValue': 8,
         'unit': 'hours',
       },
@@ -449,7 +449,7 @@ class _HealthGoalsScreenState extends ConsumerState<HealthGoalsScreen> {
         'description': 'Drink 8 glasses of water daily',
         'icon': Icons.local_drink,
         'color': Colors.cyan[600],
-        'metricType': HealthMetricType.bodyTemperature, // Placeholder
+        'metricType': HealthMetricType.temperature, // Placeholder
         'targetValue': 8,
         'unit': 'glasses',
       },

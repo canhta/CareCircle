@@ -204,7 +204,6 @@ class _MedicalDatePickerState extends State<MedicalDatePicker> {
       case MedicalDateType.medicationStart:
         return DateTime(now.year - 5, 1, 1); // 5 years ago
       case MedicalDateType.general:
-      default:
         return DateTime(now.year - 10, 1, 1); // 10 years ago
     }
   }
@@ -223,7 +222,6 @@ class _MedicalDatePickerState extends State<MedicalDatePicker> {
       case MedicalDateType.medicationStart:
         return DateTime(now.year + 1, 12, 31); // Next year
       case MedicalDateType.general:
-      default:
         return DateTime(now.year + 1, 12, 31); // Next year
     }
   }

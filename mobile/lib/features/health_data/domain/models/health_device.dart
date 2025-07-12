@@ -5,30 +5,32 @@ part 'health_device.freezed.dart';
 part 'health_device.g.dart';
 
 enum DeviceType {
-  @JsonValue('smart_watch')
-  smartWatch,
-  @JsonValue('fitness_tracker')
-  fitnessTracker,
-  @JsonValue('blood_pressure_monitor')
+  @JsonValue('BLOOD_PRESSURE_MONITOR')
   bloodPressureMonitor,
-  @JsonValue('glucose_monitor')
-  glucoseMonitor,
-  @JsonValue('pulse_oximeter')
-  pulseOximeter,
-  @JsonValue('scale')
+  @JsonValue('GLUCOSE_METER')
+  glucoseMeter,
+  @JsonValue('SCALE')
   scale,
-  @JsonValue('thermometer')
+  @JsonValue('FITNESS_TRACKER')
+  fitnessTracker,
+  @JsonValue('SMARTWATCH')
+  smartwatch,
+  @JsonValue('PULSE_OXIMETER')
+  pulseOximeter,
+  @JsonValue('THERMOMETER')
   thermometer,
+  @JsonValue('OTHER')
+  other,
 }
 
 enum ConnectionStatus {
-  @JsonValue('connected')
+  @JsonValue('CONNECTED')
   connected,
-  @JsonValue('disconnected')
+  @JsonValue('DISCONNECTED')
   disconnected,
-  @JsonValue('pairing')
-  pairing,
-  @JsonValue('error')
+  @JsonValue('SYNCING')
+  syncing,
+  @JsonValue('ERROR')
   error,
 }
 
@@ -58,7 +60,7 @@ abstract class HealthDevice with _$HealthDevice {
 /// Extension methods for HealthDevice
 extension HealthDeviceExtension on HealthDevice {
   bool get isConnected => connectionStatus == ConnectionStatus.connected;
-  bool get isPairing => connectionStatus == ConnectionStatus.pairing;
+  bool get isSyncing => connectionStatus == ConnectionStatus.syncing;
   bool get hasError => connectionStatus == ConnectionStatus.error;
 
   bool get needsBatteryReplacement =>
@@ -77,39 +79,43 @@ extension HealthDeviceExtension on HealthDevice {
 
   String get deviceTypeDisplayName {
     switch (deviceType) {
-      case DeviceType.smartWatch:
-        return 'Smart Watch';
-      case DeviceType.fitnessTracker:
-        return 'Fitness Tracker';
       case DeviceType.bloodPressureMonitor:
         return 'Blood Pressure Monitor';
-      case DeviceType.glucoseMonitor:
-        return 'Glucose Monitor';
-      case DeviceType.pulseOximeter:
-        return 'Pulse Oximeter';
+      case DeviceType.glucoseMeter:
+        return 'Glucose Meter';
       case DeviceType.scale:
         return 'Scale';
+      case DeviceType.fitnessTracker:
+        return 'Fitness Tracker';
+      case DeviceType.smartwatch:
+        return 'Smartwatch';
+      case DeviceType.pulseOximeter:
+        return 'Pulse Oximeter';
       case DeviceType.thermometer:
         return 'Thermometer';
+      case DeviceType.other:
+        return 'Other';
     }
   }
 
   List<String> get supportedMetrics {
     switch (deviceType) {
-      case DeviceType.smartWatch:
-        return ['heart_rate', 'steps', 'activity', 'sleep'];
-      case DeviceType.fitnessTracker:
-        return ['steps', 'activity', 'sleep', 'heart_rate'];
       case DeviceType.bloodPressureMonitor:
-        return ['blood_pressure'];
-      case DeviceType.glucoseMonitor:
-        return ['blood_glucose'];
-      case DeviceType.pulseOximeter:
-        return ['blood_oxygen', 'heart_rate'];
+        return ['BLOOD_PRESSURE'];
+      case DeviceType.glucoseMeter:
+        return ['BLOOD_GLUCOSE'];
       case DeviceType.scale:
-        return ['weight'];
+        return ['WEIGHT'];
+      case DeviceType.fitnessTracker:
+        return ['STEPS', 'EXERCISE_MINUTES', 'SLEEP_DURATION', 'HEART_RATE'];
+      case DeviceType.smartwatch:
+        return ['HEART_RATE', 'STEPS', 'EXERCISE_MINUTES', 'SLEEP_DURATION'];
+      case DeviceType.pulseOximeter:
+        return ['OXYGEN_SATURATION', 'HEART_RATE'];
       case DeviceType.thermometer:
-        return ['body_temperature'];
+        return ['TEMPERATURE'];
+      case DeviceType.other:
+        return [];
     }
   }
 }
