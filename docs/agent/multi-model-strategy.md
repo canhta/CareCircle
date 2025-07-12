@@ -1,41 +1,88 @@
-# CareCircle Multi-Model Cost Optimization Strategy
+# CareCircle Multi-Model Cost Optimization Strategy (2025 Edition)
 
 ## Overview
 
-This document outlines the comprehensive cost optimization strategy for CareCircle's multi-agent AI system, focusing on intelligent model selection, budget management, and usage optimization to achieve a 50% reduction in AI costs while maintaining high-quality healthcare assistance.
+This document outlines the state-of-the-art cost optimization strategy for CareCircle's multi-agent AI system, leveraging LangGraph.js orchestration patterns and healthcare-specific model routing. The strategy focuses on intelligent model selection, budget management, and usage optimization to achieve a 60% reduction in AI costs while maintaining the highest standards of healthcare assistance and HIPAA compliance.
 
-## Cost Optimization Architecture
+## Integration with LangGraph StateGraph Architecture
 
-### 1. Query Classification System
+The multi-model strategy is deeply integrated with our LangGraph.js StateGraph orchestration, enabling dynamic model selection at the agent level while maintaining conversation context and healthcare compliance.
+
+## LangGraph-Integrated Cost Optimization Architecture
+
+### 1. Healthcare-Specific Query Classification with Agent Context
 
 ```typescript
-enum QueryComplexity {
-  SIMPLE = 'simple',        // Basic greetings, simple questions
-  MODERATE = 'moderate',    // General health inquiries
+import { StateGraph, MessagesAnnotation, Command } from "@langchain/langgraph";
+import { ChatOpenAI } from "@langchain/openai";
+
+enum HealthcareQueryComplexity {
+  SIMPLE = 'simple',        // Greetings, basic health info
+  MODERATE = 'moderate',    // General health inquiries, wellness
   COMPLEX = 'complex',      // Medical analysis, multi-step reasoning
   CRITICAL = 'critical',    // Emergency triage, drug interactions
+  SPECIALIZED = 'specialized' // Medication management, care coordination
 }
 
-interface QueryAnalysis {
-  complexity: QueryComplexity;
-  categories: string[];
+interface HealthcareQueryAnalysis {
+  complexity: HealthcareQueryComplexity;
+  categories: HealthcareCategory[];
   estimatedTokens: number;
   urgencyLevel: number;
   requiresAccuracy: boolean;
+  agentRecommendation: string;
+  modelRecommendation: ModelConfig;
+  complianceLevel: 'standard' | 'phi_sensitive' | 'emergency';
 }
 
 @Injectable()
-export class QueryClassificationService {
-  async analyzeQuery(query: string, context: UserContext): Promise<QueryAnalysis> {
-    // Fast keyword-based initial classification
-    const keywordAnalysis = this.performKeywordAnalysis(query);
-    
-    // AI-powered classification for ambiguous cases
-    if (keywordAnalysis.confidence < 0.8) {
-      return await this.performAIClassification(query, context);
-    }
-    
-    return keywordAnalysis;
+export class HealthcareQueryClassificationService {
+  private readonly healthcarePatterns = {
+    emergency: [
+      /(chest pain|heart attack|stroke|suicide|overdose)/i,
+      /(severe bleeding|difficulty breathing|unconscious)/i,
+      /(allergic reaction|anaphylaxis|poisoning)/i
+    ],
+    medication: [
+      /(drug interaction|medication.*interaction)/i,
+      /(prescription|dosage|side effect)/i,
+      /(pharmacy|refill|adherence)/i
+    ],
+    symptoms: [
+      /(pain|fever|headache|nausea|fatigue)/i,
+      /(cough|shortness of breath|dizziness)/i,
+      /(rash|swelling|infection)/i
+    ],
+    wellness: [
+      /(exercise|diet|nutrition|sleep)/i,
+      /(stress|mental health|lifestyle)/i,
+      /(prevention|screening|checkup)/i
+    ]
+  };
+
+  async analyzeHealthcareQuery(
+    query: string,
+    context: UserHealthContext,
+    currentAgent: string
+  ): Promise<HealthcareQueryAnalysis> {
+    // Multi-layered analysis for healthcare context
+    const keywordAnalysis = this.performHealthcareKeywordAnalysis(query);
+    const contextualAnalysis = this.analyzeHealthContext(query, context);
+    const urgencyAnalysis = await this.assessMedicalUrgency(query, context);
+
+    // Combine analyses for comprehensive classification
+    const analysis: HealthcareQueryAnalysis = {
+      complexity: this.determineComplexity(keywordAnalysis, contextualAnalysis, urgencyAnalysis),
+      categories: this.categorizeHealthcareQuery(query),
+      estimatedTokens: this.estimateTokenUsage(query, context),
+      urgencyLevel: urgencyAnalysis.urgencyScore,
+      requiresAccuracy: urgencyAnalysis.urgencyScore > 0.7 || keywordAnalysis.isCritical,
+      agentRecommendation: this.recommendAgent(keywordAnalysis, urgencyAnalysis),
+      modelRecommendation: this.recommendModel(keywordAnalysis, urgencyAnalysis, context),
+      complianceLevel: this.assessComplianceLevel(query, context)
+    };
+
+    return analysis;
   }
 
   private performKeywordAnalysis(query: string): QueryAnalysis {
@@ -98,73 +145,279 @@ export class QueryClassificationService {
 }
 ```
 
-### 2. Dynamic Model Selection
+### 2. LangGraph-Integrated Healthcare Model Selection
 
 ```typescript
 @Injectable()
-export class ModelSelectionService {
-  private readonly modelCosts = {
+export class HealthcareModelSelectionService {
+  private readonly healthcareModelCosts = {
+    // Updated 2025 pricing
     'gpt-3.5-turbo': { input: 0.0015, output: 0.002 }, // per 1K tokens
     'gpt-4': { input: 0.03, output: 0.06 },
     'gpt-4-turbo': { input: 0.01, output: 0.03 },
+    'gpt-4o': { input: 0.005, output: 0.015 }, // Optimized for healthcare
+    'gpt-4o-mini': { input: 0.00015, output: 0.0006 } // Cost-effective option
   };
 
-  async selectOptimalModel(
-    analysis: QueryAnalysis,
-    userBudget: UserBudget,
-    agentPreferences: AgentModelPreferences,
-  ): Promise<ModelConfig> {
-    // Critical queries always use most accurate model
-    if (analysis.complexity === QueryComplexity.CRITICAL) {
-      return {
-        model: 'gpt-4',
-        maxTokens: 1000,
-        temperature: 0.1,
-        reasoning: 'Critical accuracy required for emergency/safety',
-      };
+  private readonly healthcareModelMatrix = {
+    // Agent-specific model preferences
+    supervisor: {
+      simple: 'gpt-4o-mini',
+      moderate: 'gpt-3.5-turbo',
+      complex: 'gpt-4o',
+      critical: 'gpt-4',
+      specialized: 'gpt-4o'
+    },
+    healthAdvisor: {
+      simple: 'gpt-3.5-turbo',
+      moderate: 'gpt-3.5-turbo',
+      complex: 'gpt-4o',
+      critical: 'gpt-4',
+      specialized: 'gpt-4o'
+    },
+    medicationAssistant: {
+      simple: 'gpt-3.5-turbo',
+      moderate: 'gpt-4o',
+      complex: 'gpt-4',
+      critical: 'gpt-4', // Drug interactions require highest accuracy
+      specialized: 'gpt-4'
+    },
+    emergencyTriage: {
+      simple: 'gpt-4o', // Even simple emergency queries need accuracy
+      moderate: 'gpt-4',
+      complex: 'gpt-4',
+      critical: 'gpt-4', // Always highest accuracy for emergencies
+      specialized: 'gpt-4'
+    },
+    dataInterpreter: {
+      simple: 'gpt-3.5-turbo',
+      moderate: 'gpt-4o',
+      complex: 'gpt-4',
+      critical: 'gpt-4',
+      specialized: 'gpt-4o'
+    },
+    careCoordinator: {
+      simple: 'gpt-3.5-turbo',
+      moderate: 'gpt-3.5-turbo',
+      complex: 'gpt-4o',
+      critical: 'gpt-4',
+      specialized: 'gpt-3.5-turbo'
     }
+  };
+
+  async selectHealthcareModel(
+    analysis: HealthcareQueryAnalysis,
+    userBudget: UserBudget,
+    agentName: string,
+    stateContext: HealthcareStateContext
+  ): Promise<HealthcareModelConfig> {
+    // Emergency and critical queries always use highest accuracy
+    if (analysis.urgencyLevel > 0.8 || analysis.complexity === HealthcareQueryComplexity.CRITICAL) {
+      return this.createModelConfig('gpt-4', analysis, 'Critical healthcare accuracy required');
+    }
+
+    // PHI-sensitive queries require enhanced models
+    if (analysis.complianceLevel === 'phi_sensitive') {
+      return this.createModelConfig('gpt-4o', analysis, 'PHI-sensitive content requires enhanced model');
+    }
+
+    // Get agent-specific model preference
+    const agentPreferences = this.healthcareModelMatrix[agentName] || this.healthcareModelMatrix.supervisor;
+    const preferredModel = agentPreferences[analysis.complexity];
 
     // Check budget constraints
+    const estimatedCost = this.estimateHealthcareCost(analysis, preferredModel);
     const remainingBudget = userBudget.monthlyLimit - userBudget.currentUsage;
-    const estimatedCost = this.estimateCost(analysis, 'gpt-4');
 
-    // If budget is low, use cost-effective model
     if (remainingBudget < estimatedCost * 2) {
-      return {
-        model: 'gpt-3.5-turbo',
-        maxTokens: Math.min(800, analysis.estimatedTokens * 1.2),
-        temperature: 0.7,
-        reasoning: 'Budget constraint - using cost-effective model',
-      };
+      // Budget-constrained fallback (but maintain safety for critical healthcare)
+      if (analysis.urgencyLevel > 0.5) {
+        return this.createModelConfig('gpt-4o', analysis, 'Budget-constrained but maintaining healthcare safety');
+      }
+      return this.createModelConfig('gpt-3.5-turbo', analysis, 'Budget-optimized selection');
     }
 
-    // Complex queries benefit from GPT-4
-    if (analysis.complexity === QueryComplexity.COMPLEX) {
-      return {
-        model: 'gpt-4-turbo',
-        maxTokens: 1200,
-        temperature: 0.5,
-        reasoning: 'Complex reasoning requires advanced model',
-      };
-    }
+    // Use preferred model
+    return this.createModelConfig(preferredModel, analysis, `Agent-optimized selection for ${agentName}`);
+  }
 
-    // Default to cost-effective model for simple/moderate queries
-    return {
-      model: 'gpt-3.5-turbo',
-      maxTokens: 600,
-      temperature: 0.7,
-      reasoning: 'Cost-optimized selection for general queries',
+  private createModelConfig(
+    model: string,
+    analysis: HealthcareQueryAnalysis,
+    reasoning: string
+  ): HealthcareModelConfig {
+    const baseConfig = {
+      model,
+      reasoning,
+      estimatedCost: this.estimateHealthcareCost(analysis, model),
+      complianceLevel: analysis.complianceLevel
     };
+
+    // Healthcare-specific model configurations
+    switch (model) {
+      case 'gpt-4':
+        return {
+          ...baseConfig,
+          maxTokens: 1200,
+          temperature: 0.1, // Very low for medical accuracy
+          topP: 0.9,
+          frequencyPenalty: 0.1,
+          presencePenalty: 0.1
+        };
+
+      case 'gpt-4o':
+        return {
+          ...baseConfig,
+          maxTokens: 1000,
+          temperature: 0.2,
+          topP: 0.95,
+          frequencyPenalty: 0.0,
+          presencePenalty: 0.0
+        };
+
+      case 'gpt-3.5-turbo':
+        return {
+          ...baseConfig,
+          maxTokens: 800,
+          temperature: 0.7,
+          topP: 1.0,
+          frequencyPenalty: 0.0,
+          presencePenalty: 0.0
+        };
+
+      default:
+        return {
+          ...baseConfig,
+          maxTokens: 600,
+          temperature: 0.5,
+          topP: 0.95
+        };
+    }
   }
 
-  private estimateCost(analysis: QueryAnalysis, model: string): number {
-    const costs = this.modelCosts[model];
-    const inputTokens = analysis.estimatedTokens;
-    const outputTokens = inputTokens * 0.5; // Estimate output as 50% of input
-
-    return (inputTokens * costs.input + outputTokens * costs.output) / 1000;
-  }
 }
+
+## 3. Healthcare Use Case Model Recommendations
+
+### 3.1 Emergency Triage and Critical Care
+
+**Recommended Models**: GPT-4 (primary), GPT-4o (fallback)
+**Rationale**: Maximum accuracy required for patient safety
+**Configuration**:
+```typescript
+const emergencyTriageConfig: ModelConfig = {
+  model: 'gpt-4',
+  maxTokens: 1200,
+  temperature: 0.05, // Extremely low for consistency
+  topP: 0.8,
+  frequencyPenalty: 0.2,
+  presencePenalty: 0.1,
+  reasoning: 'Emergency situations require highest accuracy and consistency'
+};
+```
+
+**Use Cases**:
+- Chest pain assessment
+- Stroke symptom evaluation
+- Allergic reaction severity
+- Suicide risk assessment
+- Drug overdose evaluation
+
+### 3.2 Medication Management and Drug Interactions
+
+**Recommended Models**: GPT-4 (drug interactions), GPT-4o (general medication)
+**Rationale**: Drug interactions can be life-threatening; requires highest accuracy
+**Configuration**:
+```typescript
+const medicationConfig: ModelConfig = {
+  model: 'gpt-4',
+  maxTokens: 1000,
+  temperature: 0.1,
+  topP: 0.9,
+  frequencyPenalty: 0.0,
+  presencePenalty: 0.0,
+  reasoning: 'Medication safety requires precise, evidence-based responses'
+};
+```
+
+**Use Cases**:
+- Drug-drug interactions
+- Dosage calculations
+- Side effect analysis
+- Contraindication checking
+- Medication adherence support
+
+### 3.3 General Health Consultation and Wellness
+
+**Recommended Models**: GPT-3.5-turbo (simple), GPT-4o (complex)
+**Rationale**: Cost-effective for general health information while maintaining quality
+**Configuration**:
+```typescript
+const generalHealthConfig: ModelConfig = {
+  model: 'gpt-3.5-turbo',
+  maxTokens: 800,
+  temperature: 0.7,
+  topP: 1.0,
+  frequencyPenalty: 0.1,
+  presencePenalty: 0.1,
+  reasoning: 'Balanced cost and quality for general health guidance'
+};
+```
+
+**Use Cases**:
+- General health questions
+- Wellness advice
+- Lifestyle recommendations
+- Preventive care guidance
+- Health education
+
+### 3.4 Health Data Analysis and Interpretation
+
+**Recommended Models**: GPT-4o (primary), GPT-4 (complex analysis)
+**Rationale**: Optimized for analytical tasks with good cost-performance ratio
+**Configuration**:
+```typescript
+const dataAnalysisConfig: ModelConfig = {
+  model: 'gpt-4o',
+  maxTokens: 1200,
+  temperature: 0.3,
+  topP: 0.95,
+  frequencyPenalty: 0.0,
+  presencePenalty: 0.0,
+  reasoning: 'Analytical tasks benefit from structured reasoning capabilities'
+};
+```
+
+**Use Cases**:
+- Health metric trends
+- Lab result interpretation
+- Risk factor analysis
+- Personalized insights
+- Predictive health analytics
+
+### 3.5 Care Coordination and Communication
+
+**Recommended Models**: GPT-3.5-turbo (primary), GPT-4o (complex coordination)
+**Rationale**: Communication tasks don't require highest-tier models
+**Configuration**:
+```typescript
+const careCoordinationConfig: ModelConfig = {
+  model: 'gpt-3.5-turbo',
+  maxTokens: 600,
+  temperature: 0.8,
+  topP: 1.0,
+  frequencyPenalty: 0.2,
+  presencePenalty: 0.1,
+  reasoning: 'Communication tasks prioritize natural language flow'
+};
+```
+
+**Use Cases**:
+- Family updates
+- Care plan summaries
+- Appointment scheduling
+- Task coordination
+- Progress reporting
 ```
 
 ### 3. Budget Management System

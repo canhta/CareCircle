@@ -1,71 +1,170 @@
-# CareCircle Multi-Agent AI System Implementation Plan
+# CareCircle Multi-Agent AI System Implementation Plan (2025 Edition)
 
 ## Overview
 
-This document outlines the detailed 8-week implementation plan for integrating the multi-agent AI system into CareCircle's backend infrastructure. The plan follows a phased approach that builds upon existing architecture while introducing sophisticated AI capabilities.
+This document provides an updated, executable implementation plan for integrating CareCircle's state-of-the-art multi-agent AI system. The plan leverages the latest LangGraph.js patterns, Docker containerization, and healthcare compliance best practices for production-ready deployment.
+
+## Prerequisites
+
+- Node.js 22+ with npm/yarn
+- Docker Desktop with BuildKit enabled
+- PostgreSQL 15+ with TimescaleDB extension
+- Redis 7+ for session management
+- Access to OpenAI API and LangChain services
+- Healthcare compliance training completed
 
 ## Implementation Phases
 
-### Phase 1: Foundation & Core Infrastructure (Weeks 1-2)
+### Phase 1: Foundation & Containerized Infrastructure (Weeks 1-2)
 
-#### Week 1: Environment Setup and Dependencies
+#### Week 1: Modern Dependency Setup and Docker Configuration
 
-**Day 1-2: Dependency Installation and Configuration**
+**Day 1-2: Latest Dependencies Installation**
 ```bash
-# Install core dependencies
-npm install @langchain/core @langchain/openai @langchain/langgraph
-npm install @langchain/community redis ioredis
-npm install zod zod-to-json-schema  # For schema validation
-npm install uuid @types/uuid        # For ID generation
+# Core LangChain.js ecosystem (2025 versions)
+npm install @langchain/core@^0.3.0 @langchain/openai@^0.3.0
+npm install @langchain/langgraph@^0.2.0 @langchain/community@^0.3.0
+
+# State management and persistence
+npm install redis@^4.7.0 ioredis@^5.4.0
+
+# Healthcare-specific dependencies
+npm install zod@^3.23.0 zod-to-json-schema@^3.23.0
+npm install uuid@^10.0.0 @types/uuid@^10.0.0
+
+# Security and compliance
+npm install helmet@^7.1.0 express-rate-limit@^7.1.0
+npm install crypto-js@^4.2.0 bcryptjs@^2.4.3
+
+# Monitoring and observability
+npm install @opentelemetry/api@^1.7.0 @opentelemetry/auto-instrumentations-node@^0.40.0
 ```
 
-**Day 3-4: Database Schema Extensions**
-- Create migration files for new agent-related tables
-- Extend Prisma schema with agent session management
-- Update existing conversation schema for agent compatibility
-- Test database migrations in development environment
+**Day 3-4: Docker Containerization Setup**
+```bash
+# 1. Create Docker network for AI services
+docker network create carecircle-ai-network
 
-**Day 5-7: Core Infrastructure Setup**
-- Configure Redis for session persistence
-- Set up LangGraph service integration
-- Create base agent interfaces and abstract classes
-- Implement basic logging and monitoring infrastructure
+# 2. Set up security hardening
+chmod +x docs/agent/security-hardening.sh
+./docs/agent/security-hardening.sh
 
-#### Week 2: Agent Orchestrator Development
+# 3. Build AI agent containers
+docker-compose -f docker-compose.ai-agents.yml build
 
-**Day 1-3: Agent Orchestrator Core**
+# 4. Start vector database
+docker-compose -f docker-compose.milvus.yml up -d
+
+# 5. Verify container health
+docker-compose ps
+docker logs carecircle-agent-orchestrator
+```
+
+**Day 5-7: Database Schema and Infrastructure**
+```bash
+# 1. Create agent-specific database migrations
+npx prisma migrate dev --name add_agent_tables
+
+# 2. Update Prisma schema with agent entities
+npx prisma generate
+
+# 3. Seed healthcare-specific data
+npm run seed:healthcare-agents
+
+# 4. Test database connectivity
+npm run test:database-connection
+```
+
+#### Week 2: LangGraph StateGraph Orchestrator
+
+**Day 1-3: Modern Agent Orchestrator with LangGraph**
 ```typescript
-// Core orchestrator implementation
-@Injectable()
-export class AgentOrchestrator {
-  constructor(
-    private readonly langGraphService: LangGraphService,
-    private readonly contextManager: ContextManager,
-    private readonly costOptimizer: CostOptimizer,
-    private readonly complianceMonitor: ComplianceMonitor,
-  ) {}
+// State-of-the-art orchestrator using LangGraph.js
+import { StateGraph, MessagesAnnotation, MemorySaver, START, END } from "@langchain/langgraph";
+import { Command } from "@langchain/langgraph/types";
+import { createReactAgent } from "@langchain/langgraph/prebuilt";
 
-  async processQuery(
+@Injectable()
+export class HealthcareAgentOrchestrator {
+  private readonly agentGraph: StateGraph;
+  private readonly checkpointer: MemorySaver;
+
+  constructor(
+    private readonly contextManager: HealthcareContextManager,
+    private readonly complianceService: HIPAAComplianceService,
+    private readonly costOptimizer: CostOptimizer,
+  ) {
+    this.checkpointer = new MemorySaver(); // Production: Redis-based
+    this.initializeAgentGraph();
+  }
+
+  private initializeAgentGraph(): void {
+    this.agentGraph = new StateGraph(HealthcareStateAnnotation)
+      .addNode("supervisor", this.createSupervisorAgent())
+      .addNode("healthAdvisor", this.createHealthAdvisorAgent())
+      .addNode("medicationAssistant", this.createMedicationAgent())
+      .addNode("emergencyTriage", this.createEmergencyAgent())
+      .addConditionalEdges("supervisor", this.routingLogic.bind(this))
+      .compile({
+        checkpointer: this.checkpointer,
+        interruptBefore: ["emergencyTriage"] // Human-in-the-loop
+      });
+  }
+
+  async processHealthcareQuery(
     query: string,
     userId: string,
-    sessionId?: string,
-  ): Promise<AgentResponse> {
-    // Implementation details
+    threadId: string
+  ): Promise<HealthcareAgentResponse> {
+    const config = { configurable: { thread_id: threadId } };
+    const userContext = await this.contextManager.buildHealthcareContext(userId);
+
+    // Stream agent responses for real-time interaction
+    const stream = this.agentGraph.stream({
+      messages: [{ role: "user", content: query }],
+      userContext,
+      activeAgent: "supervisor"
+    }, config);
+
+    return this.processStreamedResponse(stream, userContext);
   }
 }
 ```
 
-**Day 4-5: Session Management**
-- Implement LangGraph StateGraph for conversation flow
-- Create session persistence with Redis integration
-- Develop thread-based conversation management
-- Test session continuity across multiple interactions
+**Day 4-5: Healthcare Context Management**
+```bash
+# 1. Implement healthcare-specific context builder
+npm run generate:healthcare-context
 
-**Day 6-7: Basic Routing Logic**
-- Implement query classification system
-- Create agent selection algorithms
-- Develop fallback mechanisms
-- Test basic agent routing functionality
+# 2. Test context integration with health data
+npm run test:context-integration
+
+# 3. Validate PHI protection in context
+npm run test:phi-protection
+```
+
+**Day 6-7: Agent Handoff Implementation**
+```typescript
+// Create handoff tools for agent communication
+function createHealthcareHandoffTool(agentName: string, description: string) {
+  return tool(
+    async (state: HealthcareState, toolCallId: string) => {
+      return Command({
+        goto: agentName,
+        update: {
+          messages: [...state.messages, {
+            role: "tool",
+            content: `Transferred to ${agentName}`,
+            tool_call_id: toolCallId
+          }]
+        },
+        graph: Command.PARENT
+      });
+    },
+    { name: `transfer_to_${agentName}`, description }
+  );
+}
+```
 
 ### Phase 2: Specialized Agents Development (Weeks 3-5)
 
