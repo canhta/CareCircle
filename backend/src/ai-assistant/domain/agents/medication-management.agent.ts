@@ -1,5 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { BaseHealthcareAgent, HealthcareContext, AgentResponse, AgentCapability } from './base-healthcare.agent';
+import {
+  BaseHealthcareAgent,
+  HealthcareContext,
+  AgentResponse,
+  AgentCapability,
+} from './base-healthcare.agent';
 import { PHIProtectionService } from '../../../common/compliance/phi-protection.service';
 import { VietnameseNLPIntegrationService } from '../../infrastructure/services/vietnamese-nlp-integration.service';
 
@@ -30,7 +35,11 @@ export interface DrugInteraction {
 }
 
 export interface MedicationRecommendation {
-  type: 'dosage_adjustment' | 'alternative_medication' | 'monitoring' | 'timing_change';
+  type:
+    | 'dosage_adjustment'
+    | 'alternative_medication'
+    | 'monitoring'
+    | 'timing_change';
   description: string;
   rationale: string;
   urgency: 'low' | 'medium' | 'high';
@@ -56,12 +65,17 @@ export class MedicationManagementAgent extends BaseHealthcareAgent {
     return [
       {
         name: 'Drug Interaction Analysis',
-        description: 'Analyze potential drug interactions and contraindications',
+        description:
+          'Analyze potential drug interactions and contraindications',
         confidence: 0.9,
         requiresPhysicianReview: true,
         maxSeverityLevel: 8,
         supportedLanguages: ['vietnamese', 'english', 'mixed'],
-        medicalSpecialties: ['pharmacology', 'internal_medicine', 'clinical_pharmacy'],
+        medicalSpecialties: [
+          'pharmacology',
+          'internal_medicine',
+          'clinical_pharmacy',
+        ],
       },
       {
         name: 'Medication Adherence Support',
@@ -83,12 +97,17 @@ export class MedicationManagementAgent extends BaseHealthcareAgent {
       },
       {
         name: 'Vietnamese Traditional Medicine Integration',
-        description: 'Assess interactions between modern medications and traditional Vietnamese medicine',
+        description:
+          'Assess interactions between modern medications and traditional Vietnamese medicine',
         confidence: 0.75,
         requiresPhysicianReview: true,
         maxSeverityLevel: 8,
         supportedLanguages: ['vietnamese', 'english', 'mixed'],
-        medicalSpecialties: ['traditional_medicine', 'pharmacology', 'integrative_medicine'],
+        medicalSpecialties: [
+          'traditional_medicine',
+          'pharmacology',
+          'integrative_medicine',
+        ],
       },
     ];
   }
@@ -98,23 +117,26 @@ export class MedicationManagementAgent extends BaseHealthcareAgent {
     context: HealthcareContext,
   ): Promise<AgentResponse> {
     try {
-      this.logger.log(`Processing medication query: ${query.substring(0, 50)}...`);
+      this.logger.log(
+        `Processing medication query: ${query.substring(0, 50)}...`,
+      );
 
       const medicationContext = context as MedicationContext;
 
       // Extract medication information from query
-      const extractedMedications = await this.extractMedicationsFromQuery(query);
+      const extractedMedications =
+        await this.extractMedicationsFromQuery(query);
 
       // Analyze drug interactions
       const interactions = await this.analyzeDrugInteractions(
         extractedMedications,
-        medicationContext.currentMedications || []
+        medicationContext.currentMedications || [],
       );
 
       // Check for contraindications
       const contraindications = await this.checkContraindications(
         extractedMedications,
-        medicationContext
+        medicationContext,
       );
 
       // Generate medication guidance
@@ -123,14 +145,14 @@ export class MedicationManagementAgent extends BaseHealthcareAgent {
         extractedMedications,
         interactions,
         contraindications,
-        medicationContext
+        medicationContext,
       );
 
       // Assess if physician review is required
       const requiresPhysicianReview = this.assessPhysicianReviewNeed(
         interactions,
         contraindications,
-        extractedMedications
+        extractedMedications,
       );
 
       return {
@@ -143,8 +165,13 @@ export class MedicationManagementAgent extends BaseHealthcareAgent {
           drugInteractions: interactions,
           contraindications,
           requiresPhysicianReview,
-          adherenceRecommendations: await this.generateAdherenceRecommendations(medicationContext),
-          traditionalMedicineConsiderations: await this.assessTraditionalMedicineInteractions(query, extractedMedications),
+          adherenceRecommendations:
+            await this.generateAdherenceRecommendations(medicationContext),
+          traditionalMedicineConsiderations:
+            await this.assessTraditionalMedicineInteractions(
+              query,
+              extractedMedications,
+            ),
         },
       };
     } catch (error) {
@@ -184,15 +211,24 @@ Return only the medication names, one per line.`;
 
     const medications = (response.content as string)
       .split('\n')
-      .map(med => med.trim())
-      .filter(med => med.length > 0 && !med.includes('No medications') && !med.includes('None'));
+      .map((med) => med.trim())
+      .filter(
+        (med) =>
+          med.length > 0 &&
+          !med.includes('No medications') &&
+          !med.includes('None'),
+      );
 
     return medications;
   }
 
   private async analyzeDrugInteractions(
     newMedications: string[],
-    currentMedications: Array<{ name: string; dosage: string; frequency: string }>
+    currentMedications: Array<{
+      name: string;
+      dosage: string;
+      frequency: string;
+    }>,
   ): Promise<DrugInteraction[]> {
     if (newMedications.length === 0 && currentMedications.length === 0) {
       return [];
@@ -200,7 +236,7 @@ Return only the medication names, one per line.`;
 
     const allMedications = [
       ...newMedications,
-      ...currentMedications.map(med => med.name)
+      ...currentMedications.map((med) => med.name),
     ];
 
     const interactionPrompt = `Analyze potential drug interactions between these medications:
@@ -219,16 +255,22 @@ Include interactions with Vietnamese traditional medicines if present.`;
 
     const response = await this.model.invoke([
       { role: 'system', content: interactionPrompt },
-      { role: 'user', content: `Analyze interactions for: ${allMedications.join(', ')}` },
+      {
+        role: 'user',
+        content: `Analyze interactions for: ${allMedications.join(', ')}`,
+      },
     ]);
 
     // Parse the response to extract interactions
-    return this.parseInteractionResponse(response.content as string, allMedications);
+    return this.parseInteractionResponse(
+      response.content as string,
+      allMedications,
+    );
   }
 
   private async checkContraindications(
     medications: string[],
-    context: MedicationContext
+    context: MedicationContext,
   ): Promise<string[]> {
     if (medications.length === 0) return [];
 
@@ -246,7 +288,10 @@ Identify any absolute or relative contraindications and provide clear warnings.`
 
     const response = await this.model.invoke([
       { role: 'system', content: contraindicationPrompt },
-      { role: 'user', content: `Check contraindications for: ${medications.join(', ')}` },
+      {
+        role: 'user',
+        content: `Check contraindications for: ${medications.join(', ')}`,
+      },
     ]);
 
     return this.parseContraindications(response.content as string);
@@ -257,7 +302,7 @@ Identify any absolute or relative contraindications and provide clear warnings.`
     medications: string[],
     interactions: DrugInteraction[],
     contraindications: string[],
-    context: MedicationContext
+    context: MedicationContext,
   ): Promise<string> {
     const guidancePrompt = `Provide comprehensive medication guidance for this query:
 
@@ -267,7 +312,7 @@ Drug Interactions Found: ${interactions.length}
 Contraindications: ${contraindications.length}
 
 Patient Context:
-- Current Medications: ${context.currentMedications?.map(m => `${m.name} ${m.dosage}`).join(', ') || 'none'}
+- Current Medications: ${context.currentMedications?.map((m) => `${m.name} ${m.dosage}`).join(', ') || 'none'}
 - Allergies: ${context.allergies?.join(', ') || 'none'}
 - Medical Conditions: ${context.medicalConditions?.join(', ') || 'none'}
 
@@ -289,8 +334,13 @@ Include appropriate medical disclaimers.`;
     return response.content as string;
   }
 
-  private async generateAdherenceRecommendations(context: MedicationContext): Promise<MedicationRecommendation[]> {
-    if (!context.currentMedications || context.currentMedications.length === 0) {
+  private async generateAdherenceRecommendations(
+    context: MedicationContext,
+  ): Promise<MedicationRecommendation[]> {
+    if (
+      !context.currentMedications ||
+      context.currentMedications.length === 0
+    ) {
       return [];
     }
 
@@ -300,7 +350,8 @@ Include appropriate medical disclaimers.`;
     if (context.currentMedications.length > 5) {
       recommendations.push({
         type: 'monitoring',
-        description: 'Consider using a pill organizer or medication management app',
+        description:
+          'Consider using a pill organizer or medication management app',
         rationale: 'Multiple medications increase risk of adherence issues',
         urgency: 'medium',
         requiresPhysicianApproval: false,
@@ -308,14 +359,18 @@ Include appropriate medical disclaimers.`;
     }
 
     // Check for multiple daily dosing
-    const multiDoseCount = context.currentMedications.filter(med => 
-      med.frequency.includes('twice') || med.frequency.includes('three times') || med.frequency.includes('four times')
+    const multiDoseCount = context.currentMedications.filter(
+      (med) =>
+        med.frequency.includes('twice') ||
+        med.frequency.includes('three times') ||
+        med.frequency.includes('four times'),
     ).length;
 
     if (multiDoseCount > 2) {
       recommendations.push({
         type: 'timing_change',
-        description: 'Discuss with physician about once-daily alternatives where possible',
+        description:
+          'Discuss with physician about once-daily alternatives where possible',
         rationale: 'Simpler dosing schedules improve medication adherence',
         urgency: 'low',
         requiresPhysicianApproval: true,
@@ -325,40 +380,80 @@ Include appropriate medical disclaimers.`;
     return recommendations;
   }
 
-  private async assessTraditionalMedicineInteractions(query: string, medications: string[]): Promise<string[]> {
-    const traditionalMedicines = ['gừng', 'nghệ', 'cam thảo', 'đông quai', 'nhân sâm', 'ginger', 'turmeric', 'licorice', 'ginseng'];
-    
+  private async assessTraditionalMedicineInteractions(
+    query: string,
+    medications: string[],
+  ): Promise<string[]> {
+    const traditionalMedicines = [
+      'gừng',
+      'nghệ',
+      'cam thảo',
+      'đông quai',
+      'nhân sâm',
+      'ginger',
+      'turmeric',
+      'licorice',
+      'ginseng',
+    ];
+
     const queryLower = query.toLowerCase();
-    const foundTraditional = traditionalMedicines.filter(herb => queryLower.includes(herb));
-    
+    const foundTraditional = traditionalMedicines.filter((herb) =>
+      queryLower.includes(herb),
+    );
+
     if (foundTraditional.length === 0) return [];
 
     const considerations = [];
-    
+
     // Check for specific interactions
-    if (foundTraditional.includes('gừng') || foundTraditional.includes('ginger')) {
-      if (medications.some(med => med.toLowerCase().includes('warfarin') || med.toLowerCase().includes('aspirin'))) {
-        considerations.push('Ginger may increase bleeding risk when combined with blood thinners');
+    if (
+      foundTraditional.includes('gừng') ||
+      foundTraditional.includes('ginger')
+    ) {
+      if (
+        medications.some(
+          (med) =>
+            med.toLowerCase().includes('warfarin') ||
+            med.toLowerCase().includes('aspirin'),
+        )
+      ) {
+        considerations.push(
+          'Ginger may increase bleeding risk when combined with blood thinners',
+        );
       }
     }
 
-    if (foundTraditional.includes('cam thảo') || foundTraditional.includes('licorice')) {
-      considerations.push('Licorice may interact with blood pressure medications and diuretics');
+    if (
+      foundTraditional.includes('cam thảo') ||
+      foundTraditional.includes('licorice')
+    ) {
+      considerations.push(
+        'Licorice may interact with blood pressure medications and diuretics',
+      );
     }
 
     return considerations;
   }
 
-  private parseInteractionResponse(content: string, medications: string[]): DrugInteraction[] {
+  private parseInteractionResponse(
+    content: string,
+    medications: string[],
+  ): DrugInteraction[] {
     // Simplified parsing - in production, this would be more sophisticated
     const interactions: DrugInteraction[] = [];
-    
-    if (content.toLowerCase().includes('warfarin') && content.toLowerCase().includes('aspirin')) {
+
+    if (
+      content.toLowerCase().includes('warfarin') &&
+      content.toLowerCase().includes('aspirin')
+    ) {
       interactions.push({
         severity: 'major',
-        description: 'Warfarin and aspirin may significantly increase bleeding risk',
-        mechanism: 'Both medications affect blood clotting through different pathways',
-        recommendation: 'Avoid combination or use with extreme caution under physician supervision',
+        description:
+          'Warfarin and aspirin may significantly increase bleeding risk',
+        mechanism:
+          'Both medications affect blood clotting through different pathways',
+        recommendation:
+          'Avoid combination or use with extreme caution under physician supervision',
         evidenceLevel: 'high',
         clinicalSignificance: 'Increased risk of major bleeding events',
         affectedMedications: ['warfarin', 'aspirin'],
@@ -370,52 +465,63 @@ Include appropriate medical disclaimers.`;
 
   private parseContraindications(content: string): string[] {
     const contraindications: string[] = [];
-    
-    if (content.toLowerCase().includes('contraindicated') || content.toLowerCase().includes('avoid')) {
+
+    if (
+      content.toLowerCase().includes('contraindicated') ||
+      content.toLowerCase().includes('avoid')
+    ) {
       // Extract contraindication warnings from the response
-      const lines = content.split('\n').filter(line => 
-        line.toLowerCase().includes('contraindicated') || 
-        line.toLowerCase().includes('avoid') ||
-        line.toLowerCase().includes('warning')
-      );
+      const lines = content
+        .split('\n')
+        .filter(
+          (line) =>
+            line.toLowerCase().includes('contraindicated') ||
+            line.toLowerCase().includes('avoid') ||
+            line.toLowerCase().includes('warning'),
+        );
       contraindications.push(...lines);
     }
 
     return contraindications;
   }
 
-  private calculateConfidence(interactions: DrugInteraction[], contraindications: string[]): number {
+  private calculateConfidence(
+    interactions: DrugInteraction[],
+    contraindications: string[],
+  ): number {
     let confidence = 0.9;
-    
+
     // Reduce confidence if major interactions found
-    const majorInteractions = interactions.filter(i => i.severity === 'major' || i.severity === 'contraindicated');
+    const majorInteractions = interactions.filter(
+      (i) => i.severity === 'major' || i.severity === 'contraindicated',
+    );
     confidence -= majorInteractions.length * 0.1;
-    
+
     // Reduce confidence if contraindications found
     confidence -= contraindications.length * 0.05;
-    
+
     return Math.max(confidence, 0.5);
   }
 
   private assessPhysicianReviewNeed(
     interactions: DrugInteraction[],
     contraindications: string[],
-    medications: string[]
+    medications: string[],
   ): boolean {
     // Require physician review for major interactions
-    const hasMajorInteractions = interactions.some(i => 
-      i.severity === 'major' || i.severity === 'contraindicated'
+    const hasMajorInteractions = interactions.some(
+      (i) => i.severity === 'major' || i.severity === 'contraindicated',
     );
-    
+
     // Require review if contraindications found
     const hasContraindications = contraindications.length > 0;
-    
+
     // Require review for high-risk medications
     const highRiskMeds = ['warfarin', 'insulin', 'digoxin', 'lithium'];
-    const hasHighRiskMeds = medications.some(med => 
-      highRiskMeds.some(risk => med.toLowerCase().includes(risk))
+    const hasHighRiskMeds = medications.some((med) =>
+      highRiskMeds.some((risk) => med.toLowerCase().includes(risk)),
     );
-    
+
     return hasMajorInteractions || hasContraindications || hasHighRiskMeds;
   }
 }

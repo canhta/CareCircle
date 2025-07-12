@@ -35,7 +35,11 @@ import { PrismaAgentSessionRepository } from './infrastructure/repositories/pris
     IdentityAccessModule,
     AgentsModule, // Import the new agents module
   ],
-  controllers: [ConversationController, ChatAgentController, VietnameseHealthcareAgentController],
+  controllers: [
+    ConversationController,
+    ChatAgentController,
+    VietnameseHealthcareAgentController,
+  ],
   providers: [
     // Application services
     ConversationService,

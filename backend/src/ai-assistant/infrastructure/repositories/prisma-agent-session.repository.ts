@@ -12,9 +12,7 @@ import {
   AgentSessionType,
   AgentSessionStatus,
 } from '../../domain/entities/agent-session.entity';
-import {
-  AgentInteraction,
-} from '../../domain/entities/agent-interaction.entity';
+import { AgentInteraction } from '../../domain/entities/agent-interaction.entity';
 
 @Injectable()
 export class PrismaAgentSessionRepository implements AgentSessionRepository {

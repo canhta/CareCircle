@@ -3,12 +3,22 @@ import { StateGraph, MessagesAnnotation, Command } from '@langchain/langgraph';
 import { ChatOpenAI } from '@langchain/openai';
 import { z } from 'zod';
 import { BaseMessage, HumanMessage, AIMessage } from '@langchain/core/messages';
-import { BaseHealthcareAgent, HealthcareContext, AgentResponse, AgentCapability } from './base-healthcare.agent';
+import {
+  BaseHealthcareAgent,
+  HealthcareContext,
+  AgentResponse,
+  AgentCapability,
+} from './base-healthcare.agent';
 import { PHIProtectionService } from '../../../common/compliance/phi-protection.service';
 import { VietnameseNLPIntegrationService } from '../../infrastructure/services/vietnamese-nlp-integration.service';
 
 export interface QueryClassification {
-  primaryIntent: 'medication' | 'emergency' | 'clinical' | 'general' | 'vietnamese_medical';
+  primaryIntent:
+    | 'medication'
+    | 'emergency'
+    | 'clinical'
+    | 'general'
+    | 'vietnamese_medical';
   urgencyLevel: number; // 0.0-1.0
   culturalContext: 'traditional' | 'modern' | 'mixed';
   requiredAgents: string[];
@@ -45,7 +55,7 @@ export class HealthcareSupervisorAgent extends BaseHealthcareAgent {
       temperature: 0.1, // Low temperature for consistent routing decisions
       maxTokens: 2000,
     });
-    
+
     this.initializeStateGraph();
   }
 
@@ -53,7 +63,8 @@ export class HealthcareSupervisorAgent extends BaseHealthcareAgent {
     return [
       {
         name: 'Healthcare Query Analysis',
-        description: 'Analyze and classify healthcare queries for appropriate agent routing',
+        description:
+          'Analyze and classify healthcare queries for appropriate agent routing',
         confidence: 0.95,
         requiresPhysicianReview: false,
         maxSeverityLevel: 10, // Can handle all severity levels for routing
@@ -71,7 +82,8 @@ export class HealthcareSupervisorAgent extends BaseHealthcareAgent {
       },
       {
         name: 'Emergency Detection',
-        description: 'Detect emergency situations and route to appropriate care',
+        description:
+          'Detect emergency situations and route to appropriate care',
         confidence: 0.85,
         requiresPhysicianReview: true,
         maxSeverityLevel: 10,
@@ -98,7 +110,9 @@ export class HealthcareSupervisorAgent extends BaseHealthcareAgent {
     context: HealthcareContext,
   ): Promise<AgentResponse> {
     try {
-      this.logger.log(`Supervisor processing query: ${query.substring(0, 100)}...`);
+      this.logger.log(
+        `Supervisor processing query: ${query.substring(0, 100)}...`,
+      );
 
       // Initialize state with user message and context
       const initialState = {
@@ -113,7 +127,9 @@ export class HealthcareSupervisorAgent extends BaseHealthcareAgent {
       const result = await this.stateGraph.invoke(initialState);
 
       // Extract the final response
-      const lastMessage = result.messages[result.messages.length - 1] as AIMessage;
+      const lastMessage = result.messages[
+        result.messages.length - 1
+      ] as AIMessage;
 
       return {
         agentType: 'healthcare_supervisor',
@@ -131,7 +147,9 @@ export class HealthcareSupervisorAgent extends BaseHealthcareAgent {
       };
     } catch (error) {
       this.logger.error('Supervisor agent processing failed:', error);
-      throw new Error(`Healthcare supervisor processing failed: ${error.message}`);
+      throw new Error(
+        `Healthcare supervisor processing failed: ${error.message}`,
+      );
     }
   }
 
@@ -139,10 +157,10 @@ export class HealthcareSupervisorAgent extends BaseHealthcareAgent {
     state: typeof MessagesAnnotation.State,
   ): Promise<Command> {
     const query = state.messages[0].content as string;
-    
+
     try {
       const classification = await this.classifyHealthcareQuery(query);
-      
+
       return new Command({
         goto: 'route_to_agent',
         update: {
@@ -176,10 +194,10 @@ export class HealthcareSupervisorAgent extends BaseHealthcareAgent {
     state: typeof MessagesAnnotation.State,
   ): Promise<Command> {
     const classification = state.classification as QueryClassification;
-    
+
     // Determine the appropriate agent based on classification
     let targetAgent = 'general';
-    
+
     if (classification.urgencyLevel >= 0.8) {
       targetAgent = 'emergency_agent';
     } else if (classification.primaryIntent === 'medication') {
@@ -190,7 +208,9 @@ export class HealthcareSupervisorAgent extends BaseHealthcareAgent {
       targetAgent = 'clinical_agent';
     }
 
-    this.logger.log(`Routing query to: ${targetAgent} (urgency: ${classification.urgencyLevel})`);
+    this.logger.log(
+      `Routing query to: ${targetAgent} (urgency: ${classification.urgencyLevel})`,
+    );
 
     return new Command({
       goto: 'coordinate_response',
@@ -206,10 +226,13 @@ export class HealthcareSupervisorAgent extends BaseHealthcareAgent {
   ): Promise<Command> {
     const classification = state.classification as QueryClassification;
     const routedAgent = state.routedAgent as string;
-    
+
     // Generate supervisor response with routing information
-    const supervisorResponse = this.generateSupervisorResponse(classification, routedAgent);
-    
+    const supervisorResponse = this.generateSupervisorResponse(
+      classification,
+      routedAgent,
+    );
+
     return new Command({
       goto: '__end__',
       update: {
@@ -225,7 +248,9 @@ export class HealthcareSupervisorAgent extends BaseHealthcareAgent {
     });
   }
 
-  private async classifyHealthcareQuery(query: string): Promise<QueryClassification> {
+  private async classifyHealthcareQuery(
+    query: string,
+  ): Promise<QueryClassification> {
     const analysisPrompt = `Analyze this healthcare query and classify it for routing to specialized agents:
 
 Query: "${query}"
@@ -253,15 +278,18 @@ Provide detailed reasoning for the classification.`;
     return this.parseClassificationResponse(response.content as string, query);
   }
 
-  private parseClassificationResponse(content: string, originalQuery: string): QueryClassification {
+  private parseClassificationResponse(
+    content: string,
+    originalQuery: string,
+  ): QueryClassification {
     // Extract classification information from the response
     // This is a simplified parser - in production, you might want to use structured output
-    
+
     const primaryIntent = this.extractIntent(content);
     const urgencyLevel = this.extractUrgency(content, originalQuery);
     const culturalContext = this.extractCulturalContext(content, originalQuery);
     const languagePreference = this.detectLanguage(originalQuery);
-    
+
     return {
       primaryIntent,
       urgencyLevel,
@@ -276,72 +304,132 @@ Provide detailed reasoning for the classification.`;
 
   private extractIntent(content: string): QueryClassification['primaryIntent'] {
     const contentLower = content.toLowerCase();
-    
-    if (contentLower.includes('medication') || contentLower.includes('drug') || contentLower.includes('prescription')) {
+
+    if (
+      contentLower.includes('medication') ||
+      contentLower.includes('drug') ||
+      contentLower.includes('prescription')
+    ) {
       return 'medication';
     }
-    if (contentLower.includes('emergency') || contentLower.includes('urgent') || contentLower.includes('severe')) {
+    if (
+      contentLower.includes('emergency') ||
+      contentLower.includes('urgent') ||
+      contentLower.includes('severe')
+    ) {
       return 'emergency';
     }
-    if (contentLower.includes('vietnamese') || contentLower.includes('traditional') || contentLower.includes('thuốc nam')) {
+    if (
+      contentLower.includes('vietnamese') ||
+      contentLower.includes('traditional') ||
+      contentLower.includes('thuốc nam')
+    ) {
       return 'vietnamese_medical';
     }
-    if (contentLower.includes('clinical') || contentLower.includes('diagnosis') || contentLower.includes('symptom')) {
+    if (
+      contentLower.includes('clinical') ||
+      contentLower.includes('diagnosis') ||
+      contentLower.includes('symptom')
+    ) {
       return 'clinical';
     }
-    
+
     return 'general';
   }
 
   private extractUrgency(content: string, query: string): number {
     const emergencyKeywords = [
-      'chest pain', 'difficulty breathing', 'severe bleeding', 'unconscious',
-      'stroke', 'heart attack', 'allergic reaction', 'overdose', 'cấp cứu',
-      'khẩn cấp', 'nguy hiểm', 'nghiêm trọng', 'đau dữ dội'
+      'chest pain',
+      'difficulty breathing',
+      'severe bleeding',
+      'unconscious',
+      'stroke',
+      'heart attack',
+      'allergic reaction',
+      'overdose',
+      'cấp cứu',
+      'khẩn cấp',
+      'nguy hiểm',
+      'nghiêm trọng',
+      'đau dữ dội',
     ];
-    
+
     const queryLower = query.toLowerCase();
     const urgencyScore = emergencyKeywords.reduce((score, keyword) => {
       return queryLower.includes(keyword) ? score + 0.2 : score;
     }, 0);
-    
+
     return Math.min(urgencyScore, 1.0);
   }
 
-  private extractCulturalContext(content: string, query: string): QueryClassification['culturalContext'] {
-    const traditionalKeywords = ['thuốc nam', 'đông y', 'y học cổ truyền', 'traditional medicine'];
+  private extractCulturalContext(
+    content: string,
+    query: string,
+  ): QueryClassification['culturalContext'] {
+    const traditionalKeywords = [
+      'thuốc nam',
+      'đông y',
+      'y học cổ truyền',
+      'traditional medicine',
+    ];
     const queryLower = query.toLowerCase();
-    
-    const hasTraditional = traditionalKeywords.some(keyword => queryLower.includes(keyword));
-    const hasVietnamese = /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]/.test(query);
-    
+
+    const hasTraditional = traditionalKeywords.some((keyword) =>
+      queryLower.includes(keyword),
+    );
+    const hasVietnamese =
+      /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]/.test(
+        query,
+      );
+
     if (hasTraditional) return 'traditional';
     if (hasVietnamese) return 'mixed';
     return 'modern';
   }
 
-  private extractMedicalEntities(query: string): Array<{ type: string; value: string; confidence: number }> {
+  private extractMedicalEntities(
+    query: string,
+  ): Array<{ type: string; value: string; confidence: number }> {
     // Basic medical entity extraction - in production, this would use NLP services
-    const entities: Array<{ type: string; value: string; confidence: number }> = [];
-    
+    const entities: Array<{ type: string; value: string; confidence: number }> =
+      [];
+
     // Common symptoms
-    const symptoms = ['headache', 'fever', 'cough', 'pain', 'đau đầu', 'sốt', 'ho', 'đau'];
-    symptoms.forEach(symptom => {
+    const symptoms = [
+      'headache',
+      'fever',
+      'cough',
+      'pain',
+      'đau đầu',
+      'sốt',
+      'ho',
+      'đau',
+    ];
+    symptoms.forEach((symptom) => {
       if (query.toLowerCase().includes(symptom)) {
         entities.push({ type: 'symptom', value: symptom, confidence: 0.8 });
       }
     });
-    
+
     return entities;
   }
 
-  private generateSupervisorResponse(classification: QueryClassification, routedAgent: string): string {
-    const urgencyText = classification.urgencyLevel >= 0.8 ? 'high priority' : 
-                      classification.urgencyLevel >= 0.5 ? 'moderate priority' : 'routine';
-    
-    return `I've analyzed your healthcare query and classified it as ${classification.primaryIntent} with ${urgencyText} urgency. ` +
-           `I'm routing this to our ${routedAgent.replace('_', ' ')} specialist for the most appropriate care. ` +
-           `${classification.urgencyLevel >= 0.8 ? 'This appears to require urgent attention. ' : ''}` +
-           `Please wait while I connect you with the appropriate healthcare specialist.`;
+  private generateSupervisorResponse(
+    classification: QueryClassification,
+    routedAgent: string,
+  ): string {
+    const urgencyText =
+      classification.urgencyLevel >= 0.8
+        ? 'high priority'
+        : classification.urgencyLevel >= 0.5
+          ? 'moderate priority'
+          : 'routine';
+
+    return (
+      `I've analyzed your healthcare query and classified it as ${classification.primaryIntent} with ${urgencyText} urgency. ` +
+      `I'm routing this to our ${routedAgent.replace('_', ' ')} specialist for the most appropriate care. ` +
+      `${classification.urgencyLevel >= 0.8 ? 'This appears to require urgent attention. ' : ''}` +
+      `Please wait while I connect you with the appropriate healthcare specialist.`
+    );
   }
 }

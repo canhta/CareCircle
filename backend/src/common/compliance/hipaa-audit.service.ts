@@ -2,7 +2,12 @@ import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 
 export interface HIPAAAuditEvent {
-  eventType: 'healthcare_query' | 'agent_interaction' | 'phi_access' | 'emergency_escalation' | 'medication_analysis';
+  eventType:
+    | 'healthcare_query'
+    | 'agent_interaction'
+    | 'phi_access'
+    | 'emergency_escalation'
+    | 'medication_analysis';
   userId: string;
   agentType?: string;
   queryHash: string; // Hashed version of the query for privacy
@@ -91,7 +96,6 @@ export class HIPAAAuditService {
 
       // Check for compliance violations
       await this.checkComplianceViolations(event, auditRecord.id);
-
     } catch (error) {
       this.logger.error('Failed to log HIPAA audit event:', error);
       // Critical: Audit logging failure should be escalated
@@ -114,41 +118,52 @@ export class HIPAAAuditService {
       });
 
       const totalInteractions = auditLogs.length;
-      const phiAccessEvents = auditLogs.filter(log => log.containsPHI).length;
-      const emergencyEscalations = auditLogs.filter(log => log.emergencyFlag).length;
-      const complianceViolations = auditLogs.filter(log => 
-        log.complianceFlags && log.complianceFlags.length > 0
+      const phiAccessEvents = auditLogs.filter((log) => log.containsPHI).length;
+      const emergencyEscalations = auditLogs.filter(
+        (log) => log.emergencyFlag,
+      ).length;
+      const complianceViolations = auditLogs.filter(
+        (log) => log.complianceFlags && log.complianceFlags.length > 0,
       ).length;
 
       // Calculate agent performance metrics
-      const agentStats = new Map<string, {
-        interactions: number;
-        totalConfidence: number;
-        escalations: number;
-      }>();
+      const agentStats = new Map<
+        string,
+        {
+          interactions: number;
+          totalConfidence: number;
+          escalations: number;
+        }
+      >();
 
-      auditLogs.forEach(log => {
+      auditLogs.forEach((log) => {
         if (log.agentType) {
           const stats = agentStats.get(log.agentType) || {
             interactions: 0,
             totalConfidence: 0,
             escalations: 0,
           };
-          
+
           stats.interactions++;
           stats.totalConfidence += log.confidence || 0;
           if (log.escalationReason) stats.escalations++;
-          
+
           agentStats.set(log.agentType, stats);
         }
       });
 
-      const agentPerformance = Array.from(agentStats.entries()).map(([agentType, stats]) => ({
-        agentType,
-        interactions: stats.interactions,
-        averageConfidence: stats.interactions > 0 ? stats.totalConfidence / stats.interactions : 0,
-        escalationRate: stats.interactions > 0 ? stats.escalations / stats.interactions : 0,
-      }));
+      const agentPerformance = Array.from(agentStats.entries()).map(
+        ([agentType, stats]) => ({
+          agentType,
+          interactions: stats.interactions,
+          averageConfidence:
+            stats.interactions > 0
+              ? stats.totalConfidence / stats.interactions
+              : 0,
+          escalationRate:
+            stats.interactions > 0 ? stats.escalations / stats.interactions : 0,
+        }),
+      );
 
       // Risk assessment
       const riskAssessment = this.assessComplianceRisk(auditLogs);
@@ -162,7 +177,6 @@ export class HIPAAAuditService {
         agentPerformance,
         riskAssessment,
       };
-
     } catch (error) {
       this.logger.error('Failed to generate compliance report:', error);
       throw new Error(`Compliance report generation failed: ${error.message}`);
@@ -176,7 +190,7 @@ export class HIPAAAuditService {
   ): Promise<HIPAAAuditEvent[]> {
     try {
       const where: any = { userId };
-      
+
       if (startDate || endDate) {
         where.timestamp = {};
         if (startDate) where.timestamp.gte = startDate;
@@ -188,7 +202,7 @@ export class HIPAAAuditService {
         orderBy: { timestamp: 'desc' },
       });
 
-      return auditLogs.map(log => ({
+      return auditLogs.map((log) => ({
         eventType: log.eventType as HIPAAAuditEvent['eventType'],
         userId: log.userId,
         agentType: log.agentType,
@@ -209,7 +223,6 @@ export class HIPAAAuditService {
           vietnameseLanguage: log.vietnameseLanguage,
         },
       }));
-
     } catch (error) {
       this.logger.error('Failed to retrieve audit trail:', error);
       throw new Error(`Audit trail retrieval failed: ${error.message}`);
@@ -219,7 +232,9 @@ export class HIPAAAuditService {
   async cleanupExpiredAuditLogs(): Promise<number> {
     try {
       const retentionDate = new Date();
-      retentionDate.setFullYear(retentionDate.getFullYear() - this.RETENTION_YEARS);
+      retentionDate.setFullYear(
+        retentionDate.getFullYear() - this.RETENTION_YEARS,
+      );
 
       const result = await this.prisma.hIPAAAuditLog.deleteMany({
         where: {
@@ -229,9 +244,10 @@ export class HIPAAAuditService {
         },
       });
 
-      this.logger.log(`Cleaned up ${result.count} expired audit logs older than ${this.RETENTION_YEARS} years`);
+      this.logger.log(
+        `Cleaned up ${result.count} expired audit logs older than ${this.RETENTION_YEARS} years`,
+      );
       return result.count;
-
     } catch (error) {
       this.logger.error('Failed to cleanup expired audit logs:', error);
       throw new Error(`Audit log cleanup failed: ${error.message}`);
@@ -255,7 +271,11 @@ export class HIPAAAuditService {
     }
 
     // Check for low confidence responses with PHI
-    if (event.containsPHI && event.metadata.confidence && event.metadata.confidence < 0.7) {
+    if (
+      event.containsPHI &&
+      event.metadata.confidence &&
+      event.metadata.confidence < 0.7
+    ) {
       violations.push('Low confidence response involving PHI');
     }
 
@@ -265,11 +285,14 @@ export class HIPAAAuditService {
     }
 
     if (violations.length > 0) {
-      this.logger.warn(`COMPLIANCE VIOLATIONS DETECTED: ${violations.join(', ')}`, {
-        auditId,
-        userId: event.userId,
-        violations,
-      });
+      this.logger.warn(
+        `COMPLIANCE VIOLATIONS DETECTED: ${violations.join(', ')}`,
+        {
+          auditId,
+          userId: event.userId,
+          violations,
+        },
+      );
 
       // Update audit record with violations
       await this.prisma.hIPAAAuditLog.update({
@@ -281,35 +304,42 @@ export class HIPAAAuditService {
     }
   }
 
-  private assessComplianceRisk(auditLogs: any[]): HIPAAComplianceReport['riskAssessment'] {
+  private assessComplianceRisk(
+    auditLogs: any[],
+  ): HIPAAComplianceReport['riskAssessment'] {
     const riskFactors: string[] = [];
     let riskScore = 0;
 
     // High PHI access rate
-    const phiRate = auditLogs.filter(log => log.containsPHI).length / auditLogs.length;
+    const phiRate =
+      auditLogs.filter((log) => log.containsPHI).length / auditLogs.length;
     if (phiRate > 0.5) {
       riskFactors.push('High rate of PHI access');
       riskScore += 2;
     }
 
     // High emergency escalation rate
-    const emergencyRate = auditLogs.filter(log => log.emergencyFlag).length / auditLogs.length;
+    const emergencyRate =
+      auditLogs.filter((log) => log.emergencyFlag).length / auditLogs.length;
     if (emergencyRate > 0.1) {
       riskFactors.push('High emergency escalation rate');
       riskScore += 1;
     }
 
     // Compliance violations
-    const violationRate = auditLogs.filter(log => 
-      log.complianceFlags && log.complianceFlags.length > 0
-    ).length / auditLogs.length;
+    const violationRate =
+      auditLogs.filter(
+        (log) => log.complianceFlags && log.complianceFlags.length > 0,
+      ).length / auditLogs.length;
     if (violationRate > 0.05) {
       riskFactors.push('Compliance violations detected');
       riskScore += 3;
     }
 
     // Low average confidence
-    const avgConfidence = auditLogs.reduce((sum, log) => sum + (log.confidence || 0), 0) / auditLogs.length;
+    const avgConfidence =
+      auditLogs.reduce((sum, log) => sum + (log.confidence || 0), 0) /
+      auditLogs.length;
     if (avgConfidence < 0.7) {
       riskFactors.push('Low average agent confidence');
       riskScore += 1;
@@ -321,9 +351,12 @@ export class HIPAAAuditService {
 
     const recommendations: string[] = [];
     if (phiRate > 0.5) recommendations.push('Review PHI protection protocols');
-    if (emergencyRate > 0.1) recommendations.push('Enhance emergency detection accuracy');
-    if (violationRate > 0.05) recommendations.push('Implement additional compliance training');
-    if (avgConfidence < 0.7) recommendations.push('Improve agent training and knowledge base');
+    if (emergencyRate > 0.1)
+      recommendations.push('Enhance emergency detection accuracy');
+    if (violationRate > 0.05)
+      recommendations.push('Implement additional compliance training');
+    if (avgConfidence < 0.7)
+      recommendations.push('Improve agent training and knowledge base');
 
     return {
       overallRisk,

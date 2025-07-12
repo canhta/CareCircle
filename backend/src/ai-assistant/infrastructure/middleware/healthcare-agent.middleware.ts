@@ -1,6 +1,9 @@
 import { Injectable, NestMiddleware, Logger } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
-import { HIPAAAuditService, HIPAAAuditEvent } from '../../../common/compliance/hipaa-audit.service';
+import {
+  HIPAAAuditService,
+  HIPAAAuditEvent,
+} from '../../../common/compliance/hipaa-audit.service';
 import { PHIProtectionService } from '../../../common/compliance/phi-protection.service';
 import { VietnameseNLPIntegrationService } from '../services/vietnamese-nlp-integration.service';
 import * as crypto from 'crypto';
@@ -32,7 +35,7 @@ export class HealthcareAgentMiddleware implements NestMiddleware {
 
   async use(req: HealthcareRequest, res: Response, next: NextFunction) {
     const startTime = Date.now();
-    
+
     try {
       // Initialize healthcare context
       req.healthcareContext = {
@@ -51,19 +54,20 @@ export class HealthcareAgentMiddleware implements NestMiddleware {
       this.setupResponseInterceptor(req, res);
 
       next();
-
     } catch (error) {
       this.logger.error('Healthcare middleware error:', error);
-      
+
       // Log the error but don't block the request
       await this.logHealthcareError(req, error);
       next();
     }
   }
 
-  private async preprocessHealthcareRequest(req: HealthcareRequest): Promise<void> {
+  private async preprocessHealthcareRequest(
+    req: HealthcareRequest,
+  ): Promise<void> {
     const body = req.body;
-    
+
     if (!body || !body.query) {
       return;
     }
@@ -83,13 +87,15 @@ export class HealthcareAgentMiddleware implements NestMiddleware {
       }
 
       // 2. Vietnamese Language Detection
-      const nlpAnalysis = await this.vietnameseNLPService.analyzeHealthcareText(query);
+      const nlpAnalysis =
+        await this.vietnameseNLPService.analyzeHealthcareText(query);
       if (nlpAnalysis.languageMetrics.isVietnamese) {
         req.healthcareContext!.vietnameseLanguage = true;
       }
 
       // 3. Emergency Detection
-      const emergencyContext = await this.vietnameseNLPService.detectEmergencyContext(query);
+      const emergencyContext =
+        await this.vietnameseNLPService.detectEmergencyContext(query);
       if (emergencyContext.isEmergency) {
         req.healthcareContext!.emergencyFlag = true;
         req.healthcareContext!.complianceFlags!.push('emergency_detected');
@@ -102,25 +108,27 @@ export class HealthcareAgentMiddleware implements NestMiddleware {
 
       // 4. Agent Type Detection
       req.healthcareContext!.agentType = this.detectAgentType(req.path);
-
     } catch (error) {
       this.logger.error('Healthcare preprocessing failed:', error);
       req.healthcareContext!.complianceFlags!.push('preprocessing_error');
     }
   }
 
-  private setupResponseInterceptor(req: HealthcareRequest, res: Response): void {
+  private setupResponseInterceptor(
+    req: HealthcareRequest,
+    res: Response,
+  ): void {
     const originalSend = res.send;
     const originalJson = res.json;
 
     // Intercept res.send()
-    res.send = function(body: any) {
+    res.send = function (body: any) {
       handleResponse.call(this, body);
       return originalSend.call(this, body);
     };
 
     // Intercept res.json()
-    res.json = function(body: any) {
+    res.json = function (body: any) {
       handleResponse.call(this, body);
       return originalJson.call(this, body);
     };
@@ -146,7 +154,10 @@ export class HealthcareAgentMiddleware implements NestMiddleware {
     try {
       // Extract query and response for hashing
       const query = req.body?.query || '';
-      const response = typeof responseBody === 'string' ? responseBody : JSON.stringify(responseBody);
+      const response =
+        typeof responseBody === 'string'
+          ? responseBody
+          : JSON.stringify(responseBody);
 
       // Determine severity based on context
       let severity: HIPAAAuditEvent['severity'] = 'low';
@@ -157,7 +168,8 @@ export class HealthcareAgentMiddleware implements NestMiddleware {
       // Determine event type
       let eventType: HIPAAAuditEvent['eventType'] = 'healthcare_query';
       if (context.emergencyFlag) eventType = 'emergency_escalation';
-      else if (context.agentType === 'medication_management') eventType = 'medication_analysis';
+      else if (context.agentType === 'medication_management')
+        eventType = 'medication_analysis';
       else if (context.containsPHI) eventType = 'phi_access';
 
       // Create audit event
@@ -178,7 +190,9 @@ export class HealthcareAgentMiddleware implements NestMiddleware {
           timestamp: new Date(),
           processingTimeMs: processingTime,
           confidence: this.extractConfidence(responseBody),
-          escalationReason: context.emergencyFlag ? 'Emergency detected' : undefined,
+          escalationReason: context.emergencyFlag
+            ? 'Emergency detected'
+            : undefined,
           vietnameseLanguage: context.vietnameseLanguage,
         },
       };
@@ -196,7 +210,6 @@ export class HealthcareAgentMiddleware implements NestMiddleware {
           processingTime,
         });
       }
-
     } catch (error) {
       this.logger.error('HIPAA audit logging failed:', error);
       // This is critical - audit logging failure should be escalated
@@ -204,10 +217,13 @@ export class HealthcareAgentMiddleware implements NestMiddleware {
     }
   }
 
-  private async logHealthcareError(req: HealthcareRequest, error: any): Promise<void> {
+  private async logHealthcareError(
+    req: HealthcareRequest,
+    error: any,
+  ): Promise<void> {
     try {
       const context = req.healthcareContext!;
-      
+
       const auditEvent: HIPAAAuditEvent = {
         eventType: 'healthcare_query',
         userId: context.userId,
@@ -217,7 +233,10 @@ export class HealthcareAgentMiddleware implements NestMiddleware {
         severity: 'high',
         containsPHI: context.containsPHI || false,
         emergencyFlag: context.emergencyFlag || false,
-        complianceFlags: [...(context.complianceFlags || []), 'middleware_error'],
+        complianceFlags: [
+          ...(context.complianceFlags || []),
+          'middleware_error',
+        ],
         metadata: {
           sessionId: context.sessionId,
           ipAddress: context.ipAddress,
@@ -229,9 +248,11 @@ export class HealthcareAgentMiddleware implements NestMiddleware {
       };
 
       await this.hipaaAuditService.logHealthcareInteraction(auditEvent);
-
     } catch (auditError) {
-      this.logger.error('Failed to log healthcare error to audit system:', auditError);
+      this.logger.error(
+        'Failed to log healthcare error to audit system:',
+        auditError,
+      );
     }
   }
 
@@ -242,27 +263,31 @@ export class HealthcareAgentMiddleware implements NestMiddleware {
       try {
         // In a real implementation, you would decode the JWT token
         // For now, return a placeholder
-        return req.headers['x-user-id'] as string || 'anonymous';
+        return (req.headers['x-user-id'] as string) || 'anonymous';
       } catch (error) {
         this.logger.warn('Failed to extract user ID from token');
       }
     }
-    
-    return req.headers['x-user-id'] as string || 'anonymous';
+
+    return (req.headers['x-user-id'] as string) || 'anonymous';
   }
 
   private extractSessionId(req: Request): string {
-    return req.headers['x-session-id'] as string || 
-           req.sessionID || 
-           `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    return (
+      (req.headers['x-session-id'] as string) ||
+      req.sessionID ||
+      `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+    );
   }
 
   private getClientIP(req: Request): string {
-    return (req.headers['x-forwarded-for'] as string)?.split(',')[0] ||
-           req.headers['x-real-ip'] as string ||
-           req.connection.remoteAddress ||
-           req.socket.remoteAddress ||
-           'unknown';
+    return (
+      (req.headers['x-forwarded-for'] as string)?.split(',')[0] ||
+      (req.headers['x-real-ip'] as string) ||
+      req.connection.remoteAddress ||
+      req.socket.remoteAddress ||
+      'unknown'
+    );
   }
 
   private detectAgentType(path: string): string {
@@ -293,24 +318,27 @@ export class HealthcareAgentMiddleware implements NestMiddleware {
 @Injectable()
 export class HealthcareRateLimitMiddleware implements NestMiddleware {
   private readonly logger = new Logger(HealthcareRateLimitMiddleware.name);
-  private readonly requestCounts = new Map<string, { count: number; resetTime: number }>();
+  private readonly requestCounts = new Map<
+    string,
+    { count: number; resetTime: number }
+  >();
   private readonly RATE_LIMIT = 100; // requests per hour
   private readonly WINDOW_MS = 60 * 60 * 1000; // 1 hour
 
   use(req: Request, res: Response, next: NextFunction) {
     const clientId = this.getClientIdentifier(req);
     const now = Date.now();
-    
+
     // Clean up expired entries
     this.cleanupExpiredEntries(now);
-    
+
     // Get or create rate limit entry
     let entry = this.requestCounts.get(clientId);
     if (!entry || now > entry.resetTime) {
       entry = { count: 0, resetTime: now + this.WINDOW_MS };
       this.requestCounts.set(clientId, entry);
     }
-    
+
     // Check rate limit
     if (entry.count >= this.RATE_LIMIT) {
       this.logger.warn(`Rate limit exceeded for client: ${clientId}`);
@@ -320,17 +348,17 @@ export class HealthcareRateLimitMiddleware implements NestMiddleware {
         retryAfter: Math.ceil((entry.resetTime - now) / 1000),
       });
     }
-    
+
     // Increment counter
     entry.count++;
-    
+
     // Add rate limit headers
     res.set({
       'X-RateLimit-Limit': this.RATE_LIMIT.toString(),
       'X-RateLimit-Remaining': (this.RATE_LIMIT - entry.count).toString(),
       'X-RateLimit-Reset': new Date(entry.resetTime).toISOString(),
     });
-    
+
     next();
   }
 
@@ -338,8 +366,10 @@ export class HealthcareRateLimitMiddleware implements NestMiddleware {
     // Use user ID if available, otherwise fall back to IP
     const userId = req.headers['x-user-id'] as string;
     if (userId) return `user:${userId}`;
-    
-    const ip = req.headers['x-forwarded-for'] as string || req.connection.remoteAddress;
+
+    const ip =
+      (req.headers['x-forwarded-for'] as string) ||
+      req.connection.remoteAddress;
     return `ip:${ip}`;
   }
 

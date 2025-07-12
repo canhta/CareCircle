@@ -42,7 +42,9 @@ export class KnowledgeSearchDto {
 @Controller('api/v1/ai-assistant/vietnamese-healthcare')
 @UseGuards(FirebaseAuthGuard)
 export class VietnameseHealthcareAgentController {
-  private readonly logger = new Logger(VietnameseHealthcareAgentController.name);
+  private readonly logger = new Logger(
+    VietnameseHealthcareAgentController.name,
+  );
 
   constructor(
     private readonly vietnameseMedicalAgentService: VietnameseMedicalAgentService,
@@ -59,10 +61,7 @@ export class VietnameseHealthcareAgentController {
       this.logger.log(`Vietnamese healthcare query from user: ${req.user.uid}`);
 
       if (!queryDto.message || queryDto.message.trim().length === 0) {
-        throw new HttpException(
-          'Message is required',
-          HttpStatus.BAD_REQUEST,
-        );
+        throw new HttpException('Message is required', HttpStatus.BAD_REQUEST);
       }
 
       // Prepare patient context
@@ -78,12 +77,15 @@ export class VietnameseHealthcareAgentController {
       };
 
       // Process the query using the enhanced Vietnamese Medical Agent
-      const response = await this.vietnameseMedicalAgentService.processVietnameseMedicalQuery(
-        queryDto.message,
-        patientContext,
-      );
+      const response =
+        await this.vietnameseMedicalAgentService.processVietnameseMedicalQuery(
+          queryDto.message,
+          patientContext,
+        );
 
-      this.logger.log(`Vietnamese healthcare response generated with confidence: ${response.confidence}`);
+      this.logger.log(
+        `Vietnamese healthcare response generated with confidence: ${response.confidence}`,
+      );
 
       return {
         success: true,
@@ -121,18 +123,27 @@ export class VietnameseHealthcareAgentController {
     @Request() req: { user: FirebaseUserPayload },
   ) {
     try {
-      this.logger.log(`Vietnamese healthcare crawl requested by user: ${req.user.uid}`);
+      this.logger.log(
+        `Vietnamese healthcare crawl requested by user: ${req.user.uid}`,
+      );
 
       // Start crawling Vietnamese healthcare sites
-      const crawlResults = await this.firecrawlService.crawlAllVietnameseHealthcareSites();
+      const crawlResults =
+        await this.firecrawlService.crawlAllVietnameseHealthcareSites();
 
       return {
         success: true,
         data: {
           crawlResults,
           totalSites: crawlResults.length,
-          totalDocuments: crawlResults.reduce((sum, result) => sum + result.documentsStored, 0),
-          crawlTime: crawlResults.reduce((sum, result) => sum + result.crawlTime, 0),
+          totalDocuments: crawlResults.reduce(
+            (sum, result) => sum + result.documentsStored,
+            0,
+          ),
+          crawlTime: crawlResults.reduce(
+            (sum, result) => sum + result.crawlTime,
+            0,
+          ),
         },
         timestamp: new Date().toISOString(),
       };
@@ -151,7 +162,9 @@ export class VietnameseHealthcareAgentController {
     @Request() req: { user: FirebaseUserPayload },
   ) {
     try {
-      this.logger.log(`Vietnamese medical knowledge search by user: ${req.user.uid}`);
+      this.logger.log(
+        `Vietnamese medical knowledge search by user: ${req.user.uid}`,
+      );
 
       if (!searchDto.query || searchDto.query.trim().length === 0) {
         throw new HttpException(
@@ -160,19 +173,20 @@ export class VietnameseHealthcareAgentController {
         );
       }
 
-      const searchResults = await this.vectorDatabaseService.searchSimilarDocuments({
-        query: searchDto.query,
-        language: searchDto.language || 'vietnamese',
-        medicalSpecialty: searchDto.medicalSpecialty,
-        documentTypes: searchDto.documentTypes,
-        topK: searchDto.topK || 10,
-        scoreThreshold: 0.7,
-      });
+      const searchResults =
+        await this.vectorDatabaseService.searchSimilarDocuments({
+          query: searchDto.query,
+          language: searchDto.language || 'vietnamese',
+          medicalSpecialty: searchDto.medicalSpecialty,
+          documentTypes: searchDto.documentTypes,
+          topK: searchDto.topK || 10,
+          scoreThreshold: 0.7,
+        });
 
       return {
         success: true,
         data: {
-          results: searchResults.map(result => ({
+          results: searchResults.map((result) => ({
             id: result.id,
             title: result.document.title,
             content: result.document.content.substring(0, 500) + '...',
@@ -203,7 +217,8 @@ export class VietnameseHealthcareAgentController {
     try {
       // Get status from all services
       const firecrawlStatus = await this.firecrawlService.getCrawlStatus();
-      const vectorDbStats = await this.vectorDatabaseService.getCollectionStats();
+      const vectorDbStats =
+        await this.vectorDatabaseService.getCollectionStats();
 
       return {
         success: true,
@@ -211,7 +226,11 @@ export class VietnameseHealthcareAgentController {
           services: {
             vietnameseMedicalAgent: {
               status: 'active',
-              capabilities: ['vietnamese_consultation', 'traditional_medicine', 'cultural_context'],
+              capabilities: [
+                'vietnamese_consultation',
+                'traditional_medicine',
+                'cultural_context',
+              ],
             },
             firecrawlService: firecrawlStatus,
             vectorDatabase: {
@@ -240,12 +259,10 @@ export class VietnameseHealthcareAgentController {
   }
 
   @Get('crawl-status')
-  async getCrawlStatus(
-    @Request() req: { user: FirebaseUserPayload },
-  ) {
+  async getCrawlStatus(@Request() req: { user: FirebaseUserPayload }) {
     try {
       const status = await this.firecrawlService.getCrawlStatus();
-      
+
       return {
         success: true,
         data: status,
@@ -261,19 +278,29 @@ export class VietnameseHealthcareAgentController {
   }
 
   @Get('knowledge-stats')
-  async getKnowledgeBaseStats(
-    @Request() req: { user: FirebaseUserPayload },
-  ) {
+  async getKnowledgeBaseStats(@Request() req: { user: FirebaseUserPayload }) {
     try {
       const stats = await this.vectorDatabaseService.getCollectionStats();
-      
+
       return {
         success: true,
         data: {
           collectionStats: stats,
           supportedLanguages: ['vietnamese', 'english', 'mixed'],
-          supportedSources: ['vinmec', 'bachmai', 'moh', 'traditional_medicine', 'pharmaceutical'],
-          documentTypes: ['article', 'guideline', 'research', 'traditional_recipe', 'drug_info'],
+          supportedSources: [
+            'vinmec',
+            'bachmai',
+            'moh',
+            'traditional_medicine',
+            'pharmaceutical',
+          ],
+          documentTypes: [
+            'article',
+            'guideline',
+            'research',
+            'traditional_recipe',
+            'drug_info',
+          ],
         },
         timestamp: new Date().toISOString(),
       };

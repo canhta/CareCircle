@@ -30,7 +30,7 @@ CareCircle/
 ├── mobile/            # Flutter mobile app with AI assistant
 ├── docs/              # Comprehensive project documentation
 ├── scripts/           # Database and deployment scripts
-└── docker-compose.dev.yml # Development infrastructure
+└── docker-compose.yml     # Development infrastructure
 ```
 
 ## 🚀 Quick Start
@@ -39,7 +39,7 @@ CareCircle/
 
 ```bash
 # 1. Start infrastructure
-docker-compose -f docker-compose.dev.yml up -d
+docker-compose up -d
 
 # 2. Backend setup
 cd backend

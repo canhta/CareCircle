@@ -60,7 +60,8 @@ export class NotificationService {
 
   async markAllAsRead(userId: string): Promise<number> {
     // Get all unread notifications for the user
-    const unreadNotifications = await this.notificationRepository.findUnread(userId);
+    const unreadNotifications =
+      await this.notificationRepository.findUnread(userId);
 
     let markedCount = 0;
 
@@ -71,7 +72,10 @@ export class NotificationService {
         markedCount++;
       } catch (error) {
         // Log error but continue with other notifications
-        console.error(`Failed to mark notification ${notification.id} as read:`, error);
+        console.error(
+          `Failed to mark notification ${notification.id} as read:`,
+          error,
+        );
       }
     }
 

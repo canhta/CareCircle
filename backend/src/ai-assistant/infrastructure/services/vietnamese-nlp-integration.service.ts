@@ -47,44 +47,116 @@ export class VietnameseNLPIntegrationService {
 
   // Vietnamese emergency keywords for enhanced detection
   private readonly emergencyKeywords = [
-    'cấp cứu', 'khẩn cấp', 'nguy hiểm', 'nghiêm trọng',
-    'đau dữ dội', 'khó thở nặng', 'mất ý thức', 'co giật',
-    'xuất huyết', 'đau tim', 'đột quỵ', 'ngộ độc',
-    'sốc phản vệ', 'đau ngực', 'khó thở', 'chảy máu',
-    'bất tỉnh', 'ngất xỉu', 'sốt cao', 'kinh phong'
+    'cấp cứu',
+    'khẩn cấp',
+    'nguy hiểm',
+    'nghiêm trọng',
+    'đau dữ dội',
+    'khó thở nặng',
+    'mất ý thức',
+    'co giật',
+    'xuất huyết',
+    'đau tim',
+    'đột quỵ',
+    'ngộ độc',
+    'sốc phản vệ',
+    'đau ngực',
+    'khó thở',
+    'chảy máu',
+    'bất tỉnh',
+    'ngất xỉu',
+    'sốt cao',
+    'kinh phong',
   ];
 
   // Traditional medicine terms
   private readonly traditionalMedicineTerms = [
-    'thuốc nam', 'đông y', 'y học cổ truyền', 'bài thuốc',
-    'thang thuốc', 'cao dược liệu', 'lá thuốc', 'rễ cây',
-    'nhân sâm', 'đông quai', 'cam thảo', 'hoàng kỳ',
-    'bạch truật', 'phục linh', 'đương quy', 'xuyên khung',
-    'nghệ', 'gừng', 'tỏi', 'hành', 'lá lốt', 'rau má'
+    'thuốc nam',
+    'đông y',
+    'y học cổ truyền',
+    'bài thuốc',
+    'thang thuốc',
+    'cao dược liệu',
+    'lá thuốc',
+    'rễ cây',
+    'nhân sâm',
+    'đông quai',
+    'cam thảo',
+    'hoàng kỳ',
+    'bạch truật',
+    'phục linh',
+    'đương quy',
+    'xuyên khung',
+    'nghệ',
+    'gừng',
+    'tỏi',
+    'hành',
+    'lá lốt',
+    'rau má',
   ];
 
   // Medical terminology mapping
   private readonly medicalTermMapping = {
     symptoms: [
-      'đau đầu', 'sốt', 'ho', 'đau', 'buồn nôn', 'mệt mỏi',
-      'chóng mặt', 'khó thở', 'đau bụng', 'tiêu chảy',
-      'táo bón', 'mất ngủ', 'lo âu', 'trầm cảm'
+      'đau đầu',
+      'sốt',
+      'ho',
+      'đau',
+      'buồn nôn',
+      'mệt mỏi',
+      'chóng mặt',
+      'khó thở',
+      'đau bụng',
+      'tiêu chảy',
+      'táo bón',
+      'mất ngủ',
+      'lo âu',
+      'trầm cảm',
     ],
     bodyParts: [
-      'đầu', 'mắt', 'tai', 'mũi', 'miệng', 'cổ', 'vai',
-      'tay', 'ngực', 'bụng', 'lưng', 'chân', 'tim', 'phổi',
-      'gan', 'thận', 'dạ dày', 'ruột', 'não', 'xương'
+      'đầu',
+      'mắt',
+      'tai',
+      'mũi',
+      'miệng',
+      'cổ',
+      'vai',
+      'tay',
+      'ngực',
+      'bụng',
+      'lưng',
+      'chân',
+      'tim',
+      'phổi',
+      'gan',
+      'thận',
+      'dạ dày',
+      'ruột',
+      'não',
+      'xương',
     ],
     conditions: [
-      'cao huyết áp', 'tiểu đường', 'tim mạch', 'ung thư',
-      'viêm gan', 'viêm phổi', 'hen suyễn', 'dị ứng',
-      'trầm cảm', 'lo âu', 'mất ngủ', 'đau khớp'
-    ]
+      'cao huyết áp',
+      'tiểu đường',
+      'tim mạch',
+      'ung thư',
+      'viêm gan',
+      'viêm phổi',
+      'hen suyễn',
+      'dị ứng',
+      'trầm cảm',
+      'lo âu',
+      'mất ngủ',
+      'đau khớp',
+    ],
   };
 
   constructor(private readonly configService: ConfigService) {
-    this.nlpServiceUrl = this.configService.get<string>('VIETNAMESE_NLP_SERVICE_URL', 'http://localhost:5001');
-    
+    this.nlpServiceUrl = this.configService.get<string>(
+      'VIETNAMESE_NLP_SERVICE_URL',
+      'http://localhost:5001',
+    );
+
     this.httpClient = axios.create({
       baseURL: this.nlpServiceUrl,
       timeout: 10000,
@@ -96,30 +168,39 @@ export class VietnameseNLPIntegrationService {
     // Add request/response interceptors for logging
     this.httpClient.interceptors.request.use(
       (config) => {
-        this.logger.debug(`Vietnamese NLP request: ${config.method?.toUpperCase()} ${config.url}`);
+        this.logger.debug(
+          `Vietnamese NLP request: ${config.method?.toUpperCase()} ${config.url}`,
+        );
         return config;
       },
       (error) => {
         this.logger.error('Vietnamese NLP request error:', error);
         return Promise.reject(error);
-      }
+      },
     );
 
     this.httpClient.interceptors.response.use(
       (response) => {
-        this.logger.debug(`Vietnamese NLP response: ${response.status} ${response.config.url}`);
+        this.logger.debug(
+          `Vietnamese NLP response: ${response.status} ${response.config.url}`,
+        );
         return response;
       },
       (error) => {
-        this.logger.error('Vietnamese NLP response error:', error.response?.data || error.message);
+        this.logger.error(
+          'Vietnamese NLP response error:',
+          error.response?.data || error.message,
+        );
         return Promise.reject(error);
-      }
+      },
     );
   }
 
   async analyzeHealthcareText(text: string): Promise<VietnameseNLPAnalysis> {
     try {
-      this.logger.log(`Analyzing Vietnamese healthcare text: ${text.substring(0, 100)}...`);
+      this.logger.log(
+        `Analyzing Vietnamese healthcare text: ${text.substring(0, 100)}...`,
+      );
 
       // Call the Vietnamese NLP service
       const response = await this.httpClient.post('/analyze', {
@@ -157,10 +238,9 @@ export class VietnameseNLPIntegrationService {
       });
 
       return analysis;
-
     } catch (error) {
       this.logger.error('Vietnamese NLP analysis failed:', error);
-      
+
       // Fallback analysis using local processing
       return this.fallbackAnalysis(text);
     }
@@ -169,17 +249,31 @@ export class VietnameseNLPIntegrationService {
   async extractMedicalEntities(text: string): Promise<MedicalEntityExtraction> {
     try {
       const analysis = await this.analyzeHealthcareText(text);
-      
+
       return {
-        symptoms: this.extractEntitiesByType(analysis.medicalEntities, 'SYMPTOM'),
-        medications: this.extractEntitiesByType(analysis.medicalEntities, 'MEDICATION'),
-        conditions: this.extractEntitiesByType(analysis.medicalEntities, 'CONDITION'),
-        bodyParts: this.extractEntitiesByType(analysis.medicalEntities, 'BODY_PART'),
-        procedures: this.extractEntitiesByType(analysis.medicalEntities, 'PROCEDURE'),
+        symptoms: this.extractEntitiesByType(
+          analysis.medicalEntities,
+          'SYMPTOM',
+        ),
+        medications: this.extractEntitiesByType(
+          analysis.medicalEntities,
+          'MEDICATION',
+        ),
+        conditions: this.extractEntitiesByType(
+          analysis.medicalEntities,
+          'CONDITION',
+        ),
+        bodyParts: this.extractEntitiesByType(
+          analysis.medicalEntities,
+          'BODY_PART',
+        ),
+        procedures: this.extractEntitiesByType(
+          analysis.medicalEntities,
+          'PROCEDURE',
+        ),
         traditionalMedicine: analysis.traditionalMedicineTerms,
         emergencyTerms: analysis.emergencyKeywords,
       };
-
     } catch (error) {
       this.logger.error('Medical entity extraction failed:', error);
       return this.fallbackEntityExtraction(text);
@@ -194,10 +288,15 @@ export class VietnameseNLPIntegrationService {
   }> {
     try {
       const analysis = await this.analyzeHealthcareText(text);
-      
-      const isEmergency = analysis.emergencyKeywords.length > 0 || analysis.sentiment.urgency > 0.7;
-      const urgencyLevel = Math.max(analysis.sentiment.urgency, analysis.emergencyKeywords.length * 0.3);
-      
+
+      const isEmergency =
+        analysis.emergencyKeywords.length > 0 ||
+        analysis.sentiment.urgency > 0.7;
+      const urgencyLevel = Math.max(
+        analysis.sentiment.urgency,
+        analysis.emergencyKeywords.length * 0.3,
+      );
+
       let recommendedAction = 'Theo dõi triệu chứng';
       if (urgencyLevel > 0.8) {
         recommendedAction = 'Gọi cấp cứu ngay lập tức (115)';
@@ -213,7 +312,6 @@ export class VietnameseNLPIntegrationService {
         emergencyKeywords: analysis.emergencyKeywords,
         recommendedAction,
       };
-
     } catch (error) {
       this.logger.error('Emergency detection failed:', error);
       return {
@@ -225,8 +323,10 @@ export class VietnameseNLPIntegrationService {
     }
   }
 
-  private enhanceMedicalEntities(entities: any[]): VietnameseNLPAnalysis['medicalEntities'] {
-    return entities.map(entity => ({
+  private enhanceMedicalEntities(
+    entities: any[],
+  ): VietnameseNLPAnalysis['medicalEntities'] {
+    return entities.map((entity) => ({
       text: entity.text || entity.word,
       label: this.mapEntityLabel(entity.label || entity.type),
       confidence: entity.confidence || entity.score || 0.8,
@@ -237,34 +337,41 @@ export class VietnameseNLPIntegrationService {
 
   private mapEntityLabel(label: string): string {
     const labelMapping: Record<string, string> = {
-      'PERSON': 'PERSON',
-      'ORG': 'ORGANIZATION',
-      'LOC': 'LOCATION',
-      'MISC': 'MISCELLANEOUS',
-      'SYMPTOM': 'SYMPTOM',
-      'DISEASE': 'CONDITION',
-      'MEDICATION': 'MEDICATION',
-      'BODY_PART': 'BODY_PART',
-      'PROCEDURE': 'PROCEDURE',
+      PERSON: 'PERSON',
+      ORG: 'ORGANIZATION',
+      LOC: 'LOCATION',
+      MISC: 'MISCELLANEOUS',
+      SYMPTOM: 'SYMPTOM',
+      DISEASE: 'CONDITION',
+      MEDICATION: 'MEDICATION',
+      BODY_PART: 'BODY_PART',
+      PROCEDURE: 'PROCEDURE',
     };
-    
+
     return labelMapping[label.toUpperCase()] || 'MISCELLANEOUS';
   }
 
   private detectEmergencyKeywords(text: string): string[] {
     const textLower = text.toLowerCase();
-    return this.emergencyKeywords.filter(keyword => textLower.includes(keyword));
+    return this.emergencyKeywords.filter((keyword) =>
+      textLower.includes(keyword),
+    );
   }
 
   private detectTraditionalMedicine(text: string): string[] {
     const textLower = text.toLowerCase();
-    return this.traditionalMedicineTerms.filter(term => textLower.includes(term));
+    return this.traditionalMedicineTerms.filter((term) =>
+      textLower.includes(term),
+    );
   }
 
-  private analyzeCulturalContext(text: string, nlpResult: any): VietnameseNLPAnalysis['culturalContext'] {
+  private analyzeCulturalContext(
+    text: string,
+    nlpResult: any,
+  ): VietnameseNLPAnalysis['culturalContext'] {
     const traditionalTerms = this.detectTraditionalMedicine(text);
     const modernTerms = this.detectModernMedicine(text);
-    
+
     return {
       isTraditionalMedicine: traditionalTerms.length > 0,
       modernMedicineTerms: modernTerms,
@@ -274,59 +381,89 @@ export class VietnameseNLPIntegrationService {
 
   private detectModernMedicine(text: string): string[] {
     const modernTerms = [
-      'thuốc tây', 'bác sĩ', 'bệnh viện', 'phòng khám', 'xét nghiệm',
-      'chụp x-quang', 'siêu âm', 'nội soi', 'phẫu thuật', 'tiêm',
-      'kháng sinh', 'vitamin', 'paracetamol', 'aspirin', 'ibuprofen'
+      'thuốc tây',
+      'bác sĩ',
+      'bệnh viện',
+      'phòng khám',
+      'xét nghiệm',
+      'chụp x-quang',
+      'siêu âm',
+      'nội soi',
+      'phẫu thuật',
+      'tiêm',
+      'kháng sinh',
+      'vitamin',
+      'paracetamol',
+      'aspirin',
+      'ibuprofen',
     ];
-    
+
     const textLower = text.toLowerCase();
-    return modernTerms.filter(term => textLower.includes(term));
+    return modernTerms.filter((term) => textLower.includes(term));
   }
 
   private detectCulturalIndicators(text: string): string[] {
     const culturalTerms = [
-      'ông bà', 'tổ tiên', 'kinh nghiệm dân gian', 'phương pháp truyền thống',
-      'lương y', 'thầy thuốc', 'bà đỡ', 'cúng bái', 'tâm linh'
+      'ông bà',
+      'tổ tiên',
+      'kinh nghiệm dân gian',
+      'phương pháp truyền thống',
+      'lương y',
+      'thầy thuốc',
+      'bà đỡ',
+      'cúng bái',
+      'tâm linh',
     ];
-    
+
     const textLower = text.toLowerCase();
-    return culturalTerms.filter(term => textLower.includes(term));
+    return culturalTerms.filter((term) => textLower.includes(term));
   }
 
   private calculateUrgency(text: string, nlpResult: any): number {
     let urgency = 0;
-    
+
     // Emergency keywords contribute to urgency
     const emergencyCount = this.detectEmergencyKeywords(text).length;
     urgency += emergencyCount * 0.3;
-    
+
     // Sentiment polarity (negative = more urgent)
     const sentiment = nlpResult.sentiment?.polarity || 0;
     if (sentiment < -0.5) urgency += 0.3;
-    
+
     // Pain indicators
-    const painKeywords = ['đau dữ dội', 'đau nhiều', 'đau không chịu được', 'rất đau'];
-    const painCount = painKeywords.filter(keyword => text.toLowerCase().includes(keyword)).length;
+    const painKeywords = [
+      'đau dữ dội',
+      'đau nhiều',
+      'đau không chịu được',
+      'rất đau',
+    ];
+    const painCount = painKeywords.filter((keyword) =>
+      text.toLowerCase().includes(keyword),
+    ).length;
     urgency += painCount * 0.2;
-    
+
     return Math.min(urgency, 1.0);
   }
 
   private isVietnameseText(text: string): boolean {
     // Check for Vietnamese diacritics
-    const vietnamesePattern = /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]/;
+    const vietnamesePattern =
+      /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]/;
     return vietnamesePattern.test(text);
   }
 
-  private extractEntitiesByType(entities: VietnameseNLPAnalysis['medicalEntities'], type: string): string[] {
+  private extractEntitiesByType(
+    entities: VietnameseNLPAnalysis['medicalEntities'],
+    type: string,
+  ): string[] {
     return entities
-      .filter(entity => entity.label === type)
-      .map(entity => entity.text);
+      .filter((entity) => entity.label === type)
+      .map((entity) => entity.text);
   }
 
   private fallbackAnalysis(text: string): VietnameseNLPAnalysis {
     this.logger.warn('Using fallback Vietnamese NLP analysis');
-    
+
     return {
       tokens: text.split(/\s+/),
       medicalEntities: [],
@@ -350,12 +487,18 @@ export class VietnameseNLPIntegrationService {
 
   private fallbackEntityExtraction(text: string): MedicalEntityExtraction {
     const textLower = text.toLowerCase();
-    
+
     return {
-      symptoms: this.medicalTermMapping.symptoms.filter(symptom => textLower.includes(symptom)),
+      symptoms: this.medicalTermMapping.symptoms.filter((symptom) =>
+        textLower.includes(symptom),
+      ),
       medications: [],
-      conditions: this.medicalTermMapping.conditions.filter(condition => textLower.includes(condition)),
-      bodyParts: this.medicalTermMapping.bodyParts.filter(part => textLower.includes(part)),
+      conditions: this.medicalTermMapping.conditions.filter((condition) =>
+        textLower.includes(condition),
+      ),
+      bodyParts: this.medicalTermMapping.bodyParts.filter((part) =>
+        textLower.includes(part),
+      ),
       procedures: [],
       traditionalMedicine: this.detectTraditionalMedicine(text),
       emergencyTerms: this.detectEmergencyKeywords(text),

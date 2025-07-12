@@ -1,7 +1,13 @@
 import { Logger } from '@nestjs/common';
 import { ChatOpenAI } from '@langchain/openai';
-import { PHIProtectionService, PHIDetectionResult } from '../../../common/compliance/phi-protection.service';
-import { VietnameseNLPIntegrationService, VietnameseNLPAnalysis } from '../../infrastructure/services/vietnamese-nlp-integration.service';
+import {
+  PHIProtectionService,
+  PHIDetectionResult,
+} from '../../../common/compliance/phi-protection.service';
+import {
+  VietnameseNLPIntegrationService,
+  VietnameseNLPAnalysis,
+} from '../../infrastructure/services/vietnamese-nlp-integration.service';
 
 export interface HealthcareContext {
   patientId?: string;
@@ -81,7 +87,7 @@ export abstract class BaseHealthcareAgent {
   ) {
     this.agentType = agentType;
     this.logger = new Logger(`${agentType}Agent`);
-    
+
     this.model = new ChatOpenAI({
       modelName: modelConfig?.modelName || 'gpt-4',
       temperature: modelConfig?.temperature || 0.1, // Low temperature for medical accuracy
@@ -101,11 +107,13 @@ export abstract class BaseHealthcareAgent {
     const startTime = Date.now();
 
     try {
-      this.logger.log(`Processing query for agent ${this.agentType}: ${query.substring(0, 100)}...`);
+      this.logger.log(
+        `Processing query for agent ${this.agentType}: ${query.substring(0, 100)}...`,
+      );
 
       // Step 1: PHI Detection and Protection
       const phiResult = await this.detectAndProtectPHI(query);
-      
+
       // Step 2: Validate agent capability for this query
       await this.validateCapability(phiResult.maskedText, context);
 
@@ -119,18 +127,22 @@ export abstract class BaseHealthcareAgent {
       );
 
       // Step 5: Post-process response for compliance and safety
-      const finalResponse = await this.postProcessResponse(response, phiResult, context);
+      const finalResponse = await this.postProcessResponse(
+        response,
+        phiResult,
+        context,
+      );
 
       // Step 6: Calculate processing metrics
       const processingTime = Date.now() - startTime;
-      
+
       return {
         ...finalResponse,
         metadata: {
           ...finalResponse.metadata,
           processingTime,
           phiDetected: phiResult.detectedPHI.length > 0,
-          complianceFlags: phiResult.detectedPHI.map(phi => phi.type),
+          complianceFlags: phiResult.detectedPHI.map((phi) => phi.type),
         },
       };
     } catch (error) {
@@ -142,37 +154,50 @@ export abstract class BaseHealthcareAgent {
   /**
    * Detect and protect PHI in the query
    */
-  protected async detectAndProtectPHI(query: string): Promise<PHIDetectionResult> {
+  protected async detectAndProtectPHI(
+    query: string,
+  ): Promise<PHIDetectionResult> {
     return await this.phiProtectionService.detectAndMaskPHI(query);
   }
 
   /**
    * Validate if this agent can handle the query
    */
-  protected async validateCapability(query: string, context: HealthcareContext): Promise<void> {
+  protected async validateCapability(
+    query: string,
+    context: HealthcareContext,
+  ): Promise<void> {
     const urgencyLevel = await this.assessUrgency(query, context);
-    
+
     // Check if urgency exceeds agent capability
-    const maxSeverity = Math.max(...this.capabilities.map(cap => cap.maxSeverityLevel));
+    const maxSeverity = Math.max(
+      ...this.capabilities.map((cap) => cap.maxSeverityLevel),
+    );
     if (urgencyLevel > maxSeverity) {
-      throw new Error(`Query urgency (${urgencyLevel}) exceeds agent capability (${maxSeverity})`);
+      throw new Error(
+        `Query urgency (${urgencyLevel}) exceeds agent capability (${maxSeverity})`,
+      );
     }
 
     // Check language support
     const detectedLanguage = this.detectLanguage(query);
-    const supportsLanguage = this.capabilities.some(cap => 
-      cap.supportedLanguages.includes(detectedLanguage)
+    const supportsLanguage = this.capabilities.some((cap) =>
+      cap.supportedLanguages.includes(detectedLanguage),
     );
-    
+
     if (!supportsLanguage) {
-      this.logger.warn(`Language ${detectedLanguage} not fully supported by ${this.agentType}`);
+      this.logger.warn(
+        `Language ${detectedLanguage} not fully supported by ${this.agentType}`,
+      );
     }
   }
 
   /**
    * Enhance context with agent-specific data
    */
-  protected async enhanceContext(context: HealthcareContext): Promise<HealthcareContext> {
+  protected async enhanceContext(
+    context: HealthcareContext,
+  ): Promise<HealthcareContext> {
     // Base implementation - can be overridden by specific agents
     return {
       ...context,
@@ -194,21 +219,28 @@ export abstract class BaseHealthcareAgent {
 
     try {
       // Perform Vietnamese NLP analysis
-      const nlpAnalysis = await this.vietnameseNLPService.analyzeHealthcareText(query);
+      const nlpAnalysis =
+        await this.vietnameseNLPService.analyzeHealthcareText(query);
 
       // Extract medical entities
-      const medicalEntities = await this.vietnameseNLPService.extractMedicalEntities(query);
+      const medicalEntities =
+        await this.vietnameseNLPService.extractMedicalEntities(query);
 
       // Detect emergency context
-      const emergencyContext = await this.vietnameseNLPService.detectEmergencyContext(query);
+      const emergencyContext =
+        await this.vietnameseNLPService.detectEmergencyContext(query);
 
       return {
         ...context,
         vietnameseNLPAnalysis: nlpAnalysis,
-        languagePreference: nlpAnalysis.languageMetrics.isVietnamese ? 'vietnamese' : context.languagePreference,
-        culturalContext: nlpAnalysis.culturalContext.isTraditionalMedicine ? 'traditional' :
-                        nlpAnalysis.culturalContext.modernMedicineTerms.length > 0 ? 'modern' :
-                        context.culturalContext,
+        languagePreference: nlpAnalysis.languageMetrics.isVietnamese
+          ? 'vietnamese'
+          : context.languagePreference,
+        culturalContext: nlpAnalysis.culturalContext.isTraditionalMedicine
+          ? 'traditional'
+          : nlpAnalysis.culturalContext.modernMedicineTerms.length > 0
+            ? 'modern'
+            : context.culturalContext,
         // Enhance symptoms with extracted entities
         symptoms: [
           ...(context.symptoms || []),
@@ -218,9 +250,11 @@ export abstract class BaseHealthcareAgent {
         emergencyIndicators: emergencyContext.emergencyKeywords,
         urgencyLevel: emergencyContext.urgencyLevel,
       };
-
     } catch (error) {
-      this.logger.warn('Vietnamese NLP enhancement failed, continuing without it:', error);
+      this.logger.warn(
+        'Vietnamese NLP enhancement failed, continuing without it:',
+        error,
+      );
       return context;
     }
   }
@@ -235,12 +269,17 @@ export abstract class BaseHealthcareAgent {
   ): Promise<AgentResponse> {
     // Add compliance disclaimers for high-risk responses
     if (response.urgencyLevel > 0.7 || response.requiresEscalation) {
-      response.response += '\n\n⚠️ Lưu ý: Thông tin này chỉ mang tính chất tham khảo. Vui lòng tham khảo ý kiến bác sĩ để được chẩn đoán và điều trị chính xác.';
+      response.response +=
+        '\n\n⚠️ Lưu ý: Thông tin này chỉ mang tính chất tham khảo. Vui lòng tham khảo ý kiến bác sĩ để được chẩn đoán và điều trị chính xác.';
     }
 
     // Add cultural considerations for Vietnamese context
-    if (context.culturalContext && context.languagePreference === 'vietnamese') {
-      response.metadata.culturalConsiderations = await this.generateCulturalConsiderations(context);
+    if (
+      context.culturalContext &&
+      context.languagePreference === 'vietnamese'
+    ) {
+      response.metadata.culturalConsiderations =
+        await this.generateCulturalConsiderations(context);
     }
 
     return response;
@@ -249,23 +288,37 @@ export abstract class BaseHealthcareAgent {
   /**
    * Assess urgency level of the query
    */
-  protected async assessUrgency(query: string, context: HealthcareContext): Promise<number> {
+  protected async assessUrgency(
+    query: string,
+    context: HealthcareContext,
+  ): Promise<number> {
     const emergencyKeywords = [
-      'emergency', 'urgent', 'severe', 'critical', 'life-threatening',
-      'cấp cứu', 'khẩn cấp', 'nguy hiểm', 'nghiêm trọng', 'đe dọa tính mạng'
+      'emergency',
+      'urgent',
+      'severe',
+      'critical',
+      'life-threatening',
+      'cấp cứu',
+      'khẩn cấp',
+      'nguy hiểm',
+      'nghiêm trọng',
+      'đe dọa tính mạng',
     ];
 
     const queryLower = query.toLowerCase();
-    const hasEmergencyKeywords = emergencyKeywords.some(keyword => 
-      queryLower.includes(keyword)
+    const hasEmergencyKeywords = emergencyKeywords.some((keyword) =>
+      queryLower.includes(keyword),
     );
 
     if (hasEmergencyKeywords) return 0.9;
-    
+
     // Check for high-risk medical conditions
-    const highRiskConditions = context.chronicConditions?.filter(condition =>
-      ['heart disease', 'diabetes', 'hypertension', 'stroke'].includes(condition.toLowerCase())
-    ) || [];
+    const highRiskConditions =
+      context.chronicConditions?.filter((condition) =>
+        ['heart disease', 'diabetes', 'hypertension', 'stroke'].includes(
+          condition.toLowerCase(),
+        ),
+      ) || [];
 
     if (highRiskConditions.length > 0) return 0.6;
 
@@ -276,7 +329,8 @@ export abstract class BaseHealthcareAgent {
    * Detect language of the query
    */
   protected detectLanguage(text: string): 'vietnamese' | 'english' | 'mixed' {
-    const vietnamesePattern = /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]/i;
+    const vietnamesePattern =
+      /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]/i;
     const englishPattern = /[a-zA-Z]/;
 
     const hasVietnamese = vietnamesePattern.test(text);
@@ -290,11 +344,15 @@ export abstract class BaseHealthcareAgent {
   /**
    * Generate cultural considerations for Vietnamese healthcare context
    */
-  protected async generateCulturalConsiderations(context: HealthcareContext): Promise<string[]> {
+  protected async generateCulturalConsiderations(
+    context: HealthcareContext,
+  ): Promise<string[]> {
     const considerations: string[] = [];
 
     if (context.culturalContext === 'traditional') {
-      considerations.push('Tôn trọng truyền thống y học cổ truyền của gia đình');
+      considerations.push(
+        'Tôn trọng truyền thống y học cổ truyền của gia đình',
+      );
       considerations.push('Có thể kết hợp với phương pháp điều trị hiện đại');
     }
 
@@ -312,7 +370,10 @@ export abstract class BaseHealthcareAgent {
   /**
    * Calculate confidence score based on agent capabilities and query complexity
    */
-  protected calculateConfidence(query: string, context: HealthcareContext): number {
+  protected calculateConfidence(
+    query: string,
+    context: HealthcareContext,
+  ): number {
     let baseConfidence = 0.8;
 
     // Adjust based on language match
@@ -321,10 +382,10 @@ export abstract class BaseHealthcareAgent {
     if (!languageMatch) baseConfidence -= 0.1;
 
     // Adjust based on medical specialty match
-    const hasSpecialtyMatch = this.capabilities.some(cap =>
-      cap.medicalSpecialties.some(specialty =>
-        query.toLowerCase().includes(specialty.toLowerCase())
-      )
+    const hasSpecialtyMatch = this.capabilities.some((cap) =>
+      cap.medicalSpecialties.some((specialty) =>
+        query.toLowerCase().includes(specialty.toLowerCase()),
+      ),
     );
     if (hasSpecialtyMatch) baseConfidence += 0.1;
 
@@ -333,35 +394,49 @@ export abstract class BaseHealthcareAgent {
 
   // Abstract methods to be implemented by specific agents
   protected abstract defineCapabilities(): AgentCapability[];
-  
+
   protected abstract processAgentSpecificQuery(
     query: string,
     context: HealthcareContext,
   ): Promise<AgentResponse>;
 
   // Utility methods for common healthcare operations
-  protected formatMedicalResponse(content: string, urgencyLevel: number): string {
-    const disclaimer = urgencyLevel > 0.7 
-      ? '\n\n⚠️ Thông tin này cần được xác nhận bởi chuyên gia y tế.'
-      : '\n\nLưu ý: Thông tin này chỉ mang tính chất tham khảo.';
-    
+  protected formatMedicalResponse(
+    content: string,
+    urgencyLevel: number,
+  ): string {
+    const disclaimer =
+      urgencyLevel > 0.7
+        ? '\n\n⚠️ Thông tin này cần được xác nhận bởi chuyên gia y tế.'
+        : '\n\nLưu ý: Thông tin này chỉ mang tính chất tham khảo.';
+
     return content + disclaimer;
   }
 
-  protected extractMedicalEntities(text: string): Array<{ text: string; type: string; confidence: number }> {
+  protected extractMedicalEntities(
+    text: string,
+  ): Array<{ text: string; type: string; confidence: number }> {
     // Basic medical entity extraction - can be enhanced with NLP libraries
-    const entities: Array<{ text: string; type: string; confidence: number }> = [];
-    
-    const symptomKeywords = ['đau', 'sốt', 'ho', 'khó thở', 'mệt mỏi', 'chóng mặt'];
+    const entities: Array<{ text: string; type: string; confidence: number }> =
+      [];
+
+    const symptomKeywords = [
+      'đau',
+      'sốt',
+      'ho',
+      'khó thở',
+      'mệt mỏi',
+      'chóng mặt',
+    ];
     const medicationKeywords = ['thuốc', 'paracetamol', 'aspirin', 'ibuprofen'];
-    
-    symptomKeywords.forEach(keyword => {
+
+    symptomKeywords.forEach((keyword) => {
       if (text.toLowerCase().includes(keyword)) {
         entities.push({ text: keyword, type: 'symptom', confidence: 0.8 });
       }
     });
 
-    medicationKeywords.forEach(keyword => {
+    medicationKeywords.forEach((keyword) => {
       if (text.toLowerCase().includes(keyword)) {
         entities.push({ text: keyword, type: 'medication', confidence: 0.9 });
       }

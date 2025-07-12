@@ -1,5 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { BaseHealthcareAgent, HealthcareContext, AgentResponse, AgentCapability } from './base-healthcare.agent';
+import {
+  BaseHealthcareAgent,
+  HealthcareContext,
+  AgentResponse,
+  AgentCapability,
+} from './base-healthcare.agent';
 import { PHIProtectionService } from '../../../common/compliance/phi-protection.service';
 import { VietnameseNLPIntegrationService } from '../../infrastructure/services/vietnamese-nlp-integration.service';
 
@@ -53,18 +58,42 @@ export class EmergencyTriageAgent extends BaseHealthcareAgent {
 
   // Vietnamese emergency keywords
   private readonly vietnameseEmergencyKeywords = [
-    'cấp cứu', 'khẩn cấp', 'nguy hiểm', 'nghiêm trọng',
-    'đau dữ dội', 'khó thở nặng', 'mất ý thức', 'co giật',
-    'xuất huyết', 'đau tim', 'đột quỵ', 'ngộ độc',
-    'sốc phản vệ', 'đau ngực', 'khó thở', 'chảy máu'
+    'cấp cứu',
+    'khẩn cấp',
+    'nguy hiểm',
+    'nghiêm trọng',
+    'đau dữ dội',
+    'khó thở nặng',
+    'mất ý thức',
+    'co giật',
+    'xuất huyết',
+    'đau tim',
+    'đột quỵ',
+    'ngộ độc',
+    'sốc phản vệ',
+    'đau ngực',
+    'khó thở',
+    'chảy máu',
   ];
 
   // English emergency keywords
   private readonly englishEmergencyKeywords = [
-    'emergency', 'urgent', 'severe', 'critical',
-    'chest pain', 'difficulty breathing', 'unconscious', 'seizure',
-    'severe bleeding', 'heart attack', 'stroke', 'overdose',
-    'anaphylaxis', 'severe allergic reaction', 'choking', 'poisoning'
+    'emergency',
+    'urgent',
+    'severe',
+    'critical',
+    'chest pain',
+    'difficulty breathing',
+    'unconscious',
+    'seizure',
+    'severe bleeding',
+    'heart attack',
+    'stroke',
+    'overdose',
+    'anaphylaxis',
+    'severe allergic reaction',
+    'choking',
+    'poisoning',
   ];
 
   constructor(
@@ -82,7 +111,8 @@ export class EmergencyTriageAgent extends BaseHealthcareAgent {
     return [
       {
         name: 'Emergency Triage Assessment',
-        description: 'Assess emergency severity using established triage protocols',
+        description:
+          'Assess emergency severity using established triage protocols',
         confidence: 0.85,
         requiresPhysicianReview: true,
         maxSeverityLevel: 10, // Can handle all emergency levels
@@ -91,7 +121,8 @@ export class EmergencyTriageAgent extends BaseHealthcareAgent {
       },
       {
         name: 'Vietnamese Emergency Detection',
-        description: 'Detect emergency situations in Vietnamese language and cultural context',
+        description:
+          'Detect emergency situations in Vietnamese language and cultural context',
         confidence: 0.9,
         requiresPhysicianReview: true,
         maxSeverityLevel: 10,
@@ -115,34 +146,45 @@ export class EmergencyTriageAgent extends BaseHealthcareAgent {
     context: HealthcareContext,
   ): Promise<AgentResponse> {
     try {
-      this.logger.log(`Processing emergency query: ${query.substring(0, 50)}...`);
+      this.logger.log(
+        `Processing emergency query: ${query.substring(0, 50)}...`,
+      );
 
       const emergencyContext = context as EmergencyContext;
 
       // Immediate emergency keyword detection
       const emergencyKeywords = this.detectEmergencyKeywords(query);
-      
+
       // Assess emergency severity
-      const triageAssessment = await this.assessEmergencySeverity(query, emergencyContext);
+      const triageAssessment = await this.assessEmergencySeverity(
+        query,
+        emergencyContext,
+      );
 
       // Generate emergency protocols if needed
-      const protocols = await this.generateEmergencyProtocols(triageAssessment, emergencyContext);
+      const protocols = await this.generateEmergencyProtocols(
+        triageAssessment,
+        emergencyContext,
+      );
 
       // Create immediate response
       const response = await this.generateEmergencyResponse(
         query,
         triageAssessment,
         protocols,
-        emergencyContext
+        emergencyContext,
       );
 
       // Log emergency interaction for audit
       if (triageAssessment.severity >= 0.8) {
-        this.logger.warn(`HIGH SEVERITY EMERGENCY DETECTED: ${query.substring(0, 100)}`, {
-          severity: triageAssessment.severity,
-          urgencyLevel: triageAssessment.urgencyLevel,
-          userId: context.userId,
-        });
+        this.logger.warn(
+          `HIGH SEVERITY EMERGENCY DETECTED: ${query.substring(0, 100)}`,
+          {
+            severity: triageAssessment.severity,
+            urgencyLevel: triageAssessment.urgencyLevel,
+            userId: context.userId,
+          },
+        );
       }
 
       return {
@@ -157,12 +199,13 @@ export class EmergencyTriageAgent extends BaseHealthcareAgent {
           emergencyServicesRecommended: triageAssessment.emergencyServices,
           severityScore: triageAssessment.severity,
           urgencyLevel: triageAssessment.urgencyLevel,
-          requiresImmediateAttention: triageAssessment.requiresImmediateAttention,
+          requiresImmediateAttention:
+            triageAssessment.requiresImmediateAttention,
         },
       };
     } catch (error) {
       this.logger.error('Emergency triage processing failed:', error);
-      
+
       // For emergency agent, always provide a safe fallback response
       return {
         agentType: 'emergency_triage',
@@ -182,14 +225,14 @@ export class EmergencyTriageAgent extends BaseHealthcareAgent {
     const detectedKeywords: string[] = [];
 
     // Check Vietnamese emergency keywords
-    this.vietnameseEmergencyKeywords.forEach(keyword => {
+    this.vietnameseEmergencyKeywords.forEach((keyword) => {
       if (queryLower.includes(keyword)) {
         detectedKeywords.push(keyword);
       }
     });
 
     // Check English emergency keywords
-    this.englishEmergencyKeywords.forEach(keyword => {
+    this.englishEmergencyKeywords.forEach((keyword) => {
       if (queryLower.includes(keyword)) {
         detectedKeywords.push(keyword);
       }
@@ -198,7 +241,10 @@ export class EmergencyTriageAgent extends BaseHealthcareAgent {
     return detectedKeywords;
   }
 
-  private async assessEmergencySeverity(query: string, context: EmergencyContext): Promise<TriageAssessment> {
+  private async assessEmergencySeverity(
+    query: string,
+    context: EmergencyContext,
+  ): Promise<TriageAssessment> {
     const triagePrompt = `Assess the emergency severity of these symptoms using established triage protocols:
 
 Query: "${query}"
@@ -236,10 +282,15 @@ Identify specific emergency indicators and recommended timeframe for care.`;
     return this.parseTriageAssessment(response.content as string, query);
   }
 
-  private parseTriageAssessment(content: string, originalQuery: string): TriageAssessment {
+  private parseTriageAssessment(
+    content: string,
+    originalQuery: string,
+  ): TriageAssessment {
     // Extract severity score
     const severityMatch = content.match(/severity[:\s]*([0-9.]+)/i);
-    const severity = severityMatch ? parseFloat(severityMatch[1]) : this.calculateFallbackSeverity(originalQuery);
+    const severity = severityMatch
+      ? parseFloat(severityMatch[1])
+      : this.calculateFallbackSeverity(originalQuery);
 
     // Determine urgency level
     let urgencyLevel: TriageAssessment['urgencyLevel'] = 'routine';
@@ -251,7 +302,10 @@ Identify specific emergency indicators and recommended timeframe for care.`;
     const indicators = this.extractEmergencyIndicators(content, originalQuery);
 
     // Determine recommended action
-    const recommendedAction = this.determineRecommendedAction(severity, urgencyLevel);
+    const recommendedAction = this.determineRecommendedAction(
+      severity,
+      urgencyLevel,
+    );
 
     // Determine timeframe
     const timeframe = this.determineTimeframe(severity);
@@ -273,20 +327,43 @@ Identify specific emergency indicators and recommended timeframe for care.`;
     let severity = 0.3; // Default to routine
 
     // High severity indicators
-    const criticalKeywords = ['unconscious', 'not breathing', 'chest pain', 'stroke', 'heart attack', 'mất ý thức', 'đau tim', 'đột quỵ'];
-    if (criticalKeywords.some(keyword => queryLower.includes(keyword))) {
+    const criticalKeywords = [
+      'unconscious',
+      'not breathing',
+      'chest pain',
+      'stroke',
+      'heart attack',
+      'mất ý thức',
+      'đau tim',
+      'đột quỵ',
+    ];
+    if (criticalKeywords.some((keyword) => queryLower.includes(keyword))) {
       severity = 0.9;
     }
 
     // Medium-high severity indicators
-    const urgentKeywords = ['severe pain', 'difficulty breathing', 'bleeding', 'đau dữ dội', 'khó thở', 'chảy máu'];
-    if (urgentKeywords.some(keyword => queryLower.includes(keyword))) {
+    const urgentKeywords = [
+      'severe pain',
+      'difficulty breathing',
+      'bleeding',
+      'đau dữ dội',
+      'khó thở',
+      'chảy máu',
+    ];
+    if (urgentKeywords.some((keyword) => queryLower.includes(keyword))) {
       severity = Math.max(severity, 0.7);
     }
 
     // Medium severity indicators
-    const moderateKeywords = ['pain', 'fever', 'nausea', 'đau', 'sốt', 'buồn nôn'];
-    if (moderateKeywords.some(keyword => queryLower.includes(keyword))) {
+    const moderateKeywords = [
+      'pain',
+      'fever',
+      'nausea',
+      'đau',
+      'sốt',
+      'buồn nôn',
+    ];
+    if (moderateKeywords.some((keyword) => queryLower.includes(keyword))) {
       severity = Math.max(severity, 0.5);
     }
 
@@ -295,11 +372,15 @@ Identify specific emergency indicators and recommended timeframe for care.`;
 
   private extractEmergencyIndicators(content: string, query: string): string[] {
     const indicators: string[] = [];
-    
+
     // Extract from AI response
     const lines = content.split('\n');
-    lines.forEach(line => {
-      if (line.toLowerCase().includes('indicator') || line.toLowerCase().includes('warning') || line.toLowerCase().includes('sign')) {
+    lines.forEach((line) => {
+      if (
+        line.toLowerCase().includes('indicator') ||
+        line.toLowerCase().includes('warning') ||
+        line.toLowerCase().includes('sign')
+      ) {
         indicators.push(line.trim());
       }
     });
@@ -311,7 +392,10 @@ Identify specific emergency indicators and recommended timeframe for care.`;
     return indicators;
   }
 
-  private determineRecommendedAction(severity: number, urgencyLevel: string): string {
+  private determineRecommendedAction(
+    severity: number,
+    urgencyLevel: string,
+  ): string {
     if (severity >= 0.9) {
       return 'Call emergency services immediately (115 in Vietnam, 911 in US)';
     } else if (severity >= 0.7) {
@@ -333,7 +417,10 @@ Identify specific emergency indicators and recommended timeframe for care.`;
     return 'As needed';
   }
 
-  private async generateEmergencyProtocols(assessment: TriageAssessment, context: EmergencyContext): Promise<EmergencyProtocol[]> {
+  private async generateEmergencyProtocols(
+    assessment: TriageAssessment,
+    context: EmergencyContext,
+  ): Promise<EmergencyProtocol[]> {
     if (assessment.severity < 0.7) return [];
 
     const protocols: EmergencyProtocol[] = [];
@@ -347,18 +434,26 @@ Identify specific emergency indicators and recommended timeframe for care.`;
           'Stay with the patient',
           'Monitor breathing and consciousness',
           'Be prepared to perform CPR if trained',
-          'Gather medical information for emergency responders'
+          'Gather medical information for emergency responders',
         ],
         emergencyContacts: [
-          { service: 'Medical Emergency (Vietnam)', number: '115', country: 'VN' },
+          {
+            service: 'Medical Emergency (Vietnam)',
+            number: '115',
+            country: 'VN',
+          },
           { service: 'Medical Emergency (US)', number: '911', country: 'US' },
-          { service: 'Poison Control (Vietnam)', number: '1900 4595', country: 'VN' },
+          {
+            service: 'Poison Control (Vietnam)',
+            number: '1900 4595',
+            country: 'VN',
+          },
         ],
         criticalWarnings: [
           'Do not leave patient alone',
           'Do not give food or water unless instructed',
-          'Do not move patient unless in immediate danger'
-        ]
+          'Do not move patient unless in immediate danger',
+        ],
       });
     }
 
@@ -369,14 +464,14 @@ Identify specific emergency indicators and recommended timeframe for care.`;
     query: string,
     assessment: TriageAssessment,
     protocols: EmergencyProtocol[],
-    context: EmergencyContext
+    context: EmergencyContext,
   ): Promise<string> {
     const isVietnamese = this.detectLanguage(query) === 'vietnamese';
 
     if (assessment.severity >= 0.8) {
       // Critical emergency response
-      const emergencyResponse = isVietnamese ? 
-        `🚨 TÌNH HUỐNG KHẨN CẤP - GỌI CẤP CỨU NGAY LẬP TỨC!
+      const emergencyResponse = isVietnamese
+        ? `🚨 TÌNH HUỐNG KHẨN CẤP - GỌI CẤP CỨU NGAY LẬP TỨC!
 
 Gọi ngay: 115 (Việt Nam) hoặc 911 (Mỹ)
 
@@ -386,8 +481,8 @@ Hành động ngay lập tức:
 • Theo dõi hô hấp và ý thức
 • Chuẩn bị thông tin y tế cho đội cấp cứu
 
-⚠️ Đây có thể là tình huống đe dọa tính mạng. Hãy tìm kiếm sự chăm sóc y tế khẩn cấp ngay lập tức.` :
-        `🚨 MEDICAL EMERGENCY - CALL EMERGENCY SERVICES IMMEDIATELY!
+⚠️ Đây có thể là tình huống đe dọa tính mạng. Hãy tìm kiếm sự chăm sóc y tế khẩn cấp ngay lập tức.`
+        : `🚨 MEDICAL EMERGENCY - CALL EMERGENCY SERVICES IMMEDIATELY!
 
 Call now: 911 (US) or 115 (Vietnam)
 
@@ -402,16 +497,16 @@ Immediate actions:
       return emergencyResponse;
     } else if (assessment.severity >= 0.7) {
       // Urgent care response
-      return isVietnamese ?
-        `⚠️ TÌNH HUỐNG KHẨN CẤP - CẦN CHĂM SÓC Y TẾ NGAY
+      return isVietnamese
+        ? `⚠️ TÌNH HUỐNG KHẨN CẤP - CẦN CHĂM SÓC Y TẾ NGAY
 
 Hành động được khuyến nghị:
 • Đến phòng cấp cứu trong vòng 1-2 giờ
 • Hoặc gọi 115 nếu không thể di chuyển
 • Theo dõi triệu chứng chặt chẽ
 
-Đây là tình huống y tế khẩn cấp cần được chăm sóc chuyên nghiệp ngay lập tức.` :
-        `⚠️ URGENT MEDICAL SITUATION - IMMEDIATE CARE NEEDED
+Đây là tình huống y tế khẩn cấp cần được chăm sóc chuyên nghiệp ngay lập tức.`
+        : `⚠️ URGENT MEDICAL SITUATION - IMMEDIATE CARE NEEDED
 
 Recommended actions:
 • Go to emergency room within 1-2 hours

@@ -147,7 +147,9 @@ export class NotificationController {
 
   @Put('mark-all-read')
   async markAllAsRead(@Request() req: AuthenticatedRequest) {
-    const markedCount = await this.notificationService.markAllAsRead(req.user.id);
+    const markedCount = await this.notificationService.markAllAsRead(
+      req.user.id,
+    );
 
     return {
       success: true,

@@ -3,8 +3,16 @@ import { ChatOpenAI } from '@langchain/openai';
 import { z } from 'zod';
 import { PythonShell } from 'python-shell';
 import * as crypto from 'crypto-js';
-import { BaseHealthcareAgent, HealthcareContext, AgentResponse, AgentCapability } from '../../domain/agents/base-healthcare.agent';
-import { VectorDatabaseService, VietnameseMedicalQuery } from './vector-database.service';
+import {
+  BaseHealthcareAgent,
+  HealthcareContext,
+  AgentResponse,
+  AgentCapability,
+} from '../../domain/agents/base-healthcare.agent';
+import {
+  VectorDatabaseService,
+  VietnameseMedicalQuery,
+} from './vector-database.service';
 import { PHIProtectionService } from '../../../common/compliance/phi-protection.service';
 
 export interface VietnameseMedicalContext {
@@ -92,28 +100,42 @@ export class VietnameseMedicalAgentService extends BaseHealthcareAgent {
     return [
       {
         name: 'Vietnamese Medical Consultation',
-        description: 'Provide medical advice in Vietnamese with cultural context',
+        description:
+          'Provide medical advice in Vietnamese with cultural context',
         confidence: 0.9,
         requiresPhysicianReview: true,
         maxSeverityLevel: 7,
         supportedLanguages: ['vietnamese', 'english', 'mixed'],
         medicalSpecialties: [
-          'tổng quát', 'nội khoa', 'ngoại khoa', 'sản phụ khoa', 'nhi khoa',
-          'tim mạch', 'thần kinh', 'da liễu', 'y học cổ truyền'
+          'tổng quát',
+          'nội khoa',
+          'ngoại khoa',
+          'sản phụ khoa',
+          'nhi khoa',
+          'tim mạch',
+          'thần kinh',
+          'da liễu',
+          'y học cổ truyền',
         ],
       },
       {
         name: 'Traditional Medicine Integration',
-        description: 'Integrate Vietnamese traditional medicine (thuốc nam) with modern medicine',
+        description:
+          'Integrate Vietnamese traditional medicine (thuốc nam) with modern medicine',
         confidence: 0.8,
         requiresPhysicianReview: true,
         maxSeverityLevel: 5,
         supportedLanguages: ['vietnamese', 'mixed'],
-        medicalSpecialties: ['y học cổ truyền', 'dinh dưỡng', 'phục hồi chức năng'],
+        medicalSpecialties: [
+          'y học cổ truyền',
+          'dinh dưỡng',
+          'phục hồi chức năng',
+        ],
       },
       {
         name: 'Cultural Healthcare Context',
-        description: 'Provide healthcare advice considering Vietnamese cultural practices',
+        description:
+          'Provide healthcare advice considering Vietnamese cultural practices',
         confidence: 0.85,
         requiresPhysicianReview: false,
         maxSeverityLevel: 4,
@@ -128,13 +150,17 @@ export class VietnameseMedicalAgentService extends BaseHealthcareAgent {
     context: HealthcareContext,
   ): Promise<AgentResponse> {
     try {
-      this.logger.log(`Processing Vietnamese medical query: ${query.substring(0, 50)}...`);
+      this.logger.log(
+        `Processing Vietnamese medical query: ${query.substring(0, 50)}...`,
+      );
 
       // Search for relevant Vietnamese medical knowledge
-      const knowledgeResults = await this.searchVietnameseMedicalKnowledge(query);
+      const knowledgeResults =
+        await this.searchVietnameseMedicalKnowledge(query);
 
       // Analyze Vietnamese medical context
-      const vietnameseContext = await this.analyzeVietnameseMedicalContext(query);
+      const vietnameseContext =
+        await this.analyzeVietnameseMedicalContext(query);
 
       // Enhanced Vietnamese NLP processing
       const nlpResult = await this.processWithVietnameseNLP(query);
@@ -164,7 +190,8 @@ export class VietnameseMedicalAgentService extends BaseHealthcareAgent {
           complianceFlags: [],
           medicalEntities: this.extractMedicalEntities(query),
           culturalConsiderations: response.culturalConsiderations,
-          traditionalMedicineReferences: this.extractTraditionalMedicineReferences(response.response),
+          traditionalMedicineReferences:
+            this.extractTraditionalMedicineReferences(response.response),
         },
       };
     } catch (error) {
@@ -182,17 +209,31 @@ export class VietnameseMedicalAgentService extends BaseHealthcareAgent {
         scoreThreshold: 0.7,
       };
 
-      return await this.vectorDatabaseService.searchSimilarDocuments(searchQuery);
+      return await this.vectorDatabaseService.searchSimilarDocuments(
+        searchQuery,
+      );
     } catch (error) {
-      this.logger.warn('Vector database search failed, continuing without knowledge base:', error);
+      this.logger.warn(
+        'Vector database search failed, continuing without knowledge base:',
+        error,
+      );
       return [];
     }
   }
 
   private extractTraditionalMedicineReferences(response: string): string[] {
     const traditionalTerms = [
-      'thuốc nam', 'đông y', 'y học cổ truyền', 'bài thuốc', 'thảo dược',
-      'châm cứu', 'bấm huyệt', 'giác hơi', 'xoa bóp', 'âm dương', 'ngũ hành'
+      'thuốc nam',
+      'đông y',
+      'y học cổ truyền',
+      'bài thuốc',
+      'thảo dược',
+      'châm cứu',
+      'bấm huyệt',
+      'giác hơi',
+      'xoa bóp',
+      'âm dương',
+      'ngũ hành',
     ];
 
     const references: string[] = [];
@@ -234,9 +275,12 @@ export class VietnameseMedicalAgentService extends BaseHealthcareAgent {
       return {
         response: agentResponse.response,
         responseLanguage: healthcareContext.languagePreference || 'vietnamese',
-        traditionalMedicineAdvice: this.extractTraditionalAdvice(agentResponse.response),
+        traditionalMedicineAdvice: this.extractTraditionalAdvice(
+          agentResponse.response,
+        ),
         modernMedicineAdvice: this.extractModernAdvice(agentResponse.response),
-        culturalConsiderations: agentResponse.metadata.culturalConsiderations || [],
+        culturalConsiderations:
+          agentResponse.metadata.culturalConsiderations || [],
         recommendedActions: agentResponse.recommendedActions || [],
         urgencyLevel: agentResponse.urgencyLevel,
         confidence: agentResponse.confidence,
@@ -248,13 +292,31 @@ export class VietnameseMedicalAgentService extends BaseHealthcareAgent {
     }
   }
 
-  private determineCulturalContext(query: string): 'traditional' | 'modern' | 'mixed' {
-    const traditionalKeywords = ['thuốc nam', 'đông y', 'y học cổ truyền', 'bài thuốc', 'thầy thuốc'];
-    const modernKeywords = ['bác sĩ', 'bệnh viện', 'thuốc tây', 'xét nghiệm', 'chẩn đoán'];
+  private determineCulturalContext(
+    query: string,
+  ): 'traditional' | 'modern' | 'mixed' {
+    const traditionalKeywords = [
+      'thuốc nam',
+      'đông y',
+      'y học cổ truyền',
+      'bài thuốc',
+      'thầy thuốc',
+    ];
+    const modernKeywords = [
+      'bác sĩ',
+      'bệnh viện',
+      'thuốc tây',
+      'xét nghiệm',
+      'chẩn đoán',
+    ];
 
     const queryLower = query.toLowerCase();
-    const hasTraditional = traditionalKeywords.some(keyword => queryLower.includes(keyword));
-    const hasModern = modernKeywords.some(keyword => queryLower.includes(keyword));
+    const hasTraditional = traditionalKeywords.some((keyword) =>
+      queryLower.includes(keyword),
+    );
+    const hasModern = modernKeywords.some((keyword) =>
+      queryLower.includes(keyword),
+    );
 
     if (hasTraditional && hasModern) return 'mixed';
     if (hasTraditional) return 'traditional';
@@ -263,18 +325,20 @@ export class VietnameseMedicalAgentService extends BaseHealthcareAgent {
 
   private extractTraditionalAdvice(response: string): string {
     const lines = response.split('\n');
-    const traditionalSection = lines.find(line =>
-      line.toLowerCase().includes('y học cổ truyền') ||
-      line.toLowerCase().includes('thuốc nam')
+    const traditionalSection = lines.find(
+      (line) =>
+        line.toLowerCase().includes('y học cổ truyền') ||
+        line.toLowerCase().includes('thuốc nam'),
     );
     return traditionalSection || '';
   }
 
   private extractModernAdvice(response: string): string {
     const lines = response.split('\n');
-    const modernSection = lines.find(line =>
-      line.toLowerCase().includes('y học hiện đại') ||
-      line.toLowerCase().includes('điều trị')
+    const modernSection = lines.find(
+      (line) =>
+        line.toLowerCase().includes('y học hiện đại') ||
+        line.toLowerCase().includes('điều trị'),
     );
     return modernSection || '';
   }
@@ -387,7 +451,11 @@ export class VietnameseMedicalAgentService extends BaseHealthcareAgent {
     knowledgeResults: any[] = [],
     nlpResult: any = {},
   ): Promise<VietnameseMedicalResponse> {
-    const systemPrompt = this.buildVietnameseSystemPrompt(context, knowledgeResults, nlpResult);
+    const systemPrompt = this.buildVietnameseSystemPrompt(
+      context,
+      knowledgeResults,
+      nlpResult,
+    );
 
     const response = await this.model.invoke([
       { role: 'system', content: systemPrompt },
@@ -447,8 +515,9 @@ Lưu ý quan trọng: Luôn nhấn mạnh rằng đây chỉ là thông tin tham
     if (knowledgeResults.length > 0) {
       const knowledgeContext = knowledgeResults
         .slice(0, 3) // Use top 3 results
-        .map((result, index) =>
-          `${index + 1}. ${result.document.title}: ${result.document.content.substring(0, 200)}...`
+        .map(
+          (result, index) =>
+            `${index + 1}. ${result.document.title}: ${result.document.content.substring(0, 200)}...`,
         )
         .join('\n');
 
@@ -462,8 +531,10 @@ Lưu ý quan trọng: Luôn nhấn mạnh rằng đây chỉ là thông tin tham
 
     if (nlpResult.entities?.length > 0) {
       const medicalEntities = nlpResult.entities
-        .filter(entity => ['symptom', 'disease', 'medication'].includes(entity.type))
-        .map(entity => `${entity.text} (${entity.type})`)
+        .filter((entity) =>
+          ['symptom', 'disease', 'medication'].includes(entity.type),
+        )
+        .map((entity) => `${entity.text} (${entity.type})`)
         .join(', ');
 
       if (medicalEntities) {
@@ -567,7 +638,8 @@ Lưu ý quan trọng: Luôn nhấn mạnh rằng đây chỉ là thông tin tham
   // Enhanced Vietnamese NLP integration with microservice
   private async processWithVietnameseNLP(text: string): Promise<any> {
     try {
-      const nlpServiceUrl = process.env.VIETNAMESE_NLP_SERVICE_URL || 'http://localhost:8080';
+      const nlpServiceUrl =
+        process.env.VIETNAMESE_NLP_SERVICE_URL || 'http://localhost:8080';
 
       const response = await fetch(`${nlpServiceUrl}/analyze`, {
         method: 'POST',
@@ -578,7 +650,9 @@ Lưu ý quan trọng: Luôn nhấn mạnh rằng đây chỉ là thông tin tham
       });
 
       if (!response.ok) {
-        throw new Error(`NLP service responded with status: ${response.status}`);
+        throw new Error(
+          `NLP service responded with status: ${response.status}`,
+        );
       }
 
       const result = await response.json();
@@ -586,7 +660,7 @@ Lưu ý quan trọng: Luôn nhấn mạnh rằng đây chỉ là thông tin tham
       this.logger.log('Vietnamese NLP processing completed', {
         entityCount: result.entities?.length || 0,
         isEmergency: result.urgency_analysis?.is_emergency || false,
-        sentiment: result.sentiment?.sentiment || 'neutral'
+        sentiment: result.sentiment?.sentiment || 'neutral',
       });
 
       return {
@@ -594,7 +668,7 @@ Lưu ý quan trọng: Luôn nhấn mạnh rằng đây chỉ là thông tin tham
         entities: result.entities || [],
         sentiment: result.sentiment?.sentiment || 'neutral',
         urgencyAnalysis: result.urgency_analysis || {},
-        summary: result.summary || {}
+        summary: result.summary || {},
       };
     } catch (error) {
       this.logger.warn(
@@ -608,7 +682,7 @@ Lưu ý quan trọng: Luôn nhấn mạnh rằng đây chỉ là thông tin tham
         entities: this.extractMedicalEntities(text),
         sentiment: 'neutral',
         urgencyAnalysis: { urgency_level: 0.3, is_emergency: false },
-        summary: { has_medical_terms: false }
+        summary: { has_medical_terms: false },
       };
     }
   }

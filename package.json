@@ -6,9 +6,12 @@
     "doc": "docs"
   },
   "scripts": {
-    "docker:dev": "docker-compose -f docker-compose.dev.yml up -d",
-    "docker:down": "docker-compose -f docker-compose.dev.yml down",
-    "docker:logs": "docker-compose -f docker-compose.dev.yml logs -f"
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f",
+    "docker:core": "docker-compose up -d postgres redis",
+    "docker:ai": "docker-compose up -d postgres redis milvus-standalone milvus-etcd milvus-minio vietnamese-nlp",
+    "docker:reset": "docker-compose down -v"
   },
   "repository": {
     "type": "git",

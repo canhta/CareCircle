@@ -1,13 +1,24 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import FirecrawlApp, { CrawlParams, CrawlStatusResponse } from '@mendable/firecrawl-js';
-import { VectorDatabaseService, VietnameseMedicalDocument } from './vector-database.service';
+import FirecrawlApp, {
+  CrawlParams,
+  CrawlStatusResponse,
+} from '@mendable/firecrawl-js';
+import {
+  VectorDatabaseService,
+  VietnameseMedicalDocument,
+} from './vector-database.service';
 import { PHIProtectionService } from '../../../common/compliance/phi-protection.service';
 
 export interface VietnameseHealthcareSite {
   name: string;
   baseUrl: string;
-  type: 'hospital' | 'government' | 'traditional_medicine' | 'pharmaceutical' | 'research';
+  type:
+    | 'hospital'
+    | 'government'
+    | 'traditional_medicine'
+    | 'pharmaceutical'
+    | 'research';
   crawlConfig: {
     limit: number;
     excludePaths: string[];
@@ -34,9 +45,11 @@ export interface CrawlResult {
 
 @Injectable()
 export class FirecrawlVietnameseHealthcareService implements OnModuleInit {
-  private readonly logger = new Logger(FirecrawlVietnameseHealthcareService.name);
+  private readonly logger = new Logger(
+    FirecrawlVietnameseHealthcareService.name,
+  );
   private firecrawlApp: FirecrawlApp;
-  
+
   // Vietnamese healthcare websites configuration
   private readonly vietnameseHealthcareSites: VietnameseHealthcareSite[] = [
     {
@@ -50,16 +63,16 @@ export class FirecrawlVietnameseHealthcareService implements OnModuleInit {
           'khuyen-mai/*',
           'dich-vu/*',
           'lien-he/*',
-          'tim-kiem/*'
+          'tim-kiem/*',
         ],
         includePaths: [
           'bai-viet/suc-khoe-tong-quat/*',
           'bai-viet/benh-hoc/*',
           'bai-viet/dinh-duong/*',
-          'bai-viet/cham-soc-suc-khoe/*'
+          'bai-viet/cham-soc-suc-khoe/*',
         ],
-        onlyMainContent: true
-      }
+        onlyMainContent: true,
+      },
     },
     {
       name: 'Bach Mai Hospital',
@@ -67,14 +80,9 @@ export class FirecrawlVietnameseHealthcareService implements OnModuleInit {
       type: 'hospital',
       crawlConfig: {
         limit: 150,
-        excludePaths: [
-          'tin-tuc/*',
-          'thong-bao/*',
-          'lien-he/*',
-          'dang-ky/*'
-        ],
-        onlyMainContent: true
-      }
+        excludePaths: ['tin-tuc/*', 'thong-bao/*', 'lien-he/*', 'dang-ky/*'],
+        onlyMainContent: true,
+      },
     },
     {
       name: 'Ministry of Health Vietnam',
@@ -82,19 +90,14 @@ export class FirecrawlVietnameseHealthcareService implements OnModuleInit {
       type: 'government',
       crawlConfig: {
         limit: 100,
-        excludePaths: [
-          'tin-tuc/*',
-          'thong-bao/*',
-          'van-ban/*',
-          'lien-he/*'
-        ],
+        excludePaths: ['tin-tuc/*', 'thong-bao/*', 'van-ban/*', 'lien-he/*'],
         includePaths: [
           'chuong-trinh-muc-tieu/*',
           'hoat-dong-chuyen-mon/*',
-          'phong-chong-dich-benh/*'
+          'phong-chong-dich-benh/*',
         ],
-        onlyMainContent: true
-      }
+        onlyMainContent: true,
+      },
     },
     {
       name: 'Vietnamese Traditional Medicine Institute',
@@ -102,19 +105,15 @@ export class FirecrawlVietnameseHealthcareService implements OnModuleInit {
       type: 'traditional_medicine',
       crawlConfig: {
         limit: 100,
-        excludePaths: [
-          'tin-tuc/*',
-          'lien-he/*',
-          'dang-ky/*'
-        ],
+        excludePaths: ['tin-tuc/*', 'lien-he/*', 'dang-ky/*'],
         includePaths: [
           'thuoc-nam/*',
           'bai-thuoc/*',
           'chua-benh/*',
-          'dinh-duong/*'
+          'dinh-duong/*',
         ],
-        onlyMainContent: true
-      }
+        onlyMainContent: true,
+      },
     },
     {
       name: 'Vietnam Pharmaceutical Information',
@@ -122,20 +121,16 @@ export class FirecrawlVietnameseHealthcareService implements OnModuleInit {
       type: 'pharmaceutical',
       crawlConfig: {
         limit: 300,
-        excludePaths: [
-          'tin-tuc/*',
-          'lien-he/*',
-          'dang-ky/*'
-        ],
+        excludePaths: ['tin-tuc/*', 'lien-he/*', 'dang-ky/*'],
         includePaths: [
           'thuoc/*',
           'hoat-chat/*',
           'tuong-tac-thuoc/*',
-          'lieu-dung/*'
+          'lieu-dung/*',
         ],
-        onlyMainContent: true
-      }
-    }
+        onlyMainContent: true,
+      },
+    },
   ];
 
   constructor(
@@ -151,9 +146,11 @@ export class FirecrawlVietnameseHealthcareService implements OnModuleInit {
   private async initializeFirecrawl() {
     try {
       const apiKey = this.configService.get<string>('FIRECRAWL_API_KEY');
-      
+
       if (!apiKey) {
-        this.logger.warn('Firecrawl API key not configured. Vietnamese healthcare crawling disabled.');
+        this.logger.warn(
+          'Firecrawl API key not configured. Vietnamese healthcare crawling disabled.',
+        );
         return;
       }
 
@@ -167,14 +164,14 @@ export class FirecrawlVietnameseHealthcareService implements OnModuleInit {
 
   async crawlAllVietnameseHealthcareSites(): Promise<CrawlResult[]> {
     this.logger.log('Starting comprehensive Vietnamese healthcare sites crawl');
-    
+
     const results: CrawlResult[] = [];
-    
+
     for (const site of this.vietnameseHealthcareSites) {
       try {
         const result = await this.crawlSite(site);
         results.push(result);
-        
+
         // Add delay between sites to be respectful
         await this.delay(5000);
       } catch (error) {
@@ -190,17 +187,19 @@ export class FirecrawlVietnameseHealthcareService implements OnModuleInit {
         });
       }
     }
-    
-    this.logger.log(`Completed crawling ${results.length} Vietnamese healthcare sites`);
+
+    this.logger.log(
+      `Completed crawling ${results.length} Vietnamese healthcare sites`,
+    );
     return results;
   }
 
   async crawlSite(site: VietnameseHealthcareSite): Promise<CrawlResult> {
     const startTime = Date.now();
     const siteId = this.generateSiteId(site);
-    
+
     this.logger.log(`Starting crawl for ${site.name}: ${site.baseUrl}`);
-    
+
     try {
       // Configure crawl parameters
       const crawlParams: CrawlParams = {
@@ -210,31 +209,35 @@ export class FirecrawlVietnameseHealthcareService implements OnModuleInit {
           onlyMainContent: site.crawlConfig.onlyMainContent,
           excludePaths: site.crawlConfig.excludePaths,
           includePaths: site.crawlConfig.includePaths,
-        }
+        },
       };
 
       // Perform the crawl
-      const crawlResponse = await this.firecrawlApp.crawlUrl(
+      const crawlResponse = (await this.firecrawlApp.crawlUrl(
         site.baseUrl,
         crawlParams,
         true, // wait for completion
-        30 // timeout in seconds
-      ) as CrawlStatusResponse;
+        30, // timeout in seconds
+      )) as CrawlStatusResponse;
 
       if (!crawlResponse.success || !crawlResponse.data) {
-        throw new Error(`Crawl failed for ${site.name}: ${crawlResponse.error || 'Unknown error'}`);
+        throw new Error(
+          `Crawl failed for ${site.name}: ${crawlResponse.error || 'Unknown error'}`,
+        );
       }
 
       // Process crawled documents
       const processedDocuments = await this.processAndStoreCrawledData(
         crawlResponse.data,
-        site
+        site,
       );
 
       const crawlTime = Date.now() - startTime;
-      
-      this.logger.log(`Successfully crawled ${site.name}: ${processedDocuments.stored}/${processedDocuments.total} documents stored`);
-      
+
+      this.logger.log(
+        `Successfully crawled ${site.name}: ${processedDocuments.stored}/${processedDocuments.total} documents stored`,
+      );
+
       return {
         siteId,
         siteName: site.name,
@@ -252,27 +255,35 @@ export class FirecrawlVietnameseHealthcareService implements OnModuleInit {
 
   private async processAndStoreCrawledData(
     crawlData: any[],
-    site: VietnameseHealthcareSite
+    site: VietnameseHealthcareSite,
   ): Promise<{ total: number; stored: number; errors: string[] }> {
     let stored = 0;
     const errors: string[] = [];
-    
+
     for (const item of crawlData) {
       try {
         // Extract content and metadata
         const content = item.markdown || item.html || '';
         const metadata = item.metadata || {};
-        
+
         if (!content || content.length < 100) {
-          errors.push(`Skipped document with insufficient content: ${metadata.sourceURL || 'unknown'}`);
+          errors.push(
+            `Skipped document with insufficient content: ${metadata.sourceURL || 'unknown'}`,
+          );
           continue;
         }
 
         // Detect and protect PHI
-        const phiResult = await this.phiProtectionService.detectAndMaskPHI(content);
-        
-        if (phiResult.riskLevel === 'critical' || phiResult.riskLevel === 'high') {
-          errors.push(`Skipped document with high PHI risk: ${metadata.sourceURL || 'unknown'}`);
+        const phiResult =
+          await this.phiProtectionService.detectAndMaskPHI(content);
+
+        if (
+          phiResult.riskLevel === 'critical' ||
+          phiResult.riskLevel === 'high'
+        ) {
+          errors.push(
+            `Skipped document with high PHI risk: ${metadata.sourceURL || 'unknown'}`,
+          );
           continue;
         }
 
@@ -294,25 +305,25 @@ export class FirecrawlVietnameseHealthcareService implements OnModuleInit {
             crawledAt: new Date().toISOString(),
             phiDetected: phiResult.detectedPHI.length > 0,
             phiRiskLevel: phiResult.riskLevel,
-            ...metadata
-          }
+            ...metadata,
+          },
         };
 
         // Store in vector database
         await this.vectorDatabaseService.addDocument(document);
         stored++;
-        
+
         this.logger.debug(`Stored document: ${document.title}`);
       } catch (error) {
         errors.push(`Failed to process document: ${error.message}`);
         this.logger.warn(`Failed to process document:`, error);
       }
     }
-    
+
     return {
       total: crawlData.length,
       stored,
-      errors
+      errors,
     };
   }
 
@@ -326,19 +337,22 @@ export class FirecrawlVietnameseHealthcareService implements OnModuleInit {
     return `${siteName.toLowerCase().replace(/\s+/g, '_')}_${urlHash}_${timestamp}`;
   }
 
-  private mapSiteTypeToSource(type: string): 'vinmec' | 'bachmai' | 'moh' | 'traditional_medicine' | 'pharmaceutical' {
+  private mapSiteTypeToSource(
+    type: string,
+  ): 'vinmec' | 'bachmai' | 'moh' | 'traditional_medicine' | 'pharmaceutical' {
     const mapping = {
-      'hospital': 'vinmec',
-      'government': 'moh',
-      'traditional_medicine': 'traditional_medicine',
-      'pharmaceutical': 'pharmaceutical',
-      'research': 'vinmec'
+      hospital: 'vinmec',
+      government: 'moh',
+      traditional_medicine: 'traditional_medicine',
+      pharmaceutical: 'pharmaceutical',
+      research: 'vinmec',
     };
     return mapping[type] || 'vinmec';
   }
 
   private detectLanguage(content: string): 'vietnamese' | 'english' | 'mixed' {
-    const vietnamesePattern = /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]/i;
+    const vietnamesePattern =
+      /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]/i;
     const englishPattern = /[a-zA-Z]/;
 
     const hasVietnamese = vietnamesePattern.test(content);
@@ -351,10 +365,22 @@ export class FirecrawlVietnameseHealthcareService implements OnModuleInit {
 
   private async extractMedicalSpecialty(content: string): Promise<string> {
     const specialties = [
-      'tim mạch', 'nội khoa', 'ngoại khoa', 'sản phụ khoa', 'nhi khoa',
-      'thần kinh', 'ung bướu', 'da liễu', 'mắt', 'tai mũi họng',
-      'răng hàm mặt', 'chấn thương chỉnh hình', 'tâm thần', 'dinh dưỡng',
-      'y học cổ truyền', 'phục hồi chức năng'
+      'tim mạch',
+      'nội khoa',
+      'ngoại khoa',
+      'sản phụ khoa',
+      'nhi khoa',
+      'thần kinh',
+      'ung bướu',
+      'da liễu',
+      'mắt',
+      'tai mũi họng',
+      'răng hàm mặt',
+      'chấn thương chỉnh hình',
+      'tâm thần',
+      'dinh dưỡng',
+      'y học cổ truyền',
+      'phục hồi chức năng',
     ];
 
     const contentLower = content.toLowerCase();
@@ -363,26 +389,38 @@ export class FirecrawlVietnameseHealthcareService implements OnModuleInit {
         return specialty;
       }
     }
-    
+
     return 'tổng quát';
   }
 
-  private determineDocumentType(content: string, metadata: any): 'article' | 'guideline' | 'research' | 'traditional_recipe' | 'drug_info' {
+  private determineDocumentType(
+    content: string,
+    metadata: any,
+  ): 'article' | 'guideline' | 'research' | 'traditional_recipe' | 'drug_info' {
     const contentLower = content.toLowerCase();
-    
-    if (contentLower.includes('hướng dẫn') || contentLower.includes('quy trình')) {
+
+    if (
+      contentLower.includes('hướng dẫn') ||
+      contentLower.includes('quy trình')
+    ) {
       return 'guideline';
     }
-    if (contentLower.includes('nghiên cứu') || contentLower.includes('báo cáo')) {
+    if (
+      contentLower.includes('nghiên cứu') ||
+      contentLower.includes('báo cáo')
+    ) {
       return 'research';
     }
-    if (contentLower.includes('bài thuốc') || contentLower.includes('thuốc nam')) {
+    if (
+      contentLower.includes('bài thuốc') ||
+      contentLower.includes('thuốc nam')
+    ) {
       return 'traditional_recipe';
     }
     if (contentLower.includes('thuốc') || contentLower.includes('dược phẩm')) {
       return 'drug_info';
     }
-    
+
     return 'article';
   }
 
@@ -390,8 +428,18 @@ export class FirecrawlVietnameseHealthcareService implements OnModuleInit {
     // Basic keyword extraction - can be enhanced with Vietnamese NLP service
     const keywords: string[] = [];
     const medicalTerms = [
-      'bệnh', 'triệu chứng', 'điều trị', 'thuốc', 'chẩn đoán', 'phòng ngừa',
-      'sức khỏe', 'y tế', 'bác sĩ', 'bệnh viện', 'khám bệnh', 'xét nghiệm'
+      'bệnh',
+      'triệu chứng',
+      'điều trị',
+      'thuốc',
+      'chẩn đoán',
+      'phòng ngừa',
+      'sức khỏe',
+      'y tế',
+      'bác sĩ',
+      'bệnh viện',
+      'khám bệnh',
+      'xét nghiệm',
     ];
 
     const contentLower = content.toLowerCase();
@@ -406,7 +454,7 @@ export class FirecrawlVietnameseHealthcareService implements OnModuleInit {
 
   private extractTitleFromContent(content: string): string {
     // Extract title from first line or heading
-    const lines = content.split('\n').filter(line => line.trim());
+    const lines = content.split('\n').filter((line) => line.trim());
     if (lines.length > 0) {
       const firstLine = lines[0].replace(/^#+\s*/, '').trim();
       return firstLine.substring(0, 200);
@@ -415,7 +463,7 @@ export class FirecrawlVietnameseHealthcareService implements OnModuleInit {
   }
 
   private delay(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
   async getCrawlStatus(): Promise<any> {

@@ -1,0 +1,173 @@
+version: "3.8"
+
+services:
+  # PostgreSQL with TimescaleDB for main application data
+  postgres:
+    image: timescale/timescaledb:latest-pg15
+    container_name: carecircle-postgres
+    environment:
+      POSTGRES_DB: carecircle_dev
+      POSTGRES_USER: carecircle_user
+      POSTGRES_PASSWORD: carecircle_password
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    networks:
+      - carecircle-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U carecircle_user -d carecircle_dev"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Redis for caching, sessions, and queue management
+  redis:
+    image: redis:7-alpine
+    container_name: carecircle-redis
+    ports:
+      - "6379:6379"
+    command: >
+      redis-server
+      --appendonly yes
+      --appendfsync everysec
+      --maxmemory 1gb
+      --maxmemory-policy allkeys-lru
+      --save 900 1
+      --save 300 10
+      --save 60 10000
+    volumes:
+      - redis_data:/data
+    networks:
+      - carecircle-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # etcd for Milvus metadata storage
+  milvus-etcd:
+    container_name: carecircle-etcd
+    image: quay.io/coreos/etcd:v3.5.5
+    environment:
+      - ETCD_AUTO_COMPACTION_MODE=revision
+      - ETCD_AUTO_COMPACTION_RETENTION=1000
+      - ETCD_QUOTA_BACKEND_BYTES=4294967296
+      - ETCD_SNAPSHOT_COUNT=50000
+    volumes:
+      - etcd_data:/etcd
+    command: etcd -advertise-client-urls=http://127.0.0.1:2379 -listen-client-urls http://0.0.0.0:2379 --data-dir /etcd
+    networks:
+      - carecircle-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "etcdctl", "endpoint", "health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # MinIO for Milvus object storage
+  milvus-minio:
+    container_name: carecircle-minio
+    image: minio/minio:RELEASE.2023-03-20T20-16-18Z
+    environment:
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+    ports:
+      - "9001:9001"
+      - "9000:9000"
+    volumes:
+      - minio_data:/data
+    command: minio server /data --console-address ":9001"
+    networks:
+      - carecircle-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Milvus Vector Database for AI features and Vietnamese medical knowledge
+  milvus-standalone:
+    container_name: carecircle-milvus
+    image: milvusdb/milvus:v2.3.0
+    command: ["milvus", "run", "standalone"]
+    environment:
+      ETCD_ENDPOINTS: milvus-etcd:2379
+      MINIO_ADDRESS: milvus-minio:9000
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+    volumes:
+      - milvus_data:/var/lib/milvus
+      - ./milvus.yaml:/milvus/configs/milvus.yaml
+    ports:
+      - "19530:19530"
+      - "9091:9091"
+    depends_on:
+      - "milvus-etcd"
+      - "milvus-minio"
+    networks:
+      - carecircle-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9091/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # Vietnamese NLP Processing Service for medical text analysis
+  vietnamese-nlp:
+    build:
+      context: ./vietnamese-nlp
+      dockerfile: Dockerfile
+    container_name: carecircle-vietnamese-nlp
+    ports:
+      - "8080:8080"
+    environment:
+      - PYTHONPATH=/app
+      - FLASK_ENV=development
+      - REDIS_URL=redis://redis:6379/6
+    volumes:
+      - ./vietnamese-nlp/models:/app/models
+      - ./vietnamese-nlp/data:/app/data
+    networks:
+      - carecircle-network
+    restart: unless-stopped
+    depends_on:
+      - redis
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  etcd_data:
+    driver: local
+  minio_data:
+    driver: local
+  milvus_data:
+    driver: local
+
+networks:
+  carecircle-network:
+    driver: bridge
+
+# Development Commands:
+# Start all services: docker-compose up -d
+# Start core services only: docker-compose up -d postgres redis
+# Start with AI services: docker-compose up -d postgres redis milvus-standalone milvus-etcd milvus-minio
+# View logs: docker-compose logs -f [service-name]
+# Stop all services: docker-compose down
+# Reset data: docker-compose down -v

@@ -95,7 +95,7 @@ FIRECRAWL_API_KEY=your_firecrawl_key_here
 PHI_ENCRYPTION_KEY=your_phi_encryption_key_here
 
 # Redis Configuration for Vietnamese Healthcare
-REDIS_VIETNAMESE_URL=redis://localhost:6380/0
+REDIS_VIETNAMESE_URL=redis://localhost:6379/0
 EOF
     
     print_status "Environment variables configured ✅"
@@ -131,16 +131,16 @@ setup_vietnamese_nlp() {
 # Start Vietnamese healthcare services
 start_services() {
     print_header "Starting Vietnamese healthcare services..."
-    
+
     # Start the Vietnamese healthcare infrastructure
     print_status "Starting Milvus vector database..."
-    docker-compose -f docker-compose.vietnamese-healthcare.yml up -d milvus etcd minio
-    
+    docker-compose up -d milvus-standalone milvus-etcd milvus-minio
+
     print_status "Starting Redis for Vietnamese healthcare..."
-    docker-compose -f docker-compose.vietnamese-healthcare.yml up -d redis-vietnamese
-    
+    docker-compose up -d redis
+
     print_status "Starting Vietnamese NLP service..."
-    docker-compose -f docker-compose.vietnamese-healthcare.yml up -d vietnamese-nlp
+    docker-compose up -d vietnamese-nlp
     
     # Wait for services to be ready
     print_status "Waiting for services to be ready..."
@@ -227,7 +227,7 @@ display_summary() {
     echo "📋 Services Status:"
     echo "  • Milvus Vector Database: http://localhost:9091"
     echo "  • Vietnamese NLP Service: http://localhost:8080"
-    echo "  • Redis Vietnamese: localhost:6380"
+    echo "  • Redis Vietnamese: localhost:6379"
     echo "  • CareCircle Backend: http://localhost:3001"
     echo ""
     echo "🧪 Test Endpoints:"
@@ -242,7 +242,7 @@ display_summary() {
     echo "  4. Review PHI protection in agent responses"
     echo ""
     echo "🛑 To stop services:"
-    echo "  docker-compose -f docker-compose.vietnamese-healthcare.yml down"
+    echo "  docker-compose down"
     echo ""
 }
 
@@ -264,7 +264,7 @@ main() {
 }
 
 # Handle script interruption
-trap 'print_error "Setup interrupted. Cleaning up..."; docker-compose -f docker-compose.vietnamese-healthcare.yml down; exit 1' INT
+trap 'print_error "Setup interrupted. Cleaning up..."; docker-compose down; exit 1' INT
 
 # Run main function
 main "$@"
